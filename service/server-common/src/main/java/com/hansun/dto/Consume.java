@@ -6,7 +6,7 @@ package com.hansun.dto;
 public class Consume {
 
     private int id;
-    private int price;
+    private float price;
     private int duration;
 
     public int getId() {
@@ -17,11 +17,11 @@ public class Consume {
         this.id = id;
     }
 
-    public int getPrice() {
+    public float getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(float price) {
         this.price = price;
     }
 
@@ -44,7 +44,7 @@ public class Consume {
 
     @Override
     public int hashCode() {
-        return (this.id * 31 + this.price) * 31
+        return Float.hashCode(this.price) * 31
                 + this.duration;
     }
 
@@ -53,8 +53,7 @@ public class Consume {
         if (this == obj) {
             return true;
         } else {
-            return obj instanceof Consume && this.getId() == ((Consume) obj).getId()
-                    && this.getDuration() == (((Consume) obj).getDuration())
+            return obj instanceof Consume && this.getDuration() == (((Consume) obj).getDuration())
                     && this.getPrice() == (((Consume) obj).getPrice());
         }
     }

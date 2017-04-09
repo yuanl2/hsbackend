@@ -33,7 +33,7 @@ public class Province {
 
     @Override
     public int hashCode() {
-        return this.id * 31 + this.name.hashCode();
+        return this.name.hashCode();
     }
 
     @Override
@@ -41,8 +41,7 @@ public class Province {
         if (this == obj) {
             return true;
         } else {
-            return obj instanceof Province && this.getId() == ((Province) obj).getId()
-                    && this.getName().equals(((Province) obj).getName());
+            return obj instanceof Province && this.getName().equals(((Province) obj).getName());
         }
     }
 }

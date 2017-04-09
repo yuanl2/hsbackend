@@ -7,6 +7,7 @@ public class City {
     private int id;
     private String name;
     private String districtName;
+    private int provinceID;
 
     public int getId() {
         return id;
@@ -32,6 +33,14 @@ public class City {
         this.districtName = districtName;
     }
 
+    public int getProvinceID() {
+        return provinceID;
+    }
+
+    public void setProvinceID(int provinceID) {
+        this.provinceID = provinceID;
+    }
+
     @Override
     public String toString() {
         return "city{" +
@@ -43,8 +52,7 @@ public class City {
 
     @Override
     public int hashCode() {
-        return (this.id * 31 + this.districtName.hashCode()) * 31
-                + this.name.hashCode();
+        return this.districtName.hashCode() * 31 + this.name.hashCode();
     }
 
     @Override
@@ -52,8 +60,7 @@ public class City {
         if (this == obj) {
             return true;
         } else {
-            return obj instanceof City && this.getId() == ((City) obj).getId()
-                    && this.getDistrictName().equals(((City) obj).getDistrictName())
+            return obj instanceof City && this.getDistrictName().equals(((City) obj).getDistrictName())
                     && this.getName().equals(((City) obj).getName());
         }
     }

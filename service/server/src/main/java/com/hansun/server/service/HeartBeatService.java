@@ -27,7 +27,7 @@ public class HeartBeatService {
     @PostConstruct
     private void init() {
         timer = new Timer();
-        Set<Integer> deviceIDs = dataStore.geAllDevices();
+        Set<String> deviceIDs = dataStore.geAllDevices();
         if (!deviceIDs.isEmpty()) {
             deviceIDs.forEach(k -> deviceIDMapSlot.put(k, currentIndex));
             slotMapDeviceIDs.put(currentIndex, deviceIDs);
@@ -53,9 +53,9 @@ public class HeartBeatService {
 
     private Timer timer;
 
-    private Map<Integer, Integer> deviceIDMapSlot = new ConcurrentHashMap<>();
+    private Map<String, Integer> deviceIDMapSlot = new ConcurrentHashMap<>();
 
-    private Map<Integer, Set<Integer>> slotMapDeviceIDs = new ConcurrentHashMap<>();
+    private Map<Integer, Set<String>> slotMapDeviceIDs = new ConcurrentHashMap<>();
 
     private volatile int currentIndex = 0;
 
@@ -70,7 +70,7 @@ public class HeartBeatService {
         public void run() {
             //5秒扫一格，
             currentIndex = (currentIndex++) % 60;
-            Set<Integer> sets = slotMapDeviceIDs.remove(currentIndex);
+            Set<String> sets = slotMapDeviceIDs.remove(currentIndex);
 
             //update sets device status disconnetced
             sets.forEach(k -> {
@@ -85,13 +85,13 @@ public class HeartBeatService {
 
         private AtomicInteger count = new AtomicInteger(0);
 
-        private Map<Integer, Device> map = new HashMap<Integer, Device>();
+        private Map<String, Device> map = new HashMap<String, Device>();
 
         @Override
         public void connnect(Device d) {
             map.put(d.getId(), d);
             count.incrementAndGet();
-            int id = d.getId();
+            String id = d.getId();
             deviceIDMapSlot.replace(id, currentIndex);
 
             d.setStatus(Status.CONNECT);

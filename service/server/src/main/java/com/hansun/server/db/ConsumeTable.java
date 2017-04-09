@@ -16,6 +16,7 @@ import java.util.Optional;
 public class ConsumeTable {
 
     private static final String SELECT = "SELECT consumeID, price, duration FROM consume WHERE consumeID = ?";
+    private static final String SELECTBYPRICE = "SELECT consumeID, price, duration FROM consume WHERE price = ? AND duration = ?";
     private static final String SELECT_ALL = "SELECT consumeID, price, duration FROM consume";
     private static final String DELETE = "DELETE FROM consume WHERE consumeID = ?";
     private static final String INSERT = "INSERT INTO consume (consumeID, price, duration) VALUES (?, ?, ?)";
@@ -38,7 +39,7 @@ public class ConsumeTable {
             conn = connectionPoolManager.getConnection();
             insertStatement = conn.prepareStatement(INSERT);
             insertStatement.setInt(1, consume.getId());
-            insertStatement.setInt(2, consume.getPrice());
+            insertStatement.setFloat(2, consume.getPrice());
             insertStatement.setInt(3, consume.getDuration());
             insertStatement.executeUpdate();
         } catch (Exception e) {
@@ -67,7 +68,7 @@ public class ConsumeTable {
             conn = connectionPoolManager.getConnection();
             updateStatement = conn.prepareStatement(UPDATE);
             updateStatement.setInt(3, id);
-            updateStatement.setInt(1, consume.getPrice());
+            updateStatement.setFloat(1, consume.getPrice());
             updateStatement.setInt(2, consume.getDuration());
             updateStatement.executeUpdate();
         } catch (Exception e) {
@@ -103,6 +104,55 @@ public class ConsumeTable {
             if (deleteStatement != null) {
                 try {
                     deleteStatement.close();
+                } catch (SQLException e) {
+                    throw new ServerException(e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    throw new ServerException(e);
+                }
+            }
+        }
+    }
+
+    public Optional<Consume> select(Consume c) {
+        Connection conn = null;
+        try {
+            conn = connectionPoolManager.getConnection();
+            selectStatement = conn.prepareStatement(SELECTBYPRICE);
+            selectStatement.setFloat(1, c.getPrice());
+            selectStatement.setInt(2, c.getDuration());
+            return Optional.ofNullable(selectStatement.executeQuery())
+                    .map(resultSet -> {
+                        try {
+                            while (resultSet.next()) {
+                                Consume consume = new Consume();
+                                consume.setId(resultSet.getInt("consumeID"));
+                                consume.setPrice(resultSet.getFloat("price"));
+                                consume.setDuration(resultSet.getInt("duration"));
+                                return consume;
+                            }
+                            return null;
+                        } catch (SQLException e) {
+                            throw new ServerException(e);
+                        } finally {
+                            try {
+                                resultSet.close();
+                            } catch (SQLException e) {
+                                throw new ServerException(e);
+                            }
+                        }
+
+                    });
+        } catch (Exception e) {
+            return Optional.empty();
+        } finally {
+            if (selectStatement != null) {
+                try {
+                    selectStatement.close();
                 } catch (SQLException e) {
                     throw new ServerException(e);
                 }
@@ -181,7 +231,7 @@ public class ConsumeTable {
                                 consume.setDuration(resultSet.getInt("duration"));
                                 list.add(consume);
                             }
-                            return null;
+                            return list;
                         } catch (SQLException e) {
                             throw new ServerException(e);
                         } finally {

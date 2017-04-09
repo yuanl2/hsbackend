@@ -14,7 +14,8 @@ import java.util.Optional;
  * Created by yuanl2 on 2017/3/29.
  */
 public class ProvinceTable {
-    private static final String SELECT = "SELECT provinceID, provinceName FROM province WHERE provinceID = ?";
+    private static final String SELECT = "SELECT provinceID, provinceName FROM province WHERE provinceName = ?";
+    private static final String SELECTBYID = "SELECT provinceID, provinceName FROM province WHERE provinceID = ?";
     private static final String SELECT_ALL = "SELECT provinceID, provinceName FROM province";
     private static final String DELETE = "DELETE FROM province WHERE provinceID = ?";
     private static final String INSERT = "INSERT INTO province (provinceID, provinceName) VALUES (?, ?)";
@@ -115,12 +116,59 @@ public class ProvinceTable {
         }
     }
 
-    public Optional<Province> select(int provinceID) {
+    public Optional<Province> select(String name) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             selectStatement = conn.prepareStatement(SELECT);
-            selectStatement.setInt(1, provinceID);
+            selectStatement.setString(1, name);
+            return Optional.ofNullable(selectStatement.executeQuery())
+                    .map(resultSet -> {
+                        try {
+                            while (resultSet.next()) {
+                                Province province = new Province();
+                                province.setId(resultSet.getInt("provinceID"));
+                                province.setName(resultSet.getString("provinceName"));
+                                return province;
+                            }
+                            return null;
+                        } catch (SQLException e) {
+                            throw new ServerException(e);
+                        } finally {
+                            try {
+                                resultSet.close();
+                            } catch (SQLException e) {
+                                throw new ServerException(e);
+                            }
+                        }
+
+                    });
+        } catch (Exception e) {
+            return Optional.empty();
+        } finally {
+            if (selectStatement != null) {
+                try {
+                    selectStatement.close();
+                } catch (SQLException e) {
+                    throw new ServerException(e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    throw new ServerException(e);
+                }
+            }
+        }
+    }
+
+    public Optional<Province> selectByID(int id) {
+        Connection conn = null;
+        try {
+            conn = connectionPoolManager.getConnection();
+            selectStatement = conn.prepareStatement(SELECTBYID);
+            selectStatement.setInt(1, id);
             return Optional.ofNullable(selectStatement.executeQuery())
                     .map(resultSet -> {
                         try {
@@ -177,7 +225,7 @@ public class ProvinceTable {
                                 province.setName(resultSet.getString("provinceName"));
                                 list.add(province);
                             }
-                            return null;
+                            return list;
                         } catch (SQLException e) {
                             throw new ServerException(e);
                         } finally {

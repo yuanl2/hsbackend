@@ -50,7 +50,7 @@ public class ClientHandler implements Runnable {
             int deviceID = userInput.readInt();
             byte status = userInput.readByte();
             byte type = userInput.readByte();
-            d.setId(deviceID);
+            d.setId(String.valueOf(deviceID));
             d.setType(type);
             d.setStatus(status);
             System.out.println(" receive message from deviceID : " + deviceID);

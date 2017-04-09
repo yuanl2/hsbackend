@@ -17,75 +17,87 @@ public class v1_InitializeDataSpace {
                     "owner int(11) DEFAULT NULL," +
                     "addtionInfo varchar(50) DEFAULT NULL," +
                     "status int(4) DEFAULT NULL," +
+                    "beginTime DATETIME DEFAULT NULL," +
                     "PRIMARY KEY (deviceID)," +
-                    "UNIQUE KEY deviceID_UNIQUE (deviceID));");
+                    "UNIQUE KEY deviceID_UNIQUE (deviceID))" +
+                    "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         }
 
         if (!manager.tableExists("user")) {
             manager.createTable("CREATE TABLE user (" +
-                    "userID INT NOT NULL," +
-                    "userType INT NOT NULL," +
+                    "userID int(11) NOT NULL AUTO_INCREMENT," +
+                    "userType int(11) NOT NULL," +
                     "userName VARCHAR(45) NOT NULL," +
                     "password VARCHAR(45) NOT NULL," +
                     "addtionInfo VARCHAR(45) NULL," +
                     "expired DATETIME NOT NULL," +
                     "PRIMARY KEY (userID)," +
-                    "UNIQUE INDEX userID_UNIQUE (userID ASC));");
-        }
-
-        if (!manager.tableExists("order")) {
-            manager.createTable("CREATE TABLE order (" +
-                    "orderID INT NOT NULL," +
-                    "deviceID INT NOT NULL," +
-                    "startTime DATETIME NOT NULL," +
-                    "endTime DATETIME NOT NULL," +
-                    "consumeType INT NOT NULL," +
-                    "consumer VARCHAR(45) DEFAULT NULL," +
-                    "PRIMARY KEY (orderID)," +
-                    "INDEX order (deviceID ASC, startTime ASC));");
+                    "UNIQUE INDEX userID_UNIQUE (userID ASC))" +
+                    "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         }
 
         if (!manager.tableExists("location")) {
             manager.createTable("CREATE TABLE location (" +
-                    "locationID INT NOT NULL," +
-                    "provinceID INT NOT NULL," +
-                    "cityID INT NOT NULL," +
-                    "areaID INT NOT NULL," +
-                    "userID INT NOT NULL," +
+                    "locationID int(11) NOT NULL," +
+                    "provinceID int(11) NOT NULL," +
+                    "cityID int(11) NOT NULL," +
+                    "areaID int(11) NOT NULL," +
+                    "userID int(11) NOT NULL," +
                     "PRIMARY KEY (locationID)," +
                     "UNIQUE INDEX locationID_UNIQUE (locationID ASC));");
         }
 
-
         if (!manager.tableExists("province")) {
             manager.createTable("CREATE TABLE province (" +
-                    "provinceID INT NOT NULL," +
+                    "provinceID int(11) NOT NULL AUTO_INCREMENT," +
                     "provinceName VARCHAR(45) NOT NULL," +
-                    "PRIMARY KEY (provinceID));");
+                    "PRIMARY KEY (provinceID))" +
+                    "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         }
 
         if (!manager.tableExists("consume")) {
             manager.createTable("CREATE TABLE consume (" +
-                    "idconsume INT NOT NULL," +
-                    "price INT NOT NULL," +
-                    "duration INT NOT NULL," +
-                    "PRIMARY KEY (idconsume));");
+                    "consumeID int(11) NOT NULL AUTO_INCREMENT," +
+                    "price float NOT NULL," +
+                    "duration int(11) NOT NULL," +
+                    "PRIMARY KEY (consumeID))" +
+                    "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         }
 
         if (!manager.tableExists("area")) {
             manager.createTable("CREATE TABLE area (" +
-                    "areaID INT NOT NULL," +
+                    "areaID int(11) NOT NULL AUTO_INCREMENT," +
                     "areaName VARCHAR(45) NOT NULL," +
                     "address VARCHAR(45) NOT NULL," +
-                    "PRIMARY KEY (areaID));");
+                    "cityID int(11) NOT NULL," +
+                    "PRIMARY KEY (areaID))" +
+                    "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         }
 
         if (!manager.tableExists("city")) {
             manager.createTable("CREATE TABLE city (" +
-                    "cityID INT NOT NULL," +
+                    "cityID int(11) NOT NULL AUTO_INCREMENT," +
                     "cityName VARCHAR(45) NOT NULL," +
                     "districtName VARCHAR(45) NOT NULL," +
-                    "PRIMARY KEY (cityID));");
+                    "provinceID INT(11) NOT NULL," +
+                    "PRIMARY KEY (cityID))" +
+                    "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+        }
+
+        if (!manager.tableExists("order")) {
+            manager.createTable("CREATE TABLE `order` (" +
+                    "orderID int(11) NOT NULL," +
+                    "deviceID int(11) NOT NULL," +
+                    "startTime DATETIME NOT NULL," +
+                    "endTime DATETIME NOT NULL," +
+                    "consumeType int(11) NOT NULL," +
+                    "accountType int(11) NOT NULL," +
+                    "payAccount varchar(45) DEFAULT NULL," +
+                    "price float NOT NULL," +
+                    "duration int(11) NOT NULL," +
+                    "PRIMARY KEY (orderID)," +
+                    "KEY deviceStart (deviceID,startTime))" +
+                    "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         }
     }
 }

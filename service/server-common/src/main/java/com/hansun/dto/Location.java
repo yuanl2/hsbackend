@@ -103,7 +103,7 @@ public class Location {
 
     @Override
     public int hashCode() {
-        return ((this.id * 31 + this.provinceID) * 31
+        return (this.provinceID * 31
                 + this.cityID) * 31 + this.areaID;
     }
 
@@ -112,8 +112,7 @@ public class Location {
         if (this == obj) {
             return true;
         } else {
-            return obj instanceof Location && this.getId() == ((Location) obj).getId()
-                    && this.getProvinceID() == (((Location) obj).getProvinceID())
+            return obj instanceof Location && this.getProvinceID() == (((Location) obj).getProvinceID())
                     && this.getCityID() == (((Location) obj).getCityID())
                     && this.getAreaID() == (((Location) obj).getAreaID());
         }

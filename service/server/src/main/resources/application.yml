@@ -1,0 +1,15 @@
+---
+server:
+  port: 8080
+  contextPath: /hsservice
+---
+spring:
+  profiles: prod,default
+datasource:
+  sampleapp:
+    url: jdbc:mysql://localhost:3306/hsdata
+    username: root
+    password: 123456
+    driverClassName: com.mysql.jdbc.Driver
+    defaultSchema:
+    maxPoolSize: 20

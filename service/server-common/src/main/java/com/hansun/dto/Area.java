@@ -7,6 +7,7 @@ public class Area {
     private int id;
     private String name;
     private String address;
+    private int cityID;
 
     public int getId() {
         return id;
@@ -32,6 +33,14 @@ public class Area {
         this.address = address;
     }
 
+    public int getCityID() {
+        return cityID;
+    }
+
+    public void setCityID(int cityID) {
+        this.cityID = cityID;
+    }
+
     @Override
     public String toString() {
         return "location{" +
@@ -44,7 +53,7 @@ public class Area {
 
     @Override
     public int hashCode() {
-        return (this.id * 31 + this.address.hashCode()) * 31
+        return this.address.hashCode() * 31
                 + this.name.hashCode();
     }
 
@@ -53,8 +62,7 @@ public class Area {
         if (this == obj) {
             return true;
         } else {
-            return obj instanceof Area && this.getId() == ((Area) obj).getId()
-                    && this.getAddress().equals(((Area) obj).getAddress())
+            return obj instanceof Area && this.getAddress().equals(((Area) obj).getAddress())
                     && this.getName().equals(((Area) obj).getName());
         }
     }

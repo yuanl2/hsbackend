@@ -15,12 +15,13 @@ import java.util.Optional;
  */
 public class CityTable {
 
-    private static final String SELECT = "SELECT cityID, cityName, districtName FROM city WHERE cityID = ?";
-    private static final String SELECT_ALL = "SELECT cityID, cityName, districtName FROM city";
+    private static final String SELECT = "SELECT cityID, cityName, districtName, provinceID FROM city WHERE cityID = ?";
+    private static final String SELECTBYNAME = "SELECT cityID, cityName, districtName, provinceID FROM city WHERE cityName = ? AND districtName = ?";
+    private static final String SELECT_ALL = "SELECT cityID, cityName, districtName, provinceID FROM city";
 
     private static final String DELETE = "DELETE FROM city WHERE cityID = ?";
-    private static final String INSERT = "INSERT INTO city (cityID, cityName, districtName) VALUES (?, ?, ?)";
-    private static final String UPDATE = "UPDATE city SET cityName = ? , districtName = ? WHERE cityID = ?";
+    private static final String INSERT = "INSERT INTO city (cityID, cityName, districtName, provinceID) VALUES (?, ?, ?, ?)";
+    private static final String UPDATE = "UPDATE city SET cityName = ? , districtName = ? , provinceID = ? WHERE cityID = ?";
 
     private ConnectionPoolManager connectionPoolManager;
 
@@ -41,6 +42,7 @@ public class CityTable {
             insertStatement.setInt(1, city.getId());
             insertStatement.setString(2, city.getName());
             insertStatement.setString(3, city.getDistrictName());
+            insertStatement.setInt(4,city.getProvinceID());
             insertStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -67,9 +69,10 @@ public class CityTable {
         try {
             conn = connectionPoolManager.getConnection();
             updateStatement = conn.prepareStatement(UPDATE);
-            updateStatement.setInt(3, id);
+            updateStatement.setInt(4, id);
             updateStatement.setString(1, city.getName());
             updateStatement.setString(2, city.getDistrictName());
+            updateStatement.setInt(3,city.getProvinceID());
             updateStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -132,6 +135,57 @@ public class CityTable {
                                 city.setId(resultSet.getInt("cityID"));
                                 city.setName(resultSet.getString("cityName"));
                                 city.setDistrictName(resultSet.getString("districtName"));
+                                city.setProvinceID(resultSet.getInt("provinceID"));
+                                return city;
+                            }
+                            return null;
+                        } catch (SQLException e) {
+                            throw new ServerException(e);
+                        } finally {
+                            try {
+                                resultSet.close();
+                            } catch (SQLException e) {
+                                throw new ServerException(e);
+                            }
+                        }
+
+                    });
+        } catch (Exception e) {
+            return Optional.empty();
+        } finally {
+            if (selectStatement != null) {
+                try {
+                    selectStatement.close();
+                } catch (SQLException e) {
+                    throw new ServerException(e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    throw new ServerException(e);
+                }
+            }
+        }
+    }
+
+    public Optional<City> selectByName(City c) {
+        Connection conn = null;
+        try {
+            conn = connectionPoolManager.getConnection();
+            selectStatement = conn.prepareStatement(SELECTBYNAME);
+            selectStatement.setString(1, c.getName());
+            selectStatement.setString(2, c.getDistrictName());
+            return Optional.ofNullable(selectStatement.executeQuery())
+                    .map(resultSet -> {
+                        try {
+                            while (resultSet.next()) {
+                                City city = new City();
+                                city.setId(resultSet.getInt("cityID"));
+                                city.setName(resultSet.getString("cityName"));
+                                city.setDistrictName(resultSet.getString("districtName"));
+                                city.setProvinceID(resultSet.getInt("provinceID"));
                                 return city;
                             }
                             return null;
@@ -180,9 +234,10 @@ public class CityTable {
                                 city.setId(resultSet.getInt("cityID"));
                                 city.setName(resultSet.getString("cityName"));
                                 city.setDistrictName(resultSet.getString("districtName"));
+                                city.setProvinceID(resultSet.getInt("provinceID"));
                                 list.add(city);
                             }
-                            return null;
+                            return list;
                         } catch (SQLException e) {
                             throw new ServerException(e);
                         } finally {

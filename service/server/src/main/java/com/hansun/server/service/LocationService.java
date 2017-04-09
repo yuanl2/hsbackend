@@ -63,6 +63,10 @@ public class LocationService {
         return dataStore.updateLocation(location);
     }
 
+    public List<Location> getAllLocation() {
+        return dataStore.queryAllLocation();
+    }
+
     /**
      * province
      *
@@ -87,6 +91,10 @@ public class LocationService {
         return dataStore.updateProvince(province);
     }
 
+    public List<Province> getAllProvince() {
+        return dataStore.queryAllProvince();
+    }
+
     /**
      * City
      */
@@ -108,6 +116,10 @@ public class LocationService {
         return dataStore.updateCity(city);
     }
 
+    public List<City> getAllCity() {
+        return dataStore.queryAllCity();
+    }
+
     /**
      * Area
      */
@@ -126,5 +138,9 @@ public class LocationService {
 
     public Area updateArea(Area area) {
         return dataStore.updateArea(area);
+    }
+
+    public List<Area> getAllArea() {
+        return dataStore.queryAllArea();
     }
 }
