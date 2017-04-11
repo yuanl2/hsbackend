@@ -21,7 +21,7 @@ public class ConnectionPoolManager {
     private void initialize(HSServiceProperties hsServiceProperties) {
         this.hsServiceProperties = hsServiceProperties;
         dataSource = new BasicDataSource();
-        dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+        dataSource.setDriverClassName(hsServiceProperties.getDriverClass());
         dataSource.setUsername(hsServiceProperties.getDatabaseUserName());
         dataSource.setPassword(hsServiceProperties.getDatabaseUserPassword());
         dataSource.setUrl(hsServiceProperties.getDatabaseUrl() + hsServiceProperties.getDatabaseName() + "?autoReconnect=true&useSSL=false");

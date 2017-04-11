@@ -11,25 +11,29 @@ public class HSServiceProperties {
     /**
      * variables for local environment
      */
-    private static final String DATABASE_USER_NAME = "dbusername";
-    private static final String DATABASE_USER_PASSWORD = "dbpassword";
-    private static final String DATABASE_URL = "databaseurl";
-    private static final String DATABASE_NAME = "databaseName";
+    private static final String DATABASE_USER_NAME = "datasource.dbusername";
+    private static final String DATABASE_USER_PASSWORD = "datasource.dbpassword";
+    private static final String DATABASE_URL = "datasource.databaseurl";
+    private static final String DATABASE_NAME = "datasource.databaseName";
+    private static final String DATABASE_DRIVER_CLASS = "datasource.driverClassName";
+
 
     private static final String DEFAULT_MYSQL_USER_NAME = "root";
-    private static final String DEFAULT_MYSQL_USER_PASSWORD = "123456";
+    private static final String DEFAULT_MYSQL_USER_PASSWORD = "123456sdfdsf";
     private static final String DEFAULT_DATABASE_URL = "jdbc:mysql://localhost:3306/";
     private static final String DEFAULT_DATABASE_NAME = "hsdata";
+    private static final String DRIVER_CLASS_MYSQL = "com.mysql.jdbc.Driver";
 
-    private static final String SOCKET_ADDRESS = "socketaddress";
-    private static final String SOCKET_PORT = "socketport";
+
+    private static final String SOCKET_ADDRESS = "socket.socketaddress";
+    private static final String SOCKET_PORT = "socket.socketport";
 
     private static final String DEFAULT_SOCKET_ADDRESS = "127.0.0.1";
     private static final String DEFAULT_SOCKET_PORT = "9090";
 
-    private static final String HEART_BEAT_INTERNAL = "heartbeatinternal";
+    private static final String HEART_BEAT_INTERNAL = "socket.heartbeatinternal";
     private static final String DEFAULT_HEART_BEAT_INTERNAL = "3000000";
-    private static final String SWEEP_BEAT_INTERNAL = "sweepbeatinternal";
+    private static final String SWEEP_BEAT_INTERNAL = "socket.sweepbeatinternal";
     private static final String DEFAULT_SWEEP_BEAT_INTERNAL = "5000";
 
     protected Environment env;
@@ -58,11 +62,11 @@ public class HSServiceProperties {
     }
 
     public String getDatabaseUrl() {
-        return env.getProperty(DATABASE_NAME, DEFAULT_DATABASE_URL);
+        return env.getProperty(DATABASE_URL, DEFAULT_DATABASE_URL);
     }
 
     public String getDatabaseName() {
-        return env.getProperty(DATABASE_URL, DEFAULT_DATABASE_NAME);
+        return env.getProperty(DATABASE_NAME, DEFAULT_DATABASE_NAME);
     }
 
     public String getSocketAddress() {
@@ -79,5 +83,9 @@ public class HSServiceProperties {
 
     public String getSweepBeatInternal() {
         return env.getProperty(SWEEP_BEAT_INTERNAL, DEFAULT_SWEEP_BEAT_INTERNAL);
+    }
+
+    public String getDriverClass() {
+        return env.getProperty(DATABASE_DRIVER_CLASS, DRIVER_CLASS_MYSQL);
     }
 }

@@ -6,10 +6,14 @@ server:
 spring:
   profiles: prod,default
 datasource:
-  sampleapp:
     url: jdbc:mysql://localhost:3306/hsdata
-    username: root
-    password: 123456
+    dbusername: root
+    dbpassword: qazwsx123
     driverClassName: com.mysql.jdbc.Driver
     defaultSchema:
     maxPoolSize: 20
+socket:
+  socketaddress: 127.0.0.1
+  socketport: 9090
+  heartbeatinternal: 3000000
+  sweepbeatinternal: 5000
