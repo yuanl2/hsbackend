@@ -30,11 +30,6 @@
     </properties>
 
     <dependencies>
-        <!--<dependency>-->
-        <!--<groupId>org.codehaus.jackson</groupId>-->
-        <!--<artifactId>jackson-mapper-asl</artifactId>-->
-        <!--<version>1.9.13</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
@@ -61,92 +56,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-freemarker</artifactId>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.springframework</groupId>-->
-        <!--<artifactId>spring-context</artifactId>-->
-        <!--<version>${spring.version}</version>-->
-        <!--&lt;!&ndash; Exclusion needed to prevent conflicts with SLF4j &ndash;&gt;-->
-        <!--<exclusions>-->
-        <!--<exclusion>-->
-        <!--<groupId>commons-logging</groupId>-->
-        <!--<artifactId>commons-logging</artifactId>-->
-        <!--</exclusion>-->
-        <!--</exclusions>-->
-        <!--<scope>provided</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.springframework</groupId>-->
-        <!--<artifactId>spring-test</artifactId>-->
-        <!--<version>${spring.version}</version>-->
-        <!--&lt;!&ndash; Exclusion needed to prevent conflicts with SLF4j &ndash;&gt;-->
-        <!--<exclusions>-->
-        <!--<exclusion>-->
-        <!--<groupId>commons-logging</groupId>-->
-        <!--<artifactId>commons-logging</artifactId>-->
-        <!--</exclusion>-->
-        <!--</exclusions>-->
-        <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.springframework</groupId>-->
-        <!--<artifactId>spring-webmvc</artifactId>-->
-        <!--<version>${spring.version}</version>-->
-        <!--<scope>provided</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.springframework</groupId>-->
-        <!--<artifactId>spring-beans</artifactId>-->
-        <!--<version>${spring.version}</version>-->
-        <!--<scope>provided</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.springframework</groupId>-->
-        <!--<artifactId>spring-core</artifactId>-->
-        <!--<version>${spring.version}</version>-->
-        <!--&lt;!&ndash; Exclusion needed to prevent conflicts with SLF4j &ndash;&gt;-->
-        <!--<exclusions>-->
-        <!--<exclusion>-->
-        <!--<groupId>commons-logging</groupId>-->
-        <!--<artifactId>commons-logging</artifactId>-->
-        <!--</exclusion>-->
-        <!--</exclusions>-->
-        <!--<scope>provided</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.springframework</groupId>-->
-        <!--<artifactId>spring-expression</artifactId>-->
-        <!--<version>${spring.version}</version>-->
-        <!--<scope>provided</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.springframework</groupId>-->
-        <!--<artifactId>spring-web</artifactId>-->
-        <!--<version>${spring.version}</version>-->
-        <!--&lt;!&ndash; Exclusion needed to prevent conflicts with SLF4j &ndash;&gt;-->
-        <!--<exclusions>-->
-        <!--<exclusion>-->
-        <!--<groupId>commons-logging</groupId>-->
-        <!--<artifactId>commons-logging</artifactId>-->
-        <!--</exclusion>-->
-        <!--</exclusions>-->
-        <!--<scope>provided</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>javax.servlet</groupId>-->
-        <!--<artifactId>javax.servlet-api</artifactId>-->
-        <!--<version>${servlet.version}</version>-->
-        <!--<scope>provided</scope>-->
-        <!--</dependency>-->
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin><!-- Include if you want to make an executable jar[FAT JAR which
-					includes all dependencies along with sprinboot loader] that you can run on
-					commandline using java -jar NAME -->
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 </project>
