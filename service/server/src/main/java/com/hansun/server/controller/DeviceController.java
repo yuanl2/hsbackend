@@ -1,7 +1,9 @@
-package com.hansun.server;
+package com.hansun.server.controller;
 
 import com.hansun.dto.Device;
 import com.hansun.server.service.DeviceService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 public class DeviceController {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private DeviceService deviceService;

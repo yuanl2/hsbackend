@@ -13,7 +13,7 @@ datasource:
     defaultSchema:
     maxPoolSize: 20
 socket:
-  socketaddress: 127.0.0.1
+  socketaddress: localhost
   socketport: 9090
   heartbeatinternal: 3000000
   sweepbeatinternal: 5000

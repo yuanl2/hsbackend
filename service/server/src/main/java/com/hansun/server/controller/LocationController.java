@@ -1,4 +1,4 @@
-package com.hansun.server;
+package com.hansun.server.controller;
 
 import com.hansun.dto.*;
 import com.hansun.server.service.LocationService;

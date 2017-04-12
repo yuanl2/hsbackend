@@ -1,13 +1,14 @@
 package com.hansun.server.service;
 
 import com.hansun.dto.Device;
-import com.hansun.server.HSServiceProperties;
+import com.hansun.server.common.HSServiceProperties;
 import com.hansun.server.common.Status;
 import com.hansun.server.db.DataStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,18 +36,11 @@ public class HeartBeatService {
             timer.schedule(new DeviceStatusTask(), Long.valueOf(hsServiceProperties.getHeartBeatInternal()),
                     Long.valueOf(hsServiceProperties.getSweepBeatInternal()));
         }
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                timer.cancel();
-
-                clean();
-            }
-        });
     }
 
-    private void clean() {
-
+    @PreDestroy
+    private void destroy() {
+        timer.cancel();
         deviceIDMapSlot.clear();
         slotMapDeviceIDs.clear();
     }

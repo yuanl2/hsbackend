@@ -1,4 +1,4 @@
-package com.hansun.server;
+package com.hansun.server.common;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;

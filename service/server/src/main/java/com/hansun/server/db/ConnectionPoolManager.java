@@ -1,6 +1,6 @@
 package com.hansun.server.db;
 
-import com.hansun.server.HSServiceProperties;
+import com.hansun.server.common.HSServiceProperties;
 import com.hansun.server.common.ServerException;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +48,12 @@ public class ConnectionPoolManager {
 
     public void destroy() throws SQLException {
         if (!dataSource.isClosed()) {
+            try {
+                com.mysql.jdbc.AbandonedConnectionCleanupThread.shutdown();
+            } catch (InterruptedException e) {
+                throw new ServerException(e);
+            }
+            DriverManager.deregisterDriver(DriverManager.getDriver(dataSource.getUrl()));
             dataSource.close();
         }
     }

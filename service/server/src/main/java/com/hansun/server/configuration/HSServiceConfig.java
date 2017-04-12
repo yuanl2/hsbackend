@@ -1,6 +1,6 @@
 package com.hansun.server.configuration;
 
-import com.hansun.server.HSServiceProperties;
+import com.hansun.server.common.HSServiceProperties;
 import com.hansun.server.db.ConnectionPoolManager;
 import com.hansun.server.db.DataStore;
 import com.hansun.server.service.DeviceService;
