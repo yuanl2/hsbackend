@@ -36,6 +36,23 @@ public class HSServiceProperties {
     private static final String SWEEP_BEAT_INTERNAL = "socket.sweepbeatinternal";
     private static final String DEFAULT_SWEEP_BEAT_INTERNAL = "5000";
 
+
+    public static final String INFLUXDB_USERNAME_PROP = "influxDB.username";
+    public static final String INFLUXDB_PASSWORD_PROP = "influxDB.password";
+    public static final String INFLUXDB_URL = "influxDB.url";
+    public static final String INFLUXDB_RETENTION_POLICY = "influxDB.retentionpolicy";
+    public static final String INFLUXDB_NAME = "influxDB.name";
+    public static final String BATCH_TIMEOUT = "influxDB.batchtimeout";
+    public static final String BATCH_SIZE = "influxDB.batchsize";
+
+
+    public static final String DEFAULT_INFLUXDB_RETENTION_POLICY = "default";
+    public static final String DEFAULT_INFLUXDB_URL = "http://localhost:8086";
+    public static final String DEFAULT_INFLUXDB_NAME = "metrics";
+    public static final int DEFAULT_BATCH_TIMEOUT = 1000;
+    public static final int DEFAULT_BATCH_SIZE = 1000;
+
+
     protected Environment env;
 
     @Autowired
@@ -87,5 +104,33 @@ public class HSServiceProperties {
 
     public String getDriverClass() {
         return env.getProperty(DATABASE_DRIVER_CLASS, DRIVER_CLASS_MYSQL);
+    }
+
+    public String getInfluxDBUrl() {
+        return env.getProperty(INFLUXDB_URL, DEFAULT_INFLUXDB_URL);
+    }
+
+    public String getInfluxDBUserName() {
+        return env.getProperty(INFLUXDB_USERNAME_PROP);
+    }
+
+    public String getInfluxDBPassword() {
+        return env.getProperty(INFLUXDB_PASSWORD_PROP);
+    }
+
+    public String getInfluxDBName() {
+        return env.getProperty(INFLUXDB_NAME, DEFAULT_INFLUXDB_NAME);
+    }
+
+    public int getBatchTimeout() {
+        return env.getProperty(BATCH_TIMEOUT, Integer.class, DEFAULT_BATCH_TIMEOUT);
+    }
+
+    public int getBatchSize() {
+        return env.getProperty(BATCH_SIZE, Integer.class, DEFAULT_BATCH_SIZE);
+    }
+
+    public String getInfluxDbRetentionPolicy() {
+        return env.getProperty(INFLUXDB_RETENTION_POLICY, DEFAULT_INFLUXDB_RETENTION_POLICY);
     }
 }

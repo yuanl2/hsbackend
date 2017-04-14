@@ -25,7 +25,19 @@
             <artifactId>commons-dbcp</artifactId>
             <version>1.4</version>
         </dependency>
-     </dependencies>
+        <!-- https://mvnrepository.com/artifact/com.codahale.metrics/metrics-core -->
+        <dependency>
+            <groupId>com.codahale.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.influxdb/influxdb-java -->
+        <dependency>
+            <groupId>org.influxdb</groupId>
+            <artifactId>influxdb-java</artifactId>
+            <version>2.5</version>
+        </dependency>
+    </dependencies>
 
     <!--<build>-->
         <!--<resources>-->

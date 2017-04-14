@@ -15,5 +15,13 @@ datasource:
 socket:
   socketaddress: localhost
   socketport: 9090
-  heartbeatinternal: 3000000
+  heartbeatinternal: 15000
   sweepbeatinternal: 5000
+influxDB:
+  username: hsuser
+  password: qazwsx123
+  url: http://localhost:8086
+  retentionpolicy: default
+  name: metrics
+  batchtimeout: 1000
+  batchsize: 1000
