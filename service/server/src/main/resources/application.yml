@@ -7,8 +7,8 @@ spring:
   profiles: prod,default
 datasource:
     url: jdbc:mysql://localhost:3306/hsdata
-    dbusername: root
-    dbpassword: qazwsx123
+    dbusername: hsbackend
+    dbpassword: GB5vesBts
     driverClassName: com.mysql.jdbc.Driver
     defaultSchema:
     maxPoolSize: 20
