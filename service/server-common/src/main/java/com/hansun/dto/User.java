@@ -1,5 +1,10 @@
 package com.hansun.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.hansun.server.common.InstantSerialization;
+
 import java.time.Instant;
 
 /**
@@ -11,6 +16,10 @@ public class User {
     private int userType;
     private String password;
     private String addtionInfo;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
+    @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
     private Instant expiredTime;
 
     public int getId() {
@@ -74,8 +83,7 @@ public class User {
 
     @Override
     public int hashCode() {
-        return (this.id * 31 + this.name.hashCode()) * 31
-                + this.password.hashCode();
+        return this.name.hashCode() * 31 + this.password.hashCode();
     }
 
     @Override
@@ -83,8 +91,7 @@ public class User {
         if (this == obj) {
             return true;
         } else {
-            return obj instanceof User && this.getId() == ((User) obj).getId()
-                    && this.getName().equals(((User) obj).getName())
+            return obj instanceof User && this.getName().equals(((User) obj).getName())
                     && this.getPassword().equals(((User) obj).getPassword());
         }
     }

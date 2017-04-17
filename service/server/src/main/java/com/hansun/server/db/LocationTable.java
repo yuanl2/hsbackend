@@ -30,7 +30,7 @@ public class LocationTable {
     private static final String DELETE_BY_USERID = "DELETE FROM location WHERE userID = ?";
 
     private static final String INSERT =
-            "INSERT INTO location (locationID, provinceID, cityID, areaID, userID) VALUES (?, ?, ?, ?, ?)";
+            "INSERT INTO location (provinceID, cityID, areaID, userID) VALUES (?, ?, ?, ?)";
     private static final String UPDATE =
             "UPDATE location SET provinceID = ?, cityID = ?, areaID = ?, userID = ? WHERE locationID = ?";
 
@@ -51,7 +51,6 @@ public class LocationTable {
         try {
             conn = connectionPoolManager.getConnection();
             insertStatement = conn.prepareStatement(INSERT);
-            insertStatement.setInt(5, Location.getId());
             insertStatement.setInt(1, Location.getProvinceID());
             insertStatement.setInt(2, Location.getCityID());
             insertStatement.setInt(3, Location.getAreaID());
@@ -313,7 +312,10 @@ public class LocationTable {
                                 Location.setUserID(resultSet.getInt("userID"));
                                 list.add(Location);
                             }
-                            return list;
+                            if (list.size() > 0) {
+                                return list;
+                            }
+                            return null;
                         } catch (SQLException e) {
                             throw new ServerException(e);
                         } finally {
@@ -364,7 +366,10 @@ public class LocationTable {
                                 Location.setUserID(resultSet.getInt("userID"));
                                 list.add(Location);
                             }
-                            return list;
+                            if (list.size() > 0) {
+                                return list;
+                            }
+                            return null;
                         } catch (SQLException e) {
                             throw new ServerException(e);
                         } finally {
@@ -414,7 +419,10 @@ public class LocationTable {
                                 Location.setUserID(resultSet.getInt("userID"));
                                 list.add(Location);
                             }
-                            return list;
+                            if (list.size() > 0) {
+                                return list;
+                            }
+                            return null;
                         } catch (SQLException e) {
                             throw new ServerException(e);
                         } finally {
@@ -464,7 +472,10 @@ public class LocationTable {
                                 Location.setUserID(resultSet.getInt("userID"));
                                 list.add(Location);
                             }
-                            return list;
+                            if (list.size() > 0) {
+                                return list;
+                            }
+                            return null;
                         } catch (SQLException e) {
                             throw new ServerException(e);
                         } finally {

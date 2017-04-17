@@ -15,7 +15,7 @@ import java.util.Optional;
  */
 public class DeviceTable {
 
-    private static final String SELECT_BY_DEVICEID = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status FROM device WHERE deviceID = ?";
+    private static final String SELECT_BY_DEVICEID = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status, beginTime FROM device WHERE deviceID = ?";
     private static final String SELECT_BY_OWNER = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status FROM device WHERE owner = ?";
     private static final String SELECT_BY_LOCATIONID = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status FROM device WHERE locationID = ?";
     private static final String SELECT_ALL = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status FROM device";
@@ -46,7 +46,7 @@ public class DeviceTable {
         try {
             conn = connectionPoolManager.getConnection();
             insertStatement = conn.prepareStatement(INSERT);
-            insertStatement.setInt(1, device.getId());
+            insertStatement.setString(1, device.getId());
             insertStatement.setInt(2, device.getType());
             insertStatement.setString(3, device.getName());
             insertStatement.setInt(4, device.getLocationID());
@@ -74,12 +74,12 @@ public class DeviceTable {
         }
     }
 
-    public void update(Device device, int id) {
+    public void update(Device device, String id) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             updateStatement = conn.prepareStatement(UPDATE);
-            updateStatement.setInt(7, id);
+            updateStatement.setString(7, id);
             updateStatement.setInt(1, device.getType());
             updateStatement.setString(2, device.getName());
             updateStatement.setInt(3, device.getLocationID());
@@ -107,12 +107,12 @@ public class DeviceTable {
         }
     }
 
-    public void delete(int deviceID) {
+    public void delete(String deviceID) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             deleteStatement = conn.prepareStatement(DELETE_BY_DEVICEID);
-            deleteStatement.setInt(1, deviceID);
+            deleteStatement.setString(1, deviceID);
             deleteStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -188,18 +188,18 @@ public class DeviceTable {
         }
     }
 
-    public Optional<Device> select(int deviceID) {
+    public Optional<Device> select(String deviceID) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             selectStatement = conn.prepareStatement(SELECT_BY_DEVICEID);
-            selectStatement.setInt(1, deviceID);
+            selectStatement.setString(1, deviceID);
             return Optional.ofNullable(selectStatement.executeQuery())
                     .map(resultSet -> {
                         try {
                             while (resultSet.next()) {
                                 Device device = new Device();
-                                device.setId(resultSet.getInt("deviceID"));
+                                device.setId(resultSet.getString("deviceID"));
                                 device.setType(resultSet.getInt("deviceType"));
                                 device.setName(resultSet.getString("deviceName"));
                                 device.setLocationID(resultSet.getInt("locationID"));
@@ -252,7 +252,7 @@ public class DeviceTable {
                             List<Device> list = new ArrayList<Device>();
                             while (resultSet.next()) {
                                 Device device = new Device();
-                                device.setId(resultSet.getInt("deviceID"));
+                                device.setId(resultSet.getString("deviceID"));
                                 device.setType(resultSet.getInt("deviceType"));
                                 device.setName(resultSet.getString("deviceName"));
                                 device.setLocationID(resultSet.getInt("locationID"));
@@ -305,7 +305,7 @@ public class DeviceTable {
                             List<Device> list = new ArrayList<Device>();
                             while (resultSet.next()) {
                                 Device device = new Device();
-                                device.setId(resultSet.getInt("deviceID"));
+                                device.setId(resultSet.getString("deviceID"));
                                 device.setType(resultSet.getInt("deviceType"));
                                 device.setName(resultSet.getString("deviceName"));
                                 device.setLocationID(resultSet.getInt("locationID"));
@@ -357,7 +357,7 @@ public class DeviceTable {
                             List<Device> list = new ArrayList<Device>();
                             while (resultSet.next()) {
                                 Device device = new Device();
-                                device.setId(resultSet.getInt("deviceID"));
+                                device.setId(resultSet.getString("deviceID"));
                                 device.setType(resultSet.getInt("deviceType"));
                                 device.setName(resultSet.getString("deviceName"));
                                 device.setLocationID(resultSet.getInt("locationID"));

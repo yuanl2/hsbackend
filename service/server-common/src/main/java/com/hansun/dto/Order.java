@@ -12,8 +12,9 @@ public class Order {
     private Instant endTime;
     private int type;
     private int duration;
-    private int price;
+    private float price;
     private String payAccount;
+    private int accountType;
 
     public int getId() {
         return id;
@@ -63,11 +64,11 @@ public class Order {
         this.duration = duration;
     }
 
-    public int getPrice() {
+    public float getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(float price) {
         this.price = price;
     }
 
@@ -79,7 +80,16 @@ public class Order {
         this.payAccount = payAccount;
     }
 
+    public int getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(int accountType) {
+        this.accountType = accountType;
+    }
+
     @Override
+
     public String toString() {
         return "order{" +
                 "id=" + id +
@@ -90,6 +100,7 @@ public class Order {
                 ", duration=" + duration + "\n" +
                 ", price=" + price +
                 ", payAccount=" + payAccount +
+                ", accountType=" + accountType +
                 "}";
     }
 

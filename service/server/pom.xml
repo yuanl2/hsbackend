@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>hsbackend-server</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>${artifact-packaging}</packaging>
 
     <dependencies>
         <dependency>
@@ -25,100 +25,91 @@
             <artifactId>commons-dbcp</artifactId>
             <version>1.4</version>
         </dependency>
-     </dependencies>
+        <!-- https://mvnrepository.com/artifact/com.codahale.metrics/metrics-core -->
+        <dependency>
+            <groupId>com.codahale.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.influxdb/influxdb-java -->
+        <dependency>
+            <groupId>org.influxdb</groupId>
+            <artifactId>influxdb-java</artifactId>
+            <version>2.5</version>
+        </dependency>
+    </dependencies>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>${project.basedir}/src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>2.1.1</version>
-                <configuration>
-                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
-                    <warName>HService</warName>
-                    <!--<attachClasses>true</attachClasses>-->
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <!--<webXml>src/main/webapp/WEB-INF/web.xml</webXml>-->
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>war-exploded</id>
-                        <phase>prepare-package</phase>
-                        <goals><goal>exploded</goal></goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!--&lt;!&ndash; REST documentation &ndash;&gt;-->
+    <!--<build>-->
+        <!--<resources>-->
+            <!--<resource>-->
+                <!--<directory>${project.basedir}/src/main/resources</directory>-->
+                <!--<filtering>true</filtering>-->
+            <!--</resource>-->
+        <!--</resources>-->
+        <!--<plugins>-->
             <!--<plugin>-->
-                <!--<groupId>org.bsc.maven</groupId>-->
-                <!--<artifactId>maven-processor-plugin</artifactId>-->
-                <!--<version>1.3.6</version>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-war-plugin</artifactId>-->
+                <!--<version>2.1.1</version>-->
                 <!--<configuration>-->
-                    <!--<outputDiagnostics>true</outputDiagnostics>-->
-                    <!--<processors>-->
-                        <!--<processor>org.versly.rest.wsdoc.AnnotationProcessor</processor>-->
-                    <!--</processors>-->
+                    <!--<warSourceDirectory>src/main/webapp</warSourceDirectory>-->
+                    <!--<warName>HService</warName>-->
+                    <!--&lt;!&ndash;<attachClasses>true</attachClasses>&ndash;&gt;-->
+                    <!--<failOnMissingWebXml>false</failOnMissingWebXml>-->
+                    <!--&lt;!&ndash;<webXml>src/main/webapp/WEB-INF/web.xml</webXml>&ndash;&gt;-->
                 <!--</configuration>-->
                 <!--<executions>-->
                     <!--<execution>-->
-                        <!--<phase>compile</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>process</goal>-->
-                        <!--</goals>-->
+                        <!--<id>war-exploded</id>-->
+                        <!--<phase>prepare-package</phase>-->
+                        <!--<goals><goal>exploded</goal></goals>-->
                     <!--</execution>-->
                 <!--</executions>-->
             <!--</plugin>-->
-            <!--<plugin>-->
-                <!--<groupId>org.codehaus.mojo</groupId>-->
-                <!--<artifactId>exec-maven-plugin</artifactId>-->
-                <!--<version>1.2</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>raml-doc-assembler</id>-->
-                        <!--<phase>prepare-package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>java</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<mainClass>org.versly.rest.wsdoc.RestDocAssembler</mainClass>-->
-                            <!--<arguments>-->
-                                <!--<argument>&#45;&#45;format</argument>-->
-                                <!--<argument>raml</argument>-->
-                                <!--<argument>&#45;&#45;scope</argument>-->
-                                <!--<argument>all</argument>-->
-                                <!--<argument>-o</argument>-->
-                                <!--<argument>${project.build.directory}/${project.artifactId}.raml</argument>-->
-                                <!--<argument>${project.build.directory}/classes/org.versly.rest.wsdoc.web-service-api.ser</argument>-->
-                            <!--</arguments>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                    <!--<execution>-->
-                        <!--<id>raml-doc-assembler-public</id>-->
-                        <!--<phase>prepare-package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>java</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<mainClass>org.versly.rest.wsdoc.RestDocAssembler</mainClass>-->
-                            <!--<arguments>-->
-                                <!--<argument>&#45;&#45;format</argument>-->
-                                <!--<argument>raml</argument>-->
-                                <!--<argument>&#45;&#45;scope</argument>-->
-                                <!--<argument>public</argument>-->
-                                <!--<argument>-o</argument>-->
-                                <!--<argument>${project.build.directory}/public-${project.artifactId}.raml</argument>-->
-                                <!--<argument>${project.build.directory}/classes/org.versly.rest.wsdoc.web-service-api.ser</argument>-->
-                            <!--</arguments>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
+           <!--</plugins>-->
+    <!--</build>-->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <artifact-packaging>jar</artifact-packaging>
+            </properties>
+        </profile>
+        <profile>
+            <id>remote</id>
+            <properties>
+                <artifact-packaging>war</artifact-packaging>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <!-- this will get rid of version info from war file name -->
+                            <finalName>${project.artifactId}</finalName>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

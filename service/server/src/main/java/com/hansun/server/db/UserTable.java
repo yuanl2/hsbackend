@@ -16,10 +16,10 @@ import java.util.Optional;
  */
 public class UserTable {
     private static final String SELECT = "SELECT userID, userType, userName, password, addtionInfo, expired FROM user WHERE userID = ?";
+    private static final String SELECTBYNAME = "SELECT userID, userType, userName, password, addtionInfo, expired FROM user WHERE userName = ?";
     private static final String SELECT_ALL = "SELECT userID, userType, userName, password, addtionInfo, expired FROM user";
-
     private static final String DELETE = "DELETE FROM user WHERE userID = ?";
-    private static final String INSERT = "INSERT INTO user (userID, userType, userName, password, addtionInfo, expired) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    private static final String INSERT = "INSERT INTO user (userID, userType, userName, password, addtionInfo, expired) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String UPDATE = "UPDATE user SET userType = ? , userName = ? , password = ? , addtionInfo = ? , expired = ? WHERE userID = ?";
 
     private ConnectionPoolManager connectionPoolManager;
@@ -43,7 +43,7 @@ public class UserTable {
             insertStatement.setString(3, user.getName());
             insertStatement.setString(4, user.getPassword());
             insertStatement.setString(5, user.getAddtionInfo());
-            insertStatement.setTimestamp(6, new Timestamp(user.getExpiredTime().getEpochSecond()));
+            insertStatement.setTimestamp(6, Timestamp.from(user.getExpiredTime()));
             insertStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -124,6 +124,57 @@ public class UserTable {
         }
     }
 
+    public Optional<User> select(String name) {
+        Connection conn = null;
+        try {
+            conn = connectionPoolManager.getConnection();
+            selectStatement = conn.prepareStatement(SELECTBYNAME);
+            selectStatement.setString(1, name);
+            return Optional.ofNullable(selectStatement.executeQuery())
+                    .map(resultSet -> {
+                        try {
+                            while (resultSet.next()) {
+                                User user = new User();
+                                user.setId(resultSet.getInt("userID"));
+                                user.setName(resultSet.getString("userName"));
+                                user.setUserType(resultSet.getInt("userType"));
+                                user.setPassword(resultSet.getString("password"));
+                                user.setAddtionInfo(resultSet.getString("addtionInfo"));
+                                user.setExpiredTime(resultSet.getTimestamp("expired").toInstant());
+                                return user;
+                            }
+                            return null;
+                        } catch (SQLException e) {
+                            throw new ServerException(e);
+                        } finally {
+                            try {
+                                resultSet.close();
+                            } catch (SQLException e) {
+                                throw new ServerException(e);
+                            }
+                        }
+
+                    });
+        } catch (Exception e) {
+            return Optional.empty();
+        } finally {
+            if (selectStatement != null) {
+                try {
+                    selectStatement.close();
+                } catch (SQLException e) {
+                    throw new ServerException(e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    throw new ServerException(e);
+                }
+            }
+        }
+    }
+
     public Optional<User> select(int userID) {
         Connection conn = null;
         try {
@@ -175,12 +226,11 @@ public class UserTable {
         }
     }
 
-
     public Optional<List<User>> selectAll() {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
-            selectStatement = conn.prepareStatement(SELECT);
+            selectStatement = conn.prepareStatement(SELECT_ALL);
             return Optional.ofNullable(selectStatement.executeQuery())
                     .map(resultSet -> {
                         try {
@@ -195,7 +245,7 @@ public class UserTable {
                                 user.setExpiredTime(resultSet.getTimestamp("expired").toInstant());
                                 list.add(user);
                             }
-                            return null;
+                            return list;
                         } catch (SQLException e) {
                             throw new ServerException(e);
                         } finally {

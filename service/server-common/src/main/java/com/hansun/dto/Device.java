@@ -1,10 +1,16 @@
 package com.hansun.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.hansun.server.common.InstantSerialization;
+
+import java.time.Instant;
+
 /**
  * Created by yuanl2 on 2017/3/29.
  */
 public class Device {
-    private int id;
+    private String id;
     private int type;
     private String name;
     private int locationID;
@@ -17,11 +23,15 @@ public class Device {
     private String owner;
     private int status;
 
-    public int getId() {
+    @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
+    @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
+    private Instant beginTime;
+
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -113,24 +123,35 @@ public class Device {
         this.status = status;
     }
 
+    public Instant getBeginTime() {
+        return beginTime;
+    }
+
+    public void setBeginTime(Instant beginTime) {
+        this.beginTime = beginTime;
+    }
+
     @Override
     public String toString() {
         return "device{" +
                 "id=" + id +
                 ", type=" + type +
-                ", name=" + name + "\n" +
+                ", name=" + name +
+                ", locationID=" + locationID +
                 ", province=" + province +
                 ", city=" + city +
                 ", areaName=" + areaName +
-                ", address=" + address + "\n" +
+                ", address=" + address +
                 ", addtionInfo=" + addtionInfo +
                 ", owner=" + owner +
+                ", ownerID=" + ownerID +
+                ", status=" + status +
                 "}";
     }
 
     @Override
     public int hashCode() {
-        return this.id * 31 + this.name.hashCode();
+        return this.id.hashCode() * 31 + this.name.hashCode();
     }
 
     @Override
@@ -138,8 +159,8 @@ public class Device {
         if (this == obj) {
             return true;
         } else {
-            return obj instanceof Device && this.getId() == ((Device) obj).getId()
-                    && this.getName() == (((Device) obj).getName());
+            return obj instanceof Device && this.getId().equals(((Device) obj).getId())
+                    && this.getName().equals(((Device) obj).getName());
         }
     }
 }

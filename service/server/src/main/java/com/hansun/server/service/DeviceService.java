@@ -31,7 +31,7 @@ public class DeviceService {
         return dataStore.updateDevice(device);
     }
 
-    public void deleteDevice(int deviceID) {
+    public void deleteDevice(String deviceID) {
         dataStore.deleteDevice(deviceID);
     }
 
@@ -51,7 +51,7 @@ public class DeviceService {
         return dataStore.queryDeviceByLocation(locationID);
     }
 
-    public Device getDevice(int deviceID) {
+    public Device getDevice(String deviceID) {
         return dataStore.queryDeviceByDeviceID(deviceID);
     }
 }

@@ -15,7 +15,7 @@ public class DeviceConnect implements DeviceListener<Device> {
 
     private AtomicInteger count = new AtomicInteger(0);
 
-    private Map<Integer, Device> map = new HashMap<Integer, Device>();
+    private Map<String, Device> map = new HashMap<String, Device>();
 
 
     @Autowired

@@ -1,10 +1,11 @@
 package com.hansun.server.service;
 
-import com.hansun.server.HSServiceProperties;
+import com.hansun.server.common.HSServiceProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -33,6 +34,11 @@ public class SocketService {
         server = new ThreadPoolSocketServer(addr, Integer.parseInt(hsServiceProperties.getSocketPort()));
         server.addDeviceListener(heartBeatService.getConnectListener());
         server.start();
+    }
+
+    @PreDestroy
+    public void destroy(){
+        server.shutdown();
     }
 
 }

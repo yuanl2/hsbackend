@@ -1,0 +1,27 @@
+---
+server:
+  port: 8080
+  contextPath: /hsservice
+---
+spring:
+  profiles: prod,default
+datasource:
+    url: jdbc:mysql://localhost:3306/hsdata
+    dbusername: root
+    dbpassword: qazwsx123
+    driverClassName: com.mysql.jdbc.Driver
+    defaultSchema:
+    maxPoolSize: 20
+socket:
+  socketaddress: localhost
+  socketport: 9090
+  heartbeatinternal: 15000
+  sweepbeatinternal: 5000
+influxDB:
+  username: hsuser
+  password: qazwsx123
+  url: http://localhost:8086
+  retentionpolicy: default
+  name: metrics
+  batchtimeout: 1000
+  batchsize: 1000

@@ -15,10 +15,11 @@ import java.util.Optional;
  */
 public class AreaTable {
 
-    private static final String SELECT = "SELECT areaID, areaName, address FROM area WHERE areaID = ?";
-    private static final String SELECT_ALL = "SELECT areaID, areaName, address FROM area";
+    private static final String SELECT = "SELECT areaID, areaName, address, cityID FROM area WHERE areaID = ?";
+    private static final String SELECTBYNAME = "SELECT areaID, areaName, address, cityID FROM area WHERE areaName = ? AND address = ?";
+    private static final String SELECT_ALL = "SELECT areaID, areaName, address, cityID FROM area";
     private static final String DELETE = "DELETE FROM area WHERE cityID = ?";
-    private static final String INSERT = "INSERT INTO area (areaID, areaName, address) VALUES (?, ?, ?)";
+    private static final String INSERT = "INSERT INTO area (areaID, areaName, address, cityID) VALUES (?, ?, ?, ?)";
     private static final String UPDATE = "UPDATE area SET areaName = ? , address = ? WHERE areaID = ?";
 
     private ConnectionPoolManager connectionPoolManager;
@@ -40,6 +41,7 @@ public class AreaTable {
             insertStatement.setInt(1, area.getId());
             insertStatement.setString(2, area.getName());
             insertStatement.setString(3, area.getAddress());
+            insertStatement.setInt(4, area.getCityID());
             insertStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -66,9 +68,10 @@ public class AreaTable {
         try {
             conn = connectionPoolManager.getConnection();
             updateStatement = conn.prepareStatement(UPDATE);
-            updateStatement.setInt(3, id);
+            updateStatement.setInt(4, id);
             updateStatement.setString(1, area.getName());
             updateStatement.setString(2, area.getAddress());
+            updateStatement.setInt(3, area.getCityID());
             updateStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -165,6 +168,56 @@ public class AreaTable {
         }
     }
 
+    public Optional<Area> select(Area a) {
+        Connection conn = null;
+        try {
+            conn = connectionPoolManager.getConnection();
+            selectStatement = conn.prepareStatement(SELECTBYNAME);
+            selectStatement.setString(1, a.getName());
+            selectStatement.setString(2, a.getAddress());
+            return Optional.ofNullable(selectStatement.executeQuery())
+                    .map(resultSet -> {
+                        try {
+                            while (resultSet.next()) {
+                                Area area = new Area();
+                                area.setId(resultSet.getInt("areaID"));
+                                area.setName(resultSet.getString("areaName"));
+                                area.setAddress(resultSet.getString("address"));
+                                area.setCityID(resultSet.getInt("cityID"));
+                                return area;
+                            }
+                            return null;
+                        } catch (SQLException e) {
+                            throw new ServerException(e);
+                        } finally {
+                            try {
+                                resultSet.close();
+                            } catch (SQLException e) {
+                                throw new ServerException(e);
+                            }
+                        }
+
+                    });
+        } catch (Exception e) {
+            return Optional.empty();
+        } finally {
+            if (selectStatement != null) {
+                try {
+                    selectStatement.close();
+                } catch (SQLException e) {
+                    throw new ServerException(e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    throw new ServerException(e);
+                }
+            }
+        }
+    }
+
     public Optional<List<Area>> selectAll() {
         Connection conn = null;
         try {
@@ -179,9 +232,10 @@ public class AreaTable {
                                 area.setId(resultSet.getInt("areaID"));
                                 area.setName(resultSet.getString("areaName"));
                                 area.setAddress(resultSet.getString("address"));
+                                area.setCityID(resultSet.getInt("cityID"));
                                 list.add(area);
                             }
-                            return null;
+                            return list;
                         } catch (SQLException e) {
                             throw new ServerException(e);
                         } finally {

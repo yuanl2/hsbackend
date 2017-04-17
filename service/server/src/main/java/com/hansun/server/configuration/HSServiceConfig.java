@@ -1,8 +1,10 @@
 package com.hansun.server.configuration;
 
-import com.hansun.server.HSServiceProperties;
+import com.hansun.server.common.HSServiceProperties;
+import com.hansun.server.common.ServerException;
 import com.hansun.server.db.ConnectionPoolManager;
 import com.hansun.server.db.DataStore;
+import com.hansun.server.metrics.InfluxDBClient;
 import com.hansun.server.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -23,13 +25,13 @@ public class HSServiceConfig {
     private Environment env;
 
     @Bean
-    public HSServiceProperties schedulerProperties() {
+    public HSServiceProperties hsServiceProperties() {
         return new HSServiceProperties(env);
     }
 
     @Bean
     public ConnectionPoolManager connectionPoolManager() {
-        return new ConnectionPoolManager(schedulerProperties());
+        return new ConnectionPoolManager(hsServiceProperties());
     }
 
     @Bean
@@ -40,5 +42,20 @@ public class HSServiceConfig {
     @Bean
     public DeviceService deviceService() {
         return new DeviceService();
+    }
+
+    @Bean
+    public InfluxDBClient influxDBClient() {
+        try {
+            return new InfluxDBClient(hsServiceProperties().getInfluxDBUrl(),
+                    hsServiceProperties().getInfluxDBUserName(),
+                    hsServiceProperties().getInfluxDBPassword(),
+                    hsServiceProperties().getInfluxDBName(),
+                    hsServiceProperties().getInfluxDbRetentionPolicy(),
+                    hsServiceProperties().getBatchSize(),
+                    hsServiceProperties().getBatchTimeout());
+        } catch (Exception e) {
+            throw new ServerException("Unable to start influxDB client", e);
+        }
     }
 }
