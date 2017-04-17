@@ -14,6 +14,10 @@ public class ServerException extends RuntimeException {
         super(ex);
     }
 
+    public ServerException(String ex) {
+        super(ex);
+    }
+
     public ServerException(String message, Throwable ex) {
         super(message, ex);
     }

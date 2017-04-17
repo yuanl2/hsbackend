@@ -25,6 +25,8 @@ public class HeartBeatService {
     @Autowired
     private DataStore dataStore;
 
+    private int count;
+
     @PostConstruct
     private void init() {
         timer = new Timer();
@@ -36,6 +38,7 @@ public class HeartBeatService {
             timer.schedule(new DeviceStatusTask(), Long.valueOf(hsServiceProperties.getHeartBeatInternal()),
                     Long.valueOf(hsServiceProperties.getSweepBeatInternal()));
         }
+        count = Integer.valueOf(hsServiceProperties.getHeartBeatInternal()) / Integer.valueOf(hsServiceProperties.getSweepBeatInternal());
     }
 
     @PreDestroy
@@ -63,15 +66,17 @@ public class HeartBeatService {
 
         public void run() {
             //5秒扫一格，
-            currentIndex = (currentIndex++) % 60;
+            currentIndex = (++currentIndex) % count;
             Set<String> sets = slotMapDeviceIDs.remove(currentIndex);
 
-            //update sets device status disconnetced
-            sets.forEach(k -> {
-                Device d = dataStore.queryDeviceByDeviceID(k);
-                d.setStatus(Status.DISCONNECTED);
-                connectListener.disconnect(d);
-            });
+            if (sets != null) {
+                //update sets device status disconnetced
+                sets.forEach(k -> {
+                    Device d = dataStore.queryDeviceByDeviceID(k);
+                    d.setStatus(Status.DISCONNECTED);
+                    connectListener.disconnect(d);
+                });
+            }
         }
     }
 
@@ -87,6 +92,9 @@ public class HeartBeatService {
             count.incrementAndGet();
             String id = d.getId();
             deviceIDMapSlot.replace(id, currentIndex);
+            //把设备对应的ID移动到下一格
+            slotMapDeviceIDs.get(currentIndex).remove(d.getId());
+            slotMapDeviceIDs.get(currentIndex+1).add(d.getId());
 
             d.setStatus(Status.CONNECT);
             dataStore.updateDeviceStatus(d);

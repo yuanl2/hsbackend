@@ -3,6 +3,8 @@ package com.hansun.server.metrics;
 import org.influxdb.dto.QueryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,14 +13,16 @@ import java.util.Map;
 /**
  * Created by yuanl2 on 2017/4/12.
  */
+@Component
 public class InfluxDBClientHelper {
 
     private static final Logger log = LoggerFactory.getLogger(InfluxDBClientHelper.class);
 
-//    private MetricHelper metricHelper;
+    //    private MetricHelper metricHelper;
     private InfluxDBClient client;
 
 
+    @Autowired
     public InfluxDBClientHelper(InfluxDBClient client) {
         this.client = client;
 //        this.metricHelper = metricHelper;
@@ -47,7 +51,6 @@ public class InfluxDBClientHelper {
     public QueryResult getInfluxDBQueryResult(String query) {
         return client.getQueryResult(query);
     }
-
 
 
     public void sendIncrementToInfluxDB(String measurement, String fieldKey) {

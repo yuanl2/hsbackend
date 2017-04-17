@@ -41,23 +41,30 @@ public class ClientHandler implements Runnable {
         DataInputStream userInput = null;
         DataOutputStream userOutput = null;
 
+
         Device d = new Device();
         try {
             userInput = new DataInputStream(
                     this.clientSock.getInputStream());
             userOutput = new DataOutputStream(this.clientSock.getOutputStream());
 
-            int deviceID = userInput.readInt();
-            byte status = userInput.readByte();
-            byte type = userInput.readByte();
-            d.setId(String.valueOf(deviceID));
-            d.setType(type);
-            d.setStatus(status);
-            System.out.println(" receive message from deviceID : " + deviceID);
+            while (!this.clientSock.isClosed()) {
+                int length = userInput.read();
+                byte[] b = new byte[length];
+                userInput.read(b);
+                String deviceID = new String(b);
+                byte status = userInput.readByte();
+                d.setId(deviceID);
+                d.setStatus(status);
+                System.out.println(" receive message from deviceID : " + deviceID);
 
+//                userOutput.write(length);
+//                userOutput.write(b);
+//                userOutput.flush();
 
-            userOutput.writeInt(deviceID);
-            userOutput.flush();
+                listeners.forEach(k -> k.connnect(d));
+
+            }
 //            }
         } catch (IOException ioe) {
 
@@ -79,6 +86,5 @@ public class ClientHandler implements Runnable {
             // Ignored
         }
 
-        listeners.forEach(k -> k.connnect(d));
     }
 }

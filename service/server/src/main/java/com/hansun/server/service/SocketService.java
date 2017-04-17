@@ -17,8 +17,8 @@ public class SocketService {
 
     @Autowired
     private HSServiceProperties hsServiceProperties;
-    private ThreadPoolSocketServer server;
 
+    private ThreadPoolSocketServer server;
 
     @Autowired
     private HeartBeatService heartBeatService;

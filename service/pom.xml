@@ -50,6 +50,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>org.springframework</artifactId>
+                    <groupId>spring-web</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- Add freemarker template support -->
         <dependency>
@@ -60,7 +67,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <scope>provided</scope>
-        </dependency>
+          </dependency>
     </dependencies>
 
 </project>
