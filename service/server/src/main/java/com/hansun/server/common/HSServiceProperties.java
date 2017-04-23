@@ -28,7 +28,7 @@ public class HSServiceProperties {
     private static final String SOCKET_ADDRESS = "socket.socketaddress";
     private static final String SOCKET_PORT = "socket.socketport";
 
-    private static final String DEFAULT_SOCKET_ADDRESS = "127.0.0.1";
+    private static final String DEFAULT_SOCKET_ADDRESS = "localhost";
     private static final String DEFAULT_SOCKET_PORT = "9090";
 
     private static final String HEART_BEAT_INTERNAL = "socket.heartbeatinternal";
