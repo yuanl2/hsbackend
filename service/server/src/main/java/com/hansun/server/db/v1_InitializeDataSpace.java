@@ -31,6 +31,8 @@ public class v1_InitializeDataSpace {
                     "password VARCHAR(45) NOT NULL," +
                     "addtionInfo VARCHAR(45) NULL," +
                     "expired DATETIME NOT NULL," +
+                    "role VARCHAR(45) NOT NULL," +
+                    "islocked tinyint(4) DEFAULT NULL," +
                     "PRIMARY KEY (userID)," +
                     "UNIQUE INDEX userID_UNIQUE (userID ASC))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");

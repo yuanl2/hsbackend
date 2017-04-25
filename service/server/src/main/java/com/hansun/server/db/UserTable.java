@@ -15,12 +15,12 @@ import java.util.Optional;
  * Created by yuanl2 on 2017/3/29.
  */
 public class UserTable {
-    private static final String SELECT = "SELECT userID, userType, userName, password, addtionInfo, expired FROM user WHERE userID = ?";
-    private static final String SELECTBYNAME = "SELECT userID, userType, userName, password, addtionInfo, expired FROM user WHERE userName = ?";
-    private static final String SELECT_ALL = "SELECT userID, userType, userName, password, addtionInfo, expired FROM user";
+    private static final String SELECT = "SELECT userID, userType, userName, password, addtionInfo, expired ,role, islocked FROM user WHERE userID = ?";
+    private static final String SELECTBYNAME = "SELECT userID, userType, userName, password, addtionInfo, expired ,role, islocked FROM user WHERE userName = ?";
+    private static final String SELECT_ALL = "SELECT userID, userType, userName, password, addtionInfo, expired,role, islocked FROM user";
     private static final String DELETE = "DELETE FROM user WHERE userID = ?";
-    private static final String INSERT = "INSERT INTO user (userID, userType, userName, password, addtionInfo, expired) VALUES (?, ?, ?, ?, ?, ?)";
-    private static final String UPDATE = "UPDATE user SET userType = ? , userName = ? , password = ? , addtionInfo = ? , expired = ? WHERE userID = ?";
+    private static final String INSERT = "INSERT INTO user (userID, userType, userName, password, addtionInfo, expired, role, islocked) VALUES (?, ?, ?, ?, ?, ?)";
+    private static final String UPDATE = "UPDATE user SET userType = ? , userName = ? , password = ? , addtionInfo = ? , expired = ? , role = ?, islocked = ? WHERE userID = ?";
 
     private ConnectionPoolManager connectionPoolManager;
 
@@ -44,6 +44,8 @@ public class UserTable {
             insertStatement.setString(4, user.getPassword());
             insertStatement.setString(5, user.getAddtionInfo());
             insertStatement.setTimestamp(6, Timestamp.from(user.getExpiredTime()));
+            insertStatement.setString(7, user.getRole());
+            insertStatement.setBoolean(8,user.isLocked());
             insertStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -70,12 +72,14 @@ public class UserTable {
         try {
             conn = connectionPoolManager.getConnection();
             updateStatement = conn.prepareStatement(UPDATE);
-            insertStatement.setInt(6, user.getId());
-            insertStatement.setInt(1, user.getUserType());
-            insertStatement.setString(2, user.getName());
-            insertStatement.setString(3, user.getPassword());
-            insertStatement.setString(4, user.getAddtionInfo());
-            insertStatement.setTimestamp(5, Timestamp.from(user.getExpiredTime()));
+            updateStatement.setInt(8, user.getId());
+            updateStatement.setInt(1, user.getUserType());
+            updateStatement.setString(2, user.getName());
+            updateStatement.setString(3, user.getPassword());
+            updateStatement.setString(4, user.getAddtionInfo());
+            updateStatement.setTimestamp(5, Timestamp.from(user.getExpiredTime()));
+            updateStatement.setString(6, user.getRole());
+            updateStatement.setBoolean(7,user.isLocked());
             updateStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -141,6 +145,8 @@ public class UserTable {
                                 user.setPassword(resultSet.getString("password"));
                                 user.setAddtionInfo(resultSet.getString("addtionInfo"));
                                 user.setExpiredTime(resultSet.getTimestamp("expired").toInstant());
+                                user.setRole(resultSet.getString("role"));
+                                user.setLocked(resultSet.getBoolean("islocked"));
                                 return user;
                             }
                             return null;
@@ -192,6 +198,8 @@ public class UserTable {
                                 user.setPassword(resultSet.getString("password"));
                                 user.setAddtionInfo(resultSet.getString("addtionInfo"));
                                 user.setExpiredTime(resultSet.getTimestamp("expired").toInstant());
+                                user.setRole(resultSet.getString("role"));
+                                user.setLocked(resultSet.getBoolean("islocked"));
                                 return user;
                             }
                             return null;
@@ -243,6 +251,8 @@ public class UserTable {
                                 user.setPassword(resultSet.getString("password"));
                                 user.setAddtionInfo(resultSet.getString("addtionInfo"));
                                 user.setExpiredTime(resultSet.getTimestamp("expired").toInstant());
+                                user.setRole(resultSet.getString("role"));
+                                user.setLocked(resultSet.getBoolean("islocked"));
                                 list.add(user);
                             }
                             return list;

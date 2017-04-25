@@ -8,9 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -29,35 +29,35 @@ public class UserController {
     }
 
     @RequestMapping(value = "user", method = RequestMethod.POST)
-    public ResponseEntity<?> createUser(@RequestBody User user, HttpServletRequest request) {
+    public ResponseEntity<?> createUser(@RequestBody User user, UriComponentsBuilder ucBuilder) {
         logger.debug("create user ", user);
         User u = userService.createUser(user);
         return new ResponseEntity<User>(u, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "users", method = RequestMethod.POST)
-    public ResponseEntity<?> createUsers(@RequestBody List<User> user, HttpServletRequest request) {
+    public ResponseEntity<?> createUsers(@RequestBody List<User> user, UriComponentsBuilder ucBuilder) {
         logger.debug("create user list ", user);
         user.forEach(p -> userService.createUser(p));
         return new ResponseEntity("create users success.", HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "user/{id}", method = RequestMethod.GET)
-    public ResponseEntity<?> getUser(@PathVariable int id, HttpServletRequest request) {
+    public ResponseEntity<?> getUser(@PathVariable int id, UriComponentsBuilder ucBuilder) {
         logger.debug("get user id ", id);
         User user = userService.queryUser(id);
         return new ResponseEntity<User>(user, HttpStatus.OK);
     }
 
     @RequestMapping(value = "user/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateUser(@RequestBody User user, HttpServletRequest request) {
+    public ResponseEntity<?> updateUser(@RequestBody User user, UriComponentsBuilder ucBuilder) {
         logger.debug("update user ", user);
         User user1 = userService.updateUser(user);
         return new ResponseEntity<User>(user1, HttpStatus.OK);
     }
 
     @RequestMapping(value = "user/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteuser(@PathVariable int id, HttpServletRequest request) {
+    public ResponseEntity<?> deleteuser(@PathVariable int id, UriComponentsBuilder ucBuilder) {
         logger.debug("delete user id ", id);
         userService.deleteUser(id);
         return new ResponseEntity<User>(HttpStatus.NO_CONTENT);

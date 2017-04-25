@@ -4,18 +4,23 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.hansun.server.common.InstantSerialization;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
+import java.util.Collection;
 
 /**
  * Created by yuanl2 on 2017/3/29.
  */
-public class User {
+public class User implements UserDetails {
     private int id;
     private String name;
     private int userType;
     private String password;
     private String addtionInfo;
+    private String role;
+    private boolean locked;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
@@ -46,8 +51,46 @@ public class User {
         this.userType = userType;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return name;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return expiredTime.compareTo(Instant.now()) > 0;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return !isLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 
     public void setPassword(String password) {
@@ -70,6 +113,14 @@ public class User {
         this.expiredTime = expiredTime;
     }
 
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
+
     @Override
     public String toString() {
         return "user{" +
@@ -78,6 +129,8 @@ public class User {
                 ", name=" + name + "\n" +
                 ", addtionInfo=" + addtionInfo +
                 ", expiredTime=" + expiredTime.toString() +
+                ", locked=" + locked +
+                ", role=" + role +
                 "}";
     }
 

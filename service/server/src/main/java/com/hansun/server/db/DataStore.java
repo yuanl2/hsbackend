@@ -2,6 +2,7 @@ package com.hansun.server.db;
 
 import com.hansun.dto.*;
 import com.hansun.server.common.ServerException;
+import org.apache.catalina.startup.UserConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -177,41 +178,46 @@ public class DataStore {
 
     private void autoFillDevice(Device device) {
         Location location = locationCache.get(device.getLocationID());
-        String provinceName = location.getProvince();
-        if (provinceName == null) {
-            provinceName = (provinceCache.get(location.getProvinceID())).getName();
-            device.setProvince(provinceName);
-        } else {
-            device.setProvince(location.getProvince());
-        }
+        if (location != null) {
+            String provinceName = location.getProvince();
+            if (provinceName == null) {
+                provinceName = (provinceCache.get(location.getProvinceID())).getName();
+                device.setProvince(provinceName);
+            } else {
+                device.setProvince(location.getProvince());
+            }
 
-        String cityName = location.getCity();
-        if (cityName == null) {
-            cityName = (cityCache.get(location.getCityID())).getName();
-            device.setCity(cityName);
-        } else {
-            device.setCity(location.getCity());
-        }
+            String cityName = location.getCity();
+            if (cityName == null) {
+                cityName = (cityCache.get(location.getCityID())).getName();
+                device.setCity(cityName);
+            } else {
+                device.setCity(location.getCity());
+            }
 
-        String areaName = location.getAreaName();
-        if (areaName == null) {
-            areaName = (areaCache.get(location.getAreaID())).getName();
-            device.setAreaName(areaName);
-        } else {
-            device.setAreaName(location.getAreaName());
-        }
+            String areaName = location.getAreaName();
+            if (areaName == null) {
+                areaName = (areaCache.get(location.getAreaID())).getName();
+                device.setAreaName(areaName);
+            } else {
+                device.setAreaName(location.getAreaName());
+            }
 
-        String address = location.getAddress();
-        if (address == null) {
-            address = (areaCache.get(location.getAreaID())).getAddress();
-            device.setAddress(address);
-        } else {
-            device.setAddress(location.getAddress());
-        }
-        
-        String owner = device.getOwner();
-        if (owner == null) {
-            device.setOwner(userCache.get(device.getOwnerID()).getName());
+            String address = location.getAddress();
+            if (address == null) {
+                address = (areaCache.get(location.getAreaID())).getAddress();
+                device.setAddress(address);
+            } else {
+                device.setAddress(location.getAddress());
+            }
+
+            String owner = device.getOwner();
+            if (owner == null) {
+                User u = userCache.get(device.getOwnerID());
+                if (u != null) {
+                    device.setOwner(u.getName());
+                }
+            }
         }
     }
 
@@ -528,11 +534,17 @@ public class DataStore {
     }
 
     public List<User> queryAllUser() {
-        Optional<List<User>> result = userTable.selectAll();
-        if (result.isPresent()) {
-            return result.get();
+
+        List<User> users = new ArrayList<User>(userCache.values());
+        if (users == null || users.size() == 0) {
+
+            Optional<List<User>> result = userTable.selectAll();
+            if (result.isPresent()) {
+                return result.get();
+            }
+            return null;
         }
-        return null;
+        return users;
     }
 
     public User updateUser(User user) {
