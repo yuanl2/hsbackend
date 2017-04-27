@@ -383,6 +383,18 @@ public class DataStore {
     }
 
     public List<Location> queryLocationByUserID(int userID) {
+
+        List<Location> lists = new ArrayList<>();
+        locationCache.values().forEach(v -> {
+            if(v.getUserID() == userID){
+                lists.add(v);
+            }
+        });
+
+        if(lists.size()>0){
+            return lists;
+        }
+
         Optional<List<Location>> result = locationTable.selectbyUserID(userID);
         //fill content about location field
         if (result.isPresent()) {

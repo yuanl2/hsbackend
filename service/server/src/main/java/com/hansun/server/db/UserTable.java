@@ -38,14 +38,13 @@ public class UserTable {
         try {
             conn = connectionPoolManager.getConnection();
             insertStatement = conn.prepareStatement(INSERT);
-            insertStatement.setInt(1, user.getId());
-            insertStatement.setInt(2, user.getUserType());
-            insertStatement.setString(3, user.getName());
-            insertStatement.setString(4, user.getPassword());
-            insertStatement.setString(5, user.getAddtionInfo());
-            insertStatement.setTimestamp(6, Timestamp.from(user.getExpiredTime()));
-            insertStatement.setString(7, user.getRole());
-            insertStatement.setBoolean(8,user.isLocked());
+            insertStatement.setInt(1, user.getUserType());
+            insertStatement.setString(2, user.getName());
+            insertStatement.setString(3, user.getPassword());
+            insertStatement.setString(4, user.getAddtionInfo());
+            insertStatement.setTimestamp(5, Timestamp.from(user.getExpiredTime()));
+            insertStatement.setString(6, user.getRole());
+            insertStatement.setBoolean(7,user.isLocked());
             insertStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);

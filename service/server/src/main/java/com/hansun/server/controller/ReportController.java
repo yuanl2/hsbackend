@@ -9,7 +9,7 @@ import javax.annotation.PostConstruct;
  * Created by yuanl2 on 2017/3/29.
  */
 @RestController
-@RequestMapping("service/api/v1")
+@RequestMapping("/api")
 public class ReportController {
 
     @PostConstruct
