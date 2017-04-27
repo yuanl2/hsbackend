@@ -88,18 +88,35 @@ public class v1_InitializeDataSpace {
 
         if (!manager.tableExists("order")) {
             manager.createTable("CREATE TABLE `order` (" +
-                    "orderID int(11) NOT NULL," +
+                    "orderID int(11) NOT NULL AUTO_INCREMENT," +
                     "deviceID int(11) NOT NULL," +
                     "startTime DATETIME NOT NULL," +
                     "endTime DATETIME NOT NULL," +
-                    "consumeType int(11) NOT NULL," +
-                    "accountType int(11) NOT NULL," +
+                    "consumeType int(3) NOT NULL," +
+                    "accountType int(3) NOT NULL," +
                     "payAccount varchar(45) DEFAULT NULL," +
                     "price float NOT NULL," +
                     "duration int(11) NOT NULL," +
+                    "createTime datetime NOT NULL," +
+                    "orderName varchar(45) NOT NULL," +
+                    "orderStatus INT(3) NOT NULL," +
                     "PRIMARY KEY (orderID)," +
                     "KEY deviceStart (deviceID,startTime))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         }
+
+        if (!manager.tableExists("payaccount")) {
+            manager.createTable("CREATE TABLE `payaccount` (" +
+                    "accountID int(11) NOT NULL AUTO_INCREMENT," +
+                    "banlance float NOT NULL," +
+                    "type int(3) NOT NULL," +
+                    "accountName varchar(45) NOT NULL," +
+                    "free int(3) NOT NULL DEFAULT '0'," +
+                    "discount float NOT NULL DEFAULT '1'," +
+                    "PRIMARY KEY (accountID)," +
+                    "KEY accountName (accountName))" +
+                    "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+        }
+
     }
 }

@@ -19,7 +19,7 @@ public class UserTable {
     private static final String SELECTBYNAME = "SELECT userID, userType, userName, password, addtionInfo, expired ,role, islocked FROM user WHERE userName = ?";
     private static final String SELECT_ALL = "SELECT userID, userType, userName, password, addtionInfo, expired,role, islocked FROM user";
     private static final String DELETE = "DELETE FROM user WHERE userID = ?";
-    private static final String INSERT = "INSERT INTO user (userID, userType, userName, password, addtionInfo, expired, role, islocked) VALUES (?, ?, ?, ?, ?, ?)";
+    private static final String INSERT = "INSERT INTO user (userType, userName, password, addtionInfo, expired, role, islocked) VALUES (?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE = "UPDATE user SET userType = ? , userName = ? , password = ? , addtionInfo = ? , expired = ? , role = ?, islocked = ? WHERE userID = ?";
 
     private ConnectionPoolManager connectionPoolManager;

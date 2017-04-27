@@ -10,11 +10,14 @@ public class Order {
     private int deviceID;
     private Instant startTime;
     private Instant endTime;
-    private int type;
+    private int consumeType;
     private int duration;
     private float price;
     private String payAccount;
     private int accountType;
+    private String orderName;
+    private Instant createTime;
+    private int orderStatus;
 
     public int getId() {
         return id;
@@ -48,12 +51,12 @@ public class Order {
         this.endTime = endTime;
     }
 
-    public int getType() {
-        return type;
+    public int getConsumeType() {
+        return consumeType;
     }
 
-    public void setType(int type) {
-        this.type = type;
+    public void setConsumeType(int consumeType) {
+        this.consumeType = consumeType;
     }
 
     public int getDuration() {
@@ -88,19 +91,44 @@ public class Order {
         this.accountType = accountType;
     }
 
-    @Override
+    public Instant getCreateTime() {
+        return createTime;
+    }
 
+    public void setCreateTime(Instant createTime) {
+        this.createTime = createTime;
+    }
+
+    public int getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(int orderStatus) {
+        this.orderStatus = orderStatus;
+    }
+
+    public String getOrderName() {
+        return orderName;
+    }
+
+    public void setOrderName(String orderName) {
+        this.orderName = orderName;
+    }
+
+    @Override
     public String toString() {
         return "order{" +
                 "id=" + id +
                 ", deviceID=" + deviceID +
-                ", consumeType=" + type + "\n" +
+                ", consumeType=" + consumeType + "\n" +
                 ", startTime=" + startTime.toString() +
                 ", endTime=" + endTime.toString() +
                 ", duration=" + duration + "\n" +
                 ", price=" + price +
                 ", payAccount=" + payAccount +
                 ", accountType=" + accountType +
+                ", createTime=" + createTime.toString() +
+                ", orderStatus=" + orderStatus +
                 "}";
     }
 
