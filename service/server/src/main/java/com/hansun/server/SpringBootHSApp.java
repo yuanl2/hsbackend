@@ -6,9 +6,9 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 
 
-@SpringBootApplication(scanBasePackages = {"com.hansun.server"})
+@SpringBootApplication
 // same as @Configuration @EnableAutoConfiguration @ComponentScan
-public class SpringBootHSApp extends SpringBootServletInitializer {
+public class SpringBootHSApp extends org.springframework.boot.context.web.SpringBootServletInitializer {
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {

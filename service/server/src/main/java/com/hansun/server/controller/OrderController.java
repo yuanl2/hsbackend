@@ -67,10 +67,10 @@ public class OrderController {
         return new ResponseEntity<List<Order>>(user, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "user/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteOrder(@PathVariable String id, UriComponentsBuilder ucBuilder) {
-        logger.debug("delete orderid ", id);
-        orderService.deleteOrder(id);
-        return new ResponseEntity<Order>(HttpStatus.NO_CONTENT);
-    }
+//    @RequestMapping(value = "user/{id}", method = RequestMethod.DELETE)
+//    public ResponseEntity<?> deleteOrder(@PathVariable String id, UriComponentsBuilder ucBuilder) {
+//        logger.debug("delete orderid ", id);
+//        orderService.deleteOrder(id);
+//        return new ResponseEntity<Order>(HttpStatus.NO_CONTENT);
+//    }
 }

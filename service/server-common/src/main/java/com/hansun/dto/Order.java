@@ -8,6 +8,7 @@ import java.time.Instant;
 public class Order {
     private int id;
     private int deviceID;
+    private String deviceName;
     private Instant startTime;
     private Instant endTime;
     private int consumeType;
@@ -17,6 +18,13 @@ public class Order {
     private int accountType;
     private String orderName;
     private Instant createTime;
+    /**
+     * 1: start
+     * 2: successful end
+     * 3: device not response
+     * 4: user not pay
+     * 5: unknown
+     */
     private int orderStatus;
 
     public int getId() {
@@ -115,11 +123,20 @@ public class Order {
         this.orderName = orderName;
     }
 
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
+    }
+
     @Override
     public String toString() {
         return "order{" +
                 "id=" + id +
                 ", deviceID=" + deviceID +
+                ", deviceName=" + deviceName +
                 ", consumeType=" + consumeType + "\n" +
                 ", startTime=" + startTime.toString() +
                 ", endTime=" + endTime.toString() +
@@ -145,6 +162,7 @@ public class Order {
         } else {
             return obj instanceof Order && this.getId() == ((Order) obj).getId()
                     && this.getDeviceID() == (((Order) obj).getDeviceID())
+                    && this.getDeviceName() == (((Order) obj).getDeviceName())
                     && this.getStartTime().equals(((Order) obj).getStartTime())
                     && this.getPayAccount().equals(((Order) obj).getPayAccount());
         }

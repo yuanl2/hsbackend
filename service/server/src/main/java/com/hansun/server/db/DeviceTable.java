@@ -28,7 +28,8 @@ public class DeviceTable {
             "INSERT INTO device (deviceID, deviceType, deviceName, locationID, owner,addtionInfo,status) VALUES (?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE =
             "UPDATE device SET deviceType = ?, deviceName = ?, locationID = ?,owner = ?, addtionInfo = ?, status = ? WHERE deviceID = ?";
-
+    private static final String UPDATE_STATUS =
+            "UPDATE device SET status = ? WHERE deviceID like ?";
     private ConnectionPoolManager connectionPoolManager;
 
     private PreparedStatement selectStatement;
@@ -86,6 +87,34 @@ public class DeviceTable {
             updateStatement.setInt(4, device.getOwnerID());
             updateStatement.setString(5, device.getAddtionInfo());
             updateStatement.setInt(6, device.getStatus());
+            updateStatement.executeUpdate();
+        } catch (Exception e) {
+            throw new ServerException(e);
+        } finally {
+            if (updateStatement != null) {
+                try {
+                    updateStatement.close();
+                } catch (SQLException e) {
+                    throw new ServerException(e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    throw new ServerException(e);
+                }
+            }
+        }
+    }
+
+    public void updateStatus(int status, String id) {
+        Connection conn = null;
+        try {
+            conn = connectionPoolManager.getConnection();
+            updateStatement = conn.prepareStatement(UPDATE);
+            updateStatement.setString(2, id);
+            updateStatement.setInt(1, status);
             updateStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);

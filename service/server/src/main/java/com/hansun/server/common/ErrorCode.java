@@ -11,7 +11,7 @@ public enum ErrorCode {
     LINK_NOT_FOUND(HttpStatus.NOT_FOUND, 6002001, "Could not find Link"),
     LINK_INVALID(HttpStatus.NOT_FOUND, 6002002, "Link is invalid"),
 
-    NO_LINK_AUTHORIZATION(HttpStatus.UNAUTHORIZED, 6003001, "No link authorization"),
+    NO_LINK_AUTHORIZATION(HttpStatus.UNAUTHORIZED, 6003001, "No commu authorization"),
 
     CREATE_TOKEN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 6004001, "Create token error"),
     CREATE_JWT_TOKEN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 6004002, "Create JWT token error");

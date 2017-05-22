@@ -9,5 +9,4 @@ public interface DeviceListener<T> {
 
     void disconnect(T t);
 
-    int getCount();
 }

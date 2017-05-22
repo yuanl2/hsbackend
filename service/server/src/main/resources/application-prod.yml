@@ -3,20 +3,19 @@ server:
   port: 8080
   contextPath: /hsservice
 ---
-spring:
-  profiles: prod,default
 datasource:
-    url: jdbc:mysql://localhost:3306/hsdata
+    databaseurl: jdbc:mysql://localhost:3306/
     dbusername: hsbackend
     dbpassword: GB5vesBts
     driverClassName: com.mysql.jdbc.Driver
     defaultSchema:
     maxPoolSize: 20
+    databaseName: hsdata
 socket:
-  socketaddress: localhost
-  socketport: 9090
-  heartbeatinternal: 15000
-  sweepbeatinternal: 5000
+  socketaddress: 10.207.66.56
+  socketport: 8090
+  heartbeatinternal: 180000
+  sweepbeatinternal: 10000
 influxDB:
   username: hsuser
   password: qazwsx123
@@ -25,3 +24,6 @@ influxDB:
   name: metrics
   batchtimeout: 1000
   batchsize: 1000
+msg:
+  processMsgThreadNum: 20
+  responseDelay: 3000

@@ -1,0 +1,358 @@
+
+* {
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-top: 0;
+}
+body, form, ul, li, ol, li, dl, dt, dd, img, p, h1, h2, h3, h4, h5, h6 {
+    list-style: outside none none;
+    margin: 0;
+    padding: 0;
+}
+body {
+    background-color: #eaebea;
+    height: 100%;
+    width: 100%;
+}
+html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+.clear {
+    clear: both;
+    font-size: 1px;
+    height: 1px;
+    line-height: 1px;
+    overflow: hidden;
+}
+.main {
+    height: 100%;
+    width: 100%;
+}
+.main_list {
+    width: 100%;
+}
+.main_logo {
+    color: #fff;
+    display: block;
+    font-family: "微软雅黑";
+    font-size: 20px;
+    letter-spacing: 2px;
+    height:35px;
+    line-height:35px;
+}
+.skgk {
+    color: #fff;
+    font-size: 14px;
+    padding: 0 5px;
+    position: absolute;
+    right: 5px;
+    top: 0;
+    height: 35px;
+    line-height: 35px;
+}
+#wallet {
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 0 5px;
+    position: absolute;
+    left: 5px;
+    top: 0;
+    height: 35px;
+    line-height: 35px;
+    display: inline-block;
+    text-decoration: none;
+}
+.main_logo img {
+    display: block;
+    margin: 0 auto;
+    padding: 10px 0;
+}
+.main_logo span {
+    display: block;
+    text-align: center;
+}
+.main_bottom {
+    background: rgba(0, 0, 0, 0) url("/images/top_1.jpg") repeat-x scroll center top;
+    height: 26px;
+    margin-bottom: 10px;
+    display:none;
+}
+.main_bottom img {
+    display: block;
+    margin: 0 auto;
+    width: 170px;
+}
+.main_t0 {
+    color: #333;
+    display: block;
+    font-family: "微软雅黑";
+    font-size: 1em;
+    letter-spacing: 2px;
+}
+.main_top {
+    background-color: #00cee3;
+    color: #fff;
+    font-size: 20px;
+    position:relative;
+}
+.mrow {
+    height: 33.3%;
+    margin: 0 auto;
+    overflow: hidden;
+    width: 100%;
+}
+.k0 {
+    cursor: pointer;
+    float: left;
+    text-align: center;
+    width: 250px;
+}
+.k0_dt {
+    position: relative;
+}
+.k0_dd0 {
+    color: #414042;
+    font-size: 1em;
+    font-weight: bold;
+    margin: 2px 0;
+
+    word-break:keep-all;           /* 不换行 */
+white-space:nowrap;          /* 不换行 */
+overflow:hidden;               /* 内容超出宽度时隐藏超出部分的内容 */
+text-overflow:ellipsis;         /* 当对象内文本溢出时显示省略标记(...) ；需与overflow:hidden;一起使用。*/
+}
+.mred {
+    color: red;
+}
+.k0_dd1 {
+    margin-bottom: 10px;
+}
+.main_foot {
+    background-color: #008299;
+    color: #fff;
+    font-size: 16px;
+    height: 30px;
+    line-height: 30px;
+    margin-bottom: 20px;
+    padding-left: 20px;
+    text-align: left;
+}
+.Detail {
+    margin: 0 2%;
+    position: relative;
+}
+.Detail_img {
+    border-right: 1px solid #df6033;
+    display: inline-block;
+    margin: 0 auto;
+    padding-bottom: 10px;
+    text-align: center;
+    width: 180px;
+}
+.Detail_title {
+    display: inline-block;
+    font-size: 1em;
+    line-height: 180%;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    position: absolute;
+    top: 20px;
+}
+.alipay {
+    margin-left: 2%;
+    margin-top: 20px;
+    width: 95%;
+}
+.zfutton0, .zfutton1, .zfutton2 {
+    background-color: #00a319;
+    color: #fff;
+    cursor: pointer;
+    display: block;
+    height: 50px;
+    line-height: 50px;
+    margin: 0 auto;
+    text-align: center;
+    width: 150px;
+}
+.zfutton1 {
+    background-color: #df6033;
+    margin-top: 10px;
+}
+.zfutton2 {
+    background-color: #0981ff;
+    margin-top: 10px;
+}
+.zfutton0 {
+    margin-bottom: 5px;
+    position: relative;
+}
+.code {
+}
+.mdetail {
+    width: 250px;
+}
+.debt1, .debt2, .debt3, .debt4 {
+    cursor: pointer;
+    display: inline-block;
+    height: 42px;
+    width: 136px;
+}
+.mdetailbtns {
+    margin-bottom: 20px;
+    text-align: center;
+}
+.debt1 {
+    background: rgba(0, 0, 0, 0) url("/images/btn_03-1_big.png") no-repeat scroll 0 0;
+    background-size: 100%;
+}
+.debt2 {
+    background: rgba(0, 0, 0, 0) url("/images/btn_02_big.png") no-repeat scroll 0 0;
+    background-size: 100%;
+}
+.debt3 {
+    background: rgba(0, 0, 0, 0) url("/images/btn_01.png") no-repeat scroll 0 0;
+}
+.debt4 {
+    background: rgba(0, 0, 0, 0) url("/images/btn_03-2_big.png") no-repeat scroll 0 0;
+    background-size: 100%;
+}
+.mline {
+    background: rgba(0, 0, 0, 0) url("/images/line.jpg") repeat-x scroll 0 0;
+    height: 2px;
+}
+.btn_pay_wallet {
+    background: rgba(0, 0, 0, 0) url("/images/btn_pay_wallet_big.png") no-repeat scroll 0 0;
+    background-size: 100%;
+    cursor: pointer;
+    display: inline-block;
+    height: 42px;
+    width: 136px;
+}
+.btn_pay_yskj {
+    background: rgba(0, 0, 0, 0) url("/images/btn_03-5_big.png") no-repeat scroll 0 0;
+    background-size: 100%;
+    cursor: pointer;
+    display: inline-block;
+    height: 42px;
+    width: 136px;
+}
+.btn_pay_paypal {
+    background: rgba(0, 0, 0, 0) url("/images/btn_paypal_big.png") no-repeat scroll 0 0;
+    background-size: 100%;
+    cursor: pointer;
+    display: inline-block;
+    height: 42px;
+    width: 136px;
+}
+
+.mdede {
+    letter-spacing: 3px;
+    margin: 1em 3em 3em 3em;
+    /*margin: 20px auto auto;
+    width: 300px;
+    height:5em;*/
+    overflow:auto;
+}
+.mdede p {
+    padding-left: 30px;
+}
+.fotter {
+    background-color: #00cee3;
+    color: #fff;
+    height: 35px;
+    line-height: 35px;
+    text-align: center;
+    width: 100%;
+    position:fixed;
+    bottom:0;
+    z-index: 20;
+}
+.fotter span{
+
+    display:inline-block;
+     word-break:keep-all;           /* 不换行 */
+white-space:nowrap;          /* 不换行 */
+overflow:hidden;               /* 内容超出宽度时隐藏超出部分的内容 */
+text-overflow:ellipsis;         /* 当对象内文本溢出时显示省略标记(...) ；需与overflow:hidden;一起使用。*/
+
+}
+.img_size {
+    height: 100%;
+    width: 100%;
+}
+.os {
+    background-color:rgba(0, 0, 0, 0.5);
+    border: 1px solid #999;
+    border-radius: 15px;
+    height: 80%;
+    left: 10%;
+    position: absolute;
+    top: 10%;
+    width: 80%;
+    z-index: 99999;
+}
+.os div {
+    color: #fff;
+    font-size: 30px;
+    letter-spacing: 2px;
+    padding-top: 30%;
+    text-align: center;
+}
+.osbtn {
+    background-color: #39D339;
+    border-radius: 15px;
+    color: #fff;
+    display: block;
+    height: 35px;
+    line-height: 35px;
+    margin: 20% auto 0;
+    text-align: center;
+    width: 150px;
+}
+.sy {
+    background-color: red;
+    bottom: 0;
+    color: #fff;
+    font-size: 1em;
+    font-weight: bold;
+    left: 0;
+    margin: 0;
+    opacity: 0.7;
+    position: absolute;
+    width: 100%;
+    z-index: 100;
+}
+.main_gz {
+    position:absolute;
+    left:10px;
+    top:5px;
+}
+.main_gz a{
+    color:#ffffff;
+    text-decoration:none;
+    font-size:15px;
+}
+
+#banner {
+	text-align: center;
+	height: 150px;
+	background-color: white;
+}
+
+#img_banner {
+	height: 100%;
+}
+
+.shopimg1{
+  position:absolute;top:0;left:0;width:100%;height:100%;z-index:1000;opacity: 0
+}
+.handimage{position:fixed;right:10px;top:20px;width:50px;height:50px;z-index:1500;}
+.gaiceng{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;opacity:0.7;filter:alpha(opacity=70);z-index:2001;animation-delay:0.5s;-webkit-animation-delay:0.5s;}
+.haha{display:none;width:80%;height:160px;z-index:2002;position:fixed;top:60px;left:10%;animation-duration: 1s; }  
+.haha img{width:100%;height:100%}
+.haha p{position:absolute;top:80px;left:20%;font-size:14px;font-family:'微软雅黑';font-weight:bold;color:#444}

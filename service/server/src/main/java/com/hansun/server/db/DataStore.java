@@ -2,7 +2,10 @@ package com.hansun.server.db;
 
 import com.hansun.dto.*;
 import com.hansun.server.common.ServerException;
+import com.hansun.server.util.DeviceUtil;
 import org.apache.catalina.startup.UserConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -19,6 +22,7 @@ import java.util.stream.Stream;
  */
 @Repository
 public class DataStore {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private Map<Integer, Location> locationCache = new ConcurrentHashMap<>();
     private Map<Integer, Province> provinceCache = new ConcurrentHashMap<>();
@@ -159,21 +163,23 @@ public class DataStore {
         return device;
     }
 
-    public Device updateDeviceStatus(Device device) {
-        String deviceID = device.getId();
-        Device device2 = deviceCache.get(deviceID);
-        //缓存不存在此设备
-        if (device2 == null) {
-            Optional<Device> device1 = deviceTable.select(deviceID);
-            if (device1 == null || !device1.isPresent()) {
-                throw ServerException.conflict("Cannot update Device for not exist.");
+    public void updateDeviceStatus(int status, String deviceID) {
+        List<String> devices = DeviceUtil.getDeviceIDs(deviceID);
+        for (String s : devices) {
+            Device device2 = deviceCache.get(s);
+            //缓存不存在此设备
+            if (device2 == null) {
+                Optional<Device> device1 = deviceTable.select(deviceID);
+                if (device1 == null || !device1.isPresent()) {
+                    logger.error("Cannot update Device for not exist.");
+                    continue;
+                }
+            } else {
+                device2.setStatus(status);
+                deviceTable.updateStatus(status, deviceID);
+                deviceCache.put(deviceID, device2);
             }
         }
-
-        device2.setStatus(device.getStatus());
-        deviceTable.update(device2, deviceID);
-        deviceCache.put(deviceID, device2);
-        return device;
     }
 
     private void autoFillDevice(Device device) {
@@ -386,12 +392,12 @@ public class DataStore {
 
         List<Location> lists = new ArrayList<>();
         locationCache.values().forEach(v -> {
-            if(v.getUserID() == userID){
+            if (v.getUserID() == userID) {
                 lists.add(v);
             }
         });
 
-        if(lists.size()>0){
+        if (lists.size() > 0) {
             return lists;
         }
 
