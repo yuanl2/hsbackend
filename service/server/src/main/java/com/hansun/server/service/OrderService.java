@@ -3,23 +3,35 @@ package com.hansun.server.service;
 import com.hansun.dto.Device;
 import com.hansun.dto.Location;
 import com.hansun.dto.Order;
+import com.hansun.server.common.OrderStatus;
+import com.hansun.server.commu.LinkManger;
+import com.hansun.server.commu.SocketServerSelector;
 import com.hansun.server.db.DataStore;
 import com.hansun.server.db.OrderStore;
 import com.hansun.server.db.PayAcountStore;
 import com.hansun.server.metrics.HSServiceMetrics;
 import com.hansun.server.metrics.HSServiceMetricsService;
+import org.apache.tools.ant.taskdefs.condition.Or;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by yuanl2 on 2017/3/29.
  */
 @Service
 public class OrderService {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private HSServiceMetricsService metricsService;
@@ -33,6 +45,19 @@ public class OrderService {
     @Autowired
     private PayAcountStore payAcountStore;
 
+    private Map<String, Order> orderCache = new HashMap<>();
+
+
+    @PostConstruct
+    public void init() {
+        //todo 初始化订单缓存
+    }
+
+    @PreDestroy
+    public void destroy() {
+        orderCache.clear();
+    }
+
     public void sendMetrics(Order order) {
         metricsService.sendMetrics(HSServiceMetrics
                 .builder()
@@ -40,9 +65,53 @@ public class OrderService {
                 .build());
     }
 
-    public Order createOrder(Order order) {
+    public void startOrder(String name) {
+        Order order = orderCache.get(name);
+        if (order != null) {
+            order = orderStore.queryOrder(name);
+        }
+        if (order != null) {
+            order.setOrderStatus(OrderStatus.START);
+            order.setStartTime(Instant.now());
+            orderStore.updateOrder(order);
+        }
+        logger.error(name + " have no order now");
+    }
 
-        return null;
+    public void finishOrder(String name) {
+        Order order = orderCache.get(name);
+        if (order != null) {
+            order = orderStore.queryOrder(name);
+        }
+        if (order != null) {
+            order.setOrderStatus(OrderStatus.FINISH);
+            order.setEndTime(Instant.now());
+            orderStore.updateOrder(order);
+        }
+        logger.error(name + " have no order now");
+    }
+
+    public void OrderNotFinish(String name, int orderStatus) {
+        Order order = orderCache.get(name);
+        if (order != null) {
+            order = orderStore.queryOrder(name);
+        }
+        if (order != null) {
+            order.setOrderStatus(orderStatus);
+            order.setEndTime(Instant.now());
+            orderStore.updateOrder(order);
+        }
+        logger.error(name + " have no order now");
+    }
+
+    public Order createOrder(Order order) {
+        orderCache.put(order.getDeviceName(), order);
+        return orderStore.insertOrder(order);
+    }
+
+    public List<Order> getOrder(String deviceName){
+       orderCache.get(deviceName);
+       return null;
     }
 
     public void deleteOrder(String name) {

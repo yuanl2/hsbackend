@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,5 +91,12 @@ public class DeviceController {
         }
         deviceService.deleteDevice(id);
         return new ResponseEntity<Device>(HttpStatus.NO_CONTENT);
+    }
+
+    @RequestMapping("/deviceStatus")
+    public String deviceStatus(@RequestParam(value = "device_id", required = true, defaultValue = "World") String device_id,
+                               HttpServletRequest request, HttpServletResponse response) throws IOException {
+        logger.info("device_id " + device_id );
+        return "1";
     }
 }

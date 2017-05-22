@@ -18,8 +18,8 @@ public class HSServiceProperties {
     private static final String DATABASE_DRIVER_CLASS = "datasource.driverClassName";
 
 
-    private static final String DEFAULT_MYSQL_USER_NAME = "root";
-    private static final String DEFAULT_MYSQL_USER_PASSWORD = "123456sdfdsf";
+    private static final String DEFAULT_MYSQL_USER_NAME = "hsbackend";
+    private static final String DEFAULT_MYSQL_USER_PASSWORD = "GB5vesBts";
     private static final String DEFAULT_DATABASE_URL = "jdbc:mysql://localhost:3306/";
     private static final String DEFAULT_DATABASE_NAME = "hsdata";
     private static final String DRIVER_CLASS_MYSQL = "com.mysql.jdbc.Driver";
@@ -51,6 +51,13 @@ public class HSServiceProperties {
     public static final String DEFAULT_INFLUXDB_NAME = "metrics";
     public static final int DEFAULT_BATCH_TIMEOUT = 1000;
     public static final int DEFAULT_BATCH_SIZE = 1000;
+
+
+    public static final String PROCESS_MSG_THREAD_NUM = "msg.processMsgThreadNum";
+    public static final String DEFAULT_PROCESS_MSG_THREAD_NUM = "20";
+
+    public static final String PROCESS_MSG_RESPONSE_DELAY= "msg.responseDelay";
+    public static final String DEFAULT_PROCESS_MSG_RESPONSE_DELAY = "5000";
 
 
     protected Environment env;
@@ -132,5 +139,13 @@ public class HSServiceProperties {
 
     public String getInfluxDbRetentionPolicy() {
         return env.getProperty(INFLUXDB_RETENTION_POLICY, DEFAULT_INFLUXDB_RETENTION_POLICY);
+    }
+
+    public String getProcessMsgThreadNum() {
+        return env.getProperty(PROCESS_MSG_THREAD_NUM, DEFAULT_PROCESS_MSG_THREAD_NUM);
+    }
+
+    public String getProcessMsgResponseDelay() {
+        return env.getProperty(PROCESS_MSG_RESPONSE_DELAY, DEFAULT_PROCESS_MSG_RESPONSE_DELAY);
     }
 }
