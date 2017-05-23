@@ -40,7 +40,7 @@ public class DeviceTask implements Runnable {
             //先判断这个消息是否是等待的ack消息
             MsgWaitResult result = getHandler().getLinkManger().getSyncAsynMsgController().getMsgWaitResult(msg, handler);
             if (result != null) {
-                result.setRequestMsg(msg);//后续会删除请求下发的消息
+                result.setResponseMsg(msg);//后续会删除请求下发的消息
             }
 
             //如果是上电之后第一次上报状态和设备名，需要加入缓存中，以便后续下发消息使用

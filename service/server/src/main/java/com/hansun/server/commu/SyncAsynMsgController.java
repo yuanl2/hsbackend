@@ -191,7 +191,7 @@ public class SyncAsynMsgController {
 
         String key = getResponseMsgType(msg.getMsgType()) + "_" + handler.getDeviceName();
 		/* 先要转换该timeout，因为输入的timeout是毫秒为单位的 每次Sleep一个 */
-        SyncMsgWaitResult syncWaitResult = new SyncMsgWaitResult(resendInterval / SLEEP_TIME, handler);
+        SyncMsgWaitResult syncWaitResult = new SyncMsgWaitResult(msg,resendInterval / SLEEP_TIME, handler);
         syncWaitResult.setRetryCount(retryCount);
         synchronized (waitList) {
             waitList.put(key, syncWaitResult);

@@ -1,7 +1,7 @@
 package com.hansun.server.controller;
 
 import com.alibaba.fastjson.JSON;
-<<<<<<< HEAD
+
 import com.hansun.tenpay.AccessTokenRequestHandler;
 import com.hansun.tenpay.ClientRequestHandler;
 import com.hansun.tenpay.PackageRequestHandler;
@@ -9,24 +9,11 @@ import com.hansun.tenpay.PrepayIdRequestHandler;
 import com.hansun.server.util.ConstantUtil;
 import com.hansun.server.util.TenpayUtil;
 import com.hansun.server.util.WXUtil;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.hansun.ResponsePage;
-=======
-import com.tenpay.AccessTokenRequestHandler;
-import com.tenpay.ClientRequestHandler;
-import com.tenpay.PackageRequestHandler;
-import com.tenpay.PrepayIdRequestHandler;
-import com.hansun.server.util.ConstantUtil;
-import com.hansun.server.util.TenpayUtil;
-import com.hansun.server.util.WXUtil;
-import org.apache.log4j.Logger;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import util.ResponsePage;
->>>>>>> b7737b8b4a1ad0bb3ba6a36b57b051ee19beb0d6
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,11 +29,8 @@ import java.util.Map;
 @RequestMapping("/weixin/")
 public class WeiXinPayController extends ResponsePage {
 
-<<<<<<< HEAD
-	private Logger log = LoggerFactory.getLogger(WeiXinPayController.class);
-=======
-	private Logger log = Logger.getLogger(WeiXinPayController.class);
->>>>>>> b7737b8b4a1ad0bb3ba6a36b57b051ee19beb0d6
+	private org.slf4j.Logger log = LoggerFactory.getLogger(WeiXinPayController.class);
+
 	
 	@RequestMapping(value ="weixin.do",produces = "application/json")
 	public String doWeinXinRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {

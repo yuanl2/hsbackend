@@ -15,8 +15,8 @@ public class SyncMsgWaitResult extends MsgWaitResult {
      *
      * @param timeout
      */
-    public SyncMsgWaitResult(long timeout, IHandler handler) {
-        super(timeout, handler);
+    public SyncMsgWaitResult(IMsg msg ,long timeout, IHandler handler) {
+        super(msg, timeout, handler);
     }
 
     /**
