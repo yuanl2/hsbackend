@@ -37,6 +37,13 @@ public class LinkManger {
 
     private ExecutorService executorService;
 
+    @Autowired
+    private SyncAsynMsgController syncAsynMsgController;
+
+    public SyncAsynMsgController getSyncAsynMsgController() {
+        return syncAsynMsgController;
+    }
+
     @PostConstruct
     public void init() {
         logger.info("LinkManger process msg thread pool number = " + hsServiceProperties.getProcessMsgThreadNum());

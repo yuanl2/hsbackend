@@ -36,6 +36,12 @@ public class DeviceTask implements Runnable {
         try {
             msg.validate();
 
+            //先判断这个消息是否是等待的ack消息
+            MsgWaitResult result = getHandler().getLinkManger().getSyncAsynMsgController().getMsgWaitResult(msg, handler);
+            if (result != null) {
+                result.setRequestMsg(msg);//后续会删除请求下发的消息
+            }
+
             //如果是上电之后第一次上报状态和设备名，需要加入缓存中，以便后续下发消息使用
             if (msg.getMsgType().equals("AP00")) {
                 DeviceMsg m = (DeviceMsg) msg;
@@ -95,7 +101,7 @@ public class DeviceTask implements Runnable {
             try {
                 Thread.sleep(delay);
             } catch (InterruptedException e1) {
-                logger.error(e.getMessage(),e);
+                logger.error(e.getMessage(), e);
             }
 
             ServerErrorMsg m = new ServerErrorMsg("BP98");

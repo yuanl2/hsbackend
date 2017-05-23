@@ -4,8 +4,10 @@ import com.hansun.dto.Device;
 import com.hansun.dto.Location;
 import com.hansun.dto.Order;
 import com.hansun.server.common.OrderStatus;
-import com.hansun.server.commu.LinkManger;
-import com.hansun.server.commu.SocketServerSelector;
+import com.hansun.server.common.ServerException;
+import com.hansun.server.commu.*;
+import com.hansun.server.commu.msg.DeviceMsg;
+import com.hansun.server.commu.msg.ServerStartDeviceMsg;
 import com.hansun.server.db.DataStore;
 import com.hansun.server.db.OrderStore;
 import com.hansun.server.db.PayAcountStore;
@@ -48,6 +50,12 @@ public class OrderService {
     private Map<String, Order> orderCache = new HashMap<>();
 
 
+    @Autowired
+    private SyncAsynMsgController syncAsynMsgController;
+
+    @Autowired
+    private LinkManger linkManger;
+
     @PostConstruct
     public void init() {
         //todo 初始化订单缓存
@@ -63,6 +71,50 @@ public class OrderService {
                 .builder()
                 .measurement("")
                 .build());
+    }
+
+
+    public void createStartMsgToDevice(Order order) {
+        String orderDeviceName = order.getDeviceName();
+        String index = orderDeviceName.split("_")[1];
+        String deviceName = orderDeviceName.split("_")[1];
+
+        ServerStartDeviceMsg msg = new ServerStartDeviceMsg("BP03");
+        msg.setDeviceType("000");
+
+        Map<Integer, String> map = new HashMap<>();
+        for (int i = 1; i <= 4; i++) {
+            if (index.equals(i + "")) {
+                map.put(i, "1");
+            } else {
+                map.put(i, "0");
+            }
+        }
+        msg.setStatus(map);
+        Map<Integer, String> times = new HashMap<>();
+        for (int i = 1; i <= 4; i++) {
+            if (index.equals(i + "")) {
+                map.put(i, order.getDuration() + "");
+            } else {
+                map.put(i, "0");
+            }
+        }
+        msg.setMap(times);
+        IHandler handler = linkManger.get(orderDeviceName);
+        if(handler == null){
+            logger.error("can not create order for handler for device not exist  " + orderDeviceName);
+            throw new ServerException("can not create order for handler for device not exist  " + orderDeviceName);
+        }
+
+        SyncMsgWaitResult syncMsgWaitResult = syncAsynMsgController.createSyncWaitResult(msg,handler);
+        syncMsgWaitResult.setRequestMsg(msg);
+        linkManger.get(order.getDeviceName()).getSendList().add(msg.toByteBuffer());
+    }
+
+    public Order createOrder(Order order) {
+        createStartMsgToDevice(order);
+        orderCache.put(order.getDeviceName(), order);
+        return orderStore.insertOrder(order);
     }
 
     public void startOrder(String name) {
@@ -104,14 +156,11 @@ public class OrderService {
         logger.error(name + " have no order now");
     }
 
-    public Order createOrder(Order order) {
-        orderCache.put(order.getDeviceName(), order);
-        return orderStore.insertOrder(order);
-    }
 
-    public List<Order> getOrder(String deviceName){
-       orderCache.get(deviceName);
-       return null;
+
+    public List<Order> getOrder(String deviceName) {
+        orderCache.get(deviceName);
+        return null;
     }
 
     public void deleteOrder(String name) {
