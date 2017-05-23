@@ -20,9 +20,6 @@ public abstract class MsgWaitResult {
 		this.retryCount = retryCount;
 	}
 
-	public void setRequestMsg(IMsg requestMsg) {
-		this.requestMsg = requestMsg;
-	}
 
 	/**
 	 * 表示超时的值
@@ -62,8 +59,9 @@ public abstract class MsgWaitResult {
 	
 	private IHandler handler = null;
 	
-	public MsgWaitResult(long timeout,IHandler handler)
+	public MsgWaitResult(IMsg msg, long timeout,IHandler handler)
 	{
+		this.requestMsg = msg;
 		this.timeout = timeout;
 		this.handler = handler;
 	}

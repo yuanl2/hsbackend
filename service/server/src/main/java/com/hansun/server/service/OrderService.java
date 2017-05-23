@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,7 +70,6 @@ public class OrderService {
                 .build());
     }
 
-
     public void createStartMsgToDevice(Order order) {
         String orderDeviceName = order.getDeviceName();
         String index = orderDeviceName.split("_")[1];
@@ -104,8 +102,7 @@ public class OrderService {
             throw new ServerException("can not create order for handler for device not exist  " + orderDeviceName);
         }
 
-        SyncMsgWaitResult syncMsgWaitResult = syncAsynMsgController.createSyncWaitResult(msg, handler);
-        syncMsgWaitResult.setRequestMsg(msg);
+        syncAsynMsgController.createSyncWaitResult(msg, handler);
         linkManger.get(order.getDeviceName()).getSendList().add(msg.toByteBuffer());
     }
 
