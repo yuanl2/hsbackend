@@ -6,14 +6,13 @@ import com.hansun.dto.Order;
 import com.hansun.server.common.OrderStatus;
 import com.hansun.server.common.ServerException;
 import com.hansun.server.commu.*;
-import com.hansun.server.commu.msg.DeviceMsg;
 import com.hansun.server.commu.msg.ServerStartDeviceMsg;
+
 import com.hansun.server.db.DataStore;
 import com.hansun.server.db.OrderStore;
 import com.hansun.server.db.PayAcountStore;
 import com.hansun.server.metrics.HSServiceMetrics;
 import com.hansun.server.metrics.HSServiceMetricsService;
-import org.apache.tools.ant.taskdefs.condition.Or;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +47,6 @@ public class OrderService {
     private PayAcountStore payAcountStore;
 
     private Map<String, Order> orderCache = new HashMap<>();
-
 
     @Autowired
     private SyncAsynMsgController syncAsynMsgController;
@@ -101,12 +99,12 @@ public class OrderService {
         }
         msg.setMap(times);
         IHandler handler = linkManger.get(orderDeviceName);
-        if(handler == null){
+        if (handler == null) {
             logger.error("can not create order for handler for device not exist  " + orderDeviceName);
             throw new ServerException("can not create order for handler for device not exist  " + orderDeviceName);
         }
 
-        SyncMsgWaitResult syncMsgWaitResult = syncAsynMsgController.createSyncWaitResult(msg,handler);
+        SyncMsgWaitResult syncMsgWaitResult = syncAsynMsgController.createSyncWaitResult(msg, handler);
         syncMsgWaitResult.setRequestMsg(msg);
         linkManger.get(order.getDeviceName()).getSendList().add(msg.toByteBuffer());
     }
@@ -155,7 +153,6 @@ public class OrderService {
         }
         logger.error(name + " have no order now");
     }
-
 
 
     public List<Order> getOrder(String deviceName) {

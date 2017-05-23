@@ -60,6 +60,7 @@ public class HSServiceProperties {
     public static final String DEFAULT_PROCESS_MSG_RESPONSE_DELAY = "5000";
 
 
+<<<<<<< HEAD
     //超时重发消息
     public static final String PROCESS_MSG_RESEND_INTERVAL= "msg.resend.interval";
     public static final String DEFAULT_PROCESS_MSG_RESEND_INTERVAL = "2000";
@@ -69,6 +70,8 @@ public class HSServiceProperties {
 
 
 
+=======
+>>>>>>> b7737b8b4a1ad0bb3ba6a36b57b051ee19beb0d6
     protected Environment env;
 
     @Autowired
@@ -157,6 +160,7 @@ public class HSServiceProperties {
     public String getProcessMsgResponseDelay() {
         return env.getProperty(PROCESS_MSG_RESPONSE_DELAY, DEFAULT_PROCESS_MSG_RESPONSE_DELAY);
     }
+<<<<<<< HEAD
 
     public String getProcessMsgResendInterval() {
         return env.getProperty(PROCESS_MSG_RESEND_INTERVAL, DEFAULT_PROCESS_MSG_RESEND_INTERVAL);
@@ -165,4 +169,6 @@ public class HSServiceProperties {
     public String getProcessMsgRetryCount() {
         return env.getProperty(PROCESS_MSG_RETRY_COUNT, DEFAULT_PROCESS_MSG_RETRY_COUNT);
     }
+=======
+>>>>>>> b7737b8b4a1ad0bb3ba6a36b57b051ee19beb0d6
 }
