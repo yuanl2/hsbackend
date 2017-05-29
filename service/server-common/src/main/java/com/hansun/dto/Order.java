@@ -1,15 +1,28 @@
 package com.hansun.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.hansun.server.common.InstantSerialization;
+
 import java.time.Instant;
 
 /**
  * Created by yuanl2 on 2017/3/29.
  */
 public class Order {
-    private int id;
-    private int deviceID;
+    private long id;
+    private long deviceID;
     private String deviceName;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
+    @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
     private Instant startTime;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
+    @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
     private Instant endTime;
     private int consumeType;
     private int duration;
@@ -17,6 +30,10 @@ public class Order {
     private String payAccount;
     private int accountType;
     private String orderName;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
+    @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
     private Instant createTime;
     /**
      * 1: start
@@ -27,19 +44,19 @@ public class Order {
      */
     private int orderStatus;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
-    public int getDeviceID() {
+    public long getDeviceID() {
         return deviceID;
     }
 
-    public void setDeviceID(int deviceID) {
+    public void setDeviceID(long deviceID) {
         this.deviceID = deviceID;
     }
 
@@ -151,8 +168,8 @@ public class Order {
 
     @Override
     public int hashCode() {
-        return ((this.id * 31 + this.deviceID) * 31
-                + this.startTime.hashCode()) * 31 + this.payAccount.hashCode();
+        return (int) (((this.id * 31 + this.deviceID) * 31
+                + this.startTime.hashCode()) * 31 + this.payAccount.hashCode());
     }
 
     @Override

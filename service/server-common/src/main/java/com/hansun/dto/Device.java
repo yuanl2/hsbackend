@@ -10,8 +10,12 @@ import java.time.Instant;
  * Created by yuanl2 on 2017/3/29.
  */
 public class Device {
-    private String id;
+    private long id;
     private int type;
+
+    /**
+     * 内部的设备名字
+     */
     private String name;
     private int locationID;
     private String province;
@@ -22,16 +26,20 @@ public class Device {
     private int ownerID;
     private String owner;
     private int status;
+    /**
+     * 设备上报的sim卡名字，初始化连接带有sim卡信息
+     */
+    private String simCard;
 
     @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
     @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
     private Instant beginTime;
 
-    public String getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -131,6 +139,14 @@ public class Device {
         this.beginTime = beginTime;
     }
 
+    public String getSimCard() {
+        return simCard;
+    }
+
+    public void setSimCard(String simCard) {
+        this.simCard = simCard;
+    }
+
     @Override
     public String toString() {
         return "device{" +
@@ -146,12 +162,13 @@ public class Device {
                 ", owner=" + owner +
                 ", ownerID=" + ownerID +
                 ", status=" + status +
+                ", simCard=" + simCard +
                 "}";
     }
 
     @Override
     public int hashCode() {
-        return this.id.hashCode() * 31 + this.name.hashCode();
+        return this.name.hashCode() * 31 + (int) id;
     }
 
     @Override
@@ -159,7 +176,7 @@ public class Device {
         if (this == obj) {
             return true;
         } else {
-            return obj instanceof Device && this.getId().equals(((Device) obj).getId())
+            return obj instanceof Device && this.getId() == (((Device) obj).getId())
                     && this.getName().equals(((Device) obj).getName());
         }
     }

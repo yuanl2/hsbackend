@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import retrofit2.http.HEAD;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -22,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 public class HeartBeatService {
-
     private final static Logger logger = LoggerFactory.getLogger(HeartBeatService.class);
 
     @Autowired
@@ -36,6 +34,20 @@ public class HeartBeatService {
 
     private int count;
 
+    private Timer timer;
+
+    private Map<String, Integer> deviceIDMapSlot = new ConcurrentHashMap<>();
+
+    private Map<Integer, Set<String>> slotMapDeviceIDs = new ConcurrentHashMap<>();
+
+    private volatile int currentIndex = 0;
+
+    private DeviceConnect connectListener = new DeviceConnect();
+
+    public DeviceConnect getConnectListener() {
+        return connectListener;
+    }
+
     @PostConstruct
     private void init() {
         // 循环圈的格子个数 index 0 ~ count-1
@@ -47,13 +59,7 @@ public class HeartBeatService {
         timer = new Timer();
 
         // deviceboxid_"id"
-        Set<String> deviceIDs = dataStore.geAllDevices();
-        Set<String> deviceBoxIDs = new HashSet<>();
-
-        deviceIDs.forEach(id -> {
-            String tmp = id.split("_")[0];
-            deviceBoxIDs.add(tmp);
-        });
+        Set<String> deviceBoxIDs = dataStore.getAllDeviceBoxes();
 
         if (!deviceBoxIDs.isEmpty()) {
             deviceBoxIDs.forEach(k -> {
@@ -72,22 +78,9 @@ public class HeartBeatService {
         slotMapDeviceIDs.clear();
     }
 
-    private Timer timer;
-
-    private Map<String, Integer> deviceIDMapSlot = new ConcurrentHashMap<>();
-
-    private Map<Integer, Set<String>> slotMapDeviceIDs = new ConcurrentHashMap<>();
-
-    private volatile int currentIndex = 0;
-
-    private DeviceConnect connectListener = new DeviceConnect();
-
-    public DeviceConnect getConnectListener() {
-        return connectListener;
-    }
-
     class DeviceStatusTask extends TimerTask {
         public void run() {
+
             Set<String> sets;
             try {
                 //5秒扫一格，
@@ -110,37 +103,34 @@ public class HeartBeatService {
     class DeviceConnect implements DeviceListener<String> {
 
         @Override
-        public void connnect(String id) {
+        public void connnect(String simid) {
             try {
                 int index = currentIndex;
                 int next = (index + 1) % count;
-                deviceIDMapSlot.replace(id, next);
+                deviceIDMapSlot.replace(simid, next);
                 //把设备对应的ID移动到下一格
-                slotMapDeviceIDs.get(index).remove(id);
-                slotMapDeviceIDs.get(next).add(id);
+                slotMapDeviceIDs.get(index).remove(simid);
+                slotMapDeviceIDs.get(next).add(simid);
                 //id只是设备盒子的id，具体对应4个具体的设备
-                dataStore.updateDeviceStatus(DeviceStatus.CONNECT, id);
+                dataStore.updateDeviceStatus(DeviceStatus.CONNECT, simid);
             } catch (Exception e) {
-
-                e.printStackTrace();
+                logger.error("DeviceConnect: connect error", e);
             }
         }
 
         @Override
-        public void disconnect(String id) {
+        public void disconnect(String simid) {
             try {
                 //收不到心跳，主动断开链路
-                IHandler handler = linkManger.get(id);
+                IHandler handler = linkManger.get(simid);
                 if (handler != null) {
                     handler.handleClose();
                 }
             } catch (Exception e) {
-                logger.error("disconnect error " + id, e);
-
+                logger.error("disconnect error " + simid, e);
             }
-            dataStore.updateDeviceStatus(DeviceStatus.DISCONNECTED, id);
+            dataStore.updateDeviceStatus(DeviceStatus.DISCONNECTED, simid);
         }
-
     }
 }
 

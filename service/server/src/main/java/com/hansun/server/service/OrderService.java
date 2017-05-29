@@ -20,11 +20,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by yuanl2 on 2017/3/29.
@@ -71,39 +69,56 @@ public class OrderService {
     }
 
     public void createStartMsgToDevice(Order order) {
-        String orderDeviceName = order.getDeviceName();
-        String index = orderDeviceName.split("_")[1];
-        String deviceName = orderDeviceName.split("_")[1];
-
-        ServerStartDeviceMsg msg = new ServerStartDeviceMsg("BP03");
-        msg.setDeviceType("000");
-
-        Map<Integer, String> map = new HashMap<>();
-        for (int i = 1; i <= 4; i++) {
-            if (index.equals(i + "")) {
-                map.put(i, "1");
-            } else {
-                map.put(i, "0");
+        try {
+            order.setId(Long.valueOf(getSequenceNumber()));
+            Device device = dataStore.queryDeviceByDeviceID(order.getDeviceID());
+            if (device == null) {
+                logger.error("can not create order for device not exist  " + order.getDeviceName());
+                throw new ServerException("can not create order for device not exist  " + order.getDeviceName());
             }
-        }
-        msg.setStatus(map);
-        Map<Integer, String> times = new HashMap<>();
-        for (int i = 1; i <= 4; i++) {
-            if (index.equals(i + "")) {
-                map.put(i, order.getDuration() + "");
-            } else {
-                map.put(i, "0");
-            }
-        }
-        msg.setMap(times);
-        IHandler handler = linkManger.get(orderDeviceName);
-        if (handler == null) {
-            logger.error("can not create order for handler for device not exist  " + orderDeviceName);
-            throw new ServerException("can not create order for handler for device not exist  " + orderDeviceName);
-        }
+            String orderDeviceName = order.getDeviceName();
+            String index = orderDeviceName.split("_")[1];
+            String deviceName = orderDeviceName.split("_")[0];
 
-        syncAsynMsgController.createSyncWaitResult(msg, handler);
-        linkManger.get(order.getDeviceName()).getSendList().add(msg.toByteBuffer());
+            ServerStartDeviceMsg msg = new ServerStartDeviceMsg("BP03");
+            msg.setDeviceType("000");
+
+            order.setPrice(dataStore.queryConsume(order.getConsumeType()).getPrice());
+            order.setDuration(dataStore.queryConsume(order.getConsumeType()).getDuration());
+
+            Map<Integer, String> map = new HashMap<>();
+            for (int i = 1; i <= 4; i++) {
+                if (index.equals(i + "")) {
+                    map.put(i, "1");
+                } else {
+                    map.put(i, "0");
+                }
+            }
+            msg.setStatus(map);
+            Map<Integer, String> times = new HashMap<>();
+            for (int i = 1; i <= 4; i++) {
+                if (index.equals(i + "")) {
+                    map.put(i, order.getDuration() + "");
+                } else {
+                    map.put(i, "0");
+                }
+            }
+            msg.setMap(times);
+
+            String simcard = device.getSimCard();
+
+            IHandler handler = linkManger.get(simcard);
+            if (handler == null) {
+                logger.error("can not create order for handler for device not exist  " + device.getName());
+                throw new ServerException("can not create order for handler for device not exist  " + device.getName());
+            }
+
+            syncAsynMsgController.createSyncWaitResult(msg, handler);
+            handler.sendMsg(msg);
+        } catch (Exception e) {
+            logger.error("createStartMsgToDevice error", e);
+            throw new ServerException("createStartMsgToDevice error", e);
+        }
     }
 
     public Order createOrder(Order order) {
@@ -162,15 +177,15 @@ public class OrderService {
         //Todo
     }
 
-    public List<Order> queryOrderByDevice(String id, Instant startTime, Instant endTime) {
-        List<String> deviceIDs = new ArrayList<>();
+    public List<Order> queryOrderByDevice(Long id, Instant startTime, Instant endTime) {
+        List<Long> deviceIDs = new ArrayList<>();
         deviceIDs.add(id);
         return orderStore.queryByDevice(deviceIDs, startTime, endTime);
     }
 
     public List<Order> queryOrderByUser(String id, Instant startTime, Instant endTime) {
         List<Device> devices = dataStore.queryDeviceByOwner(Integer.valueOf(id));
-        List<String> deviceIDs = new ArrayList<>();
+        List<Long> deviceIDs = new ArrayList<>();
         devices.forEach(k -> {
             deviceIDs.add(k.getId());
         });
@@ -179,7 +194,7 @@ public class OrderService {
 
     public List<Order> queryOrderByArea(String id, Instant startTime, Instant endTime) {
         List<Location> locationList = dataStore.queryLocationByAreaID(Integer.valueOf(id));
-        List<String> deviceIDs = new ArrayList<>();
+        List<Long> deviceIDs = new ArrayList<>();
         locationList.forEach(k -> {
             List<Device> lists = dataStore.queryDeviceByLocation(k.getId());
             if (lists != null) {
@@ -189,5 +204,14 @@ public class OrderService {
             }
         });
         return orderStore.queryByDevice(deviceIDs, startTime, endTime);
+    }
+
+    public static String getSequenceNumber() {
+        Date d = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyMMddhhmmss"); // 12
+        String str = sdf.format(d);
+        String haomiao = String.valueOf(System.nanoTime());
+        str = str + haomiao.substring(haomiao.length() - 6, haomiao.length());
+        return str;
     }
 }

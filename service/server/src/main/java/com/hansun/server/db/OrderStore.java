@@ -57,7 +57,7 @@ public class OrderStore {
         orderTable.delete(name);
     }
 
-    public List<Order> queryByDevice(List<String> deviceID, Instant startTime, Instant endTIme) {
+    public List<Order> queryByDevice(List<Long> deviceID, Instant startTime, Instant endTIme) {
         Optional<List<Order>> result = orderTable.selectByDevice(deviceID, startTime, endTIme);
         if (result.isPresent()) {
             return result.get();

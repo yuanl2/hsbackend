@@ -185,6 +185,11 @@ public class SocketHandler implements IHandler {
         hasConnected = false;
     }
 
+    public void sendMsg(IMsg msg) {
+        getSendList().add(msg.toByteBuffer());
+        updateOps();
+    }
+
     public void updateOps() {
         try {
             if (!hasConnected) {

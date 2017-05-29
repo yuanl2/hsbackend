@@ -1,5 +1,7 @@
 package com.hansun.server.commu;
 
+import com.hansun.server.commu.msg.IMsg;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -31,4 +33,6 @@ public interface IHandler {
     LinkManger getLinkManger();
 
     void setLinkManger(LinkManger linkManger);
+
+    void sendMsg(IMsg msg);
 }

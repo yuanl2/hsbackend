@@ -42,9 +42,13 @@ public class UserTable {
             insertStatement.setString(2, user.getName());
             insertStatement.setString(3, user.getPassword());
             insertStatement.setString(4, user.getAddtionInfo());
-            insertStatement.setTimestamp(5, Timestamp.from(user.getExpiredTime()));
+            if (user.getExpiredTime() != null) {
+                insertStatement.setTimestamp(5, Timestamp.from(user.getExpiredTime()));
+            } else {
+                insertStatement.setTimestamp(5, null);
+            }
             insertStatement.setString(6, user.getRole());
-            insertStatement.setBoolean(7,user.isLocked());
+            insertStatement.setBoolean(7, user.isLocked());
             insertStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -76,9 +80,13 @@ public class UserTable {
             updateStatement.setString(2, user.getName());
             updateStatement.setString(3, user.getPassword());
             updateStatement.setString(4, user.getAddtionInfo());
-            updateStatement.setTimestamp(5, Timestamp.from(user.getExpiredTime()));
+            if (user.getExpiredTime() != null) {
+                updateStatement.setTimestamp(5, Timestamp.from(user.getExpiredTime()));
+            } else {
+                updateStatement.setTimestamp(5, null);
+            }
             updateStatement.setString(6, user.getRole());
-            updateStatement.setBoolean(7,user.isLocked());
+            updateStatement.setBoolean(7, user.isLocked());
             updateStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -143,7 +151,10 @@ public class UserTable {
                                 user.setUserType(resultSet.getInt("userType"));
                                 user.setPassword(resultSet.getString("password"));
                                 user.setAddtionInfo(resultSet.getString("addtionInfo"));
-                                user.setExpiredTime(resultSet.getTimestamp("expired").toInstant());
+                                Timestamp expiredTime = resultSet.getTimestamp("expired");
+                                if (expiredTime != null) {
+                                    user.setExpiredTime(expiredTime.toInstant());
+                                }
                                 user.setRole(resultSet.getString("role"));
                                 user.setLocked(resultSet.getBoolean("islocked"));
                                 return user;
@@ -158,7 +169,6 @@ public class UserTable {
                                 throw new ServerException(e);
                             }
                         }
-
                     });
         } catch (Exception e) {
             return Optional.empty();
@@ -196,7 +206,10 @@ public class UserTable {
                                 user.setUserType(resultSet.getInt("userType"));
                                 user.setPassword(resultSet.getString("password"));
                                 user.setAddtionInfo(resultSet.getString("addtionInfo"));
-                                user.setExpiredTime(resultSet.getTimestamp("expired").toInstant());
+                                Timestamp expiredTime = resultSet.getTimestamp("expired");
+                                if (expiredTime != null) {
+                                    user.setExpiredTime(expiredTime.toInstant());
+                                }
                                 user.setRole(resultSet.getString("role"));
                                 user.setLocked(resultSet.getBoolean("islocked"));
                                 return user;
@@ -211,7 +224,6 @@ public class UserTable {
                                 throw new ServerException(e);
                             }
                         }
-
                     });
         } catch (Exception e) {
             return Optional.empty();
@@ -249,7 +261,10 @@ public class UserTable {
                                 user.setUserType(resultSet.getInt("userType"));
                                 user.setPassword(resultSet.getString("password"));
                                 user.setAddtionInfo(resultSet.getString("addtionInfo"));
-                                user.setExpiredTime(resultSet.getTimestamp("expired").toInstant());
+                                Timestamp expiredTime = resultSet.getTimestamp("expired");
+                                if (expiredTime != null) {
+                                    user.setExpiredTime(expiredTime.toInstant());
+                                }
                                 user.setRole(resultSet.getString("role"));
                                 user.setLocked(resultSet.getBoolean("islocked"));
                                 list.add(user);
@@ -264,7 +279,6 @@ public class UserTable {
                                 throw new ServerException(e);
                             }
                         }
-
                     });
         } catch (Exception e) {
             return Optional.empty();

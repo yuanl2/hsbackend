@@ -1,6 +1,7 @@
 package com.hansun.server.controller;
 
 import com.hansun.dto.Device;
+import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.service.DeviceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,7 @@ public class DeviceController {
     }
 
     @RequestMapping(value = "devices/id/{id}", method = RequestMethod.GET)
-    public ResponseEntity<?> getDevice(@PathVariable String id, UriComponentsBuilder ucBuilder) {
+    public ResponseEntity<?> getDevice(@PathVariable Long id, UriComponentsBuilder ucBuilder) {
         return new ResponseEntity<Device>(deviceService.getDevice(id), HttpStatus.OK);
     }
 
@@ -77,7 +78,7 @@ public class DeviceController {
     }
 
     @RequestMapping(value = "devices/id/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteDevice(@PathVariable String id,
+    public ResponseEntity<?> deleteDevice(@PathVariable Long id,
                                           @RequestParam(value = "locationID", required = false, defaultValue = "1") int locationID,
                                           @RequestParam(value = "owner", required = false, defaultValue = "1") int owner,
                                           UriComponentsBuilder ucBuilder) {
@@ -94,9 +95,15 @@ public class DeviceController {
     }
 
     @RequestMapping("/deviceStatus")
-    public String deviceStatus(@RequestParam(value = "device_id", required = true, defaultValue = "World") String device_id,
+    public String deviceStatus(@RequestParam(value = "device_id", required = true, defaultValue = "0000000") String device_id,
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
-        logger.info("device_id " + device_id );
-        return "1";
+        Device d = deviceService.getDevice(Long.valueOf(device_id));
+        if (d != null) {
+            logger.info("device_id = " + device_id);
+            return String.valueOf(d.getStatus());
+        } else {
+            logger.error("can't get device for device_id = " + device_id);
+            return String.valueOf(DeviceStatus.INVALID);
+        }
     }
 }

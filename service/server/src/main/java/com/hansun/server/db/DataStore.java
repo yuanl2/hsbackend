@@ -2,8 +2,6 @@ package com.hansun.server.db;
 
 import com.hansun.dto.*;
 import com.hansun.server.common.ServerException;
-import com.hansun.server.util.DeviceUtil;
-import org.apache.catalina.startup.UserConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +26,9 @@ public class DataStore {
     private Map<Integer, Province> provinceCache = new ConcurrentHashMap<>();
     private Map<Integer, Area> areaCache = new ConcurrentHashMap<>();
     private Map<Integer, City> cityCache = new ConcurrentHashMap<>();
-    private Map<String, Device> deviceCache = new ConcurrentHashMap<>();
+    private Map<Long, Device> deviceCache = new ConcurrentHashMap<>();
+    private Map<String, List<Device>> deviceSimCache = new ConcurrentHashMap<>();
+
     private Map<Integer, User> userCache = new ConcurrentHashMap<>();
     private Map<Integer, Consume> consumeCache = new ConcurrentHashMap<>();
 
@@ -68,6 +68,7 @@ public class DataStore {
             locationCache.clear();
             userCache.clear();
             consumeCache.clear();
+            deviceSimCache.clear();
             connectionPoolManager.destroy();
         } catch (SQLException e) {
             throw new ServerException(e);
@@ -75,7 +76,7 @@ public class DataStore {
     }
 
     public Device createDevice(Device device) {
-        String deviceId = device.getId();
+        Long deviceId = device.getId();
 
         if (deviceCache.containsKey(deviceId)) {
             throw ServerException.conflict("Cannot create duplicate Device.");
@@ -88,10 +89,11 @@ public class DataStore {
         deviceTable.insert(device);
         autoFillDevice(device);
         deviceCache.put(deviceId, device);
+        deviceSimCache.computeIfAbsent(device.getSimCard(), k -> new ArrayList<>()).add(device);
         return device;
     }
 
-    public void deleteDevice(String deviceID) {
+    public void deleteDevice(Long deviceID) {
         deviceTable.delete(deviceID);
         deviceCache.remove(deviceID);
     }
@@ -99,7 +101,7 @@ public class DataStore {
     public void deleteDeviceByLocationID(int locationID) {
         deviceTable.deleteByLocationID(locationID);
         //update cache
-        List<String> list = new ArrayList<>();
+        List<Long> list = new ArrayList<>();
         deviceCache.forEach((k, v) -> {
             if (v.getLocationID() == locationID) list.add(k);
         });
@@ -109,7 +111,7 @@ public class DataStore {
     public void deleteDeviceByOwner(int owner) {
         deviceTable.deleteByOwner(owner);
         //update cache
-        List<String> list = new ArrayList<>();
+        List<Long> list = new ArrayList<>();
         deviceCache.forEach((k, v) -> {
             if (v.getOwnerID() == owner) list.add(k);
         });
@@ -137,7 +139,7 @@ public class DataStore {
         return null;
     }
 
-    public Device queryDeviceByDeviceID(String deviceID) {
+    public Device queryDeviceByDeviceID(Long deviceID) {
         return deviceCache.computeIfAbsent(deviceID, k -> {
             Optional<Device> result = deviceTable.select(k);
             if (result.isPresent()) {
@@ -163,21 +165,23 @@ public class DataStore {
         return device;
     }
 
-    public void updateDeviceStatus(int status, String deviceID) {
-        List<String> devices = DeviceUtil.getDeviceIDs(deviceID);
-        for (String s : devices) {
-            Device device2 = deviceCache.get(s);
+    //todo
+    public void updateDeviceStatus(int status, String simid) {
+        List<Device> devices = deviceSimCache.get(simid);
+
+        for (Device s : devices) {
+            Device device2 = deviceCache.get(s.getId());
             //缓存不存在此设备
             if (device2 == null) {
-                Optional<Device> device1 = deviceTable.select(deviceID);
+                Optional<Device> device1 = deviceTable.select(s.getId());
                 if (device1 == null || !device1.isPresent()) {
                     logger.error("Cannot update Device for not exist.");
                     continue;
                 }
             } else {
                 device2.setStatus(status);
-                deviceTable.updateStatus(status, deviceID);
-                deviceCache.put(deviceID, device2);
+                deviceTable.updateStatus(status, s.getId());
+                deviceCache.put(s.getId(), device2);
             }
         }
     }
@@ -231,6 +235,8 @@ public class DataStore {
      * 把一些基本不动的配置信息读取到缓存中，减少数据库的存取
      */
     private void initCache() {
+        long begin = System.currentTimeMillis();
+        logger.info("begin initCache " + begin);
 
         Optional<List<City>> cityList = cityTable.selectAll();
         if (cityList.isPresent()) {
@@ -264,15 +270,27 @@ public class DataStore {
             deviceList.get().forEach(d -> {
                         autoFillDevice(d);
                         deviceCache.put(d.getId(), d);
+
+                        String sim = d.getSimCard();
+
+
+                        deviceSimCache.computeIfAbsent(sim, k ->
+                                new ArrayList<>()
+                        ).add(d);
                     }
             );
         }
 
-
+        long end = System.currentTimeMillis();
+        logger.info("end initCache " + end + " init time " + (end - begin));
     }
 
-    public Set<String> geAllDevices() {
+    public Set<Long> getAllDevices() {
         return deviceCache.keySet();
+    }
+
+    public Set<String> getAllDeviceBoxes() {
+        return deviceSimCache.keySet();
     }
 
     /*******************************************************************
@@ -460,7 +478,6 @@ public class DataStore {
      */
 
     public Consume createConsume(Consume consume) {
-        int consumeId = consume.getId();
         if (consumeCache.containsValue(consume)) {
             throw ServerException.conflict("Cannot create duplicate Consume.");
         }

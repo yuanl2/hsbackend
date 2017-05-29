@@ -38,7 +38,7 @@ public class OrderController {
     }
 
     @RequestMapping(value = "order/device/{id}", method = RequestMethod.GET)
-    public ResponseEntity<?> getOrderByDevice(@PathVariable String id,
+    public ResponseEntity<?> getOrderByDevice(@PathVariable Long id,
                                               @RequestParam(value = "startTime", required = false) Instant startTime,
                                               @RequestParam(value = "endTime", required = false) Instant endTime,
                                               UriComponentsBuilder ucBuilder) {
