@@ -2,24 +2,20 @@ package com.hansun.server.service;
 
 import com.hansun.server.common.HSServiceProperties;
 import com.hansun.server.common.DeviceStatus;
-<<<<<<< HEAD
 import com.hansun.server.commu.IHandler;
-=======
->>>>>>> b7737b8b4a1ad0bb3ba6a36b57b051ee19beb0d6
+
 import com.hansun.server.commu.LinkManger;
-import com.hansun.server.commu.SocketServerSelector;
 import com.hansun.server.db.DataStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import retrofit2.http.HEAD;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by yuanl2 on 2017/3/31.
@@ -92,18 +88,12 @@ public class HeartBeatService {
 
     class DeviceStatusTask extends TimerTask {
         public void run() {
-<<<<<<< HEAD
             Set<String> sets;
             try {
                 //5秒扫一格，
                 currentIndex = (++currentIndex) % count;
                 sets = slotMapDeviceIDs.get(currentIndex);
-=======
-            try {
-                //5秒扫一格，
-                currentIndex = (++currentIndex) % count;
-                Set<String> sets = slotMapDeviceIDs.get(currentIndex);
->>>>>>> b7737b8b4a1ad0bb3ba6a36b57b051ee19beb0d6
+
                 if (sets != null) {
                     //update sets device status disconnetced
                     sets.forEach(k -> {
@@ -130,12 +120,8 @@ public class HeartBeatService {
                 slotMapDeviceIDs.get(next).add(id);
                 //id只是设备盒子的id，具体对应4个具体的设备
                 dataStore.updateDeviceStatus(DeviceStatus.CONNECT, id);
-<<<<<<< HEAD
             } catch (Exception e) {
-=======
-            }
-            catch (Exception e){
->>>>>>> b7737b8b4a1ad0bb3ba6a36b57b051ee19beb0d6
+
                 e.printStackTrace();
             }
         }
@@ -144,18 +130,13 @@ public class HeartBeatService {
         public void disconnect(String id) {
             try {
                 //收不到心跳，主动断开链路
-<<<<<<< HEAD
                 IHandler handler = linkManger.get(id);
                 if (handler != null) {
                     handler.handleClose();
                 }
             } catch (Exception e) {
                 logger.error("disconnect error " + id, e);
-=======
-                linkManger.get(id).handleClose();
-            } catch (IOException e) {
-                logger.error("disconnect error " + id ,e);
->>>>>>> b7737b8b4a1ad0bb3ba6a36b57b051ee19beb0d6
+
             }
             dataStore.updateDeviceStatus(DeviceStatus.DISCONNECTED, id);
         }

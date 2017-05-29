@@ -1,9 +1,11 @@
 package com.hansun.server.commu;
 
 
+import com.hansun.server.commu.msg.IMsg;
+
 public class AsynMsgWaitResult extends MsgWaitResult {
-    public AsynMsgWaitResult(long timeout, IHandler handler) {
-        super(timeout, handler);
+    public AsynMsgWaitResult(IMsg msg, long timeout, IHandler handler) {
+        super(msg, timeout, handler);
     }
 
     @Override
