@@ -54,7 +54,7 @@ public class SocketHandler implements IHandler {
      *
      * @return
      */
-    protected SocketChannel getSocketChannel() {
+    public SocketChannel getSocketChannel() {
         return socketChannel;
     }
 

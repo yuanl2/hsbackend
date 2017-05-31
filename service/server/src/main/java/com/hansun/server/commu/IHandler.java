@@ -5,6 +5,7 @@ import com.hansun.server.commu.msg.IMsg;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 
 /**
@@ -35,4 +36,6 @@ public interface IHandler {
     void setLinkManger(LinkManger linkManger);
 
     void sendMsg(IMsg msg);
+
+    public SocketChannel getSocketChannel();
 }

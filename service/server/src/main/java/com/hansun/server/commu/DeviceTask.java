@@ -43,12 +43,21 @@ public class DeviceTask implements Runnable {
                 result.setResponseMsg(msg);//后续会删除请求下发的消息
             }
 
+            LinkManger linkManger = handler.getLinkManger();
             //如果是上电之后第一次上报状态和设备名，需要加入缓存中，以便后续下发消息使用
             if (msg.getMsgType().equals("AP00")) {
                 DeviceMsg m = (DeviceMsg) msg;
 
+
+                IHandler oldHandler = linkManger.get(m.getDeviceName());
+                if (oldHandler != null) {
+                    logger.info("device need to clear old handler " + m.getDeviceName() + " address:  " + oldHandler.getSocketChannel().getRemoteAddress());
+                    oldHandler.handleClose();
+                    linkManger.remove(m.getDeviceName());
+                }
+
                 //todo 考虑实际设备名和设备上报的带sim卡信息的不一样
-                handler.getLinkManger().add(m.getDeviceName(), handler);
+                linkManger.add(m.getDeviceName(), handler);
                 handler.setDeviceName(m.getDeviceName());
 
                 Thread.sleep(delay);
@@ -62,7 +71,7 @@ public class DeviceTask implements Runnable {
 
             //心跳消息，需要更新HeartService
             if (msg.getMsgType().equals("AP01")) {
-                handler.getLinkManger().processHeart(handler.getDeviceName());
+                linkManger.processHeart(handler.getDeviceName());
 
                 Thread.sleep(delay);
 
@@ -81,7 +90,7 @@ public class DeviceTask implements Runnable {
                     String s = handler.getDeviceName() + "_" + k;
                     if (v != null && v.equals("1")) {
 
-                        handler.getLinkManger().getOrderService().startOrder(s);
+                        linkManger.getOrderService().startOrder(s);
                     }
                 });
             }
@@ -92,7 +101,7 @@ public class DeviceTask implements Runnable {
                 m.getMap().forEach((k, v) -> {
                     String s = handler.getDeviceName() + "_" + k;
                     if (v != null && v.equals("0")) {
-                        handler.getLinkManger().getOrderService().finishOrder(s);
+                        linkManger.getOrderService().finishOrder(s);
                     }
                 });
             }
