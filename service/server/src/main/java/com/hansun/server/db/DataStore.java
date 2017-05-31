@@ -28,7 +28,6 @@ public class DataStore {
     private Map<Integer, City> cityCache = new ConcurrentHashMap<>();
     private Map<Long, Device> deviceCache = new ConcurrentHashMap<>();
     private Map<String, List<Device>> deviceSimCache = new ConcurrentHashMap<>();
-
     private Map<Integer, User> userCache = new ConcurrentHashMap<>();
     private Map<Integer, Consume> consumeCache = new ConcurrentHashMap<>();
 
@@ -95,7 +94,10 @@ public class DataStore {
 
     public void deleteDevice(Long deviceID) {
         deviceTable.delete(deviceID);
-        deviceCache.remove(deviceID);
+        Device d = deviceCache.remove(deviceID);
+        if (d != null) {
+            deviceSimCache.get(d.getSimCard()).remove(d);
+        }
     }
 
     public void deleteDeviceByLocationID(int locationID) {
@@ -105,7 +107,10 @@ public class DataStore {
         deviceCache.forEach((k, v) -> {
             if (v.getLocationID() == locationID) list.add(k);
         });
-        Stream.of(list).forEach(k -> deviceCache.remove(k));
+        Stream.of(list).forEach(k -> {
+            Device d = deviceCache.remove(k);
+            deviceSimCache.remove(d.getSimCard());
+        });
     }
 
     public void deleteDeviceByOwner(int owner) {
@@ -115,7 +120,10 @@ public class DataStore {
         deviceCache.forEach((k, v) -> {
             if (v.getOwnerID() == owner) list.add(k);
         });
-        Stream.of(list).forEach(k -> deviceCache.remove(k));
+        Stream.of(list).forEach(k -> {
+            Device d = deviceCache.remove(k);
+            deviceSimCache.remove(d.getSimCard());
+        });
     }
 
     public List<Device> queryDeviceByOwner(int owner) {
@@ -162,6 +170,10 @@ public class DataStore {
         }
         deviceTable.update(device, device.getId());
         deviceCache.put(device.getId(), device);
+
+        deviceSimCache.get(device2.getSimCard()).remove(device2);
+        deviceSimCache.get(device.getSimCard()).add(device);
+
         return device;
     }
 
@@ -169,20 +181,24 @@ public class DataStore {
     public void updateDeviceStatus(int status, String simid) {
         List<Device> devices = deviceSimCache.get(simid);
 
-        for (Device s : devices) {
-            Device device2 = deviceCache.get(s.getId());
-            //缓存不存在此设备
-            if (device2 == null) {
-                Optional<Device> device1 = deviceTable.select(s.getId());
-                if (device1 == null || !device1.isPresent()) {
-                    logger.error("Cannot update Device for not exist.");
-                    continue;
+        if (devices != null) {
+            for (Device s : devices) {
+                Device device2 = deviceCache.get(s.getId());
+                //缓存不存在此设备
+                if (device2 == null) {
+                    Optional<Device> device1 = deviceTable.select(s.getId());
+                    if (device1 == null || !device1.isPresent()) {
+                        logger.error("Cannot update Device for not exist.");
+                        continue;
+                    }
+                } else {
+                    device2.setStatus(status);
+                    deviceTable.updateStatus(status, s.getId());
+                    deviceCache.put(s.getId(), device2);
                 }
-            } else {
-                device2.setStatus(status);
-                deviceTable.updateStatus(status, s.getId());
-                deviceCache.put(s.getId(), device2);
             }
+        } else {
+            logger.error("update device failed, not exist " + simid);
         }
     }
 
@@ -241,28 +257,36 @@ public class DataStore {
         Optional<List<City>> cityList = cityTable.selectAll();
         if (cityList.isPresent()) {
             cityList.get().forEach(d -> cityCache.put(d.getId(), d));
+            logger.info("initCache cityList " + cityCache.size());
         }
+
+
         Optional<List<Area>> areaList = areaTable.selectAll();
         if (areaList.isPresent()) {
             areaList.get().forEach(d -> areaCache.put(d.getId(), d));
+            logger.info("initCache areaList " + areaCache.size());
         }
         Optional<List<Consume>> consumeList = consumeTable.selectAll();
         if (consumeList.isPresent()) {
             consumeList.get().forEach(d -> consumeCache.put(d.getId(), d));
+            logger.info("initCache consumeList " + consumeCache.size());
         }
         Optional<List<User>> userList = userTable.selectAll();
         if (userList.isPresent()) {
             userList.get().forEach(d -> userCache.put(d.getId(), d));
+            logger.info("initCache userList " + userCache.size());
         }
         Optional<List<Province>> provinceList = provinceTable.selectAll();
         if (provinceList.isPresent()) {
             provinceList.get().forEach(d -> provinceCache.put(d.getId(), d));
+            logger.info("initCache provinceList " + provinceCache.size());
         }
         Optional<List<Location>> locationList = locationTable.selectAll();
         if (locationList.isPresent()) {
             locationList.get().forEach(d -> {
                 autoFillLocaiton(d);
                 locationCache.put(d.getId(), d);
+                logger.info("initCache locationList " + locationCache.size());
             });
         }
         Optional<List<Device>> deviceList = deviceTable.selectAll();
@@ -273,12 +297,13 @@ public class DataStore {
 
                         String sim = d.getSimCard();
 
-
                         deviceSimCache.computeIfAbsent(sim, k ->
                                 new ArrayList<>()
                         ).add(d);
                     }
             );
+            logger.info("initCache deviceCache " + deviceCache.size());
+            logger.info("initCache deviceSimCache " + deviceSimCache.size());
         }
 
         long end = System.currentTimeMillis();
@@ -320,7 +345,6 @@ public class DataStore {
         return location;
     }
 
-
     private void autoFillLocaiton(Location location) {
         Province province = provinceCache.get(location.getProvinceID());
         String provinceName = location.getProvince();
@@ -347,7 +371,6 @@ public class DataStore {
             location.setAddress(address);
         }
     }
-
 
     public void deleteLocationByLocationID(int locationID) {
         locationTable.deleteByLocationID(locationID);

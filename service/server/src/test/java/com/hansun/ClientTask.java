@@ -168,6 +168,7 @@ public class ClientTask implements Runnable {
                 clntChan.close();
             } catch (Exception e) {
 
+                e.printStackTrace();
             }
         }
 
