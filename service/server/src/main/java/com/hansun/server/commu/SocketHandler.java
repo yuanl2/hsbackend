@@ -173,13 +173,21 @@ public class SocketHandler implements IHandler {
     }
 
     @Override
-    public void handleClose() throws IOException {
+    public void handleClose() {
         if (hasConnected) {
-            if (getSocketChannel() != null) {
-                getSelectionKey().cancel();
-                getSocketChannel().close();
-                linkManger.remove(deviceName);
-                linkManger = null;
+            try {
+                if (getSocketChannel() != null) {
+                    getSelectionKey().cancel();
+
+                    getSocketChannel().close();
+
+                    linkManger.remove(deviceName);
+                    linkManger = null;
+                }
+            } catch (IOException e) {
+                logger.error("handleClose error "  + getDeviceName(),e);
+            } catch (Exception e){
+                logger.error("handleClose error "  + getDeviceName(),e);
             }
         }
         hasConnected = false;
@@ -208,7 +216,7 @@ public class SocketHandler implements IHandler {
                 }
             }
         } catch (Exception e) {
-            logger.error("updateOps error ", e);
+             logger.error("updateOps error ", e);
             //todo 更新失败，最好不要走到这里
         }
     }

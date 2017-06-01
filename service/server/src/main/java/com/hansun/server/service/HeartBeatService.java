@@ -114,7 +114,7 @@ public class HeartBeatService {
                 //id只是设备盒子的id，具体对应4个具体的设备
                 dataStore.updateDeviceStatus(DeviceStatus.CONNECT, simid);
             } catch (Exception e) {
-                logger.error("DeviceConnect: connect error", e);
+                logger.error("DeviceConnect: connect error " + simid, e);
             }
         }
 
