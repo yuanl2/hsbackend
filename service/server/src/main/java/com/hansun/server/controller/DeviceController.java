@@ -106,4 +106,5 @@ public class DeviceController {
             return String.valueOf(DeviceStatus.INVALID);
         }
     }
+
 }

@@ -20,7 +20,7 @@ public class SimulationMultipleClient {
 
         ExecutorService executorService = Executors.newFixedThreadPool(10);
 
-        String simName = "SIM800_898602B819165011";
+        String simName = "SIM800_898602B819165021";
         for (int i = 1; i <= count; i++) {
 
             StringBuilder builder = new StringBuilder();

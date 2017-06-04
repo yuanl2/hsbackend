@@ -1,10 +1,16 @@
 package com.hansun.server.controller;
 
+import com.hansun.dto.Consume;
+import com.hansun.dto.Device;
 import com.hansun.server.HttpClientUtil;
+import com.hansun.server.common.DeviceStatus;
+import com.hansun.server.db.DataStore;
+import com.hansun.server.service.DeviceService;
 import com.hansun.server.util.ConstantUtil;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 
@@ -24,12 +31,19 @@ public class DemoController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+
+    @Autowired
+    private DeviceService deviceService;
+
+    @Autowired
+    private DataStore dataStore;
+
     @RequestMapping("/device")
-    public String hello(Model model, @RequestParam(value = "device_name", required = false, defaultValue = "World") String name,
+    public String hello(Model model, @RequestParam(value = "device_id", required = false, defaultValue = "World") String name,
                         HttpServletRequest request, HttpServletResponse response) {
         String useragent = request.getHeader("User-Agent");
         logger.info("request from " + useragent);
-        String url = "index?device_name="+name;
+        String url = "index?device_id=" + name;
         //go wechat flow
         String state = name;
         try {
@@ -48,7 +62,7 @@ public class DemoController {
             e.printStackTrace();
         }
 
-//        model.addAttribute("device_name", name);
+//        model.addAttribute("device_id", name);
 //        model.addAttribute("useragent", useragent);
         return "redirect:" + url;
     }
@@ -99,35 +113,55 @@ public class DemoController {
             e.printStackTrace();
 
         }
-        return "forward:/index?first=" + free + "&device_name=" + name;
+        return "forward:/index?first=" + free + "&device_id=" + name;
     }
 
     @RequestMapping("/index")
-    public String page(Model model, @RequestParam(value = "device_name", required = true, defaultValue = "World") String name,
+    public String page(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "000000") String name,
                        @RequestParam(value = "first", required = false, defaultValue = "0") String first,
                        HttpServletRequest request, HttpServletResponse response) throws IOException {
-        logger.info("page " + first + "device_name " + name);
-        model.addAttribute("device_name", name);
+        logger.info("page " + first + "device_id " + name);
+        model.addAttribute("device_id", name);
+
+        List<Consume> consumes = dataStore.queryAllConsume();
+
         if (first.equals("0")) {
+            model.addAttribute("consumes", consumes);
             return "index_0";
         } else {
+            consumes.removeIf(k -> k.getPrice() <= 0);
+            model.addAttribute("consumes", consumes);
             return "index";
         }
     }
 
 
     @RequestMapping("/detail")
-    public String detailpage(Model model, @RequestParam(value = "device_name", required = true, defaultValue = "World") String device_name,
-                       @RequestParam(value = "product_id", required = true, defaultValue = "0") String product_id,
+    public String detailpage(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "World") String device_id,
+                             @RequestParam(value = "product_id", required = true, defaultValue = "0") String product_id,
                              @RequestParam(value = "extra", required = false, defaultValue = "0") String extra,
-                       HttpServletRequest request, HttpServletResponse response) throws IOException {
-        logger.info("product_id " + product_id + "device_name " + device_name);
-        model.addAttribute("device_name", device_name);
+                             HttpServletRequest request, HttpServletResponse response) throws IOException {
+        logger.info("product_id " + product_id + "device_id " + device_id);
+        model.addAttribute("device_id", device_id);
         model.addAttribute("product_id", product_id);
         model.addAttribute("extra", extra);
+
+        Consume consume = dataStore.queryConsume(Integer.valueOf(product_id));
+        model.addAttribute("consume", consume);
         return "detail";
     }
 
+
+
+    @RequestMapping("/disable")
+    public String disablepage(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "World") String device_id,
+                             @RequestParam(value = "extra", required = false, defaultValue = "0") String extra,
+                             HttpServletRequest request, HttpServletResponse response) throws IOException {
+        logger.info("device_id " + device_id);
+        model.addAttribute("device_id", device_id);
+        model.addAttribute("extra", extra);
+        return "device_disable";
+    }
 }
 
 

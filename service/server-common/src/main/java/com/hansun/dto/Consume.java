@@ -8,6 +8,8 @@ public class Consume {
     private int id;
     private float price;
     private int duration;
+    private String description;
+    private String picpath;
 
     public int getId() {
         return id;
@@ -33,12 +35,30 @@ public class Consume {
         this.duration = duration;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getPicpath() {
+        return picpath;
+    }
+
+    public void setPicpath(String picpath) {
+        this.picpath = picpath;
+    }
+
     @Override
     public String toString() {
         return "consume{" +
                 "id=" + id +
                 ", price=" + price +
-                ", duration=" + duration + "\n" +
+                ", duration=" + duration +
+                ", description=" + description +
+                ", picpath=" + picpath + "\n" +
                 "}";
     }
 

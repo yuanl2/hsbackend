@@ -1,6 +1,5 @@
 package com.hansun.server.commu.msg;
 
-import com.hansun.server.common.DeviceStatus;
 
 import java.nio.ByteBuffer;
 

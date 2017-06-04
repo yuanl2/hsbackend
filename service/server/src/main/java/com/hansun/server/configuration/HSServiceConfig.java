@@ -17,7 +17,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
  * Created by yuanl2 on 2017/3/30.
  */
 @Configuration
-@EnableWebMvc
+//@EnableWebMvc
 @ComponentScan(basePackages = "com.hansun.server")
 public class HSServiceConfig {
 

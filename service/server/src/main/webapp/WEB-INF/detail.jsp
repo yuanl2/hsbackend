@@ -1,4 +1,12 @@
 <%@ page contentType="text/html;charset=utf-8"%>
+<%@ page language="java" import="com.hansun.dto.Consume" pageEncoding="UTF-8"%>
+<%
+     Consume consume = (Consume)request.getAttribute("consume");
+     int product_id = consume.getId();
+     float price = consume.getPrice();
+     String desc = consume.getDescription();
+     String path = consume.getPicpath();
+ %>
 <html xmlns="http://www.w3.org/1999/xhtml" lang = "zh-CN">
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
@@ -11,7 +19,7 @@
 <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 <link href="css/pay2prop.css" rel="stylesheet" type="text/css" />
 <title>
-	J28444
+	${device_id}
 </title>
     <script src="js/jquery-1.7.2.min.js"></script>
     <script src="js/jquery.timers-1.2.js"></script>
@@ -33,18 +41,17 @@
     <script>
         $(function () {
 
-
         })
         function stime(k) {
 
         	$.mydialog.alert_ok("<span id='info_success'><span class='title'>支付成功</span>如果长时间未出币,<br />请联系现场服务人员<br />或点击申诉按钮<br />电话：13120759398</span>",
-				function () { location.replace('index?device_name=J28444&extra='); }
+				function () { location.replace('index?device_id=${device_id}&extra='); }
 				);
 
         }
         function onsucc()
         {
-            location.href = "index?device_name=J28444&extra=";
+            location.href = "index?device_id=${device_id}&extra=";
         }
         function sub_ok(m)
         {
@@ -62,7 +69,7 @@
                 }
                 else if (device_status == "-3") { $.mydialog.alert('有Sql注入危险'); }
                 else if (device_status == "-2") { $.mydialog.alert('设备不可用'); }
-                else if (device_status == "-1") { /*$.mydialog.alert('设备离线');*/location.href = "shebei/device_disable.aspx?did=215302"; }
+                else if (device_status == "-1") { location.href = "deviceStatus?device_id=${device_id}"; }
                 else if (device_status == "0") { $.mydialog.alert('设备故障'); }
                 else if (device_status == "2") { $.mydialog.alert('请刷卡'); }
                 else if (device_status == "3") { $.mydialog.alert('等待刷卡充值'); }
@@ -111,17 +118,19 @@
 		<div class="k0">
 		<dl class="k0_dl">
 		<dt class="k0_dt">
-		<img src="pic/280237174291.jpg" width="200" />
+		<img src="<%=path%>" width="200" />
 		</dt>
-		<dd class="k0_dd0">缓解酸痛</dd>
-		<dd class="k0_dd0 mred">￥2.00</dd></dl></div><div class="clear"></div></div><div class="mdetailbtns">
-<form action="alipay/ZFB_MobileWeb/default.aspx" method="post" id="zfb_form">
-<input type="hidden" name="product_id" value="80622"/>
-<input type="hidden" name="device_id" value="215302"/>
-<input type="hidden" name="extra" value=""/>
-<span class="debt2" onclick="javascript:sub_ok('zfb');"></span>
-</form>
-<input type="hidden" name="oid" id="oid" value="" /><input type="hidden" name="did" id="did" value="215302" /><input type="hidden" name="pid" id="pid" value="80622" /></div><div class="mline"></div><div class="mdede">介绍：<br /><p sttyle='height:'>缓解酸痛</p><br><b>注意：</b>如果支付成功后不出币，系统会在10分钟内自动退款，请耐心等候！</div></div>
+		<dd class="k0_dd0"><%=desc%></dd>
+		<dd class="k0_dd0 mred">￥<%=price%></dd></dl></div><div class="clear"></div></div><div class="mdetailbtns">
+<input type="hidden" name="oid" id="oid" value="" />
+<input type="hidden" name="did" id="did" value="${device_id}" />
+<input type="hidden" name="pid" id="pid" value="<%=product_id%>" />
+</div>
+<div class="mline">
+</div>
+<div class="mdede">介绍：<br /><p sttyle='height:'><%=desc%></p><br>
+<b>注意：</b>如果支付成功后不出币，请联系</div>
+</div>
 	</div>
 </body>
 </html>

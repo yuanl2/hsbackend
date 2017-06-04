@@ -1,4 +1,12 @@
 <%@ page contentType="text/html;charset=utf-8"%>
+<%@ page language="java" import="com.hansun.dto.Consume" pageEncoding="UTF-8"%>
+<%@ page language="java" import="java.util.List"%>
+<%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://"
+			+ request.getServerName() + ":" + request.getServerPort()
+			+ path + "/";
+%>
 <html xmlns="http://www.w3.org/1999/xhtml" lang = "zh-CN">
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
@@ -8,11 +16,12 @@
     <meta http-equiv="expires" content="0"/>
     <title>
        ${device_name}
-       ${useragent}
+       ${path}
+       ${basePath}
     </title>
-    <link href="css/css_min480.css" rel="stylesheet" type="text/css"/>
-    <link href="css/new.css" rel="stylesheet" type="text/css"/>
-    <link href="css/zepto.alert.css" rel="stylesheet"/>
+    <link href="${pageContext.request.contextPath}css/css_min480.css" rel="stylesheet" type="text/css"/>
+    <link href="${pageContext.request.contextPath}css/new.css" rel="stylesheet" type="text/css"/>
+    <link href="${pageContext.request.contextPath}css/zepto.alert.css" rel="stylesheet"/>
     <script src="js/jquery-1.7.2.min.js"></script>
     <script src="js/jQuery.resizeEnd.min.js"></script>
     <script src="js/zepto.alert.js"></script>
@@ -84,14 +93,14 @@
                 }
                 var pid = $(this).find("input[name='product_id']").val();
                 $.mydialog.open();
-                myAjax("https://192.168.0.103/hsservice/api/deviceStatus", "device_id=" + did, function (device_status) {
+                myAjax("http://localhost:8080/hsservice/deviceStatus", "device_id=" + did, function (device_status) {
                     $.mydialog.close();
                     if (device_status == "1") {
                         location.href = "detail?product_id=" + pid + "&device_id=" + did + "&extra=" + extra + "";
                     }
                     else if (device_status == "-3") { $.mydialog.alert('有Sql注入危险'); }
                     else if (device_status == "-2") { $.mydialog.alert('设备不可用'); }
-                    else if (device_status == "-1") { /*$.mydialog.alert('设备离线');*/location.href = "shebei/device_disable.aspx?did=110675"; }
+                    else if (device_status == "-1") { location.href = "deviceStatus?device_id=${device_id}"; }
                     else if (device_status == "0") { $.mydialog.alert('设备故障'); }
                     else if (device_status == "2") { $.mydialog.alert('请刷卡'); }
                     else if (device_status == "3") { $.mydialog.alert('等待刷卡充值'); }
@@ -117,61 +126,22 @@
         <div class="main_logo"><span onclick="javascript:location.reload(true)">爱生活，爱摩客！欢迎使用爱摩客。</span></div>
     </div>
     <div class="main_list">
-        <div class="k0 k1"><input type='hidden' name='product_id' value='68368'/>
-            <input type='hidden' name='device_id' value='110675'/>
-            <input type='hidden' name='extra' value=''/>
-            <dl class="k0_dl">
-                <dt class="k0_dt"><img class="img_size" src="pic/201705040000.jpg"/></dt>
-                <div style="position:relative;top:0;z-index:11;background-color:white;opacity: 0.80;">
-                    <div style="color:black;" class="k0_dd0">放松颈肩</div>
-                    <div class="k0_dd0 mred">￥0.00</div>
-                </div>
-            </dl>
-        </div>
-        <div class="k0 k1"><input type='hidden' name='product_id' value='68368'/>
-            <input type='hidden' name='device_id' value='110675'/>
-            <input type='hidden' name='extra' value=''/>
-            <dl class="k0_dl">
-                <dt class="k0_dt"><img class="img_size" src="pic/201705040001.jpg"/></dt>
-                <div style="position:relative;top:0;z-index:11;background-color:white;opacity: 0.80;">
-                    <div style="color:black;" class="k0_dd0">放松颈肩</div>
-                    <div class="k0_dd0 mred">￥1.00</div>
-                </div>
-            </dl>
-        </div>
-        <div class="k0 k1"><input type='hidden' name='product_id' value='68365'/>
-            <input type='hidden' name='device_id' value='110675'/>
-            <input type='hidden' name='extra' value=''/>
-            <dl class="k0_dl">
-                <dt class="k0_dt"><img class="img_size" src="pic/201705040002.jpg"/></dt>
-                <div style="position:relative;top:0;z-index:11;background-color:white;opacity: 0.80;">
-                    <div style="color:black;" class="k0_dd0">缓解酸痛</div>
-                    <div class="k0_dd0 mred">￥2.00</div>
-                </div>
-            </dl>
-        </div>
-        <div class="k0 k1"><input type='hidden' name='product_id' value='68366'/>
-            <input type='hidden' name='device_id' value='110675'/>
-            <input type='hidden' name='extra' value=''/>
-            <dl class="k0_dl">
-                <dt class="k0_dt"><img class="img_size" src="pic/201705040003.jpg"/></dt>
-                <div style="position:relative;top:0;z-index:11;background-color:white;opacity: 0.80;">
-                    <div style="color:black;" class="k0_dd0">深度舒压</div>
-                    <div class="k0_dd0 mred">￥3.00</div>
-                </div>
-            </dl>
-        </div>
-        <div class="k0 k1"><input type='hidden' name='product_id' value='68369'/>
-            <input type='hidden' name='device_id' value='110675'/>
-            <input type='hidden' name='extra' value=''/>
-            <dl class="k0_dl">
-                <dt class="k0_dt"><img class="img_size" src="pic/201705040005.jpg"/></dt>
-                <div style="position:relative;top:0;z-index:11;background-color:white;opacity: 0.80;">
-                    <div style="color:black;" class="k0_dd0">至尊享受</div>
-                    <div class="k0_dd0 mred">￥5.00</div>
-                </div>
-            </dl>
-        </div>
+     <%
+     List<Consume>  city=(List<Consume>)request.getAttribute("consumes");
+     for(Consume row:city){
+     %>
+     <div class="k0 k1"><input type='hidden' name='product_id' value='<%=row.getId() %>'/>
+             <input type='hidden' name='device_id' value='${device_id}'/>
+             <input type='hidden' name='extra' value=''/>
+             <dl class="k0_dl">
+                 <dt class="k0_dt"><img class="img_size" src="<%=row.getPicpath() %>"/></dt>
+                 <div style="position:relative;top:0;z-index:11;background-color:white;opacity: 0.80;">
+                     <div style="color:black;" class="k0_dd0"><%=row.getDescription() %></div>
+                     <div class="k0_dd0 mred">￥<%=row.getPrice() %></div>
+                 </div>
+             </dl>
+     </div>
+     <% } %>
     </div>
     <div id="main_footer" class="fotter"><span>服务电话 xxx-xxxx-xxxx</span>
         <span class="skgk" onclick="location.href= 'Complaint_1.aspx?device_name=J28441'"> 申诉 </span>

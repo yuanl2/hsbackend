@@ -164,6 +164,8 @@ public class ClientTask implements Runnable {
                 readBuf.clear();
 
 
+                Thread.sleep(Integer.MAX_VALUE);
+
                 //关闭信道
                 clntChan.close();
             } catch (Exception e) {

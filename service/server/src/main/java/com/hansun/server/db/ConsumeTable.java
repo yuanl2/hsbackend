@@ -15,12 +15,12 @@ import java.util.Optional;
  */
 public class ConsumeTable {
 
-    private static final String SELECT = "SELECT consumeID, price, duration FROM consume WHERE consumeID = ?";
-    private static final String SELECTBYPRICE = "SELECT consumeID, price, duration FROM consume WHERE price = ? AND duration = ?";
-    private static final String SELECT_ALL = "SELECT consumeID, price, duration FROM consume";
+    private static final String SELECT = "SELECT consumeID, price, duration, description, picpath FROM consume WHERE consumeID = ?";
+    private static final String SELECTBYPRICE = "SELECT consumeID, price, duration, description, picpath  FROM consume WHERE price = ? AND duration = ?";
+    private static final String SELECT_ALL = "SELECT consumeID, price, duration, description, picpath  FROM consume";
     private static final String DELETE = "DELETE FROM consume WHERE consumeID = ?";
-    private static final String INSERT = "INSERT INTO consume (consumeID, price, duration) VALUES (?, ?, ?)";
-    private static final String UPDATE = "UPDATE consume SET price = ? , duration = ? WHERE consumeID = ?";
+    private static final String INSERT = "INSERT INTO consume (price, duration, description, picpath ) VALUES (?, ?, ? ,?)";
+    private static final String UPDATE = "UPDATE consume SET price = ? , duration = ? , description = ?, picpath = ? WHERE consumeID = ?";
 
     private ConnectionPoolManager connectionPoolManager;
 
@@ -38,9 +38,10 @@ public class ConsumeTable {
         try {
             conn = connectionPoolManager.getConnection();
             insertStatement = conn.prepareStatement(INSERT);
-            insertStatement.setInt(1, consume.getId());
-            insertStatement.setFloat(2, consume.getPrice());
-            insertStatement.setInt(3, consume.getDuration());
+            insertStatement.setFloat(1, consume.getPrice());
+            insertStatement.setInt(2, consume.getDuration());
+            insertStatement.setString(3, consume.getDescription());
+            insertStatement.setString(4, consume.getPicpath());
             insertStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -67,9 +68,11 @@ public class ConsumeTable {
         try {
             conn = connectionPoolManager.getConnection();
             updateStatement = conn.prepareStatement(UPDATE);
-            updateStatement.setInt(3, id);
+            updateStatement.setInt(5, id);
             updateStatement.setFloat(1, consume.getPrice());
             updateStatement.setInt(2, consume.getDuration());
+            updateStatement.setString(3, consume.getDescription());
+            updateStatement.setString(4, consume.getPicpath());
             updateStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -133,6 +136,8 @@ public class ConsumeTable {
                                 consume.setId(resultSet.getInt("consumeID"));
                                 consume.setPrice(resultSet.getFloat("price"));
                                 consume.setDuration(resultSet.getInt("duration"));
+                                consume.setDescription(resultSet.getString("description"));
+                                consume.setPicpath(resultSet.getString("picpath"));
                                 return consume;
                             }
                             return null;
@@ -181,6 +186,8 @@ public class ConsumeTable {
                                 consume.setId(resultSet.getInt("consumeID"));
                                 consume.setPrice(resultSet.getInt("price"));
                                 consume.setDuration(resultSet.getInt("duration"));
+                                consume.setDescription(resultSet.getString("description"));
+                                consume.setPicpath(resultSet.getString("picpath"));
                                 return consume;
                             }
                             return null;
@@ -193,7 +200,6 @@ public class ConsumeTable {
                                 throw new ServerException(e);
                             }
                         }
-
                     });
         } catch (Exception e) {
             return Optional.empty();
@@ -229,6 +235,8 @@ public class ConsumeTable {
                                 consume.setId(resultSet.getInt("consumeID"));
                                 consume.setPrice(resultSet.getInt("price"));
                                 consume.setDuration(resultSet.getInt("duration"));
+                                consume.setDescription(resultSet.getString("description"));
+                                consume.setPicpath(resultSet.getString("picpath"));
                                 list.add(consume);
                             }
                             return list;
@@ -241,7 +249,6 @@ public class ConsumeTable {
                                 throw new ServerException(e);
                             }
                         }
-
                     });
         } catch (Exception e) {
             return Optional.empty();
