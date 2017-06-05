@@ -8,6 +8,9 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.hansun.server.common.MsgConstant.BODY_LENGTH_FIELD_SIZE;
+import static com.hansun.server.common.MsgConstant.DEVICE_SEPARATOR_FIELD;
+
 /**
  * Created by yuanl2 on 2017/5/16.
  */
@@ -52,32 +55,31 @@ public class ServerStartDeviceMsg extends AbstractMsg {
     public ByteBuffer toByteBuffer() {
         ByteBuffer sendBuffer = ByteBuffer.allocate(32);
         StringBuilder headBuilder = new StringBuilder();
-        headBuilder.append(getTitle()).append(getMsgType()).append(",");
+        headBuilder.append(getTitle()).append(getMsgType()).append(DEVICE_SEPARATOR_FIELD);
         byte[] head = headBuilder.toString().getBytes();
 
         final StringBuilder builder1 = new StringBuilder();
-        builder1.append(getDeviceType()).append(",");
+        builder1.append(getDeviceType()).append(DEVICE_SEPARATOR_FIELD);
         status.forEach((k, v) -> {
             builder1.append(v);
         });
-        builder1.append(",");
+        builder1.append(DEVICE_SEPARATOR_FIELD);
         map.forEach((k, v) -> {
             builder1.append(v);
         });
-        builder1.append(",");
+        builder1.append(DEVICE_SEPARATOR_FIELD);
 
         byte[] body = builder1.toString().getBytes();//14 byte
         int bodySize = body.length +5;
-        headBuilder.append(MsgUtil.getMsgBodyLength(bodySize,3)).append(",");
+        headBuilder.append(MsgUtil.getMsgBodyLength(bodySize,BODY_LENGTH_FIELD_SIZE)).append(DEVICE_SEPARATOR_FIELD);
         sendBuffer.put(head);// 12 byte
         sendBuffer.put(body);
         StringBuilder sb = new StringBuilder();
-        sb.append(MsgUtil.getMsgBodyLength(AbstractMsg.getCheckData(head, body, 0, 0), 3)).append(",");
+        sb.append(MsgUtil.getMsgBodyLength(AbstractMsg.getCheckData(head, body, 0, 0), 3)).append(DEVICE_SEPARATOR_FIELD);
 
         sendBuffer.put(sb.toString().getBytes()); // 4 byte
         sendBuffer.put((byte) '#'); // 1 byte
         sendBuffer.rewind();// 这个很关键
         return sendBuffer;
-
     }
 }

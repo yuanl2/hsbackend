@@ -8,6 +8,9 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
 
+import static com.hansun.server.common.MsgConstant.BODY_LENGTH_FIELD_SIZE;
+import static com.hansun.server.common.MsgConstant.DEVICE_SEPARATOR_FIELD;
+
 /**
  * Created by yuanl2 on 2017/5/10.
  */
@@ -31,20 +34,20 @@ public class DeviceResponseMsg extends AbstractMsg {
     public ByteBuffer toByteBuffer() {
         ByteBuffer sendBuffer = ByteBuffer.allocate(34);
         StringBuilder headBuilder = new StringBuilder();
-        headBuilder.append(getTitle()).append(getMsgType()).append(",");
+        headBuilder.append(getTitle()).append(getMsgType()).append(DEVICE_SEPARATOR_FIELD);
 
         StringBuilder builder = new StringBuilder();
-        builder.append(getDeviceType()).append(",").append(getTime(getTime())).append(",");
+        builder.append(getDeviceType()).append(DEVICE_SEPARATOR_FIELD).append(getTime(getTime())).append(DEVICE_SEPARATOR_FIELD);
         byte[] body = builder.toString().getBytes();//17 byte
 
         int bodySize = body.length + 5;
-        headBuilder.append(MsgUtil.getMsgBodyLength(bodySize,3)).append(",");
+        headBuilder.append(MsgUtil.getMsgBodyLength(bodySize,BODY_LENGTH_FIELD_SIZE)).append(DEVICE_SEPARATOR_FIELD);
         byte[] head = headBuilder.toString().getBytes();
         sendBuffer.put(head);// 12 byte
         sendBuffer.put(body);
 
         StringBuilder sb = new StringBuilder();
-        sb.append(MsgUtil.getMsgBodyLength(AbstractMsg.getCheckData(head, body, 0, 0), 3)).append(",");
+        sb.append(MsgUtil.getMsgBodyLength(AbstractMsg.getCheckData(head, body, 0, 0), 3)).append(DEVICE_SEPARATOR_FIELD);
 
         sendBuffer.put(sb.toString().getBytes()); // 4 byte
         sendBuffer.put((byte) '#'); // 1 byte

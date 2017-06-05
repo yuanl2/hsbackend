@@ -11,12 +11,16 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 
+import static com.hansun.server.common.MsgConstant.BODY_LENGTH_FIELD_SIZE;
+import static com.hansun.server.common.MsgConstant.CMD_FIELD_SIZE;
+import static com.hansun.server.common.MsgConstant.IDENTIFIER_FIELD_SIZE;
+
 /**
  * Created by yuanl2 on 2017/5/9.
  */
 public class SocketHandler implements IHandler {
 
-    private final static Logger logger = LoggerFactory.getLogger(SocketHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private String deviceName;
 
@@ -125,8 +129,8 @@ public class SocketHandler implements IHandler {
         byte[] head = new byte[BUFSIZE];
         headBuffer.get(head);
         MsgInputStream headMsgInputStream = new MsgInputStream(head);
-        headMsgInputStream.readString(8);
-        int len = Integer.valueOf(headMsgInputStream.readString(3));
+        headMsgInputStream.readString(IDENTIFIER_FIELD_SIZE + CMD_FIELD_SIZE + 1);
+        int len = Integer.valueOf(headMsgInputStream.readString(BODY_LENGTH_FIELD_SIZE));
         bodyBuffer = ByteBuffer.allocate(len);
         bytesRead = getSocketChannel().read(bodyBuffer);
         if (bytesRead == -1) {

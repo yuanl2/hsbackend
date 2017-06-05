@@ -8,6 +8,8 @@ import retrofit2.http.HEAD;
 
 import java.time.Instant;
 
+import static com.hansun.server.common.MsgConstant.*;
+
 /**
  * Created by yuanl2 on 2017/5/15.
  */
@@ -45,7 +47,7 @@ public class DeviceTask implements Runnable {
 
             LinkManger linkManger = handler.getLinkManger();
             //如果是上电之后第一次上报状态和设备名，需要加入缓存中，以便后续下发消息使用
-            if (msg.getMsgType().equals("AP00")) {
+            if (msg.getMsgType().equals(DEVICE_REGISTER_MSG)) {
                 DeviceMsg m = (DeviceMsg) msg;
 
 
@@ -62,7 +64,7 @@ public class DeviceTask implements Runnable {
 
                 Thread.sleep(delay);
 
-                DeviceResponseMsg m1 = new DeviceResponseMsg("BP00");
+                DeviceResponseMsg m1 = new DeviceResponseMsg(DEVICE_REGISTER_RESPONSE_MSG);
                 m1.setTime(Instant.now());
                 m1.setDeviceType(m.getDeviceType());
                 handler.getSendList().add(m1.toByteBuffer());
@@ -70,21 +72,24 @@ public class DeviceTask implements Runnable {
             }
 
             //心跳消息，需要更新HeartService
-            if (msg.getMsgType().equals("AP01")) {
+            if (msg.getMsgType().equals(DEVICE_HEARTBEAT_MSG)) {
                 linkManger.processHeart(handler.getDeviceName());
 
                 Thread.sleep(delay);
 
-                HeartBeatResponseMsg m1 = new HeartBeatResponseMsg("BP01");
+                HeartBeatResponseMsg m1 = new HeartBeatResponseMsg(DEVICE_HEARTBEAT_RESPONSE_MSG);
                 m1.setDeviceType(msg.getDeviceType());
                 handler.getSendList().add(m1.toByteBuffer());
                 handler.updateOps();
             }
 
-            //如果是任务完成指令，需要上报到OrderService
-            //todo 这里需要设备的端口号
-            if (msg.getMsgType().equals("AP03")) {
+            if (msg.getMsgType().equals(DEVICE_START_FINISH_MSG)) {
                 DeviceStartFinishMsg m = (DeviceStartFinishMsg) msg;
+
+                DeviceTaskFinishResponseMsg m1 = new DeviceTaskFinishResponseMsg(DEVICE_TASK_FINISH_RESPONSE_MSG);
+                m1.setDeviceType(msg.getDeviceType());
+                handler.getSendList().add(m1.toByteBuffer());
+                handler.updateOps();
 
                 m.getMap().forEach((k, v) -> {
                     String s = handler.getDeviceName() + "_" + k;
@@ -95,7 +100,7 @@ public class DeviceTask implements Runnable {
                 });
             }
 
-            if (msg.getMsgType().equals("AP05")) {
+            if (msg.getMsgType().equals(DEVICE_TASK_FINISH_MSG)) {
                 DeviceTaskFinishMsg m = (DeviceTaskFinishMsg) msg;
 
                 m.getMap().forEach((k, v) -> {
@@ -114,7 +119,7 @@ public class DeviceTask implements Runnable {
                 logger.error(e.getMessage(), e);
             }
 
-            ServerErrorMsg m = new ServerErrorMsg("BP98");
+            ServerErrorMsg m = new ServerErrorMsg(SERVER_ERROR_MSG);
             m.setDeviceType(msg.getDeviceType());
             handler.getSendList().add(m.toByteBuffer());
             handler.updateOps();

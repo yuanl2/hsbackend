@@ -24,6 +24,8 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 
+import static com.hansun.server.common.MsgConstant.DEVICE_START_MSG;
+
 /**
  * Created by yuanl2 on 2017/3/29.
  */
@@ -80,7 +82,7 @@ public class OrderService {
             String index = orderDeviceName.split("_")[1];
             String deviceName = orderDeviceName.split("_")[0];
 
-            ServerStartDeviceMsg msg = new ServerStartDeviceMsg("BP03");
+            ServerStartDeviceMsg msg = new ServerStartDeviceMsg(DEVICE_START_MSG);
             msg.setDeviceType("000");
 
             order.setPrice(dataStore.queryConsume(order.getConsumeType()).getPrice());

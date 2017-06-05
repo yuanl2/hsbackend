@@ -5,6 +5,9 @@ import com.hansun.server.common.InvalidMsgException;
 
 import java.nio.ByteBuffer;
 
+import static com.hansun.server.common.MsgConstant.DEVICE_TYPE_FIELD_SIZE;
+import static com.hansun.server.common.MsgConstant.DEVICE_XOR_FIELD_SIZE;
+
 /**
  * Created by yuanl2 on 2017/5/10.
  */
@@ -14,6 +17,8 @@ public class DeviceErrorMsg extends AbstractMsg {
 
     }
 
+    int checkxor = getXOR();
+
     @Override
     public ByteBuffer toByteBuffer() {
         return null;
@@ -21,10 +26,9 @@ public class DeviceErrorMsg extends AbstractMsg {
 
     @Override
     public void validate() throws InvalidMsgException {
-        int checkxor = getXOR();
-        setDeviceType(msgInputStream.readString(3));
+        setDeviceType(msgInputStream.readString(DEVICE_TYPE_FIELD_SIZE));
         msgInputStream.skipBytes(1);
-        int xor = Integer.valueOf(msgInputStream.readString(3));
+        int xor = Integer.valueOf(msgInputStream.readString(DEVICE_XOR_FIELD_SIZE));
         if (xor != checkxor) {
             throw new InvalidMsgException("message check xor error!");
         }

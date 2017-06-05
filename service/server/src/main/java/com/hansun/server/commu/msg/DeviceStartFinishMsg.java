@@ -7,6 +7,8 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.hansun.server.common.MsgConstant.*;
+
 /**
  * Created by yuanl2 on 2017/5/10.
  */
@@ -29,9 +31,10 @@ public class DeviceStartFinishMsg extends AbstractMsg {
     @Override
     public void validate() throws InvalidMsgException {
         int checkxor = getXOR();
-        setDeviceType(msgInputStream.readString(3));
+        setDeviceType(msgInputStream.readString(DEVICE_TYPE_FIELD_SIZE));
         msgInputStream.skipBytes(1);
-        byte[] status = msgInputStream.readBytes(5);
+        byte[] status = msgInputStream.readBytes(DEVICE_STATUS_FIELD_SIZE);
+        msgInputStream.skipBytes(1);
         for (int i = 1; i <= status.length; i++) {
             if (status[i - 1] == 49) {//'1'
                 getMap().put(i, DeviceStatus.CONNECT);
@@ -41,8 +44,9 @@ public class DeviceStartFinishMsg extends AbstractMsg {
                 getMap().put(i, DeviceStatus.INVALID);
             }
         }
-        String times = msgInputStream.readString(9);
-        int xor = Integer.valueOf(msgInputStream.readString(3));
+        String times = msgInputStream.readString(DEVICE_RUNNING_TIME_FIELD_SIZE);
+        msgInputStream.skipBytes(1);
+        int xor = Integer.valueOf(msgInputStream.readString(DEVICE_XOR_FIELD_SIZE));
         if (xor != checkxor) {
             throw new InvalidMsgException("message check xor error!");
         }

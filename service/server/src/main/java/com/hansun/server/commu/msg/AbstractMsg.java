@@ -1,12 +1,17 @@
 package com.hansun.server.commu.msg;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
+
+import static com.hansun.server.common.MsgConstant.*;
 
 /**
  * Created by yuanl2 on 2017/5/9.
  */
 public abstract class AbstractMsg implements IMsg {
+    private final static Logger logger = LoggerFactory.getLogger(AbstractMsg.class);
 
     private String title = "TRV";
     private String MsgType;
@@ -76,43 +81,48 @@ public abstract class AbstractMsg implements IMsg {
     }
 
     public static IMsg fromByteBuffer(byte[] head, ByteBuffer bodyBuffer) {
+
+        logger.info("head byte = " + getMsgHeadStr(head));
+
         MsgInputStream headMsgInputStream = new MsgInputStream(head);
-        String title = headMsgInputStream.readString(3);
-        String cmd = headMsgInputStream.readString(4);
+        String title = headMsgInputStream.readString(IDENTIFIER_FIELD_SIZE);
+        String cmd = headMsgInputStream.readString(CMD_FIELD_SIZE);
         headMsgInputStream.skipBytes(1);
-        int len = Integer.valueOf(headMsgInputStream.readString(3));
+        int len = Integer.valueOf(headMsgInputStream.readString(BODY_LENGTH_FIELD_SIZE));
         byte[] body = new byte[len];
         bodyBuffer.get(body);
+        logger.info("body byte = " + getMsgHeadStr(body));
+
         switch (cmd) {
-            case "AP00":
+            case DEVICE_REGISTER_MSG:
                 DeviceMsg msg = new DeviceMsg();
                 msg.setTitle(title);
                 msg.setMsgType(cmd);
                 msg.setMsgHead(head);
                 msg.setMsgBody(body);
                 return msg;
-            case "AP01":
+            case DEVICE_HEARTBEAT_MSG:
                 HeartBeatMsg msg1 = new HeartBeatMsg();
                 msg1.setTitle(title);
                 msg1.setMsgType(cmd);
                 msg1.setMsgHead(head);
                 msg1.setMsgBody(body);
                 return msg1;
-            case "AP98":
+            case DEVICE_ERROR_MSG:
                 DeviceErrorMsg msg2 = new DeviceErrorMsg();
                 msg2.setTitle(title);
                 msg2.setMsgType(cmd);
                 msg2.setMsgHead(head);
                 msg2.setMsgBody(body);
                 return msg2;
-            case "AP03":
+            case DEVICE_START_FINISH_MSG:
                 DeviceStartFinishMsg msg3 = new DeviceStartFinishMsg();
                 msg3.setTitle(title);
                 msg3.setMsgType(cmd);
                 msg3.setMsgHead(head);
                 msg3.setMsgBody(body);
                 return msg3;
-            case "AP05":
+            case DEVICE_TASK_FINISH_MSG:
                 DeviceTaskFinishMsg msg4 = new DeviceTaskFinishMsg();
                 msg4.setTitle(title);
                 msg4.setMsgType(cmd);
@@ -149,9 +159,9 @@ public abstract class AbstractMsg implements IMsg {
         strBuffer.append(" msgType=" + getMsgType());
         strBuffer.append(" deviceType=" + getDeviceType());
         strBuffer.append("\n");
-        strBuffer.append("msgHead:" + getMsgHeadStr());
+        strBuffer.append("msgHead:" + getMsgHeadStr(msgHead));
         strBuffer.append("\n");
-        strBuffer.append("msgBody:" + getMsgBodyStr());
+        strBuffer.append("msgBody:" + getMsgBodyStr(msgBody));
         return strBuffer.toString();
     }
 
@@ -161,7 +171,7 @@ public abstract class AbstractMsg implements IMsg {
      *
      * @return
      */
-    public String getMsgHeadStr() {
+    public static String getMsgHeadStr(byte[] msgHead) {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < msgHead.length; i++) {
             char ch;
@@ -179,7 +189,7 @@ public abstract class AbstractMsg implements IMsg {
      *
      * @return
      */
-    public String getMsgBodyStr() {
+    public static String getMsgBodyStr(byte[] msgBody) {
         StringBuffer sb = new StringBuffer();
 
 
