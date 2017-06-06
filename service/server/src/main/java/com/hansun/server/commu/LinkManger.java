@@ -32,6 +32,7 @@ public class LinkManger {
 
     @Autowired
     private OrderService orderService;
+
     @Autowired
     private HSServiceProperties hsServiceProperties;
 

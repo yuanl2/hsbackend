@@ -4,8 +4,8 @@ import com.hansun.server.common.InvalidMsgException;
 import com.hansun.server.commu.msg.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import retrofit2.http.HEAD;
 
+import java.nio.channels.ClosedChannelException;
 import java.time.Instant;
 
 import static com.hansun.server.common.MsgConstant.*;
@@ -50,13 +50,16 @@ public class DeviceTask implements Runnable {
             if (msg.getMsgType().equals(DEVICE_REGISTER_MSG)) {
                 DeviceMsg m = (DeviceMsg) msg;
 
-
                 IHandler oldHandler = linkManger.get(m.getDeviceName());
-                if (oldHandler != null) {
-                    logger.info("device need to clear old handler " + m.getDeviceName() + " address:  " + oldHandler.getSocketChannel().getRemoteAddress());
-                    oldHandler.handleClose();
-                    linkManger.remove(m.getDeviceName());
+                try {
+                    if (oldHandler != null) {
+                        logger.info("device need to clear old handler " + m.getDeviceName() + " address:  " + oldHandler.getSocketChannel().getRemoteAddress());
+                        oldHandler.handleClose();
+                    }
+                } catch (ClosedChannelException e) {
+                    logger.error(m.getDeviceName() + " has been closed!");
                 }
+                linkManger.remove(m.getDeviceName());
 
                 //todo 考虑实际设备名和设备上报的带sim卡信息的不一样
                 linkManger.add(m.getDeviceName(), handler);
@@ -91,11 +94,11 @@ public class DeviceTask implements Runnable {
                 handler.getSendList().add(m1.toByteBuffer());
                 handler.updateOps();
 
+                //k = {1,2,3,4}
                 m.getMap().forEach((k, v) -> {
-                    String s = handler.getDeviceName() + "_" + k;
+                    String s = handler.getDeviceName();
                     if (v != null && v.equals("1")) {
-
-                        linkManger.getOrderService().startOrder(s);
+                        linkManger.getOrderService().startOrder(s, k);  //SIM800_898602B8191650210001 1  (对应就是端口1的设备启动了)
                     }
                 });
             }
@@ -104,9 +107,9 @@ public class DeviceTask implements Runnable {
                 DeviceTaskFinishMsg m = (DeviceTaskFinishMsg) msg;
 
                 m.getMap().forEach((k, v) -> {
-                    String s = handler.getDeviceName() + "_" + k;
+                    String s = handler.getDeviceName();
                     if (v != null && v.equals("0")) {
-                        linkManger.getOrderService().finishOrder(s);
+                        linkManger.getOrderService().finishOrder(s, k);
                     }
                 });
             }

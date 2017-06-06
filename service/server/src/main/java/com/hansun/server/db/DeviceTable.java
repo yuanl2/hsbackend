@@ -15,20 +15,19 @@ import java.util.Optional;
  * Created by yuanl2 on 2017/3/29.
  */
 public class DeviceTable {
-
-    private static final String SELECT_BY_DEVICEID = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status, beginTime, simcard FROM device WHERE deviceID = ?";
-    private static final String SELECT_BY_OWNER = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status, beginTime, simcard FROM device WHERE owner = ?";
-    private static final String SELECT_BY_LOCATIONID = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status ,beginTime, simcard FROM device WHERE locationID = ?";
-    private static final String SELECT_ALL = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status , beginTime, simcard FROM device";
+    private static final String SELECT_BY_DEVICEID = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status, beginTime, simcard , port FROM device WHERE deviceID = ?";
+    private static final String SELECT_BY_OWNER = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status, beginTime, simcard , port FROM device WHERE owner = ?";
+    private static final String SELECT_BY_LOCATIONID = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status ,beginTime, simcard , port FROM device WHERE locationID = ?";
+    private static final String SELECT_ALL = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status , beginTime, simcard , port FROM device";
 
     private static final String DELETE_BY_DEVICEID = "DELETE FROM device WHERE deviceID = ?";
     private static final String DELETE_BY_OWNER = "DELETE FROM device WHERE owner = ?";
     private static final String DELETE_BY_LOCATIONID = "DELETE FROM device WHERE locationID = ?";
 
     private static final String INSERT =
-            "INSERT INTO device (deviceID, deviceType, deviceName, locationID, owner,addtionInfo,status, beginTime, simcard) VALUES (?, ?, ?, ?, ?, ?, ? ,? ,?)";
+            "INSERT INTO device (deviceID, deviceType, deviceName, locationID, owner,addtionInfo,status, beginTime, simcard, port ) VALUES (?, ?, ?, ?, ?, ?, ? ,? ,?, ?)";
     private static final String UPDATE =
-            "UPDATE device SET deviceType = ?, deviceName = ?, locationID = ?,owner = ?, addtionInfo = ?, status = ?, beginTime = ?, simcard = ? WHERE deviceID = ?";
+            "UPDATE device SET deviceType = ?, deviceName = ?, locationID = ?,owner = ?, addtionInfo = ?, status = ?, beginTime = ?, simcard = ? , port = ? WHERE deviceID = ?";
     private static final String UPDATE_STATUS =
             "UPDATE device SET status = ? WHERE deviceID like ?";
     private ConnectionPoolManager connectionPoolManager;
@@ -37,7 +36,6 @@ public class DeviceTable {
     private PreparedStatement deleteStatement;
     private PreparedStatement insertStatement;
     private PreparedStatement updateStatement;
-
 
     public DeviceTable(ConnectionPoolManager connectionPoolManager) {
         this.connectionPoolManager = connectionPoolManager;
@@ -61,6 +59,7 @@ public class DeviceTable {
                 insertStatement.setTimestamp(8, null);
             }
             insertStatement.setString(9, device.getSimCard());
+            insertStatement.setInt(10, device.getPort());
             insertStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -87,7 +86,7 @@ public class DeviceTable {
         try {
             conn = connectionPoolManager.getConnection();
             updateStatement = conn.prepareStatement(UPDATE);
-            updateStatement.setLong(7, id);
+            updateStatement.setLong(10, id);
             updateStatement.setInt(1, device.getType());
             updateStatement.setString(2, device.getName());
             updateStatement.setInt(3, device.getLocationID());
@@ -100,6 +99,8 @@ public class DeviceTable {
                 updateStatement.setTimestamp(7, null);
             }
             updateStatement.setString(8, device.getSimCard());
+            updateStatement.setInt(9, device.getPort());
+
             updateStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -253,6 +254,7 @@ public class DeviceTable {
                                     device.setBeginTime(beginTime.toInstant());
                                 }
                                 device.setSimCard(resultSet.getString("simcard"));
+                                device.setPort(resultSet.getInt("port"));
                                 return device;
                             }
                             return null;
@@ -310,6 +312,7 @@ public class DeviceTable {
                                     device.setBeginTime(beginTime.toInstant());
                                 }
                                 device.setSimCard(resultSet.getString("simcard"));
+                                device.setPort(resultSet.getInt("port"));
                                 list.add(device);
                             }
                             return list;
@@ -342,7 +345,6 @@ public class DeviceTable {
             }
         }
     }
-
 
     public Optional<List<Device>> selectbyLocationID(int locationID) {
         Connection conn = null;
@@ -368,6 +370,7 @@ public class DeviceTable {
                                     device.setBeginTime(beginTime.toInstant());
                                 }
                                 device.setSimCard(resultSet.getString("simcard"));
+                                device.setPort(resultSet.getInt("port"));
                                 list.add(device);
                             }
                             return list;
@@ -401,7 +404,6 @@ public class DeviceTable {
         }
     }
 
-
     public Optional<List<Device>> selectAll() {
         Connection conn = null;
         try {
@@ -425,6 +427,7 @@ public class DeviceTable {
                                     device.setBeginTime(beginTime.toInstant());
                                 }
                                 device.setSimCard(resultSet.getString("simcard"));
+                                device.setPort(resultSet.getInt("port"));
                                 list.add(device);
                             }
                             return list;

@@ -12,7 +12,7 @@ import java.time.Instant;
 public class Device {
     private long id;
     private int type;
-
+    private int port;
     /**
      * 内部的设备名字
      */
@@ -147,6 +147,14 @@ public class Device {
         this.simCard = simCard;
     }
 
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
     @Override
     public String toString() {
         return "device{" +
@@ -163,6 +171,7 @@ public class Device {
                 ", ownerID=" + ownerID +
                 ", status=" + status +
                 ", simCard=" + simCard +
+                ", port=" + port +
                 "}";
     }
 

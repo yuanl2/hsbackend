@@ -45,7 +45,7 @@ public class OrderService {
     @Autowired
     private PayAcountStore payAcountStore;
 
-    private Map<String, Order> orderCache = new HashMap<>();
+    private Map<Long, Order> orderCache = new HashMap<>();
 
     @Autowired
     private SyncAsynMsgController syncAsynMsgController;
@@ -125,34 +125,34 @@ public class OrderService {
 
     public Order createOrder(Order order) {
         createStartMsgToDevice(order);
-        orderCache.put(order.getDeviceName(), order);
+        orderCache.put(order.getDeviceID(), order);
         return orderStore.insertOrder(order);
     }
 
-    public void startOrder(String name) {
-        Order order = orderCache.get(name);
-        if (order != null) {
-            order = orderStore.queryOrder(name);
-        }
+    public void startOrder(String deviceBoxName, int port) {
+        Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, port);
+        Order order = orderCache.get(d.getId()); // 根据deviceID获取订单
+
         if (order != null) {
             order.setOrderStatus(OrderStatus.START);
             order.setStartTime(Instant.now());
             orderStore.updateOrder(order);
+        } else {
+            logger.error(d.getId() + " have no order now");
         }
-        logger.error(name + " have no order now");
     }
 
-    public void finishOrder(String name) {
-        Order order = orderCache.get(name);
-        if (order != null) {
-            order = orderStore.queryOrder(name);
-        }
+    public void finishOrder(String deviceBoxName, int port) {
+        Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, port);
+        Order order = orderCache.get(d.getId()); // 根据deviceID获取订单
+
         if (order != null) {
             order.setOrderStatus(OrderStatus.FINISH);
-            order.setEndTime(Instant.now());
+            order.setStartTime(Instant.now());
             orderStore.updateOrder(order);
+        } else {
+            logger.error(d.getId() + " have no order now");
         }
-        logger.error(name + " have no order now");
     }
 
     public void OrderNotFinish(String name, int orderStatus) {

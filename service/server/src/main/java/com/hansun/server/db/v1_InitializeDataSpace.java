@@ -1,6 +1,10 @@
 package com.hansun.server.db;
 
+import com.hansun.dto.User;
+
 import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by yuanl2 on 2017/3/30.
@@ -18,6 +22,8 @@ public class v1_InitializeDataSpace {
                     "addtionInfo varchar(50) DEFAULT NULL," +
                     "status int(4) DEFAULT NULL," +
                     "beginTime DATETIME DEFAULT NULL," +
+                    "simcard  varchar(45) NOT NULL," +
+                    "port INT(4) NOT NULL DEFAULT 1," +
                     "PRIMARY KEY (deviceID)," +
                     "UNIQUE KEY deviceID_UNIQUE (deviceID))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
@@ -36,6 +42,21 @@ public class v1_InitializeDataSpace {
                     "PRIMARY KEY (userID)," +
                     "UNIQUE INDEX userID_UNIQUE (userID ASC))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+            User adminUser = new User();
+            Date date = new Date();
+
+            Calendar c = Calendar.getInstance();
+            c.setTime(date);
+            c.add(Calendar.YEAR, 10);
+            adminUser.setRole("admin");
+            adminUser.setUserType(1);
+            adminUser.setExpiredTime(c.getTime().toInstant());
+            adminUser.setPassword("E10ADC3949BA59ABBE56E057F20F883E");
+            adminUser.setName("admin");
+            adminUser.setLocked(false);
+            adminUser.setAddtionInfo("this is admin user");
+            new UserTable(manager).insert(adminUser);
         }
 
         if (!manager.tableExists("location")) {
@@ -62,6 +83,8 @@ public class v1_InitializeDataSpace {
                     "consumeID int(11) NOT NULL AUTO_INCREMENT," +
                     "price float NOT NULL," +
                     "duration int(11) NOT NULL," +
+                    "description varchar(45) NOT NULL," +
+                    "picpath varchar(45) DEFAULT NULL," +
                     "PRIMARY KEY (consumeID))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         }
@@ -86,8 +109,8 @@ public class v1_InitializeDataSpace {
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         }
 
-        if (!manager.tableExists("order")) {
-            manager.createTable("CREATE TABLE `order` (" +
+        if (!manager.tableExists("consumeorder")) {
+            manager.createTable("CREATE TABLE `consumeorder` (" +
                     "orderID int(11) NOT NULL AUTO_INCREMENT," +
                     "deviceID int(11) NOT NULL," +
                     "startTime DATETIME NOT NULL," +

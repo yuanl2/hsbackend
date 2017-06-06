@@ -17,7 +17,7 @@ import java.util.Optional;
  */
 public class OrderTable {
 
-    private static final String SELECT = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, ,createTime ,orderName,orderStatus FROM order WHERE orderID = ?";
+    private static final String SELECT = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, ,createTime ,orderName,orderStatus FROM consumeorder WHERE orderID = ?";
     private static final String SELECTBYDEVICE = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, ,createTime ,orderName,orderStatus FROM consumeorder WHERE startTime >= ? and endTime <= ? and deviceID in";
     private static final String SELECTBYNAME = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, ,createTime ,orderName,orderStatus FROM consumeorder WHERE accountName = ?";
     private static final String SELECT_ALL = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, ,createTime ,orderName,orderStatus FROM consumeorder";

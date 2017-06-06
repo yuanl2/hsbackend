@@ -247,6 +247,21 @@ public class DataStore {
         }
     }
 
+    public Device queryDeviceByDeviceBoxAndPort(String deviceBoxName, int port) {
+        List<Device> lists = deviceSimCache.get(deviceBoxName);
+        if (lists != null && lists.size() >= 0) {
+            for (Device device: lists ) {
+                if(device.getPort() == port){
+                    return device;
+                }
+            }
+        }
+        else{
+            //todo query from db
+        }
+        return null;
+    }
+
     /**
      * 把一些基本不动的配置信息读取到缓存中，减少数据库的存取
      */
