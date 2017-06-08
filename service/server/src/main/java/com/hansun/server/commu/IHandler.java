@@ -38,4 +38,6 @@ public interface IHandler {
     void sendMsg(IMsg msg);
 
     public SocketChannel getSocketChannel();
+
+    public void setHasConnected(boolean hasConnected);
 }

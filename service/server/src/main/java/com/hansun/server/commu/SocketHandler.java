@@ -11,9 +11,8 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 
-import static com.hansun.server.common.MsgConstant.BODY_LENGTH_FIELD_SIZE;
-import static com.hansun.server.common.MsgConstant.CMD_FIELD_SIZE;
-import static com.hansun.server.common.MsgConstant.IDENTIFIER_FIELD_SIZE;
+import static com.hansun.server.common.MsgConstant.*;
+
 
 /**
  * Created by yuanl2 on 2017/5/9.
@@ -102,6 +101,14 @@ public class SocketHandler implements IHandler {
         return sendList;
     }
 
+    public boolean isHasConnected() {
+        return hasConnected;
+    }
+
+    public void setHasConnected(boolean hasConnected) {
+        this.hasConnected = hasConnected;
+    }
+
     @Override
     public void handleAccept(SelectionKey key) throws IOException {
         SocketChannel clntChan = ((ServerSocketChannel) key.channel()).accept();
@@ -143,6 +150,7 @@ public class SocketHandler implements IHandler {
 
         //设备添加了 x0d x0a 两个byte数据，需要过滤掉
         getSocketChannel().read(ByteBuffer.allocate(2));
+        headBuffer.rewind();
         headBuffer.clear();
         bodyBuffer.clear();
         if (msg != null) {
@@ -164,34 +172,33 @@ public class SocketHandler implements IHandler {
             SocketChannel socketChannel = getSocketChannel();
 
             String content = new String(sendItem.array());
-            socketChannel.write(sendItem);
+            int number = socketChannel.write(sendItem);
             if (sendItem.remaining() == 0) {
                 /* 如果已经发送完了该消息,则将它从list中删除 */
                 synchronized (sendList) {
                     sendList.removeFirst();
                 }
             }
-            logger.info("send msg context = " + content + " on " + getSocketChannel().getRemoteAddress());
+            logger.info("send msg context = " + content + " on " + getSocketChannel().getRemoteAddress() + " byte number " + number);
             updateOps();
         }
     }
 
     @Override
     public void handleClose() {
+        logger.info("handleClose " + getDeviceName());
         if (hasConnected) {
             try {
                 if (getSocketChannel() != null) {
                     getSelectionKey().cancel();
-
                     getSocketChannel().close();
-
                     linkManger.remove(deviceName);
                     linkManger = null;
                 }
             } catch (IOException e) {
-                logger.error("handleClose error "  + getDeviceName(),e);
-            } catch (Exception e){
-                logger.error("handleClose error "  + getDeviceName(),e);
+                logger.error("handleClose error " + getDeviceName(), e);
+            } catch (Exception e) {
+                logger.error("handleClose error " + getDeviceName(), e);
             }
         }
         hasConnected = false;
@@ -205,22 +212,17 @@ public class SocketHandler implements IHandler {
     public void updateOps() {
         try {
             if (!hasConnected) {
-            /* 如果当前还没有连上,则不更改 */
                 return;
             }
             synchronized (sendList) {
                 if (sendList.size() == 0) {
-                /* 如果发送队列长度为0,则关闭发送开关 */
-//				ModuleLogger.getCommonLogger().getCommuLogger().debug("need to close write ops");
                     getSelectionKey().interestOps(SelectionKey.OP_READ);
                 } else {
-                /* 如果有数据需要发送,则打开 */
-//				ModuleLogger.getCommonLogger().getCommuLogger().debug("need to open write ops");
                     getSelectionKey().interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
                 }
             }
         } catch (Exception e) {
-             logger.error("updateOps error ", e);
+            logger.error("updateOps error ", e);
             //todo 更新失败，最好不要走到这里
         }
     }

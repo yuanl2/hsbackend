@@ -27,7 +27,7 @@ public class SocketServerSelector {
     private final static Logger logger = LoggerFactory.getLogger(SocketServerSelector.class);
 
     //select方法等待信道准备好的最长时间
-    private static final int TIMEOUT = 3000;
+    private static final int TIMEOUT = 500;
 
     private String host;
     private String port;
@@ -40,7 +40,6 @@ public class SocketServerSelector {
 
     @Autowired
     private HeartBeatService heartBeatService;
-
 
     @Autowired
     private LinkManger linkManger;
@@ -110,54 +109,56 @@ public class SocketServerSelector {
                 //这里只是简单地打印"."
                 System.out.print(".");
                 continue;
-            }
-            //获取准备好的信道所关联的Key集合的iterator实例
-            Iterator<SelectionKey> keyIter = selector.selectedKeys().iterator();
-            //循环取得集合中的每个键值
-            while (keyIter.hasNext()) {
-                SelectionKey key = keyIter.next();
-                IHandler handler = null;
+            } else {
+                //准备好的信道所关联的Key集合的iterator实例
+                Set<SelectionKey> selectionKeys = selector.selectedKeys();
+                Iterator<SelectionKey> keyIter = selectionKeys.iterator();
+                //循环取得集合中的每个键值
+                while (keyIter.hasNext()) {
+                    SelectionKey key = keyIter.next();
+                    IHandler handler = null;
 
-                //这里需要手动从键集中移除当前的key
-                keyIter.remove();
+                    //这里需要手动从键集中移除当前的key
+                    keyIter.remove();
 
-                try {
-                    if (key.isAcceptable()) {
-                        //创建一个实现了协议接口的对象
-                        handler = new SocketHandler();
-                        handler.setLinkManger(linkManger);
-                        //如果服务端信道感兴趣的I/O操作为accept
-                        handler.handleAccept(key);
-                    }
-                    //如果该键值有效，并且其对应的客户端信道感兴趣的I/O操作为write
-                    if (key.isValid() && key.isWritable()) {
-                        handler = ((IHandler) key.attachment());
-                        handler.handleWrite(key);
-                    }
-                    //如果客户端信道感兴趣的I/O操作为read
-                    if (key.isReadable()) {
-                        handler = ((IHandler) key.attachment());
-                        handler.handleRead(key);
-                    }
+                    try {
+                        if (key.isAcceptable()) {
+                            //创建一个实现了协议接口的对象
+                            handler = new SocketHandler();
+                            handler.setHasConnected(true);
+                            handler.setLinkManger(linkManger);
+                            //如果服务端信道感兴趣的I/O操作为accept
+                            handler.handleAccept(key);
+                        }
+                        //如果该键值有效，并且其对应的客户端信道感兴趣的I/O操作为write
+                        if (key.isValid() && key.isWritable()) {
+                            handler = ((IHandler) key.attachment());
+                            handler.handleWrite(key);
+                        }
+                        //如果客户端信道感兴趣的I/O操作为read
+                        if (key.isReadable()) {
+                            handler = ((IHandler) key.attachment());
+                            handler.handleRead(key);
+                        }
 
-                    if (!key.isValid()) {
-                        handler = ((IHandler) key.attachment());
-                        handler.handleClose();
-                    }
-
-                } catch (IOException e) {
-                    if (handler != null) {
-                        logger.error("process error " + handler.getDeviceName(), e);
-                        handler.handleClose();
-                    } else {
-                        logger.error("process error ", e);
-                    }
-                } catch (Exception e) {
-                    if (handler != null) {
-                        logger.error("process other error " + handler.getDeviceName(), e);
-                        handler.handleClose();
-                    } else {
-                        logger.error("process error ", e);
+                        if (!key.isValid()) {
+                            handler = ((IHandler) key.attachment());
+                            handler.handleClose();
+                        }
+                    } catch (IOException e) {
+                        if (handler != null) {
+                            logger.error("process error " + handler.getDeviceName(), e);
+                            handler.handleClose();
+                        } else {
+                            logger.error("process error ", e);
+                        }
+                    } catch (Exception e) {
+                        if (handler != null) {
+                            logger.error("process other error " + handler.getDeviceName(), e);
+                            handler.handleClose();
+                        } else {
+                            logger.error("process error ", e);
+                        }
                     }
                 }
             }

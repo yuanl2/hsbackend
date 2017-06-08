@@ -52,6 +52,7 @@ public class HeartBeatService {
     private void init() {
         // 循环圈的格子个数 index 0 ~ count-1
         count = Integer.valueOf(hsServiceProperties.getHeartBeatInternal()) / Integer.valueOf(hsServiceProperties.getSweepBeatInternal());
+        logger.info("HeartBeatService count value = " + count);
 
         for (int i = 0; i < count; i++) {
             slotMapDeviceIDs.put(i, new HashSet<String>());
@@ -63,11 +64,13 @@ public class HeartBeatService {
 
         if (!deviceBoxIDs.isEmpty()) {
             deviceBoxIDs.forEach(k -> {
+                logger.info("HeartBeatService deviceIDMapSlot put  " + k + "  into "+ currentIndex);
+
                 deviceIDMapSlot.put(k, currentIndex);
                 slotMapDeviceIDs.get(currentIndex).add(k);
             });
         }
-        timer.schedule(new DeviceStatusTask(), Long.valueOf(hsServiceProperties.getHeartBeatInternal()),
+        timer.schedule(new DeviceStatusTask(), Long.valueOf(Long.valueOf(hsServiceProperties.getHeartBeatInternal())),
                 Long.valueOf(hsServiceProperties.getSweepBeatInternal()));
     }
 
@@ -85,6 +88,7 @@ public class HeartBeatService {
             try {
                 //5秒扫一格，
                 currentIndex = (++currentIndex) % count;
+                logger.info("HeartBeatService timer scan currentIndex value = " + currentIndex);
                 sets = slotMapDeviceIDs.get(currentIndex);
 
                 if (sets != null) {
@@ -105,14 +109,23 @@ public class HeartBeatService {
         @Override
         public void connnect(String simid) {
             try {
-                int index = currentIndex;
-                int next = (index + 1) % count;
-                deviceIDMapSlot.replace(simid, next);
-                //把设备对应的ID移动到下一格
-                slotMapDeviceIDs.get(index).remove(simid);
-                slotMapDeviceIDs.get(next).add(simid);
-                //id只是设备盒子的id，具体对应4个具体的设备
-                dataStore.updateDeviceStatus(DeviceStatus.CONNECT, simid);
+                Integer index = deviceIDMapSlot.get(simid);
+                if (index == null) {
+                    logger.info("DeviceConnect new device connnect" + simid + " currentIndex value = " + currentIndex);
+                    slotMapDeviceIDs.get((currentIndex - 1 + count) % count).add(simid);
+                    deviceIDMapSlot.put(simid,(currentIndex - 1 + count) % count);                }
+                else
+                {
+                    logger.info("DeviceConnect connnect" + simid + " currentIndex value = " + index);
+                    int next = (currentIndex - 1 + count) % count;
+                    //把设备对应的ID移动到下一格
+                    slotMapDeviceIDs.get(index).remove(simid);
+                    logger.info("DeviceConnect connnect " + simid + " move to next " + next);
+                    slotMapDeviceIDs.get(next).add(simid);
+                    deviceIDMapSlot.put(simid,next);
+                    //id只是设备盒子的id，具体对应4个具体的设备
+                    dataStore.updateDeviceStatus(DeviceStatus.CONNECT, simid);
+                }
             } catch (Exception e) {
                 logger.error("DeviceConnect: connect error " + simid, e);
             }
@@ -121,6 +134,8 @@ public class HeartBeatService {
         @Override
         public void disconnect(String simid) {
             try {
+                logger.info("DeviceConnect disconnect " + simid);
+                deviceIDMapSlot.remove(simid);
                 //收不到心跳，主动断开链路
                 IHandler handler = linkManger.get(simid);
                 if (handler != null) {
