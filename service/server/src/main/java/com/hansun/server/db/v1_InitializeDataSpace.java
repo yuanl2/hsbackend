@@ -14,7 +14,7 @@ public class v1_InitializeDataSpace {
     public void apply(ConnectionPoolManager manager) throws SQLException {
         if (!manager.tableExists("device")) {
             manager.createTable("CREATE TABLE device (" +
-                    "deviceID int(11) NOT NULL," +
+                    "deviceID bigint(8) NOT NULL," +
                     "deviceType int(11) NOT NULL," +
                     "deviceName varchar(45) DEFAULT NULL," +
                     "locationID int(11) NOT NULL," +
@@ -52,7 +52,7 @@ public class v1_InitializeDataSpace {
             adminUser.setRole("admin");
             adminUser.setUserType(1);
             adminUser.setExpiredTime(c.getTime().toInstant());
-            adminUser.setPassword("E10ADC3949BA59ABBE56E057F20F883E");
+            adminUser.setPassword("e10adc3949ba59abbe56e057f20f883e");
             adminUser.setName("admin");
             adminUser.setLocked(false);
             adminUser.setAddtionInfo("this is admin user");
@@ -111,8 +111,8 @@ public class v1_InitializeDataSpace {
 
         if (!manager.tableExists("consumeorder")) {
             manager.createTable("CREATE TABLE `consumeorder` (" +
-                    "orderID int(11) NOT NULL AUTO_INCREMENT," +
-                    "deviceID int(11) NOT NULL," +
+                    "orderID bigint(8) NOT NULL," +
+                    "deviceID bigint(8) NOT NULL," +
                     "startTime DATETIME NOT NULL," +
                     "endTime DATETIME NOT NULL," +
                     "consumeType int(3) NOT NULL," +
