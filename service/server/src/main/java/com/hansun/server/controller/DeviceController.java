@@ -15,6 +15,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,7 +57,17 @@ public class DeviceController {
     @RequestMapping(value = "devices/{userID}", method = RequestMethod.GET)
     public ResponseEntity<?> getDeviceByUserID(@PathVariable int userID,
                                                @RequestParam(value = "locationID", required = false, defaultValue = "1") int locationID,
-                                               UriComponentsBuilder ucBuilder) {
+                                               HttpServletRequest request, HttpServletResponse response) {
+
+        String auth = request.getHeader("Authorization");
+        String decode = null;
+        try {
+            decode = new String(java.util.Base64.getDecoder().decode(auth.substring(6,auth.length())),"utf-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        String user = decode.split(":")[0];
         if (locationID > 1) {
             List<Device> list = deviceService.getDevicesByLocationID(locationID);
             return new ResponseEntity<List<Device>>(list, HttpStatus.OK);

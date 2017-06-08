@@ -12,10 +12,10 @@ datasource:
     maxPoolSize: 20
     databaseName: hsdata
 socket:
-  socketaddress: localhost
+  socketaddress: 10.207.42.78
   socketport: 8090
-  heartbeatinternal: 10000
-  sweepbeatinternal: 1000
+  heartbeatinternal: 300000
+  sweepbeatinternal: 30000
 influxDB:
   username: hsuser
   password: qazwsx123
@@ -26,4 +26,4 @@ influxDB:
   batchsize: 1000
 msg:
   processMsgThreadNum: 20
-  responseDelay: 1000
+  responseDelay: 3000

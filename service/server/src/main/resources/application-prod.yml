@@ -12,10 +12,10 @@ datasource:
     maxPoolSize: 20
     databaseName: hsdata
 socket:
-  socketaddress: 10.207.66.56
+  socketaddress: 172.16.74.156
   socketport: 8090
-  heartbeatinternal: 180000
-  sweepbeatinternal: 10000
+  heartbeatinternal: 300000
+  sweepbeatinternal: 30000
 influxDB:
   username: hsuser
   password: qazwsx123

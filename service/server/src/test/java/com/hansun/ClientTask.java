@@ -3,6 +3,7 @@ package com.hansun;
 import com.hansun.server.commu.msg.AbstractMsg;
 import com.hansun.server.util.MsgUtil;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
@@ -43,12 +44,12 @@ public class ClientTask implements Runnable {
 
     @Override
     public void run() {
-
+        SocketChannel clntChan = null;
         int i = 0;
         while (!Thread.currentThread().isInterrupted() && i < getCount()) {
             try {
                 //创建一个信道，并设为非阻塞模式
-                SocketChannel clntChan = SocketChannel.open();
+                clntChan = SocketChannel.open();
                 clntChan.configureBlocking(false);
                 //向服务端发起连接
                 if (!clntChan.connect(new InetSocketAddress(getServer(), getPort()))) {
@@ -64,81 +65,96 @@ public class ClientTask implements Runnable {
                 //为了与后面打印的"."区别开来，这里输出换行符
                 System.out.print("\n");
                 //分别实例化用来读写的缓冲区
-                ByteBuffer writeBuf = createDeviceMsg(getName());
-                ByteBuffer readBuf = ByteBuffer.allocate(256);
-                //接收到的总的字节数
-                int totalBytesRcvd = 0;
-                //每一次调用read（）方法接收到的字节数
+
+                ByteBuffer writeBuf;
+                ByteBuffer readBuf;
+                int totalBytesRcvd;
                 int bytesRcvd;
-                //循环执行，直到接收到的字节数与发送的字符串的字节数相等
-                while (totalBytesRcvd < 30) {
-                    //如果用来向通道中写数据的缓冲区中还有剩余的字节，则继续将数据写入信道
-                    if (writeBuf.hasRemaining()) {
-                        clntChan.write(writeBuf);
-                    }
-                    Thread.sleep(1000);
+                for (int j = 0; j < 1; j++) {
+
+                    writeBuf = createDeviceMsg(getName());
+                    readBuf = ByteBuffer.allocate(256);
+                    //接收到的总的字节数
+                    totalBytesRcvd = 0;
+                    //每一次调用read（）方法接收到的字节数
+
+                    //循环执行，直到接收到的字节数与发送的字符串的字节数相等
+                    while (totalBytesRcvd < 34) {
+                        //如果用来向通道中写数据的缓冲区中还有剩余的字节，则继续将数据写入信道
+                        if (writeBuf.hasRemaining()) {
+                            clntChan.write(writeBuf);
+                        }
+                        Thread.sleep(100);
 //        }
-                    //如果read（）接收到-1，表明服务端关闭，抛出异常
-                    if ((bytesRcvd = clntChan.read(readBuf)) == -1) {
-                        throw new SocketException("Connection closed prematurely");
-                    }
+                        //如果read（）接收到-1，表明服务端关闭，抛出异常
+                        if ((bytesRcvd = clntChan.read(readBuf)) == -1) {
+                            throw new SocketException("Connection closed prematurely");
+                        }
 
-                    totalBytesRcvd = totalBytesRcvd + bytesRcvd;
-                }
-
-                writeBuf.clear();
-                readBuf.clear();
-                Thread.sleep(100);
-
-                writeBuf = createDeviceStartFinishMsg();
-                readBuf = ByteBuffer.allocate(256);
-                //接收到的总的字节数
-                totalBytesRcvd = 0;
-                //每一次调用read（）方法接收到的字节数
-                //循环执行，直到接收到的字节数与发送的字符串的字节数相等
-//        while (totalBytesRcvd < 13) {
-                //如果用来向通道中写数据的缓冲区中还有剩余的字节，则继续将数据写入信道
-                if (writeBuf.hasRemaining()) {
-                    clntChan.write(writeBuf);
-                }
-                Thread.sleep(1000);
-//        }
-                //如果read（）接收到-1，表明服务端关闭，抛出异常
-                if ((bytesRcvd = clntChan.read(readBuf)) == -1) {
-                    throw new SocketException("Connection closed prematurely");
-                }
-
-                totalBytesRcvd = totalBytesRcvd + bytesRcvd;
-//        }
-
-                writeBuf.clear();
-                readBuf.clear();
-                Thread.sleep(100);
-
-                writeBuf = createHearBeatMsg();
-                readBuf = ByteBuffer.allocate(256);
-                //接收到的总的字节数
-                totalBytesRcvd = 0;
-                //每一次调用read（）方法接收到的字节数
-                //循环执行，直到接收到的字节数与发送的字符串的字节数相等
-                while (totalBytesRcvd < 13) {
-                    //如果用来向通道中写数据的缓冲区中还有剩余的字节，则继续将数据写入信道
-                    if (writeBuf.hasRemaining()) {
-                        clntChan.write(writeBuf);
-                    }
-                    Thread.sleep(1000);
-//        }
-                    //如果read（）接收到-1，表明服务端关闭，抛出异常
-                    if ((bytesRcvd = clntChan.read(readBuf)) == -1) {
-                        throw new SocketException("Connection closed prematurely");
+                        totalBytesRcvd = totalBytesRcvd + bytesRcvd;
                     }
 
-                    totalBytesRcvd = totalBytesRcvd + bytesRcvd;
+                    writeBuf.clear();
+                    readBuf.clear();
+                    Thread.sleep(10);
                 }
-                writeBuf.clear();
-                readBuf.clear();
 
-                Thread.sleep(100);
+//                for (int j = 0; j <10 ; j++) {
+//
+//
+//                writeBuf = createDeviceStartFinishMsg();
+//                readBuf = ByteBuffer.allocate(256);
+//                //接收到的总的字节数
+//                totalBytesRcvd = 0;
+//                //每一次调用read（）方法接收到的字节数
+//                //循环执行，直到接收到的字节数与发送的字符串的字节数相等
+////        while (totalBytesRcvd < 13) {
+//                //如果用来向通道中写数据的缓冲区中还有剩余的字节，则继续将数据写入信道
+//                if (writeBuf.hasRemaining()) {
+//                    clntChan.write(writeBuf);
+//                }
+//                Thread.sleep(1000);
+////        }
+//                //如果read（）接收到-1，表明服务端关闭，抛出异常
+//                if ((bytesRcvd = clntChan.read(readBuf)) == -1) {
+//                    throw new SocketException("Connection closed prematurely");
+//                }
+//
+//                totalBytesRcvd = totalBytesRcvd + bytesRcvd;
+////        }
+//
+//                writeBuf.clear();
+//                readBuf.clear();
+//                Thread.sleep(1000);
+//                }
+                for (int j = 0; j < 10000; j++) {
+
+
+                    writeBuf = createHearBeatMsg();
+                    readBuf = ByteBuffer.allocate(256);
+                    //接收到的总的字节数
+                    totalBytesRcvd = 0;
+                    //每一次调用read（）方法接收到的字节数
+                    //循环执行，直到接收到的字节数与发送的字符串的字节数相等
+                    while (totalBytesRcvd < 21) {
+                        //如果用来向通道中写数据的缓冲区中还有剩余的字节，则继续将数据写入信道
+                        if (writeBuf.hasRemaining()) {
+                            clntChan.write(writeBuf);
+                        }
+                        Thread.sleep(100);
+//        }
+                        //如果read（）接收到-1，表明服务端关闭，抛出异常
+                        if ((bytesRcvd = clntChan.read(readBuf)) == -1) {
+                            throw new SocketException("Connection closed prematurely");
+                        }
+
+                        totalBytesRcvd = totalBytesRcvd + bytesRcvd;
+                    }
+                    writeBuf.clear();
+                    readBuf.clear();
+
+                    Thread.sleep(10000);
+                }
 
                 writeBuf = createDeviceTaskFinishMsg();
                 readBuf = ByteBuffer.allocate(256);
@@ -171,6 +187,11 @@ public class ClientTask implements Runnable {
             } catch (Exception e) {
 
                 e.printStackTrace();
+                try {
+                    clntChan.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
             }
         }
 
@@ -192,7 +213,7 @@ public class ClientTask implements Runnable {
 
         byte[] head = headbuilder.toString().getBytes();
 
-        ByteBuffer writeBuf = ByteBuffer.allocate(head.length + body.length + 5);
+        ByteBuffer writeBuf = ByteBuffer.allocate(head.length + body.length + 5 +2);
 
         StringBuilder sb = new StringBuilder();
         sb.append(MsgUtil.getMsgBodyLength(AbstractMsg.getCheckData(head, body, 0, 0), 3)).append(",");
@@ -201,6 +222,8 @@ public class ClientTask implements Runnable {
         writeBuf.put(body);
         writeBuf.put(sb.toString().getBytes());
         writeBuf.put((byte) '#');
+        writeBuf.put((byte)1);
+        writeBuf.put((byte)1);
         writeBuf.rewind();
         return writeBuf;
     }
@@ -220,7 +243,7 @@ public class ClientTask implements Runnable {
         headbuilder.append(MsgUtil.getMsgBodyLength(bodySize, 3)).append(",");
         byte[] head = headbuilder.toString().getBytes();
 
-        ByteBuffer writeBuf = ByteBuffer.allocate(head.length + body.length + 5);
+        ByteBuffer writeBuf = ByteBuffer.allocate(head.length + body.length + 5 + 2);
 
         StringBuilder sb = new StringBuilder();
         sb.append(MsgUtil.getMsgBodyLength(AbstractMsg.getCheckData(head, body, 0, 0), 3)).append(",");
@@ -229,6 +252,8 @@ public class ClientTask implements Runnable {
         writeBuf.put(body);
         writeBuf.put(sb.toString().getBytes());
         writeBuf.put((byte) '#');
+        writeBuf.put((byte)1);
+        writeBuf.put((byte)1);
         writeBuf.rewind();
         return writeBuf;
     }
@@ -249,7 +274,7 @@ public class ClientTask implements Runnable {
         headbuilder.append(MsgUtil.getMsgBodyLength(bodySize, 3)).append(",");
         byte[] head = headbuilder.toString().getBytes();
 
-        ByteBuffer writeBuf = ByteBuffer.allocate(head.length + body.length + 5);
+        ByteBuffer writeBuf = ByteBuffer.allocate(head.length + body.length + 5 + 2);
 
         StringBuilder sb = new StringBuilder();
         sb.append(MsgUtil.getMsgBodyLength(AbstractMsg.getCheckData(head, body, 0, 0), 3)).append(",");
@@ -258,6 +283,9 @@ public class ClientTask implements Runnable {
         writeBuf.put(body);
         writeBuf.put(sb.toString().getBytes());
         writeBuf.put((byte) '#');
+        writeBuf.put((byte)1);
+        writeBuf.put((byte)1);
+
         writeBuf.rewind();
         return writeBuf;
     }
@@ -277,7 +305,7 @@ public class ClientTask implements Runnable {
         headbuilder.append(MsgUtil.getMsgBodyLength(bodySize, 3)).append(",");
         byte[] head = headbuilder.toString().getBytes();
 
-        ByteBuffer writeBuf = ByteBuffer.allocate(head.length + body.length + 5);
+        ByteBuffer writeBuf = ByteBuffer.allocate(head.length + body.length + 5 + 2);
 
         StringBuilder sb = new StringBuilder();
         sb.append(MsgUtil.getMsgBodyLength(AbstractMsg.getCheckData(head, body, 0, 0), 3)).append(",");
@@ -286,6 +314,9 @@ public class ClientTask implements Runnable {
         writeBuf.put(body);
         writeBuf.put(sb.toString().getBytes());
         writeBuf.put((byte) '#');
+        writeBuf.put((byte)1);
+        writeBuf.put((byte)1);
+
         writeBuf.rewind();
         return writeBuf;
     }
