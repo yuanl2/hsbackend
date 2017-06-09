@@ -2,12 +2,17 @@ package com.hansun.server.controller;
 
 import com.hansun.dto.Consume;
 import com.hansun.dto.Device;
+import com.hansun.dto.Order;
 import com.hansun.server.HttpClientUtil;
 import com.hansun.server.common.DeviceStatus;
+import com.hansun.server.common.OrderStatus;
 import com.hansun.server.db.DataStore;
+import com.hansun.server.db.OrderStore;
 import com.hansun.server.service.DeviceService;
+import com.hansun.server.service.OrderService;
 import com.hansun.server.util.ConstantUtil;
 import net.sf.json.JSONObject;
+import org.apache.tools.ant.taskdefs.condition.Or;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +44,9 @@ public class DemoController {
     @Autowired
     private DataStore dataStore;
 
+    @Autowired
+    private OrderService orderService;
+
     @RequestMapping("/device")
     public String hello(Model model, @RequestParam(value = "device_id", required = false, defaultValue = "World") String name,
                         HttpServletRequest request, HttpServletResponse response) {
@@ -47,17 +56,17 @@ public class DemoController {
         //go wechat flow
         String state = name;
         try {
-
-            if (useragent.contains("MicroMessenger")) {
-                // Constant.GET_CODE_URL_WX = https://open.weixin.qq.com/connect/oauth2/authorize 请求WX接口
-                url = ConstantUtil.GET_CODE_URL_WX + "?appid=" + ConstantUtil.APP_ID + "&redirect_uri=" + ConstantUtil.REDIRECT_URI_WX
-                        + "&response_type=code&scope=snsapi_base&state=" + state + ":WXZF"
-                        + "#wechat_redirect";
-            } else {
-//                url = Constant.GET_CODE_URL_ZFB + "?app_id=" + Constant.APPID_ZFB + "&scope=auth_base&redirect_uri="
-//                        + URLEncoder.encode(REDIRECT_URI_ZFB, "utf-8") + "&state=" + state + ":ZFBZF"
-//                        + (payForm.getFrom() == null ? ":ZC" : ":JF");
-            }
+//
+//            if (useragent.contains("MicroMessenger")) {
+//                // Constant.GET_CODE_URL_WX = https://open.weixin.qq.com/connect/oauth2/authorize 请求WX接口
+//                url = ConstantUtil.GET_CODE_URL_WX + "?appid=" + ConstantUtil.APP_ID + "&redirect_uri=" + ConstantUtil.REDIRECT_URI_WX
+//                        + "&response_type=code&scope=snsapi_base&state=" + state + ":WXZF"
+//                        + "#wechat_redirect";
+//            } else {
+////                url = Constant.GET_CODE_URL_ZFB + "?app_id=" + Constant.APPID_ZFB + "&scope=auth_base&redirect_uri="
+////                        + URLEncoder.encode(REDIRECT_URI_ZFB, "utf-8") + "&state=" + state + ":ZFBZF"
+////                        + (payForm.getFrom() == null ? ":ZC" : ":JF");
+//            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -152,15 +161,56 @@ public class DemoController {
     }
 
 
-
     @RequestMapping("/disable")
     public String disablepage(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "World") String device_id,
-                             @RequestParam(value = "extra", required = false, defaultValue = "0") String extra,
-                             HttpServletRequest request, HttpServletResponse response) throws IOException {
+                              @RequestParam(value = "extra", required = false, defaultValue = "0") String extra,
+                              HttpServletRequest request, HttpServletResponse response) throws IOException {
         logger.info("device_id " + device_id);
         model.addAttribute("device_id", device_id);
         model.addAttribute("extra", extra);
         return "device_disable";
+    }
+
+
+    @RequestMapping("/finish")
+    public String finishpage(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "World") String device_id,
+                             @RequestParam(value = "extra", required = false, defaultValue = "0") String extra,
+                             HttpServletRequest request, HttpServletResponse response) throws IOException {
+        logger.info("device_id " + device_id);
+        orderService.deleteOrder(Long.valueOf(device_id));
+        model.addAttribute("device_id", device_id);
+        model.addAttribute("extra", extra);
+        return "device_finish";
+    }
+
+    @RequestMapping("/testcmd")
+    public String testcmd(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "World") String device_id,
+                          @RequestParam(value = "extra", required = false, defaultValue = "0") String extra,
+                          @RequestParam(value = "product_id", required = false, defaultValue = "0") String product_id,
+                          @RequestParam(value = "divfee", required = false, defaultValue = "0") String divfee,
+                          HttpServletRequest request, HttpServletResponse response) throws IOException {
+        logger.info("device_id " + device_id);
+
+        Consume consume = dataStore.queryConsume(Integer.valueOf(product_id));
+
+        Order order = new Order();
+        order.setOrderName("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+        order.setStartTime(Instant.now());
+        order.setCreateTime(Instant.now());
+        order.setPayAccount("test-payaccount");
+        order.setOrderStatus(OrderStatus.START);
+        order.setDeviceID(Long.valueOf(device_id));
+        order.setPayAccount("1");
+        order.setConsumeType(Integer.valueOf(product_id));
+
+        orderService.createOrder(order);
+
+        model.addAttribute("device_id", device_id);
+        model.addAttribute("duration", consume.getDuration());
+        model.addAttribute("extra", extra);
+
+
+        return "device_running";
     }
 }
 

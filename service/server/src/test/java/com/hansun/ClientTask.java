@@ -153,7 +153,7 @@ public class ClientTask implements Runnable {
                     writeBuf.clear();
                     readBuf.clear();
 
-                    Thread.sleep(10000);
+                    Thread.sleep(20000);
                 }
 
                 writeBuf = createDeviceTaskFinishMsg();

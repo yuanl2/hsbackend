@@ -1,8 +1,10 @@
 package com.hansun.server.controller;
 
 import com.hansun.dto.Device;
+import com.hansun.dto.Order;
 import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.service.DeviceService;
+import com.hansun.server.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,9 @@ public class DeviceController {
 
     @Autowired
     private DeviceService deviceService;
+
+    @Autowired
+    private OrderService orderService;
 
     @PostConstruct
     private void init() {
@@ -107,8 +112,14 @@ public class DeviceController {
 
     @RequestMapping("/deviceStatus")
     public String deviceStatus(@RequestParam(value = "device_id", required = true, defaultValue = "0000000") String device_id,
+                               @RequestParam(value = "pay_method", required = true, defaultValue = "wx") String pay_method,
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
         Device d = deviceService.getDevice(Long.valueOf(device_id));
+        Order o = orderService.getOrder(Long.valueOf(device_id));
+        if (o != null) {
+            logger.error("device servering.... = " + device_id);
+            return String.valueOf(DeviceStatus.SERVICE);
+        }
         if (d != null) {
             logger.info("device_id = " + device_id);
             return String.valueOf(d.getStatus());

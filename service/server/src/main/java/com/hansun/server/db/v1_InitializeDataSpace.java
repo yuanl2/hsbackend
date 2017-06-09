@@ -114,7 +114,7 @@ public class v1_InitializeDataSpace {
                     "orderID bigint(8) NOT NULL," +
                     "deviceID bigint(8) NOT NULL," +
                     "startTime DATETIME NOT NULL," +
-                    "endTime DATETIME NOT NULL," +
+                    "endTime DATETIME DEFAULT NULL," +
                     "consumeType int(3) NOT NULL," +
                     "accountType int(3) NOT NULL," +
                     "payAccount varchar(45) DEFAULT NULL," +

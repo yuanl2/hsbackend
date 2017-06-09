@@ -86,17 +86,17 @@
                 }
                 var pid = $(this).find("input[name='product_id']").val();
                 $.mydialog.open();
-                myAjax("http://localhost:8080/hsservice/api/deviceStatus", "device_id=" + did, function (device_status) {
+                myAjax("/hsservice/api/deviceStatus", "device_id=" + did, function (device_status) {
                     $.mydialog.close();
                     if (device_status == "1") {
                         location.href = "detail?product_id=" + pid + "&device_id=" + did + "&extra=" + extra + "";
                     }
                     else if (device_status == "-3") { $.mydialog.alert('有Sql注入危险'); }
                     else if (device_status == "-2") { $.mydialog.alert('设备不可用'); }
-                    else if (device_status == "0") { location.href = "http://localhost:8080/hsservice/disable?device_id=${device_id}"; }
+                    else if (device_status == "0") { location.href = "/hsservice/disable?device_id=${device_id}"; }
                     else if (device_status == "-1") { $.mydialog.alert('设备故障'); }
                     else if (device_status == "2") { $.mydialog.alert('请刷卡'); }
-                    else if (device_status == "3") { $.mydialog.alert('等待刷卡充值'); }
+                    else if (device_status == "3") { $.mydialog.alert('其他用户正在使用，请耐心等待!稍后扫码'); }
                     else if (device_status == "4") { $.mydialog.alert('充值成功'); }
                     else if (device_status == "5") { $.mydialog.alert('充值失败'); }
                     else if (device_status == "6") { $.mydialog.alert('暂停支付'); }

@@ -57,11 +57,12 @@
         {
             $.mydialog.open();
             if (m == "xy") { $('#xy_form').submit(); return false; }
-            myAjax_tb("/control/deviceStatus.ashx", "did=215302&pay_method="+m, function (device_status) {
+            myAjax("/hsservice/api/deviceStatus","device_id=${device_id}&pay_method="+m, function (device_status) {
                 $.mydialog.close();
                 if (device_status == "1") {
                     if (m == "xy") $('#xy_form').submit();
                     else if (m == "pf") $('#pf_form').submit();
+                      else if (m == "testcmd") $('#testcmd_form').submit();
                     else if (m == "zfb") $('#zfb_form').submit();
                     else if (m == "tp") $('#tp_form').submit();
                     else if (m == "wx" || m == "kb") $.mydialog.alert('微信支付，请使用微信扫一扫');
@@ -69,7 +70,7 @@
                 }
                 else if (device_status == "-3") { $.mydialog.alert('有Sql注入危险'); }
                 else if (device_status == "-2") { $.mydialog.alert('设备不可用'); }
-                else if (device_status == "-1") { location.href = "deviceStatus?device_id=${device_id}"; }
+                else if (device_status == "-1") { location.href = "/hsservice/disable?device_id=${device_id}"; }
                 else if (device_status == "0") { $.mydialog.alert('设备故障'); }
                 else if (device_status == "2") { $.mydialog.alert('请刷卡'); }
                 else if (device_status == "3") { $.mydialog.alert('等待刷卡充值'); }
@@ -111,7 +112,7 @@
 		</div>
 		</div>
 		<div class="main_bottom">
-		<img src="images/top_2.jpg" />
+		<img src="pic/top_2.jpg" />
 		</div>
 		<div class="main_list">
 		<div class="mrow mdetail">
@@ -122,16 +123,29 @@
 		</dt>
 		<dd class="k0_dd0"><%=desc%></dd>
 		<dd class="k0_dd0 mred">￥<%=price%></dd></dl></div><div class="clear"></div></div><div class="mdetailbtns">
-<input type="hidden" name="oid" id="oid" value="" />
-<input type="hidden" name="did" id="did" value="${device_id}" />
-<input type="hidden" name="pid" id="pid" value="<%=product_id%>" />
-</div>
-<div class="mline">
-</div>
-<div class="mdede">介绍：<br /><p sttyle='height:'><%=desc%></p><br>
-<b>注意：</b>如果支付成功后不出币，请联系</div>
-</div>
-	</div>
-</body>
+
+		<form action="testcmd" method="post" id="testcmd_form">
+        <input type="hidden" name="product_id" value="<%=product_id%>"/>
+        <input type="hidden" name="device_id" value="${device_id}"/>
+        <input type="hidden" name="extra" value=""/>
+        <input type="hidden" name="divcoin" value="2"/>
+        <input type="hidden" name="divfee" value="<%=price%>"/>
+        <span class="debt2" onclick="javascript:sub_ok('testcmd');"></span>
+        </form>
+        <input type="hidden" name="oid" id="oid" value="" />
+        <input type="hidden" name="did" id="did" value="${device_id}" />
+        <input type="hidden" name="pid" id="pid" value="<%=product_id%>" />
+        </div><div class="mline"></div>
+        <div class="mdede">介绍：<br /><p sttyle='height:'>2分钟，感受颈肩的放松。</p>
+        </div>
+        </div>
+        	</div>
+            <script type="text/javascript" src="js/newprop.js"></script>
+            <script>
+             $(function () {
+
+                    })
+                    </script>
+        </body>
 </html>
-<script src="js/timeout.js?r=324549018"></script>
+<script src="js/timeout.js?r=46343510"></script>

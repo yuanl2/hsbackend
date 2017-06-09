@@ -78,9 +78,7 @@ public class OrderService {
                 logger.error("can not create order for device not exist  " + order.getDeviceName());
                 throw new ServerException("can not create order for device not exist  " + order.getDeviceName());
             }
-            String orderDeviceName = order.getDeviceName();
-            String index = orderDeviceName.split("_")[1];
-            String deviceName = orderDeviceName.split("_")[0];
+            int index = device.getPort();
 
             ServerStartDeviceMsg msg = new ServerStartDeviceMsg(DEVICE_START_MSG);
             msg.setDeviceType("000");
@@ -90,7 +88,7 @@ public class OrderService {
 
             Map<Integer, String> map = new HashMap<>();
             for (int i = 1; i <= 4; i++) {
-                if (index.equals(i + "")) {
+                if (index == i) {
                     map.put(i, "1");
                 } else {
                     map.put(i, "0");
@@ -99,7 +97,7 @@ public class OrderService {
             msg.setStatus(map);
             Map<Integer, String> times = new HashMap<>();
             for (int i = 1; i <= 4; i++) {
-                if (index.equals(i + "")) {
+                if (index == i) {
                     map.put(i, order.getDuration() + "");
                 } else {
                     map.put(i, "0");
@@ -168,15 +166,19 @@ public class OrderService {
         logger.error(name + " have no order now");
     }
 
-
-    public List<Order> getOrder(String deviceName) {
-        orderCache.get(deviceName);
-        return null;
+    public void updateOrder(Order order){
+        orderStore.updateOrder(order);
     }
 
-    public void deleteOrder(String name) {
+    public Order getOrder(Long deviceID) {
+         return orderCache.get(deviceID);
+    }
 
-        //Todo
+    public void deleteOrder(Long deviceID) {
+        Order order = orderCache.get(deviceID);
+        order.setEndTime(Instant.now());
+        orderStore.updateOrder(order);
+        orderCache.remove(deviceID);
     }
 
     public List<Order> queryOrderByDevice(Long id, Instant startTime, Instant endTime) {

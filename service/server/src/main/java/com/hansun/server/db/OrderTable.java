@@ -43,7 +43,11 @@ public class OrderTable {
             insertStatement = conn.prepareStatement(INSERT);
             insertStatement.setLong(1, order.getId());
             insertStatement.setLong(2, order.getDeviceID());
-            insertStatement.setTimestamp(3, Timestamp.from(order.getStartTime()));
+            if (order.getStartTime() == null) {
+                insertStatement.setTimestamp(3, null);
+            } else {
+                insertStatement.setTimestamp(3, Timestamp.from(order.getStartTime()));
+            }
             if (order.getEndTime() == null) {
                 insertStatement.setTimestamp(4, null);
             } else {

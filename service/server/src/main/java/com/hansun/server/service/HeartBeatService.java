@@ -88,7 +88,7 @@ public class HeartBeatService {
             try {
                 //5秒扫一格，
                 currentIndex = (++currentIndex) % count;
-                logger.info("HeartBeatService timer scan currentIndex value = " + currentIndex);
+                logger.debug("HeartBeatService timer scan currentIndex value = " + currentIndex);
                 sets = slotMapDeviceIDs.get(currentIndex);
 
                 if (sets != null) {
