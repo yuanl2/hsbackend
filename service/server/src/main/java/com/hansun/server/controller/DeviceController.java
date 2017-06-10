@@ -120,6 +120,7 @@ public class DeviceController {
             logger.error("device servering.... = " + device_id);
             return String.valueOf(DeviceStatus.SERVICE);
         }
+
         if (d != null) {
             logger.info("device_id = " + device_id);
             return String.valueOf(d.getStatus());

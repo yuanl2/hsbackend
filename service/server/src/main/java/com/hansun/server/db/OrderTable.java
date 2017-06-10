@@ -21,6 +21,8 @@ public class OrderTable {
     private static final String SELECTBYDEVICE = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, ,createTime ,orderName,orderStatus FROM consumeorder WHERE startTime >= ? and endTime <= ? and deviceID in";
     private static final String SELECTBYNAME = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, ,createTime ,orderName,orderStatus FROM consumeorder WHERE accountName = ?";
     private static final String SELECT_ALL = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, ,createTime ,orderName,orderStatus FROM consumeorder";
+    private static final String SELECT_NOTFINISH = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, ,createTime ,orderName,orderStatus FROM consumeorder where endTime == null";
+
     private static final String DELETE = "DELETE FROM consumeorder WHERE accountName = ?";
     private static final String INSERT = "INSERT INTO consumeorder (orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount, price, duration, createTime, orderName, orderStatus) VALUES (?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ? ,?)";
     private static final String UPDATE = "UPDATE consumeorder SET endTime = ? , orderStatus = ? WHERE orderName = ?";
@@ -210,6 +212,74 @@ public class OrderTable {
             }
         }
     }
+
+
+    public Optional<List<Order>> selectNotFinish() {
+        Connection conn = null;
+        try {
+            conn = connectionPoolManager.getConnection();
+            selectStatement = conn.prepareStatement(SELECT_NOTFINISH);
+            selectStatement.setTimestamp(1, null);
+            return Optional.ofNullable(selectStatement.executeQuery())
+                    .map(resultSet -> {
+                        try {
+                            List<Order> orderList = new ArrayList<Order>();
+                            while (resultSet.next()) {
+                                Order order = new Order();
+                                order.setId(resultSet.getLong(1));
+                                order.setDeviceID(resultSet.getLong(2));
+                                Timestamp startTime = resultSet.getTimestamp(3);
+                                if (startTime != null) {
+                                    order.setStartTime(startTime.toInstant());
+                                }
+                                Timestamp endTime = resultSet.getTimestamp(4);
+                                if (endTime != null) {
+                                    order.setEndTime(endTime.toInstant());
+                                }
+                                order.setConsumeType(resultSet.getInt(5));
+                                order.setAccountType(resultSet.getInt(6));
+                                order.setPayAccount(resultSet.getString(7));
+                                order.setPrice(resultSet.getFloat(8));
+                                order.setDuration(resultSet.getInt(9));
+                                Timestamp createTime = resultSet.getTimestamp(10);
+                                if (createTime != null) {
+                                    order.setCreateTime(createTime.toInstant());
+                                }
+                                order.setOrderName(resultSet.getString(11));
+                                order.setOrderStatus(resultSet.getInt(12));
+                                orderList.add(order);
+                            }
+                            return orderList;
+                        } catch (SQLException e) {
+                            throw new ServerException(e);
+                        } finally {
+                            try {
+                                resultSet.close();
+                            } catch (SQLException e) {
+                                throw new ServerException(e);
+                            }
+                        }
+                    });
+        } catch (Exception e) {
+            return Optional.empty();
+        } finally {
+            if (selectStatement != null) {
+                try {
+                    selectStatement.close();
+                } catch (SQLException e) {
+                    throw new ServerException(e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    throw new ServerException(e);
+                }
+            }
+        }
+    }
+
 
     public Optional<List<Order>> selectByDevice(List<Long> deviceID, Instant startTime, Instant endTIme) {
         Connection conn = null;
@@ -424,5 +494,4 @@ public class OrderTable {
             }
         }
     }
-
 }

@@ -25,18 +25,26 @@ public class OrderStore {
 
     private OrderTable orderTable;
 
+    private Map<Long, Order> orderCache = new HashMap<>();
+
     @PostConstruct
     private void init() {
         orderTable = new OrderTable(connectionPoolManager);
+
     }
 
     @PreDestroy
     public void destroy() {
         try {
+            orderCache.clear();
             connectionPoolManager.destroy();
         } catch (SQLException e) {
             throw new ServerException(e);
         }
+    }
+
+    public Order queryOrder(Long deviceID) {
+        return orderCache.get(deviceID); // 根据deviceID获取订单
     }
 
     public Order queryOrder(String name) {
@@ -53,8 +61,8 @@ public class OrderStore {
         return device;
     }
 
-    public void deleteOrder(String name) {
-        orderTable.delete(name);
+    public void deleteOrder(Long deviceID) {
+        orderCache.remove(deviceID);
     }
 
     public List<Order> queryByDevice(List<Long> deviceID, Instant startTime, Instant endTIme) {
@@ -65,8 +73,19 @@ public class OrderStore {
         return null;
     }
 
-    public Order insertOrder(Order device) {
-        orderTable.insert(device);
-        return device;
+
+    public List<Order> queryNotFinish() {
+        Optional<List<Order>> result = orderTable.selectNotFinish();
+        if (result.isPresent()) {
+            return result.get();
+        }
+        return null;
+    }
+
+
+    public Order insertOrder(Order order) {
+        orderCache.put(order.getDeviceID(), order);
+        orderTable.insert(order);
+        return order;
     }
 }

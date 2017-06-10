@@ -45,8 +45,6 @@ public class OrderService {
     @Autowired
     private PayAcountStore payAcountStore;
 
-    private Map<Long, Order> orderCache = new HashMap<>();
-
     @Autowired
     private SyncAsynMsgController syncAsynMsgController;
 
@@ -55,12 +53,10 @@ public class OrderService {
 
     @PostConstruct
     public void init() {
-        //todo 初始化订单缓存
     }
 
     @PreDestroy
     public void destroy() {
-        orderCache.clear();
     }
 
     public void sendMetrics(Order order) {
@@ -123,16 +119,15 @@ public class OrderService {
 
     public Order createOrder(Order order) {
         createStartMsgToDevice(order);
-        orderCache.put(order.getDeviceID(), order);
+        order.setOrderStatus(OrderStatus.START);
         return orderStore.insertOrder(order);
     }
 
     public void startOrder(String deviceBoxName, int port) {
         Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, port);
-        Order order = orderCache.get(d.getId()); // 根据deviceID获取订单
-
+        Order order = orderStore.queryOrder(d.getId());
         if (order != null) {
-            order.setOrderStatus(OrderStatus.START);
+            order.setOrderStatus(OrderStatus.SERVICE);
             order.setStartTime(Instant.now());
             orderStore.updateOrder(order);
         } else {
@@ -142,7 +137,7 @@ public class OrderService {
 
     public void finishOrder(String deviceBoxName, int port) {
         Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, port);
-        Order order = orderCache.get(d.getId()); // 根据deviceID获取订单
+        Order order = orderStore.queryOrder(d.getId());
 
         if (order != null) {
             order.setOrderStatus(OrderStatus.FINISH);
@@ -153,32 +148,32 @@ public class OrderService {
         }
     }
 
-    public void OrderNotFinish(String name, int orderStatus) {
-        Order order = orderCache.get(name);
-        if (order != null) {
-            order = orderStore.queryOrder(name);
-        }
-        if (order != null) {
-            order.setOrderStatus(orderStatus);
-            order.setEndTime(Instant.now());
-            orderStore.updateOrder(order);
-        }
-        logger.error(name + " have no order now");
-    }
+//    public void OrderNotFinish(String name, int orderStatus) {
+//        Order order = orderCache.get(name);
+//        if (order != null) {
+//            order = orderStore.queryOrder(name);
+//        }
+//        if (order != null) {
+//            order.setOrderStatus(orderStatus);
+//            order.setEndTime(Instant.now());
+//            orderStore.updateOrder(order);
+//        }
+//        logger.error(name + " have no order now");
+//    }
 
     public void updateOrder(Order order){
         orderStore.updateOrder(order);
     }
 
     public Order getOrder(Long deviceID) {
-         return orderCache.get(deviceID);
+       return orderStore.queryOrder(deviceID);
     }
 
     public void deleteOrder(Long deviceID) {
-        Order order = orderCache.get(deviceID);
+        Order order = orderStore.queryOrder(deviceID);
         order.setEndTime(Instant.now());
         orderStore.updateOrder(order);
-        orderCache.remove(deviceID);
+        orderStore.deleteOrder(deviceID);
     }
 
     public List<Order> queryOrderByDevice(Long id, Instant startTime, Instant endTime) {

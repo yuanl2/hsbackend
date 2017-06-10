@@ -198,10 +198,12 @@ public class DemoController {
         order.setStartTime(Instant.now());
         order.setCreateTime(Instant.now());
         order.setPayAccount("test-payaccount");
-        order.setOrderStatus(OrderStatus.START);
+        order.setOrderStatus(OrderStatus.CREATED);
         order.setDeviceID(Long.valueOf(device_id));
         order.setPayAccount("1");
         order.setConsumeType(Integer.valueOf(product_id));
+
+
 
         orderService.createOrder(order);
 
@@ -209,6 +211,8 @@ public class DemoController {
         model.addAttribute("duration", consume.getDuration());
         model.addAttribute("extra", extra);
 
+        order.setOrderStatus(OrderStatus.SERVICE);
+        orderService.updateOrder(order);
 
         return "device_running";
     }
