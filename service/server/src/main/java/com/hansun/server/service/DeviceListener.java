@@ -1,11 +1,13 @@
 package com.hansun.server.service;
 
+import java.util.Map;
+
 /**
  * Created by yuanl2 on 2017/3/28.
  */
 public interface DeviceListener<T> {
 
-    void connnect(T t);
+    void connnect(T t, Map portMap);
 
     void disconnect(T t);
 

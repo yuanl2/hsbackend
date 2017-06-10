@@ -1,7 +1,12 @@
 package com.hansun.server.commu;
 
+import com.hansun.dto.Device;
+import com.hansun.dto.Order;
 import com.hansun.server.common.HSServiceProperties;
+import com.hansun.server.common.OrderStatus;
+import com.hansun.server.commu.msg.MsgTime;
 import com.hansun.server.service.DeviceListener;
+import com.hansun.server.service.DeviceService;
 import com.hansun.server.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +45,8 @@ public class LinkManger {
 
     private ExecutorService executorService;
 
+    @Autowired
+    private DeviceService deviceService;
 
     @Autowired
     private SyncAsynMsgController syncAsynMsgController;
@@ -84,8 +93,29 @@ public class LinkManger {
         listeners.add(listener);
     }
 
-    public void processHeart(String deviceName) {
-        listeners.forEach(l -> l.connnect(deviceName));
+    public void processHeart(String deviceName, Map map, Map portMap) {
+        listeners.forEach(l -> l.connnect(deviceName, map));
+
+        //需要判断当前设备所有端口是否还有订单，和设备运行时间是否相符合
+        List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
+
+        for (Device device : deviceList) {
+            Order order = orderService.getOrder(device.getId());
+            MsgTime msgTime = (MsgTime) portMap.get(device.getPort());
+
+            if (order != null && msgTime.getTime() == 0) {
+                //如果订单还在缓存中，但是结束时在当前时间之前，则需要从缓存中删除该订单
+                if (Instant.now().isAfter(order.getCreateTime().plus(Duration.ofMinutes(order.getDuration())))
+                        || Instant.now().isAfter(order.getStartTime().plus(Duration.ofMinutes(order.getDuration())))) {
+                    //设备没有收到后续结束报文，所以收到心跳消息，判断当前设备是否还在运行，如果指示时间为0，而订单是运行中，则更新订单为finish
+                    if (order.getOrderStatus() == OrderStatus.SERVICE) {
+                        orderService.deleteOrder(device.getId());
+                    } else {
+                        orderService.removeOrder(device.getId());
+                    }
+                }
+            }
+        }
     }
 
     public String getResponseDelay() {

@@ -30,7 +30,6 @@ public class OrderStore {
     @PostConstruct
     private void init() {
         orderTable = new OrderTable(connectionPoolManager);
-
     }
 
     @PreDestroy

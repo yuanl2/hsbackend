@@ -54,4 +54,8 @@ public class DeviceService {
     public Device getDevice(Long deviceID) {
         return dataStore.queryDeviceByDeviceID(deviceID);
     }
+
+    public List<Device> getDevicesByDeviceBox(String simID) {
+        return dataStore.queryDeviceByDeviceBox(simID);
+    }
 }

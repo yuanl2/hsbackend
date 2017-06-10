@@ -205,7 +205,7 @@ public class ClientTask implements Runnable {
         builder.append("000,");
         builder.append(name);
         builder.append("101X,");
-        builder.append("11223344,");
+        builder.append("0000000015060000,");
         byte[] body = builder.toString().getBytes();
 
         int bodySize = body.length + 5;
@@ -235,8 +235,8 @@ public class ClientTask implements Runnable {
         headbuilder.append("AP01,");
         StringBuilder builder = new StringBuilder();
         builder.append("000,");
-        builder.append("101X,");
-        builder.append("11223344,");
+        builder.append("001X,");
+        builder.append("0000000015060000,");
         byte[] body = builder.toString().getBytes();
 
         int bodySize = body.length + 5;
@@ -265,8 +265,8 @@ public class ClientTask implements Runnable {
         headbuilder.append("AP03,");
         StringBuilder builder = new StringBuilder();
         builder.append("000,");
-        builder.append("101X,");
-        builder.append("11223344,");
+        builder.append("001X,");
+        builder.append("0501000015060000,");
         byte[] body = builder.toString().getBytes();
 
 
@@ -298,7 +298,7 @@ public class ClientTask implements Runnable {
         StringBuilder builder = new StringBuilder();
         builder.append("000,");
         builder.append("101X,");
-        builder.append("11223344,");
+        builder.append("0000000015060000,");
         byte[] body = builder.toString().getBytes();
 
         int bodySize = body.length + 5;

@@ -76,12 +76,13 @@ public class DeviceTask implements Runnable {
 
             //心跳消息，需要更新HeartService
             if (msg.getMsgType().equals(DEVICE_HEARTBEAT_MSG)) {
-                linkManger.processHeart(handler.getDeviceName());
+                HeartBeatMsg m = (HeartBeatMsg) msg;
+                linkManger.processHeart(handler.getDeviceName(),m.getMap(),m.getPortMap());
 
                 Thread.sleep(delay);
 
                 HeartBeatResponseMsg m1 = new HeartBeatResponseMsg(DEVICE_HEARTBEAT_RESPONSE_MSG);
-                m1.setDeviceType(msg.getDeviceType());
+                m1.setDeviceType(m.getDeviceType());
                 handler.getSendList().add(m1.toByteBuffer());
                 handler.updateOps();
             }

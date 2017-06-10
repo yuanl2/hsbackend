@@ -94,9 +94,14 @@ public class OrderService {
             Map<Integer, String> times = new HashMap<>();
             for (int i = 1; i <= 4; i++) {
                 if (index == i) {
-                    map.put(i, order.getDuration() + "");
+                    int duration = order.getDuration();
+                    if (duration < 10) {
+                        map.put(i, "0" + order.getDuration());
+                    } else {
+                        map.put(i, order.getDuration() + "");
+                    }
                 } else {
-                    map.put(i, "0");
+                    map.put(i, "00");
                 }
             }
             msg.setMap(times);
@@ -161,19 +166,26 @@ public class OrderService {
 //        logger.error(name + " have no order now");
 //    }
 
-    public void updateOrder(Order order){
+    public void updateOrder(Order order) {
         orderStore.updateOrder(order);
     }
 
     public Order getOrder(Long deviceID) {
-       return orderStore.queryOrder(deviceID);
+        return orderStore.queryOrder(deviceID);
     }
 
     public void deleteOrder(Long deviceID) {
         Order order = orderStore.queryOrder(deviceID);
-        order.setEndTime(Instant.now());
-        orderStore.updateOrder(order);
-        orderStore.deleteOrder(deviceID);
+        if (order != null) {
+            order.setEndTime(Instant.now());
+            order.setOrderStatus(OrderStatus.FINISH);
+            orderStore.updateOrder(order);
+            orderStore.deleteOrder(deviceID);
+        }
+    }
+
+    public void removeOrder(Long deviceID) {
+            orderStore.deleteOrder(deviceID);
     }
 
     public List<Order> queryOrderByDevice(Long id, Instant startTime, Instant endTime) {
