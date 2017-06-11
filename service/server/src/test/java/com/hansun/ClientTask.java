@@ -222,8 +222,8 @@ public class ClientTask implements Runnable {
         writeBuf.put(body);
         writeBuf.put(sb.toString().getBytes());
         writeBuf.put((byte) '#');
-        writeBuf.put((byte)1);
-        writeBuf.put((byte)1);
+//        writeBuf.put((byte)1);
+//        writeBuf.put((byte)1);
         writeBuf.rewind();
         return writeBuf;
     }
@@ -252,8 +252,8 @@ public class ClientTask implements Runnable {
         writeBuf.put(body);
         writeBuf.put(sb.toString().getBytes());
         writeBuf.put((byte) '#');
-        writeBuf.put((byte)1);
-        writeBuf.put((byte)1);
+//        writeBuf.put((byte)1);
+//        writeBuf.put((byte)1);
         writeBuf.rewind();
         return writeBuf;
     }
@@ -283,8 +283,8 @@ public class ClientTask implements Runnable {
         writeBuf.put(body);
         writeBuf.put(sb.toString().getBytes());
         writeBuf.put((byte) '#');
-        writeBuf.put((byte)1);
-        writeBuf.put((byte)1);
+//        writeBuf.put((byte)1);
+//        writeBuf.put((byte)1);
 
         writeBuf.rewind();
         return writeBuf;
@@ -314,8 +314,8 @@ public class ClientTask implements Runnable {
         writeBuf.put(body);
         writeBuf.put(sb.toString().getBytes());
         writeBuf.put((byte) '#');
-        writeBuf.put((byte)1);
-        writeBuf.put((byte)1);
+//        writeBuf.put((byte)1);
+//        writeBuf.put((byte)1);
 
         writeBuf.rewind();
         return writeBuf;

@@ -149,7 +149,7 @@ public class SocketHandler implements IHandler {
         IMsg msg = AbstractMsg.fromByteBuffer(head, bodyBuffer);
 
         //设备添加了 x0d x0a 两个byte数据，需要过滤掉
-        getSocketChannel().read(ByteBuffer.allocate(2));
+//        getSocketChannel().read(ByteBuffer.allocate(2));
         headBuffer.rewind();
         headBuffer.clear();
         bodyBuffer.clear();
