@@ -1,5 +1,7 @@
 package com.hansun;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -20,17 +22,12 @@ public class SimulationMultipleClient {
 
         ExecutorService executorService = Executors.newFixedThreadPool(10);
 
-        String simName = "SIM800_898602B819165021";
-        for (int i = 1; i <= count; i++) {
-
-            StringBuilder builder = new StringBuilder();
-            StringBuilder builder1 = new StringBuilder();
-            for (int j = 0; j < 4 - new String(i + "").length(); j++) {
-                builder.append("0");
-            }
-            builder1.append(simName).append(builder.toString()).append(i).append(",");
-
-            executorService.submit(new ClientTask(builder1.toString(), 1, server, servPort));
+        List<String> devices = new ArrayList<>();
+        devices.add("SIM800_89860268191650216485,");
+        devices.add("SIM800_89860266101740350825,");
+        for (String s : devices
+                ) {
+            executorService.submit(new ClientTask(s, 1, server, servPort));
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.hansun;
 
 import com.hansun.server.commu.msg.AbstractMsg;
+import com.hansun.server.commu.msg.MsgOutputStream;
 import com.hansun.server.util.MsgUtil;
 
 import java.io.IOException;
@@ -153,7 +154,7 @@ public class ClientTask implements Runnable {
                     writeBuf.clear();
                     readBuf.clear();
 
-                    Thread.sleep(20000);
+                    Thread.sleep(2000);
                 }
 
                 writeBuf = createDeviceTaskFinishMsg();
@@ -213,7 +214,7 @@ public class ClientTask implements Runnable {
 
         byte[] head = headbuilder.toString().getBytes();
 
-        ByteBuffer writeBuf = ByteBuffer.allocate(head.length + body.length + 5 +2);
+        ByteBuffer writeBuf = ByteBuffer.allocate(head.length + body.length + 5);
 
         StringBuilder sb = new StringBuilder();
         sb.append(MsgUtil.getMsgBodyLength(AbstractMsg.getCheckData(head, body, 0, 0), 3)).append(",");
@@ -227,7 +228,6 @@ public class ClientTask implements Runnable {
         writeBuf.rewind();
         return writeBuf;
     }
-
 
     private static ByteBuffer createHearBeatMsg() {
         StringBuilder headbuilder = new StringBuilder();
@@ -243,7 +243,7 @@ public class ClientTask implements Runnable {
         headbuilder.append(MsgUtil.getMsgBodyLength(bodySize, 3)).append(",");
         byte[] head = headbuilder.toString().getBytes();
 
-        ByteBuffer writeBuf = ByteBuffer.allocate(head.length + body.length + 5 + 2);
+        ByteBuffer writeBuf = ByteBuffer.allocate(head.length + body.length + 5);
 
         StringBuilder sb = new StringBuilder();
         sb.append(MsgUtil.getMsgBodyLength(AbstractMsg.getCheckData(head, body, 0, 0), 3)).append(",");
@@ -256,9 +256,8 @@ public class ClientTask implements Runnable {
 //        writeBuf.put((byte)1);
         writeBuf.rewind();
         return writeBuf;
+
     }
-
-
     private static ByteBuffer createDeviceStartFinishMsg() {
         StringBuilder headbuilder = new StringBuilder();
         headbuilder.append("TRV");
@@ -269,12 +268,11 @@ public class ClientTask implements Runnable {
         builder.append("0501000015060000,");
         byte[] body = builder.toString().getBytes();
 
-
         int bodySize = body.length + 5;
         headbuilder.append(MsgUtil.getMsgBodyLength(bodySize, 3)).append(",");
         byte[] head = headbuilder.toString().getBytes();
 
-        ByteBuffer writeBuf = ByteBuffer.allocate(head.length + body.length + 5 + 2);
+        ByteBuffer writeBuf = ByteBuffer.allocate(head.length + body.length + 5);
 
         StringBuilder sb = new StringBuilder();
         sb.append(MsgUtil.getMsgBodyLength(AbstractMsg.getCheckData(head, body, 0, 0), 3)).append(",");
@@ -289,7 +287,6 @@ public class ClientTask implements Runnable {
         writeBuf.rewind();
         return writeBuf;
     }
-
 
     private static ByteBuffer createDeviceTaskFinishMsg() {
         StringBuilder headbuilder = new StringBuilder();
@@ -305,7 +302,7 @@ public class ClientTask implements Runnable {
         headbuilder.append(MsgUtil.getMsgBodyLength(bodySize, 3)).append(",");
         byte[] head = headbuilder.toString().getBytes();
 
-        ByteBuffer writeBuf = ByteBuffer.allocate(head.length + body.length + 5 + 2);
+        ByteBuffer writeBuf = ByteBuffer.allocate(head.length + body.length + 5);
 
         StringBuilder sb = new StringBuilder();
         sb.append(MsgUtil.getMsgBodyLength(AbstractMsg.getCheckData(head, body, 0, 0), 3)).append(",");
@@ -316,7 +313,6 @@ public class ClientTask implements Runnable {
         writeBuf.put((byte) '#');
 //        writeBuf.put((byte)1);
 //        writeBuf.put((byte)1);
-
         writeBuf.rewind();
         return writeBuf;
     }

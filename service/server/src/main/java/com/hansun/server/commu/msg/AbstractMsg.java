@@ -135,14 +135,18 @@ public abstract class AbstractMsg implements IMsg {
     }
 
     public static int getCheckData(byte[] data1, byte[] data2, int skipend1, int skipend2) {
-        int result = 0;
+        byte result = 0;
         for (int i = 0; i < data1.length - skipend1; i++) {
-            result = result ^ (data1[i]);
+            result = (byte) (result ^ (data1[i]));
         }
         for (int j = 0; j < data2.length - skipend2; j++) {
-            result = result ^ (data2[j]);
+            result = (byte) (result ^ (data2[j]));
         }
-        return result;
+        return getUnsignedBytes(result);
+    }
+
+    public static int getUnsignedBytes(byte data) {      //将data字节型数据转换为0~255 (0xFF 即BYTE)。
+        return data & 0x0FF;
     }
 
     protected int getXOR() {

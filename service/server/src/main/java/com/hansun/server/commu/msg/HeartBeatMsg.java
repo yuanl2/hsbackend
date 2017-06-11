@@ -63,7 +63,6 @@ public class HeartBeatMsg extends AbstractMsg {
             int runTime = Integer.valueOf(times.substring(i * 4 + 2, i * 4 + 4));
             portMap.put(i+1,new MsgTime(time,runTime));
         }
-
         msgInputStream.skipBytes(1);
         int xor = Integer.valueOf(msgInputStream.readString(DEVICE_XOR_FIELD_SIZE));
         if (xor != checkxor) {

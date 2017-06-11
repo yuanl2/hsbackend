@@ -73,8 +73,8 @@ public class DeviceMsg extends AbstractMsg {
         msgInputStream.skipBytes(1);
         String times = msgInputStream.readString(DEVICE_RUNNING_TIME_FIELD_SIZE);
         for (int i = 0; i < 4; i++) {
-            int time = Integer.valueOf(times.substring(i * 4, i * 4 + 2));
-            int runTime = Integer.valueOf(times.substring(i * 4 + 2, i * 4 + 4));
+            int time = Integer.valueOf(times.substring(i * 4, i * 4 + 1));
+            int runTime = Integer.valueOf(times.substring(i * 4 + 2, i * 4 + 3));
             portMap.put(i+1,new MsgTime(time,runTime));
         }
         msgInputStream.skipBytes(1);
