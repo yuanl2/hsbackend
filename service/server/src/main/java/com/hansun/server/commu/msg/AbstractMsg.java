@@ -82,7 +82,7 @@ public abstract class AbstractMsg implements IMsg {
 
     public static IMsg fromByteBuffer(byte[] head, ByteBuffer bodyBuffer) {
 
-        logger.info("head byte = " + getMsgHeadStr(head));
+        logger.debug("head byte = " + getMsgHeadStr(head));
 
         MsgInputStream headMsgInputStream = new MsgInputStream(head);
         String title = headMsgInputStream.readString(IDENTIFIER_FIELD_SIZE);
@@ -91,7 +91,7 @@ public abstract class AbstractMsg implements IMsg {
         int len = Integer.valueOf(headMsgInputStream.readString(BODY_LENGTH_FIELD_SIZE));
         byte[] body = new byte[len];
         bodyBuffer.get(body);
-        logger.info("body byte = " + getMsgHeadStr(body));
+        logger.debug("body byte = " + getMsgHeadStr(body));
 
         switch (cmd) {
             case DEVICE_REGISTER_MSG:

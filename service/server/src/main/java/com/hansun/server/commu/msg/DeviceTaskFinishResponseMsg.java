@@ -24,19 +24,15 @@ public class DeviceTaskFinishResponseMsg extends AbstractMsg {
 
     @Override
     public ByteBuffer toByteBuffer() {
-        ByteBuffer sendBuffer = ByteBuffer.allocate(21);
+        ByteBuffer sendBuffer = ByteBuffer.allocate(17);
         StringBuilder headBuilder = new StringBuilder();
-        headBuilder.append(getTitle()).append(getMsgType()).append(DEVICE_SEPARATOR_FIELD);
+        headBuilder.append(getTitle()).append(getMsgType()).append(DEVICE_SEPARATOR_FIELD);//8 byte
 
-        StringBuilder builder = new StringBuilder();
-        builder.append(getDeviceType()).append(DEVICE_SEPARATOR_FIELD);
-        byte[] body = builder.toString().getBytes();//4 byte
-
+        byte[] body = new byte[0];
         int bodySize = body.length + 5;
         headBuilder.append(MsgUtil.getMsgBodyLength(bodySize,BODY_LENGTH_FIELD_SIZE)).append(DEVICE_SEPARATOR_FIELD);
         byte[] head = headBuilder.toString().getBytes();
         sendBuffer.put(head);// 12 byte
-        sendBuffer.put(body);
         StringBuilder sb = new StringBuilder();
         sb.append(MsgUtil.getMsgBodyLength(AbstractMsg.getCheckData(head, body, 0, 0), 3)).append(DEVICE_SEPARATOR_FIELD);
 

@@ -155,13 +155,13 @@ public class Order {
                 ", deviceID=" + deviceID +
                 ", deviceName=" + deviceName +
                 ", consumeType=" + consumeType + "\n" +
-                ", startTime=" + startTime.toString() +
-                ", endTime=" + endTime.toString() +
+                ", startTime=" + (startTime == null ? null : startTime.toString()) +
+                ", endTime=" + (endTime == null ? null : endTime.toString()) +
                 ", duration=" + duration + "\n" +
                 ", price=" + price +
                 ", payAccount=" + payAccount +
                 ", accountType=" + accountType +
-                ", createTime=" + createTime.toString() +
+                ", createTime=" + (createTime == null ? null : createTime.toString()) +
                 ", orderStatus=" + orderStatus +
                 "}";
     }

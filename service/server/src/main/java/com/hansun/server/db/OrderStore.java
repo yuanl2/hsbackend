@@ -2,6 +2,8 @@ package com.hansun.server.db;
 
 import com.hansun.dto.Order;
 import com.hansun.server.common.ServerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -19,6 +21,8 @@ import java.util.Optional;
  */
 @Repository
 public class OrderStore {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private ConnectionPoolManager connectionPoolManager;
@@ -55,9 +59,10 @@ public class OrderStore {
         return null;
     }
 
-    public Order updateOrder(Order device) {
-        orderTable.update(device, device.getOrderName());
-        return device;
+    public Order updateOrder(Order order) {
+        orderTable.update(order, order.getId());
+        logger.info("update order = " + order);
+        return order;
     }
 
     public void deleteOrder(Long deviceID) {

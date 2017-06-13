@@ -3,6 +3,7 @@ package com.hansun.server.service;
 import com.hansun.dto.Device;
 import com.hansun.dto.Location;
 import com.hansun.dto.Order;
+import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.OrderStatus;
 import com.hansun.server.common.ServerException;
 import com.hansun.server.commu.*;
@@ -96,12 +97,12 @@ public class OrderService {
                 if (index == i) {
                     int duration = order.getDuration();
                     if (duration < 10) {
-                        map.put(i, "0" + order.getDuration());
+                        times.put(i, "0" + order.getDuration());
                     } else {
-                        map.put(i, order.getDuration() + "");
+                        times.put(i, order.getDuration() + "");
                     }
                 } else {
-                    map.put(i, "00");
+                    times.put(i, "00");
                 }
             }
             msg.setMap(times);
@@ -132,6 +133,7 @@ public class OrderService {
         Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, port);
         Order order = orderStore.queryOrder(d.getId());
         if (order != null) {
+            logger.info("update order before = " + order);
             order.setOrderStatus(OrderStatus.SERVICE);
             order.setStartTime(Instant.now());
             orderStore.updateOrder(order);
@@ -140,17 +142,24 @@ public class OrderService {
         }
     }
 
-    public void finishOrder(String deviceBoxName, int port) {
-        Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, port);
-        Order order = orderStore.queryOrder(d.getId());
+    public void finishOrder(String deviceBoxName, Map<Integer, Integer> map) {
+        map.forEach((k, v) -> {
+            Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, k);
+            Order order = orderStore.queryOrder(d.getId());
 
-        if (order != null) {
-            order.setOrderStatus(OrderStatus.FINISH);
-            order.setStartTime(Instant.now());
-            orderStore.updateOrder(order);
-        } else {
-            logger.error(d.getId() + " have no order now");
-        }
+            if (order != null) {
+                logger.info("update order before = " + order);
+                order.setOrderStatus(OrderStatus.FINISH);
+                order.setEndTime(Instant.now());
+                orderStore.updateOrder(order);
+                orderStore.deleteOrder(d.getId());//remove order from cache not table
+            } else {
+                logger.error(d.getId() + " have no order now");
+            }
+
+        });
+
+        dataStore.updateDeviceStatus(deviceBoxName, map);
     }
 
 //    public void OrderNotFinish(String name, int orderStatus) {
@@ -176,16 +185,18 @@ public class OrderService {
 
     public void deleteOrder(Long deviceID) {
         Order order = orderStore.queryOrder(deviceID);
+        logger.info("update order before = " + order);
         if (order != null) {
             order.setEndTime(Instant.now());
             order.setOrderStatus(OrderStatus.FINISH);
             orderStore.updateOrder(order);
             orderStore.deleteOrder(deviceID);
+            logger.info("order delete = " + order);
         }
     }
 
     public void removeOrder(Long deviceID) {
-            orderStore.deleteOrder(deviceID);
+        orderStore.deleteOrder(deviceID);
     }
 
     public List<Order> queryOrderByDevice(Long id, Instant startTime, Instant endTime) {

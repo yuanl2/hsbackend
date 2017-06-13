@@ -23,8 +23,8 @@ public class SimulationMultipleClient {
         ExecutorService executorService = Executors.newFixedThreadPool(10);
 
         List<String> devices = new ArrayList<>();
-        devices.add("SIM800_89860268191650216485,");
-        devices.add("SIM800_89860266101740350825,");
+        devices.add("SIM800_898602b6101740350829,");
+//        devices.add("SIM800_89860266101740350825,");
         for (String s : devices
                 ) {
             executorService.submit(new ClientTask(s, 1, server, servPort));

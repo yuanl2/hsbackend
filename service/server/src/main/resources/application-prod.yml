@@ -27,3 +27,8 @@ influxDB:
 msg:
   processMsgThreadNum: 20
   responseDelay: 3000
+order:
+  interval:
+     flag: false
+     min: 2
+     max: 10

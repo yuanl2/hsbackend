@@ -18,7 +18,7 @@ public class MsgConstant {
     public static final String DEVICE_START_MSG = "BP03";
 
     public static final String DEVICE_TASK_FINISH_MSG = "AP05";
-    public static final String DEVICE_TASK_FINISH_RESPONSE_MSG = "AP05";
+    public static final String DEVICE_TASK_FINISH_RESPONSE_MSG = "BP05";
 
     public static final int BODY_LENGTH_FIELD_SIZE = 3;
     public static final int IDENTIFIER_FIELD_SIZE = 3;

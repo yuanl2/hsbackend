@@ -10,6 +10,7 @@ import com.hansun.server.db.DataStore;
 import com.hansun.server.db.OrderStore;
 import com.hansun.server.service.DeviceService;
 import com.hansun.server.service.OrderService;
+import com.hansun.server.service.TimerService;
 import com.hansun.server.util.ConstantUtil;
 import net.sf.json.JSONObject;
 import org.apache.tools.ant.taskdefs.condition.Or;
@@ -34,9 +35,7 @@ import java.util.Map;
  */
 @Controller
 public class DemoController {
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 
     @Autowired
     private DeviceService deviceService;

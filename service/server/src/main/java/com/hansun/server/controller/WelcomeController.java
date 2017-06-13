@@ -1,22 +1,36 @@
 package com.hansun.server.controller;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
+
+import com.hansun.server.service.TimerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
-@Controller
+@RestController
 public class WelcomeController {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	// inject via application.properties
-	@Value("${welcome.message:test}")
-	private String message = "Hello World";
+    @Autowired
+    private TimerService timerService;
 
-	@RequestMapping("/welcome")
-	public String welcome(Map<String, Object> model) {
-		model.put("message", this.message);
-		return "welcome";
-	}
+    @RequestMapping("/cmd")
+    public void timerSwitch(@RequestParam(value = "flag", required = true, defaultValue = "false") String flag,
+                            HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        logger.info("timerSwitch = " + flag);
+        if (flag.equals("true")) {
+            timerService.setFlag(true);
+        } else {
+            timerService.setFlag(false);
+        }
+
+    }
 
 }

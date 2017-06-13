@@ -1,6 +1,7 @@
 package com.hansun.server.commu;
 
 import com.hansun.server.common.InvalidMsgException;
+import com.hansun.server.common.OrderStatus;
 import com.hansun.server.commu.msg.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,15 +91,10 @@ public class DeviceTask implements Runnable {
             if (msg.getMsgType().equals(DEVICE_START_FINISH_MSG)) {
                 DeviceStartFinishMsg m = (DeviceStartFinishMsg) msg;
 
-                DeviceTaskFinishResponseMsg m1 = new DeviceTaskFinishResponseMsg(DEVICE_TASK_FINISH_RESPONSE_MSG);
-                m1.setDeviceType(msg.getDeviceType());
-                handler.getSendList().add(m1.toByteBuffer());
-                handler.updateOps();
-
                 //k = {1,2,3,4}
                 m.getMap().forEach((k, v) -> {
                     String s = handler.getDeviceName();
-                    if (v != null && v.equals("1")) {
+                    if (v == OrderStatus.SERVICE) {//device on port is running status
                         linkManger.getOrderService().startOrder(s, k);  //SIM800_898602B8191650210001 1  (对应就是端口1的设备启动了)
                     }
                 });
@@ -107,12 +103,12 @@ public class DeviceTask implements Runnable {
             if (msg.getMsgType().equals(DEVICE_TASK_FINISH_MSG)) {
                 DeviceTaskFinishMsg m = (DeviceTaskFinishMsg) msg;
 
-                m.getMap().forEach((k, v) -> {
-                    String s = handler.getDeviceName();
-                    if (v != null && v.equals("0")) {
-                        linkManger.getOrderService().finishOrder(s, k);
-                    }
-                });
+                DeviceTaskFinishResponseMsg m1 = new DeviceTaskFinishResponseMsg(DEVICE_TASK_FINISH_RESPONSE_MSG);
+                m1.setDeviceType(msg.getDeviceType());
+                handler.getSendList().add(m1.toByteBuffer());
+                handler.updateOps();
+
+                linkManger.getOrderService().finishOrder(handler.getDeviceName(),m.getMap());
             }
         } catch (InvalidMsgException e) {
             logger.error("msg body check error!" + msg.getMsgType(), e);

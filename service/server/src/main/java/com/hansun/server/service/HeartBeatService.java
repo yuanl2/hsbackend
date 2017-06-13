@@ -111,16 +111,16 @@ public class HeartBeatService {
             try {
                 Integer index = deviceIDMapSlot.get(simid);
                 if (index == null) {
-                    logger.info("DeviceConnect new device connnect" + simid + " currentIndex value = " + currentIndex);
+                    logger.debug("DeviceConnect new device connnect" + simid + " currentIndex value = " + currentIndex);
                     slotMapDeviceIDs.get((currentIndex - 1 + count) % count).add(simid);
                     deviceIDMapSlot.put(simid,(currentIndex - 1 + count) % count);                }
                 else
                 {
-                    logger.info("DeviceConnect connnect" + simid + " currentIndex value = " + index);
+                    logger.debug("DeviceConnect connnect" + simid + " currentIndex value = " + index);
                     int next = (currentIndex - 1 + count) % count;
                     //把设备对应的ID移动到下一格
                     slotMapDeviceIDs.get(index).remove(simid);
-                    logger.info("DeviceConnect connnect " + simid + " move to next " + next);
+                    logger.debug("DeviceConnect connnect " + simid + " move to next " + next);
                     slotMapDeviceIDs.get(next).add(simid);
                     deviceIDMapSlot.put(simid,next);
                     //id只是设备盒子的id，具体对应4个具体的设备
@@ -134,7 +134,7 @@ public class HeartBeatService {
         @Override
         public void disconnect(String simid) {
             try {
-                logger.info("DeviceConnect disconnect " + simid);
+                logger.debug("DeviceConnect disconnect " + simid);
                 deviceIDMapSlot.remove(simid);
                 //收不到心跳，主动断开链路
                 IHandler handler = linkManger.get(simid);
@@ -153,5 +153,3 @@ public class HeartBeatService {
         }
     }
 }
-
-

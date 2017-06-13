@@ -72,7 +72,7 @@
                 else if (device_status == "-2") { $.mydialog.alert('设备不可用'); }
                 else if (device_status == "-1") { location.href = "/hsservice/disable?device_id=${device_id}"; }
                 else if (device_status == "0") { $.mydialog.alert('设备故障'); }
-                else if (device_status == "2") { $.mydialog.alert('请刷卡'); }
+                else if (device_status == "2") { $.mydialog.alert('无此设备'); }
                 else if (device_status == "3") { $.mydialog.alert('等待刷卡充值'); }
                 else if (device_status == "4") { $.mydialog.alert('充值成功'); }
                 else if (device_status == "5") { $.mydialog.alert('充值失败'); }
@@ -130,7 +130,7 @@
         <input type="hidden" name="extra" value=""/>
         <input type="hidden" name="divcoin" value="2"/>
         <input type="hidden" name="divfee" value="<%=price%>"/>
-        <span class="debt2" onclick="javascript:sub_ok('testcmd');"></span>
+        <img src="pic/btn_02_big.png" onclick="javascript:sub_ok('testcmd');">
         </form>
         <input type="hidden" name="oid" id="oid" value="" />
         <input type="hidden" name="did" id="did" value="${device_id}" />

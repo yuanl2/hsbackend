@@ -128,7 +128,7 @@ public class User implements UserDetails {
                 ", userType=" + userType +
                 ", name=" + name + "\n" +
                 ", addtionInfo=" + addtionInfo +
-                ", expiredTime=" + expiredTime.toString() +
+                ", expiredTime=" + (expiredTime == null ? null : expiredTime.toString()) +
                 ", locked=" + locked +
                 ", role=" + role +
                 "}";

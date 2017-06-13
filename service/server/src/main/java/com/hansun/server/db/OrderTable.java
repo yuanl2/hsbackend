@@ -25,7 +25,7 @@ public class OrderTable {
 
     private static final String DELETE = "DELETE FROM consumeorder WHERE accountName = ?";
     private static final String INSERT = "INSERT INTO consumeorder (orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount, price, duration, createTime, orderName, orderStatus) VALUES (?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ? ,?)";
-    private static final String UPDATE = "UPDATE consumeorder SET endTime = ? , orderStatus = ? WHERE orderName = ?";
+    private static final String UPDATE = "UPDATE consumeorder SET endTime = ? , orderStatus = ? WHERE orderID = ?";
 
     private ConnectionPoolManager connectionPoolManager;
 
@@ -88,12 +88,12 @@ public class OrderTable {
         }
     }
 
-    public void update(Order order, String name) {
+    public void update(Order order, Long orderID) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             updateStatement = conn.prepareStatement(UPDATE);
-            updateStatement.setString(3, name);
+            updateStatement.setLong(3, orderID);
             if (order.getEndTime() != null) {
                 updateStatement.setTimestamp(1, Timestamp.from(order.getEndTime()));
             } else {

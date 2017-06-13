@@ -177,7 +177,7 @@ public class DataStore {
         return device;
     }
 
-    public void updateDeviceStatus(String simid,Map portMap) {
+    public void updateDeviceStatus(String simid,Map<Integer, Integer> portMap) {
         List<Device> devices = deviceSimCache.get(simid);
 
         if (devices != null) {

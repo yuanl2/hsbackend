@@ -67,6 +67,13 @@ public class HSServiceProperties {
     public static final String PROCESS_MSG_RETRY_COUNT = "msg.retrycount";
     public static final String DEFAULT_PROCESS_MSG_RETRY_COUNT = "3";
 
+
+    //test
+    public static final String ORDER_INTERVAL_MIN = "order.interval.min";
+    public static final String ORDER_INTERVAL_MAX = "orer.interval.max";
+    public static final String ORDER_INTERVAL_FLAG = "order.interval.flag";
+
+
     protected Environment env;
 
     @Autowired
@@ -165,4 +172,15 @@ public class HSServiceProperties {
         return env.getProperty(PROCESS_MSG_RETRY_COUNT, DEFAULT_PROCESS_MSG_RETRY_COUNT);
     }
 
+    public int getOrderIntervalMin() {
+        return env.getProperty(ORDER_INTERVAL_MIN, Integer.class, 2);
+    }
+
+    public int getOrderIntervalMax() {
+        return env.getProperty(ORDER_INTERVAL_MAX, Integer.class, 15);
+    }
+
+    public boolean getOrderIntervalFlag() {
+        return env.getProperty(ORDER_INTERVAL_FLAG, Boolean.class, false);
+    }
 }

@@ -100,35 +100,7 @@ public class ClientTask implements Runnable {
                     Thread.sleep(10);
                 }
 
-//                for (int j = 0; j <10 ; j++) {
-//
-//
-//                writeBuf = createDeviceStartFinishMsg();
-//                readBuf = ByteBuffer.allocate(256);
-//                //接收到的总的字节数
-//                totalBytesRcvd = 0;
-//                //每一次调用read（）方法接收到的字节数
-//                //循环执行，直到接收到的字节数与发送的字符串的字节数相等
-////        while (totalBytesRcvd < 13) {
-//                //如果用来向通道中写数据的缓冲区中还有剩余的字节，则继续将数据写入信道
-//                if (writeBuf.hasRemaining()) {
-//                    clntChan.write(writeBuf);
-//                }
-//                Thread.sleep(1000);
-////        }
-//                //如果read（）接收到-1，表明服务端关闭，抛出异常
-//                if ((bytesRcvd = clntChan.read(readBuf)) == -1) {
-//                    throw new SocketException("Connection closed prematurely");
-//                }
-//
-//                totalBytesRcvd = totalBytesRcvd + bytesRcvd;
-////        }
-//
-//                writeBuf.clear();
-//                readBuf.clear();
-//                Thread.sleep(1000);
-//                }
-                for (int j = 0; j < 10000; j++) {
+                   for (int j = 0; j < 5; j++) {
 
 
                     writeBuf = createHearBeatMsg();
@@ -155,6 +127,36 @@ public class ClientTask implements Runnable {
                     readBuf.clear();
 
                     Thread.sleep(2000);
+                }
+
+
+                for (int j = 0; j <1 ; j++) {
+
+
+                    writeBuf = createDeviceStartFinishMsg();
+                    readBuf = ByteBuffer.allocate(256);
+                    //接收到的总的字节数
+                    totalBytesRcvd = 0;
+                    //每一次调用read（）方法接收到的字节数
+                    //循环执行，直到接收到的字节数与发送的字符串的字节数相等
+//        while (totalBytesRcvd < 13) {
+                    //如果用来向通道中写数据的缓冲区中还有剩余的字节，则继续将数据写入信道
+                    if (writeBuf.hasRemaining()) {
+                        clntChan.write(writeBuf);
+                    }
+                    Thread.sleep(1000);
+//        }
+                    //如果read（）接收到-1，表明服务端关闭，抛出异常
+                    if ((bytesRcvd = clntChan.read(readBuf)) == -1) {
+                        throw new SocketException("Connection closed prematurely");
+                    }
+
+                    totalBytesRcvd = totalBytesRcvd + bytesRcvd;
+//        }
+
+                    writeBuf.clear();
+                    readBuf.clear();
+                    Thread.sleep(1000);
                 }
 
                 writeBuf = createDeviceTaskFinishMsg();
@@ -205,7 +207,7 @@ public class ClientTask implements Runnable {
         StringBuilder builder = new StringBuilder();
         builder.append("000,");
         builder.append(name);
-        builder.append("101X,");
+        builder.append("0111,");
         builder.append("0000000015060000,");
         byte[] body = builder.toString().getBytes();
 
@@ -235,7 +237,7 @@ public class ClientTask implements Runnable {
         headbuilder.append("AP01,");
         StringBuilder builder = new StringBuilder();
         builder.append("000,");
-        builder.append("001X,");
+        builder.append("0111,");
         builder.append("0000000015060000,");
         byte[] body = builder.toString().getBytes();
 
@@ -263,9 +265,9 @@ public class ClientTask implements Runnable {
         headbuilder.append("TRV");
         headbuilder.append("AP03,");
         StringBuilder builder = new StringBuilder();
-        builder.append("000,");
-        builder.append("001X,");
-        builder.append("0501000015060000,");
+//        builder.append("000,");
+        builder.append("1111,");
+        builder.append("0501050015060200,");
         byte[] body = builder.toString().getBytes();
 
         int bodySize = body.length + 5;
@@ -293,9 +295,9 @@ public class ClientTask implements Runnable {
         headbuilder.append("TRV");
         headbuilder.append("AP05,");
         StringBuilder builder = new StringBuilder();
-        builder.append("000,");
-        builder.append("101X,");
-        builder.append("0000000015060000,");
+//        builder.append("000,");
+        builder.append("0111,");
+        builder.append("0000000000000000,");
         byte[] body = builder.toString().getBytes();
 
         int bodySize = body.length + 5;

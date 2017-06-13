@@ -53,25 +53,27 @@ public class ServerStartDeviceMsg extends AbstractMsg {
 
     @Override
     public ByteBuffer toByteBuffer() {
-        ByteBuffer sendBuffer = ByteBuffer.allocate(32);
+        ByteBuffer sendBuffer = ByteBuffer.allocate(31);
         StringBuilder headBuilder = new StringBuilder();
         headBuilder.append(getTitle()).append(getMsgType()).append(DEVICE_SEPARATOR_FIELD);
         byte[] head = headBuilder.toString().getBytes();
 
-        final StringBuilder builder1 = new StringBuilder();
-        builder1.append(getDeviceType()).append(DEVICE_SEPARATOR_FIELD);
-        status.forEach((k, v) -> {
-            builder1.append(v);
-        });
-        builder1.append(DEVICE_SEPARATOR_FIELD);
-        map.forEach((k, v) -> {
-            builder1.append(v);
-        });
-        builder1.append(DEVICE_SEPARATOR_FIELD);
+        MsgOutputStream builder1 = new MsgOutputStream();
+        builder1.writeString(getDeviceType());
+        builder1.writeString(DEVICE_SEPARATOR_FIELD);
 
-        byte[] body = builder1.toString().getBytes();//14 byte
-        int bodySize = body.length +5;
-        headBuilder.append(MsgUtil.getMsgBodyLength(bodySize,BODY_LENGTH_FIELD_SIZE)).append(DEVICE_SEPARATOR_FIELD);
+        status.forEach((k, v) -> {
+            builder1.writeString(v);
+        });
+        builder1.writeString(DEVICE_SEPARATOR_FIELD);//5 bytes
+        map.forEach((k, v) -> {
+            builder1.writeString(v);
+        });
+        builder1.writeString(DEVICE_SEPARATOR_FIELD);//9 bytes
+
+        byte[] body = builder1.toBytes();//14 byte
+        int bodySize = body.length + 5;
+        headBuilder.append(MsgUtil.getMsgBodyLength(bodySize, BODY_LENGTH_FIELD_SIZE)).append(DEVICE_SEPARATOR_FIELD);
         sendBuffer.put(head);// 12 byte
         sendBuffer.put(body);
         StringBuilder sb = new StringBuilder();

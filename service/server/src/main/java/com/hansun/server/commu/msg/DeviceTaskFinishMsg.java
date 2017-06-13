@@ -53,8 +53,6 @@ public class DeviceTaskFinishMsg extends AbstractMsg {
     @Override
     public void validate() throws InvalidMsgException {
         int checkxor = getXOR();
-        setDeviceType(msgInputStream.readString(DEVICE_TYPE_FIELD_SIZE));
-        msgInputStream.skipBytes(1);
         byte[] status = msgInputStream.readBytes(DEVICE_STATUS_FIELD_SIZE);
         for (int i = 1; i <= status.length; i++) {
             if (status[i - 1] == 49) {//'1'
