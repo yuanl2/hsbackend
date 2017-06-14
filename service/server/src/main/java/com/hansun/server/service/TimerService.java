@@ -26,6 +26,7 @@ import java.util.concurrent.Executors;
  */
 @Service
 public class TimerService {
+
     private final static Logger logger = LoggerFactory.getLogger(HeartBeatService.class);
 
     @Autowired
@@ -43,7 +44,9 @@ public class TimerService {
 
     private int min;
     private int max;
+
     private volatile boolean flag;
+
     private Object object;
 
     @PostConstruct
@@ -54,10 +57,9 @@ public class TimerService {
         min = hsServiceProperties.getOrderIntervalMin();
         max = hsServiceProperties.getOrderIntervalMax();
         flag = hsServiceProperties.getOrderIntervalFlag();
-        Set<String> deviceBoxes = dataStore.getAllDeviceBoxes();
-
-        if (deviceBoxes != null && deviceBoxes.size() > 0) {
-            deviceBoxes.forEach(k -> executor.submit(new Schedule_Task(k, dataStore.queryDeviceByDeviceBox(k))));
+        Set<Long> deviceList = dataStore.getAllDevices();
+        if (deviceList != null && deviceList.size() > 0) {
+            deviceList.forEach(k -> executor.submit(new Schedule_Task(k)));
         }
     }
 
@@ -65,6 +67,7 @@ public class TimerService {
     private void destroy() {
         executor.shutdown();
     }
+
 
     public boolean isFlag() {
         return flag;
@@ -78,70 +81,62 @@ public class TimerService {
     }
 
     private class Schedule_Task implements Runnable {
-        private String deviceBox;
-        private List<Device> deviceList;
 
-        public Schedule_Task(String deviceBox, List<Device> deviceList) {
-            this.deviceBox = deviceBox;
-            this.deviceList = deviceList;
+        private long device_id;
+
+        public Schedule_Task(long device_id) {
+            this.device_id = device_id;
         }
 
         public void run() {
-            logger.info("deviceBox = " + deviceBox + " start run");
+            boolean threadFlag;
+            logger.info("device_id = " + device_id + " start run");
+            Random random = new Random();
             while (!Thread.currentThread().interrupted()) {
                 try {
                     synchronized (object) {
                         if (!isFlag()) {
-                            logger.info("deviceBox = " + deviceBox + " start wait for false");
+                            logger.info("device_id = " + device_id + " start wait for false");
                             object.wait();
-                            logger.info("deviceBox = " + deviceBox + " continue run for true");
+                            logger.info("device_id = " + device_id + " continue run for true");
                         }
                     }
-                    Random random = new Random();
-                    int maxConsumeDuration = 0;
-                    for (Device device : deviceList) {
-                        Long device_id = device.getId();
-                        if (device.getStatus() != DeviceStatus.IDLE) {
-                            Thread.sleep(3000);
-                            continue;
-                        } else {
-                            Thread.sleep(5000);
-                            int type = random.nextInt(4);
-                            Consume consume = consumeList.get(type);
+                    int type = random.nextInt(4);
+                    Consume consume = consumeList.get(type);
+                    Device d = dataStore.queryDeviceByDeviceID(device_id);
 
-                            int time = Integer.valueOf(consume.getDuration());
-                            if (time > maxConsumeDuration) {
-                                maxConsumeDuration = time;
-                            }
-                            Order order = new Order();
-                            order.setOrderName("ordername-" + orderService.getSequenceNumber());
-                            order.setStartTime(Instant.now());
-                            order.setCreateTime(Instant.now());
-                            order.setPayAccount("test-payaccount-" + orderService.getSequenceNumber());
-                            order.setOrderStatus(OrderStatus.CREATED);
-                            order.setDeviceID(device_id);
-                            order.setConsumeType(Integer.valueOf(consume.getId()));
-                            orderService.createOrder(order);
-                            logger.info("device_id = " + device_id + " start order " + order);
-                        }
-                    }//end for
+                    if (d.getStatus() == DeviceStatus.SERVICE || d.getStatus() == DeviceStatus.DISCONNECTED) {
+                        Thread.sleep(5000);
+                    } else {
+                        Thread.sleep((random.nextInt(20) + 10) * 1000);
+                        Order order = new Order();
+                        order.setOrderName("ordername-" + orderService.getSequenceNumber());
+                        order.setStartTime(Instant.now());
+                        order.setCreateTime(Instant.now());
+                        order.setPayAccount("test-payaccount-" + orderService.getSequenceNumber());
+                        order.setOrderStatus(OrderStatus.CREATED);
+                        order.setDeviceID(Long.valueOf(device_id));
+                        order.setConsumeType(Integer.valueOf(consume.getId()));
+                        orderService.createOrder(order);
+                        logger.info("device_id = " + device_id + " start order " + order);
 
-                    //wait for task finish
-                    Thread.sleep(maxConsumeDuration * 60 * 1000);
-
-                    int sleep = random.nextInt(max - min) + min;
-
-                    //wait for task finish
-                    Thread.sleep(sleep * 60 * 1000);
+//                        //wait for task finish
+//                        Thread.sleep(consume.getDuration() * 60 * 1000);
+//
+//                        int sleep = random.nextInt(max - min) + min;
+//
+//                        //wait for task finish
+//                        Thread.sleep(sleep * 60 * 1000);
+                    }
                 } catch (Exception e) {
-                    logger.error("deviceBox = " + deviceBox, e);
+                    logger.error("device_id = " + device_id, e);
                     try {
                         Thread.sleep(2000);
                     } catch (InterruptedException e1) {
                         e1.printStackTrace();
                     }
-                }//end try
-            }//end while
-        }// end run
+                }
+            }
+        }
     }
 }
