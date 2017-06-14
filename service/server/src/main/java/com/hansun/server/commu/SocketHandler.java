@@ -43,6 +43,35 @@ public class SocketHandler implements IHandler {
      */
     private SelectionKey selectionKey;
 
+    private boolean needResponse;
+
+    private Object object = new Object();
+
+    public boolean isNeedResponse() {
+        synchronized (object) {
+            if (needResponse) {
+                try {
+                    logger.info(deviceName + " wait for sending");
+                    object.wait();
+                    logger.info(deviceName + " now can send");
+                } catch (InterruptedException e) {
+                    logger.error(deviceName + " object.wait() error", e);
+                }
+            }
+            return needResponse;
+        }
+    }
+
+    public void setNeedResponse(boolean needResponse) {
+        synchronized (object) {
+            this.needResponse = needResponse;
+            logger.info(deviceName + " setNeedResponse = " + needResponse);
+            if (!needResponse) {//如果设置为true，则说明回文发送了，等待的业务消息可以接着发送
+                object.notifyAll();
+            }
+        }
+    }
+
     /**
      * 设置socketChannel
      *
@@ -194,6 +223,8 @@ public class SocketHandler implements IHandler {
                     getSocketChannel().close();
                     linkManger.remove(deviceName);
                     linkManger = null;
+                    headBuffer = null;
+                    bodyBuffer = null;
                 }
             } catch (IOException e) {
                 logger.error("handleClose error " + getDeviceName(), e);
@@ -204,7 +235,12 @@ public class SocketHandler implements IHandler {
         hasConnected = false;
     }
 
+    /**
+     * 业务消息下行发送
+     * @param msg
+     */
     public void sendMsg(IMsg msg) {
+        isNeedResponse();
         getSendList().add(msg.toByteBuffer());
         updateOps();
     }

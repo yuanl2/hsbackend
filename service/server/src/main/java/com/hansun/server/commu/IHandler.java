@@ -37,7 +37,11 @@ public interface IHandler {
 
     void sendMsg(IMsg msg);
 
-    public SocketChannel getSocketChannel();
+    SocketChannel getSocketChannel();
 
-    public void setHasConnected(boolean hasConnected);
+    void setHasConnected(boolean hasConnected);
+
+    boolean isNeedResponse();
+
+    void setNeedResponse(boolean needResponse);
 }

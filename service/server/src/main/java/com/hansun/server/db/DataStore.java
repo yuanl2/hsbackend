@@ -126,6 +126,10 @@ public class DataStore {
         });
     }
 
+    public List<Device> queryDeviceByBoxName(String deviceBox) {
+        return deviceSimCache.get(deviceBox);
+    }
+
     public List<Device> queryDeviceByOwner(int owner) {
         Optional<List<Device>> result = deviceTable.selectbyOwner(owner);
         if (result.isPresent()) {
@@ -177,7 +181,7 @@ public class DataStore {
         return device;
     }
 
-    public void updateDeviceStatus(String simid,Map<Integer, Integer> portMap) {
+    public void updateDeviceStatus(String simid, Map<Integer, Integer> portMap) {
         List<Device> devices = deviceSimCache.get(simid);
 
         if (devices != null) {
@@ -191,9 +195,9 @@ public class DataStore {
                         continue;
                     }
                 } else {
-                    int status = (int)portMap.get(device2.getPort());
+                    int status = (int) portMap.get(device2.getPort());
                     //如果与当前设备状态不一致才需要更新
-                    if(device2.getStatus() != status) {
+                    if (device2.getStatus() != status) {
                         device2.setStatus(status);
                         deviceTable.updateStatus(status, s.getId());
                         deviceCache.put(s.getId(), device2);
@@ -253,13 +257,12 @@ public class DataStore {
     public Device queryDeviceByDeviceBoxAndPort(String deviceBoxName, int port) {
         List<Device> lists = deviceSimCache.get(deviceBoxName);
         if (lists != null && lists.size() >= 0) {
-            for (Device device: lists ) {
-                if(device.getPort() == port){
+            for (Device device : lists) {
+                if (device.getPort() == port) {
                     return device;
                 }
             }
-        }
-        else{
+        } else {
             //todo query from db
         }
         return null;

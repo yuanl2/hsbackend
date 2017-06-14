@@ -51,6 +51,8 @@ public class DeviceTask implements Runnable {
             if (msg.getMsgType().equals(DEVICE_REGISTER_MSG)) {
                 DeviceMsg m = (DeviceMsg) msg;
 
+                handler.setNeedResponse(true);
+
                 IHandler oldHandler = linkManger.get(m.getDeviceName());
                 try {
                     if (oldHandler != null) {
@@ -72,19 +74,23 @@ public class DeviceTask implements Runnable {
                 m1.setTime(Instant.now());
                 m1.setDeviceType(m.getDeviceType());
                 handler.getSendList().add(m1.toByteBuffer());
+                handler.setNeedResponse(false);
                 handler.updateOps();
             }
 
             //心跳消息，需要更新HeartService
             if (msg.getMsgType().equals(DEVICE_HEARTBEAT_MSG)) {
                 HeartBeatMsg m = (HeartBeatMsg) msg;
-                linkManger.processHeart(handler.getDeviceName(),m.getMap(),m.getPortMap());
+
+                handler.setNeedResponse(true);
+                linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap());
 
                 Thread.sleep(delay);
 
                 HeartBeatResponseMsg m1 = new HeartBeatResponseMsg(DEVICE_HEARTBEAT_RESPONSE_MSG);
                 m1.setDeviceType(m.getDeviceType());
                 handler.getSendList().add(m1.toByteBuffer());
+                handler.setNeedResponse(false);
                 handler.updateOps();
             }
 
@@ -102,13 +108,14 @@ public class DeviceTask implements Runnable {
 
             if (msg.getMsgType().equals(DEVICE_TASK_FINISH_MSG)) {
                 DeviceTaskFinishMsg m = (DeviceTaskFinishMsg) msg;
-
+                handler.setNeedResponse(true);
                 DeviceTaskFinishResponseMsg m1 = new DeviceTaskFinishResponseMsg(DEVICE_TASK_FINISH_RESPONSE_MSG);
                 m1.setDeviceType(msg.getDeviceType());
                 handler.getSendList().add(m1.toByteBuffer());
+                handler.setNeedResponse(false);
                 handler.updateOps();
 
-                linkManger.getOrderService().finishOrder(handler.getDeviceName(),m.getMap());
+                linkManger.getOrderService().finishOrder(handler.getDeviceName(), m.getMap());
             }
         } catch (InvalidMsgException e) {
             logger.error("msg body check error!" + msg.getMsgType(), e);

@@ -124,6 +124,7 @@ public class OrderService {
     }
 
     public Order createOrder(Order order) {
+
         createStartMsgToDevice(order);
         order.setOrderStatus(OrderStatus.START);
         return orderStore.insertOrder(order);

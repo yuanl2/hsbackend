@@ -31,4 +31,4 @@ order:
   interval:
      flag: false
      min: 2
-     max: 10
+     max: 5
