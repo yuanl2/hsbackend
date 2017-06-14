@@ -100,7 +100,7 @@ public class ClientTask implements Runnable {
                     Thread.sleep(10);
                 }
 
-                   for (int j = 0; j < 50; j++) {
+                   for (int j = 0; j < 500; j++) {
 
 
                     writeBuf = createHearBeatMsg();

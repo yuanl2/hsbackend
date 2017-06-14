@@ -10,6 +10,10 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.hansun.server.common.MsgConstant.*;
 
@@ -46,6 +50,42 @@ public class SocketHandler implements IHandler {
     private boolean needResponse;
 
     private Object object = new Object();
+
+
+    private boolean needSend;
+
+    private Lock lock = new ReentrantLock();
+
+    private Condition condition = lock.newCondition();
+
+    public boolean isNeedSend() {
+        try {
+            lock.lock();
+            if (needSend) {
+                condition.await(5, TimeUnit.SECONDS);
+            }
+        } catch (Exception e) {
+            logger.error(deviceName + " setNeedSend " + needSend, e);
+        } finally {
+            lock.unlock();
+        }
+        return needSend;
+    }
+
+    public void setNeedSend(boolean needSend) {
+        try {
+            lock.lock();
+            this.needSend = needSend;
+            if (!needSend) {
+                condition.signalAll();
+            }
+        } catch (Exception e) {
+            logger.error(deviceName + " setNeedSend " + needSend, e);
+        } finally {
+            lock.unlock();
+        }
+
+    }
 
     public boolean isNeedResponse() {
         synchronized (object) {
@@ -237,10 +277,12 @@ public class SocketHandler implements IHandler {
 
     /**
      * 业务消息下行发送
+     *
      * @param msg
      */
     public void sendMsg(IMsg msg) {
         isNeedResponse();
+        setNeedSend(true);
         getSendList().add(msg.toByteBuffer());
         updateOps();
     }

@@ -44,4 +44,8 @@ public interface IHandler {
     boolean isNeedResponse();
 
     void setNeedResponse(boolean needResponse);
+
+    boolean isNeedSend();
+
+    void setNeedSend(boolean needSend);
 }

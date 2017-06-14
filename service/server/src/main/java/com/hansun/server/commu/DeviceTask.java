@@ -96,6 +96,7 @@ public class DeviceTask implements Runnable {
 
             if (msg.getMsgType().equals(DEVICE_START_FINISH_MSG)) {
                 DeviceStartFinishMsg m = (DeviceStartFinishMsg) msg;
+                handler.setNeedSend(false);
 
                 //k = {1,2,3,4}
                 m.getMap().forEach((k, v) -> {
