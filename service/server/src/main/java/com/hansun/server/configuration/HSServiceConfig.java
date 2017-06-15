@@ -44,25 +44,16 @@ public class HSServiceConfig {
         return new DeviceService();
     }
 
-//    @Bean
-//    public InfluxDBClient influxDBClient() {
-//        try {
-//            return new InfluxDBClient(hsServiceProperties().getInfluxDBUrl(),
-//                    hsServiceProperties().getInfluxDBUserName(),
-//                    hsServiceProperties().getInfluxDBPassword(),
-//                    hsServiceProperties().getInfluxDBName(),
-//                    hsServiceProperties().getInfluxDbRetentionPolicy(),
-//                    hsServiceProperties().getBatchSize(),
-//                    hsServiceProperties().getBatchTimeout());
-//        } catch (Exception e) {
-//            throw new ServerException("Unable to start influxDB client", e);
-//        }
-//    }
-
     @Bean
     public InfluxDBClient influxDBClient() {
         try {
-            return null;
+            return new InfluxDBClient(hsServiceProperties().getInfluxDBUrl(),
+                    hsServiceProperties().getInfluxDBUserName(),
+                    hsServiceProperties().getInfluxDBPassword(),
+                    hsServiceProperties().getInfluxDBName(),
+                    hsServiceProperties().getInfluxDbRetentionPolicy(),
+                    hsServiceProperties().getBatchSize(),
+                    hsServiceProperties().getBatchTimeout());
         } catch (Exception e) {
             throw new ServerException("Unable to start influxDB client", e);
         }

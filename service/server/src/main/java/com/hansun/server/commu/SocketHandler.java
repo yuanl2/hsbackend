@@ -62,7 +62,9 @@ public class SocketHandler implements IHandler {
         try {
             lock.lock();
             if (needSend) {
+                logger.info(deviceName + " isNeedSend wait for sending");
                 condition.await(5, TimeUnit.SECONDS);
+                logger.info(deviceName + " isNeedSend now can send");
             }
         } catch (Exception e) {
             logger.error(deviceName + " setNeedSend " + needSend, e);
@@ -91,9 +93,9 @@ public class SocketHandler implements IHandler {
         synchronized (object) {
             if (needResponse) {
                 try {
-                    logger.info(deviceName + " wait for sending");
+                    logger.info(deviceName + " isNeedResponse wait for sending");
                     object.wait();
-                    logger.info(deviceName + " now can send");
+                    logger.info(deviceName + " isNeedResponse now can send");
                 } catch (InterruptedException e) {
                     logger.error(deviceName + " object.wait() error", e);
                 }
@@ -281,10 +283,26 @@ public class SocketHandler implements IHandler {
      * @param msg
      */
     public void sendMsg(IMsg msg) {
+
+        //如果当前有设备的响应消息需要优先回复，则wait
         isNeedResponse();
-        setNeedSend(true);
-        getSendList().add(msg.toByteBuffer());
-        updateOps();
+
+        try {
+            lock.lock();
+            if (needSend) {
+                logger.info(deviceName + " isNeedSend wait for sending");
+                //如果之前的业务消息还未收到设备回复，也需要等待
+                condition.await(10, TimeUnit.SECONDS);
+                logger.info(deviceName + " isNeedSend now can send");
+            }
+            needSend = true;
+            getSendList().add(msg.toByteBuffer());
+            updateOps();
+        } catch (Exception e) {
+            logger.error(deviceName + " setNeedSend " + needSend, e);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public void updateOps() {
@@ -304,5 +322,4 @@ public class SocketHandler implements IHandler {
             //todo 更新失败，最好不要走到这里
         }
     }
-
 }

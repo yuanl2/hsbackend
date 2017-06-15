@@ -110,8 +110,10 @@ public class LinkManger {
                             || Instant.now().isAfter(order.getStartTime().plus(Duration.ofMinutes(order.getDuration())))) {
                         //设备没有收到后续结束报文，所以收到心跳消息，判断当前设备是否还在运行，如果指示时间为0，而订单是运行中，则更新订单为finish
                         if (order.getOrderStatus() == OrderStatus.SERVICE) {
+                            logger.info(order.getId() + " update order status = " + OrderStatus.SERVICE);
                             orderService.deleteOrder(device.getId());
                         } else {
+                            logger.info(order.getId() + " remove order");
                             orderService.removeOrder(device.getId());
                         }
                     }

@@ -27,7 +27,7 @@ import java.util.concurrent.Executors;
 @Service
 public class TimerService {
 
-    private final static Logger logger = LoggerFactory.getLogger(HeartBeatService.class);
+    private final static Logger logger = LoggerFactory.getLogger(TimerService.class);
 
     @Autowired
     private HSServiceProperties hsServiceProperties;
@@ -105,10 +105,12 @@ public class TimerService {
                     Consume consume = consumeList.get(type);
                     Device d = dataStore.queryDeviceByDeviceID(device_id);
 
+                    logger.info("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
+
                     if (d.getStatus() == DeviceStatus.SERVICE || d.getStatus() == DeviceStatus.DISCONNECTED) {
-                        Thread.sleep(5000);
+                        Thread.sleep(10000);
                     } else {
-                        Thread.sleep((random.nextInt(20) + 10) * 1000);
+                        Thread.sleep((random.nextInt(6) * 5 + 70) * 1000);
                         Order order = new Order();
                         order.setOrderName("ordername-" + orderService.getSequenceNumber());
                         order.setStartTime(Instant.now());

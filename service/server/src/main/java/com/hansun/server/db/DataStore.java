@@ -152,7 +152,7 @@ public class DataStore {
     }
 
     public Device queryDeviceByDeviceID(Long deviceID) {
-        return deviceCache.computeIfAbsent(deviceID, k -> {
+        Device device=  deviceCache.computeIfAbsent(deviceID, k -> {
             Optional<Device> result = deviceTable.select(k);
             if (result.isPresent()) {
                 Device d = result.get();
@@ -161,6 +161,7 @@ public class DataStore {
             }
             return null;
         });
+        return device;
     }
 
     public Device updateDevice(Device device) {
@@ -175,7 +176,13 @@ public class DataStore {
         deviceTable.update(device, device.getId());
         deviceCache.put(device.getId(), device);
 
-        deviceSimCache.get(device2.getSimCard()).remove(device2);
+        if (deviceSimCache.get(device2.getSimCard()) != null) {
+            deviceSimCache.get(device2.getSimCard()).remove(device2);
+        }
+
+        if (deviceSimCache.get(device.getSimCard()) == null) {
+            deviceSimCache.put(device.getSimCard(), new ArrayList<>());
+        }
         deviceSimCache.get(device.getSimCard()).add(device);
 
         return device;
@@ -198,6 +205,7 @@ public class DataStore {
                     int status = (int) portMap.get(device2.getPort());
                     //如果与当前设备状态不一致才需要更新
                     if (device2.getStatus() != status) {
+                        logger.info(simid + " device_id =" + device2.getId() + " update old status = " + device2.getStatus() + " new status = " + status);
                         device2.setStatus(status);
                         deviceTable.updateStatus(status, s.getId());
                         deviceCache.put(s.getId(), device2);

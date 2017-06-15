@@ -148,7 +148,7 @@ public class OrderService {
             Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, k);
             Order order = orderStore.queryOrder(d.getId());
 
-            if (order != null) {
+            if (order != null && v == DeviceStatus.IDLE) {
                 logger.info("update order before = " + order);
                 order.setOrderStatus(OrderStatus.FINISH);
                 order.setEndTime(Instant.now());
