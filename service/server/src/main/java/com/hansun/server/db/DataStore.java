@@ -152,7 +152,7 @@ public class DataStore {
     }
 
     public Device queryDeviceByDeviceID(Long deviceID) {
-        Device device=  deviceCache.computeIfAbsent(deviceID, k -> {
+        Device device = deviceCache.computeIfAbsent(deviceID, k -> {
             Optional<Device> result = deviceTable.select(k);
             if (result.isPresent()) {
                 Device d = result.get();
@@ -176,14 +176,16 @@ public class DataStore {
         deviceTable.update(device, device.getId());
         deviceCache.put(device.getId(), device);
 
-        if (deviceSimCache.get(device2.getSimCard()) != null) {
-            deviceSimCache.get(device2.getSimCard()).remove(device2);
-        }
+        if (device.getSimCard() != device2.getSimCard()) {
+            if (deviceSimCache.get(device2.getSimCard()) != null) {
+                deviceSimCache.get(device2.getSimCard()).remove(device2);
+            }
 
-        if (deviceSimCache.get(device.getSimCard()) == null) {
-            deviceSimCache.put(device.getSimCard(), new ArrayList<>());
+            if (deviceSimCache.get(device.getSimCard()) == null) {
+                deviceSimCache.put(device.getSimCard(), new ArrayList<>());
+            }
+            deviceSimCache.get(device.getSimCard()).add(device);
         }
-        deviceSimCache.get(device.getSimCard()).add(device);
 
         return device;
     }

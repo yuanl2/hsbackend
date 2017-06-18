@@ -106,14 +106,14 @@ public class LinkManger {
 
                 if (order != null && msgTime.getTime() == 0) {
                     //如果订单还在缓存中，但是结束时在当前时间之前，则需要从缓存中删除该订单
-                    if (Instant.now().isAfter(order.getCreateTime().plus(Duration.ofMinutes(order.getDuration())))
-                            || Instant.now().isAfter(order.getStartTime().plus(Duration.ofMinutes(order.getDuration())))) {
+                    if (Instant.now().isAfter(order.getCreateTime().plus(Duration.ofMinutes(order.getDuration() + 2)))
+                            || Instant.now().isAfter(order.getStartTime().plus(Duration.ofMinutes(order.getDuration() + 2)))) {
                         //设备没有收到后续结束报文，所以收到心跳消息，判断当前设备是否还在运行，如果指示时间为0，而订单是运行中，则更新订单为finish
                         if (order.getOrderStatus() == OrderStatus.SERVICE) {
-                            logger.info(order.getId() + " update order status = " + OrderStatus.SERVICE);
+                            logger.info(order.getId() + " update order status to " + OrderStatus.FINISH);
                             orderService.deleteOrder(device.getId());
                         } else {
-                            logger.info(order.getId() + " remove order");
+                            logger.info(order.getId() + " remove order " + order);
                             orderService.removeOrder(device.getId());
                         }
                     }

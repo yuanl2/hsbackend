@@ -1,5 +1,6 @@
 package com.hansun.server.commu;
 
+import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.InvalidMsgException;
 import com.hansun.server.common.OrderStatus;
 import com.hansun.server.commu.msg.*;
@@ -39,12 +40,6 @@ public class DeviceTask implements Runnable {
     public void run() {
         try {
             msg.validate();
-
-            //先判断这个消息是否是等待的ack消息
-            MsgWaitResult result = getHandler().getLinkManger().getSyncAsynMsgController().getMsgWaitResult(msg, handler);
-            if (result != null) {
-                result.setResponseMsg(msg);//后续会删除请求下发的消息
-            }
 
             LinkManger linkManger = handler.getLinkManger();
             //如果是上电之后第一次上报状态和设备名，需要加入缓存中，以便后续下发消息使用
@@ -92,6 +87,20 @@ public class DeviceTask implements Runnable {
                 handler.getSendList().add(m1.toByteBuffer());
                 handler.setNeedResponse(false);
                 handler.updateOps();
+
+                m.getMap().forEach((k, v) -> {
+                    //如果上报消息的端口状态也是运行中，和设置一致，则需要解锁
+                    if (handler.getPortStatus().get(k) == DeviceStatus.SERVICE) {
+                        handler.setNeedSend(false);
+                        if (v == DeviceStatus.SERVICE) {//如果设备运行了
+                            MsgWaitResult result = getHandler().getLinkManger().getSyncAsynMsgController().getMsgWaitResult(handler, k);
+                            if (result != null) {
+                                result.setResponseMsg(msg);//后续会删除请求下发的消息
+                            }
+                        }
+                    }
+                });
+
             }
 
             if (msg.getMsgType().equals(DEVICE_START_FINISH_MSG)) {
@@ -103,6 +112,11 @@ public class DeviceTask implements Runnable {
                     String s = handler.getDeviceName();
                     if (v == OrderStatus.SERVICE) {//device on port is running status
                         linkManger.getOrderService().startOrder(s, k);  //SIM800_898602B8191650210001 1  (对应就是端口1的设备启动了)
+
+                        MsgWaitResult result = getHandler().getLinkManger().getSyncAsynMsgController().getMsgWaitResult(handler, k);
+                        if (result != null) {
+                            result.setResponseMsg(msg);//后续会删除请求下发的消息
+                        }
                     }
                 });
             }
@@ -115,6 +129,13 @@ public class DeviceTask implements Runnable {
                 handler.getSendList().add(m1.toByteBuffer());
                 handler.setNeedResponse(false);
                 handler.updateOps();
+
+                m.getMap().forEach((k, v) -> {
+                    //如果上报消息的端口状态也是运行中，和设置一致，则需要解锁
+                    if (handler.getPortStatus().get(k).equals(v)) {
+                        handler.setNeedSend(false);
+                    }
+                });
 
                 linkManger.getOrderService().finishOrder(handler.getDeviceName(), m.getMap());
             }

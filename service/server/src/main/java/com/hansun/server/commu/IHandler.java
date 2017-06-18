@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * Created by yuanl2 on 2017/5/8.
@@ -35,7 +36,7 @@ public interface IHandler {
 
     void setLinkManger(LinkManger linkManger);
 
-    void sendMsg(IMsg msg);
+    void sendMsg(IMsg msg, int port);
 
     SocketChannel getSocketChannel();
 
@@ -48,4 +49,6 @@ public interface IHandler {
     boolean isNeedSend();
 
     void setNeedSend(boolean needSend);
+
+    public Map<Integer, Integer> getPortStatus();
 }

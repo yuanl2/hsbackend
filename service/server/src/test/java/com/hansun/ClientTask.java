@@ -100,7 +100,7 @@ public class ClientTask implements Runnable {
                     Thread.sleep(10);
                 }
 
-                   for (int j = 0; j < 500; j++) {
+                   for (int j = 0; j < 20; j++) {
 
 
                     writeBuf = createHearBeatMsg();
@@ -130,7 +130,7 @@ public class ClientTask implements Runnable {
                 }
 
 
-                for (int j = 0; j <1 ; j++) {
+                for (int j = 0; j <2 ; j++) {
 
 
                     writeBuf = createDeviceStartFinishMsg();
@@ -207,7 +207,7 @@ public class ClientTask implements Runnable {
         StringBuilder builder = new StringBuilder();
         builder.append("000,");
         builder.append(name);
-        builder.append("0111,");
+        builder.append("0000,");
         builder.append("0000000015060000,");
         byte[] body = builder.toString().getBytes();
 
@@ -237,7 +237,7 @@ public class ClientTask implements Runnable {
         headbuilder.append("AP01,");
         StringBuilder builder = new StringBuilder();
         builder.append("000,");
-        builder.append("0111,");
+        builder.append("0000,");
         builder.append("0000000015060000,");
         byte[] body = builder.toString().getBytes();
 
@@ -296,7 +296,7 @@ public class ClientTask implements Runnable {
         headbuilder.append("AP05,");
         StringBuilder builder = new StringBuilder();
 //        builder.append("000,");
-        builder.append("0111,");
+        builder.append("0000,");
         builder.append("0000000000000000,");
         byte[] body = builder.toString().getBytes();
 

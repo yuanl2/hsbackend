@@ -1,5 +1,6 @@
 package com.hansun.server.commu;
 
+import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.commu.msg.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -24,6 +27,8 @@ import static com.hansun.server.common.MsgConstant.*;
 public class SocketHandler implements IHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private Map<Integer,Integer> portStatus = new ConcurrentHashMap<>();
 
     private String deviceName;
 
@@ -58,6 +63,12 @@ public class SocketHandler implements IHandler {
 
     private Condition condition = lock.newCondition();
 
+    public SocketHandler() {
+        for (int i = 1; i <= 4; i++) {
+            portStatus.put(i, DeviceStatus.DISCONNECTED);
+        }
+    }
+
     public boolean isNeedSend() {
         try {
             lock.lock();
@@ -78,6 +89,7 @@ public class SocketHandler implements IHandler {
         try {
             lock.lock();
             this.needSend = needSend;
+            logger.info(deviceName + " setNeedSend = " + needSend);
             if (!needSend) {
                 condition.signalAll();
             }
@@ -178,6 +190,10 @@ public class SocketHandler implements IHandler {
 
     public void setHasConnected(boolean hasConnected) {
         this.hasConnected = hasConnected;
+    }
+
+    public Map<Integer, Integer> getPortStatus() {
+        return portStatus;
     }
 
     @Override
@@ -282,22 +298,26 @@ public class SocketHandler implements IHandler {
      *
      * @param msg
      */
-    public void sendMsg(IMsg msg) {
+    public void sendMsg(IMsg msg, int port) {
 
         //如果当前有设备的响应消息需要优先回复，则wait
         isNeedResponse();
 
         try {
             lock.lock();
-            if (needSend) {
-                logger.info(deviceName + " isNeedSend wait for sending");
+            while (needSend && !Thread.currentThread().isInterrupted())
+            {   logger.info(deviceName + " isNeedSend wait for sending");
                 //如果之前的业务消息还未收到设备回复，也需要等待
                 condition.await(10, TimeUnit.SECONDS);
-                logger.info(deviceName + " isNeedSend now can send");
             }
+            logger.info(deviceName + " isNeedSend now can send");
             needSend = true;
             getSendList().add(msg.toByteBuffer());
             updateOps();
+
+            //update portStatus
+            portStatus.put(port,DeviceStatus.SERVICE);
+
         } catch (Exception e) {
             logger.error(deviceName + " setNeedSend " + needSend, e);
         } finally {

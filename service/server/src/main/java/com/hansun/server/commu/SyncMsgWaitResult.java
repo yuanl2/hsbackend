@@ -15,8 +15,8 @@ public class SyncMsgWaitResult extends MsgWaitResult {
      *
      * @param timeout
      */
-    public SyncMsgWaitResult(IMsg msg ,long timeout, IHandler handler) {
-        super(msg, timeout, handler);
+    public SyncMsgWaitResult(IMsg msg, long timeout, IHandler handler, int port) {
+        super(msg, timeout, handler, port);
     }
 
     /**
@@ -39,7 +39,7 @@ public class SyncMsgWaitResult extends MsgWaitResult {
             }
             // add by liuyuan 2007-2-3
             else if (hasDisconnected()) {
-				
+
 				/* 网元断连抛出异常 */
                 throw new ServerException("Disconnected");
             }
@@ -54,22 +54,22 @@ public class SyncMsgWaitResult extends MsgWaitResult {
                     logger.error("Synchronized wait response message occur errors!" + e);
                     throw new RuntimeException(e.toString());
                 }
-				
+
 				
 				/* 出来表示获得了结果或者超时 */
                 if (isTimeout()) {
-					/* 超时 */
+                    /* 超时 */
                     throw new TimeoutException("send msg timeout");
                 }
                 //add by liuyuan 2007-2-3
                 else if (hasDisconnected()) {
-					
+
 					/* 网元断连抛出异常 */
                     throw new ServerException("Disconnected");
                 }
                 //end add by liuyuan
                 else {
-					/* 获得结果 */
+                    /* 获得结果 */
                     return getResponseMsg();
                 }
             }
@@ -84,7 +84,7 @@ public class SyncMsgWaitResult extends MsgWaitResult {
     @Override
     protected void notifyResponsed() {
         synchronized (this) {
-			/*设置已经响应 */
+            /*设置已经响应 */
             setResponsed();
 //			/*随后notify */
 //            notify();
@@ -100,13 +100,14 @@ public class SyncMsgWaitResult extends MsgWaitResult {
         synchronized (this) {
             if (retryCount-- > 0) {
                 IHandler handler = getHandler();
-                if(handler != null){
-                       handler.getSendList().add(getRequestMsg().toByteBuffer());
+                if (handler != null) {
+                    logger.info("resend msg : " + getRequestMsg() + " retrytCount =" + retryCount + " on device " + handler.getDeviceName());
+                    handler.sendMsg(getRequestMsg(),getPort());
                 }
                 return false;
-            }
-            else{
+            } else {
                 setTimeout();
+                logger.error("setTimeout for msg " + getRequestMsg());
             }
             return true;
 
@@ -124,7 +125,7 @@ public class SyncMsgWaitResult extends MsgWaitResult {
 
 			/* 设置为网元断连 */
             setDisconnected();
-			/* 然后上报 */
+            /* 然后上报 */
             notify();
         }
 

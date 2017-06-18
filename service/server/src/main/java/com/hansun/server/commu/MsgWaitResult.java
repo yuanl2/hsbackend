@@ -58,14 +58,21 @@ public abstract class MsgWaitResult {
 	private boolean isDisconnected = false;
 	
 	private IHandler handler = null;
+
+	private int port;
 	
-	public MsgWaitResult(IMsg msg, long timeout,IHandler handler)
+	public MsgWaitResult(IMsg msg, long timeout,IHandler handler, int port)
 	{
 		this.requestMsg = msg;
 		this.timeout = timeout;
 		this.handler = handler;
+		this.port = port;
 	}
-	
+
+	public int getPort() {
+		return port;
+	}
+
 	public boolean isTimeout()
 	{
 		return timeoutFlag;

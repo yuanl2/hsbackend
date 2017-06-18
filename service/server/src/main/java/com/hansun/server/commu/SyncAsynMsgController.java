@@ -51,7 +51,7 @@ public class SyncAsynMsgController {
     }
 
     @PreDestroy
-    private void destroy(){
+    private void destroy() {
         cheduleTask.stop();
         waitList.clear();
     }
@@ -187,11 +187,11 @@ public class SyncAsynMsgController {
      * @param msg
      * @return
      */
-    public SyncMsgWaitResult createSyncWaitResult(IMsg msg, IHandler handler) {
+    public SyncMsgWaitResult createSyncWaitResult(IMsg msg, IHandler handler, int port) {
 
-        String key = getResponseMsgType(msg.getMsgType()) + "_" + handler.getDeviceName();
-		/* 先要转换该timeout，因为输入的timeout是毫秒为单位的 每次Sleep一个 */
-        SyncMsgWaitResult syncWaitResult = new SyncMsgWaitResult(msg,resendInterval / SLEEP_TIME, handler);
+        String key = handler.getDeviceName() + "_" + port;
+        /* 先要转换该timeout，因为输入的timeout是毫秒为单位的 每次Sleep一个 */
+        SyncMsgWaitResult syncWaitResult = new SyncMsgWaitResult(msg, resendInterval / SLEEP_TIME, handler, port);
         syncWaitResult.setRetryCount(retryCount);
         synchronized (waitList) {
             waitList.put(key, syncWaitResult);
@@ -201,8 +201,8 @@ public class SyncAsynMsgController {
     }
 
 
-    public MsgWaitResult getMsgWaitResult(IMsg msg, IHandler handler) {
-        String key = msg.getMsgType() + "_" + handler.getDeviceName();
+    public MsgWaitResult getMsgWaitResult(IHandler handler, int port) {
+        String key = handler.getDeviceName() + "_" + port;
         synchronized (waitList) {
             return waitList.get(key);
         }

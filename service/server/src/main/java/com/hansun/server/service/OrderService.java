@@ -115,8 +115,8 @@ public class OrderService {
                 throw new ServerException("can not create order for handler for device not exist  " + device.getName());
             }
 
-            syncAsynMsgController.createSyncWaitResult(msg, handler);
-            handler.sendMsg(msg);
+            syncAsynMsgController.createSyncWaitResult(msg, handler,index);
+            handler.sendMsg(msg, device.getPort());
         } catch (Exception e) {
             logger.error("createStartMsgToDevice error", e);
             throw new ServerException("createStartMsgToDevice error", e);
@@ -133,11 +133,15 @@ public class OrderService {
     public void startOrder(String deviceBoxName, int port) {
         Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, port);
         Order order = orderStore.queryOrder(d.getId());
-        if (order != null) {
+        if (order != null && order.getOrderStatus() != OrderStatus.SERVICE) {
             logger.info("update order before = " + order);
             order.setOrderStatus(OrderStatus.SERVICE);
             order.setStartTime(Instant.now());
             orderStore.updateOrder(order);
+
+            //不能等心跳消息来了再更新设备的状态，应该根据业务的回应及时更新
+            d.setStatus(DeviceStatus.SERVICE);
+            dataStore.updateDevice(d);
         } else {
             logger.error(d.getId() + " have no order now");
         }
@@ -153,7 +157,14 @@ public class OrderService {
                 order.setOrderStatus(OrderStatus.FINISH);
                 order.setEndTime(Instant.now());
                 orderStore.updateOrder(order);
-                orderStore.deleteOrder(d.getId());//remove order from cache not table
+
+                d.setStatus(DeviceStatus.IDLE);
+                dataStore.updateDevice(d);
+
+                //remove order from cache not table
+                orderStore.deleteOrder(d.getId());
+                logger.info("order delete = " + order);
+
             } else {
                 logger.error(d.getId() + " have no order now");
             }
