@@ -4,8 +4,8 @@ package com.hansun.server.commu;
 import com.hansun.server.commu.msg.IMsg;
 
 public class AsynMsgWaitResult extends MsgWaitResult {
-    public AsynMsgWaitResult(IMsg msg, long timeout, IHandler handler) {
-        super(msg, timeout, handler);
+    public AsynMsgWaitResult(IMsg msg, long timeout, IHandler handler, int port) {
+        super(msg, timeout, handler, port);
     }
 
     @Override

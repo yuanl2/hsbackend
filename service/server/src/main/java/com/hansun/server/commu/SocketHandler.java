@@ -28,7 +28,7 @@ public class SocketHandler implements IHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private Map<Integer,Integer> portStatus = new ConcurrentHashMap<>();
+    private Map<Integer, Integer> portStatus = new ConcurrentHashMap<>();
 
     private String deviceName;
 
@@ -59,7 +59,7 @@ public class SocketHandler implements IHandler {
 
     private boolean needSend;
 
-    private Lock lock = new ReentrantLock();
+    private ReentrantLock lock = new ReentrantLock();
 
     private Condition condition = lock.newCondition();
 
@@ -151,7 +151,7 @@ public class SocketHandler implements IHandler {
     /**
      * 表示是否连接成功
      */
-    private boolean hasConnected = false;
+    private volatile boolean hasConnected = false;
 
     private LinkManger linkManger;
 
@@ -200,9 +200,10 @@ public class SocketHandler implements IHandler {
     public void handleAccept(SelectionKey key) throws IOException {
         SocketChannel clntChan = ((ServerSocketChannel) key.channel()).accept();
         if (clntChan == null) {
+            logger.error("handleAccept SocketChannel is null");
             return;
         }
-        logger.info("acccept " + clntChan.getRemoteAddress());
+        logger.info("accept " + clntChan.getRemoteAddress());
         clntChan.configureBlocking(false);
         //将选择器注册到连接到的客户端信道，并指定该信道key值的属性为OP_READ，同时为该信道指定关联的附件
         selectionKey = clntChan.register(key.selector(), SelectionKey.OP_READ, this);
@@ -275,22 +276,35 @@ public class SocketHandler implements IHandler {
     public void handleClose() {
         logger.info("handleClose " + getDeviceName());
         if (hasConnected) {
+            hasConnected = false;
             try {
                 if (getSocketChannel() != null) {
-                    getSelectionKey().cancel();
-                    getSocketChannel().close();
-                    linkManger.remove(deviceName);
                     linkManger = null;
                     headBuffer = null;
                     bodyBuffer = null;
+                    setNeedResponse(false);
+                    getSelectionKey().cancel();
+                    getSocketChannel().close();
+                    lock.lock();
+
+                    int waitThreadNum = lock.getWaitQueueLength(condition);
+                    //如果有其他线程被wait了，需要唤醒他们结束等待退出
+                    if (waitThreadNum > 0) {
+                        logger.info("waitThreadNum = " + waitThreadNum + " need to wake up");
+                        condition.notifyAll();
+                    }
+                    linkManger.remove(deviceName);
                 }
             } catch (IOException e) {
                 logger.error("handleClose error " + getDeviceName(), e);
             } catch (Exception e) {
                 logger.error("handleClose error " + getDeviceName(), e);
+            } finally {
+                lock.unlock();
             }
+        } else {
+            logger.error(" not connect device ");
         }
-        hasConnected = false;
     }
 
     /**
@@ -300,15 +314,25 @@ public class SocketHandler implements IHandler {
      */
     public void sendMsg(IMsg msg, int port) {
 
+        if (!hasConnected) {
+            logger.error("link is not connected");
+            return;
+        }
+
         //如果当前有设备的响应消息需要优先回复，则wait
         isNeedResponse();
 
         try {
             lock.lock();
-            while (needSend && !Thread.currentThread().isInterrupted())
-            {   logger.info(deviceName + " isNeedSend wait for sending");
+            while (needSend && !Thread.currentThread().isInterrupted()) {
+                logger.info(deviceName + " isNeedSend wait for sending");
                 //如果之前的业务消息还未收到设备回复，也需要等待
                 condition.await(10, TimeUnit.SECONDS);
+
+                if (!hasConnected) {
+                    logger.error("link is closed");
+                    return;
+                }
             }
             logger.info(deviceName + " isNeedSend now can send");
             needSend = true;
@@ -316,7 +340,7 @@ public class SocketHandler implements IHandler {
             updateOps();
 
             //update portStatus
-            portStatus.put(port,DeviceStatus.SERVICE);
+            portStatus.put(port, DeviceStatus.SERVICE);
 
         } catch (Exception e) {
             logger.error(deviceName + " setNeedSend " + needSend, e);

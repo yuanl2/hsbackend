@@ -78,11 +78,22 @@ public class LinkManger {
 
     public void add(String id, IHandler handler) {
         map.put(id, handler);
+        logger.info("LinkManger add deviceSimCard = " + id);
     }
 
 
     public void remove(String id) {
-        map.remove(id);
+        try {
+            if (map.containsKey(id)) {
+                map.remove(id);
+            } else {
+                logger.error("LinkManger not contains deviceSimCard = " + id);
+            }
+        } catch (Exception e) {
+            logger.error("LinkManger not contains deviceSimCard = " + id);
+
+        }
+
     }
 
     public IHandler get(String id) {
@@ -106,8 +117,8 @@ public class LinkManger {
 
                 if (order != null && msgTime.getTime() == 0) {
                     //如果订单还在缓存中，但是结束时在当前时间之前，则需要从缓存中删除该订单
-                    if (Instant.now().isAfter(order.getCreateTime().plus(Duration.ofMinutes(order.getDuration() + 2)))
-                            || Instant.now().isAfter(order.getStartTime().plus(Duration.ofMinutes(order.getDuration() + 2)))) {
+                    if (Instant.now().isAfter(order.getCreateTime().plus(Duration.ofMinutes(order.getDuration())))
+                            || Instant.now().isAfter(order.getStartTime().plus(Duration.ofMinutes(order.getDuration())))) {
                         //设备没有收到后续结束报文，所以收到心跳消息，判断当前设备是否还在运行，如果指示时间为0，而订单是运行中，则更新订单为finish
                         if (order.getOrderStatus() == OrderStatus.SERVICE) {
                             logger.info(order.getId() + " update order status to " + OrderStatus.FINISH);

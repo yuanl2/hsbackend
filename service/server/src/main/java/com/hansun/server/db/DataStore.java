@@ -177,6 +177,7 @@ public class DataStore {
         deviceCache.put(device.getId(), device);
 
         if (device.getSimCard() != device2.getSimCard()) {
+            logger.info("device.getSimCard() = " + device.getSimCard() + " device2.getSimCard() = " + device2.getSimCard());
             if (deviceSimCache.get(device2.getSimCard()) != null) {
                 deviceSimCache.get(device2.getSimCard()).remove(device2);
             }

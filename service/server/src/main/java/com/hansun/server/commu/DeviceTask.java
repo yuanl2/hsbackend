@@ -107,6 +107,8 @@ public class DeviceTask implements Runnable {
                 DeviceStartFinishMsg m = (DeviceStartFinishMsg) msg;
                 handler.setNeedSend(false);
 
+                linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap());
+
                 //k = {1,2,3,4}
                 m.getMap().forEach((k, v) -> {
                     String s = handler.getDeviceName();
@@ -130,12 +132,16 @@ public class DeviceTask implements Runnable {
                 handler.setNeedResponse(false);
                 handler.updateOps();
 
+
                 m.getMap().forEach((k, v) -> {
                     //如果上报消息的端口状态也是运行中，和设置一致，则需要解锁
                     if (handler.getPortStatus().get(k).equals(v)) {
                         handler.setNeedSend(false);
                     }
                 });
+
+                linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap());
+
 
                 linkManger.getOrderService().finishOrder(handler.getDeviceName(), m.getMap());
             }

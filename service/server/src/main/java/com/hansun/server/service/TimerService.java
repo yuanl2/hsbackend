@@ -105,11 +105,12 @@ public class TimerService {
                     Consume consume = consumeList.get(type);
                     Device d = dataStore.queryDeviceByDeviceID(device_id);
 
-                    logger.info("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
+//                    logger.info("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
 
                     if (d.getStatus() == DeviceStatus.SERVICE || d.getStatus() == DeviceStatus.DISCONNECTED) {
                         Thread.sleep((random.nextInt(5) + 10) * 1000);
                     } else {
+                        logger.info("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
                         Order order = new Order();
                         order.setOrderName("ordername-" + orderService.getSequenceNumber());
                         order.setStartTime(Instant.now());
