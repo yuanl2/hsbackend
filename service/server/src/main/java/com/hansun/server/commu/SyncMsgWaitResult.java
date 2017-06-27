@@ -102,7 +102,9 @@ public class SyncMsgWaitResult extends MsgWaitResult {
                 IHandler handler = getHandler();
                 if (handler != null) {
                     logger.info("resend msg : " + getRequestMsg() + " retrytCount =" + retryCount + " on device " + handler.getDeviceName());
-                    handler.sendMsg(getRequestMsg(),getPort());
+                    IMsg msg = getRequestMsg();
+                    msg.setSeq(String.valueOf(handler.getSeq()));
+                    handler.sendMsg(msg, getPort());
                 }
                 return false;
             } else {

@@ -31,4 +31,7 @@ public interface IMsg {
 
     ByteBuffer toByteBuffer();
 
+    String getSeq();
+
+    void setSeq(String seq);
 }

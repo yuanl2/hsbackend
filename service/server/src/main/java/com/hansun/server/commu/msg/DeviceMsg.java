@@ -1,6 +1,7 @@
 package com.hansun.server.commu.msg;
 
 import com.hansun.server.common.DeviceStatus;
+import com.hansun.server.common.ErrorCode;
 import com.hansun.server.common.InvalidMsgException;
 
 import java.nio.ByteBuffer;
@@ -56,10 +57,13 @@ public class DeviceMsg extends AbstractMsg {
     @Override
     public void validate() throws InvalidMsgException {
         int checkxor = getXOR();
+
+        setSeq(msgInputStream.readString(DEVICE_SEQ_FIELD_SIZE));
+        msgInputStream.skipBytes(1);
+
         setDeviceType(msgInputStream.readString(DEVICE_TYPE_FIELD_SIZE));
         msgInputStream.skipBytes(1);
-        setDeviceName(msgInputStream.readString(DEVICE_NAME_FIELD_SIZE));
-        msgInputStream.skipBytes(1);
+
         byte[] status = msgInputStream.readBytes(DEVICE_STATUS_FIELD_SIZE);
         for (int i = 1; i <= status.length; i++) {
             if (status[i - 1] == 49) {//'1'
@@ -75,13 +79,22 @@ public class DeviceMsg extends AbstractMsg {
         for (int i = 0; i < 4; i++) {
             int time = Integer.valueOf(times.substring(i * 4, i * 4 + 1));
             int runTime = Integer.valueOf(times.substring(i * 4 + 2, i * 4 + 3));
-            portMap.put(i+1,new MsgTime(time,runTime));
+            portMap.put(i + 1, new MsgTime(time, runTime));
         }
+        msgInputStream.skipBytes(1);
+
+        String simName = msgInputStream.readString(DEVICE_NAME_FIELD_SIZE);
+
+        if (!isLetterDigitOrChinese(simName)) {
+            throw new InvalidMsgException("device sim name is invalid " + simName, ErrorCode.DEVICE_SIM_FORMAT_ERROR.getCode());
+        }
+
+        setDeviceName(simName);
         msgInputStream.skipBytes(1);
 
         int xor = Integer.valueOf(msgInputStream.readString(DEVICE_XOR_FIELD_SIZE));
         if (xor != checkxor) {
-            throw new InvalidMsgException("message check xor error!");
+            throw new InvalidMsgException("message check xor error! checkxor = " + checkxor + " xor = " + xor, ErrorCode.DEVICE_XOR_ERROR.getCode());
         }
         msgInputStream = null;
     }

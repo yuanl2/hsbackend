@@ -28,6 +28,8 @@ public class ConnectionPoolManager {
         dataSource.setMinIdle(5);
         dataSource.setMaxIdle(20);
         dataSource.setMaxOpenPreparedStatements(180);
+        dataSource.setValidationQuery("select 1");
+        dataSource.setTestOnBorrow(true);
 
         try {
             new v1_InitializeDataSpace().apply(this);

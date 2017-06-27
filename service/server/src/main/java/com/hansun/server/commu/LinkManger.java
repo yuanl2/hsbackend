@@ -86,6 +86,7 @@ public class LinkManger {
         try {
             if (map.containsKey(id)) {
                 map.remove(id);
+                logger.info("LinkManger remove deviceSim = " + id);
             } else {
                 logger.error("LinkManger not contains deviceSimCard = " + id);
             }

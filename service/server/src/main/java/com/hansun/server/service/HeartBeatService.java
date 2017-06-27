@@ -134,7 +134,7 @@ public class HeartBeatService {
         @Override
         public void disconnect(String simid) {
             try {
-                logger.debug("DeviceConnect disconnect " + simid);
+                logger.info("DeviceConnect disconnect " + simid);
                 deviceIDMapSlot.remove(simid);
                 //收不到心跳，主动断开链路
                 IHandler handler = linkManger.get(simid);

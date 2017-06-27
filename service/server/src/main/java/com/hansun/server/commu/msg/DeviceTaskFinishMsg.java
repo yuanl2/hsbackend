@@ -1,6 +1,7 @@
 package com.hansun.server.commu.msg;
 
 import com.hansun.server.common.DeviceStatus;
+import com.hansun.server.common.ErrorCode;
 import com.hansun.server.common.InvalidMsgException;
 
 import java.nio.ByteBuffer;
@@ -53,6 +54,13 @@ public class DeviceTaskFinishMsg extends AbstractMsg {
     @Override
     public void validate() throws InvalidMsgException {
         int checkxor = getXOR();
+
+        setSeq(msgInputStream.readString(DEVICE_SEQ_FIELD_SIZE));
+        msgInputStream.skipBytes(1);
+
+        setDeviceType(msgInputStream.readString(DEVICE_TYPE_FIELD_SIZE));
+        msgInputStream.skipBytes(1);
+
         byte[] status = msgInputStream.readBytes(DEVICE_STATUS_FIELD_SIZE);
         for (int i = 1; i <= status.length; i++) {
             if (status[i - 1] == 49) {//'1'
@@ -73,7 +81,7 @@ public class DeviceTaskFinishMsg extends AbstractMsg {
         msgInputStream.skipBytes(1);
         int xor = Integer.valueOf(msgInputStream.readString(DEVICE_XOR_FIELD_SIZE));
         if (xor != checkxor) {
-            throw new InvalidMsgException("message check xor error!");
+            throw new InvalidMsgException("message check xor error!", ErrorCode.DEVICE_XOR_ERROR.getCode());
         }
         msgInputStream = null;
     }

@@ -16,6 +16,7 @@ public abstract class AbstractMsg implements IMsg {
     private String title = "TRV";
     private String MsgType;
     private String DeviceType;
+    private String seq;
     protected MsgInputStream msgInputStream;
 
     public void setMsgType(String msgType) {
@@ -67,6 +68,14 @@ public abstract class AbstractMsg implements IMsg {
 
     public void setMsgHead(byte[] msgHead) {
         this.msgHead = msgHead;
+    }
+
+    public String getSeq() {
+        return seq;
+    }
+
+    public void setSeq(String seq) {
+        this.seq = seq;
     }
 
     /**
@@ -206,5 +215,11 @@ public abstract class AbstractMsg implements IMsg {
             sb.append(" ");
         }
         return sb.toString();
+    }
+
+
+    public static boolean isLetterDigitOrChinese(String str) {
+        String regex = "^[a-z0-9A-Z]+$";
+        return str.matches(regex);
     }
 }

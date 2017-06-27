@@ -1,6 +1,7 @@
 package com.hansun.server.commu;
 
 import com.hansun.server.common.DeviceStatus;
+import com.hansun.server.common.ErrorCode;
 import com.hansun.server.common.InvalidMsgException;
 import com.hansun.server.common.OrderStatus;
 import com.hansun.server.commu.msg.*;
@@ -45,7 +46,7 @@ public class DeviceTask implements Runnable {
             //如果是上电之后第一次上报状态和设备名，需要加入缓存中，以便后续下发消息使用
             if (msg.getMsgType().equals(DEVICE_REGISTER_MSG)) {
                 DeviceMsg m = (DeviceMsg) msg;
-
+                handler.setDeviceName(m.getDeviceName());
                 handler.setNeedResponse(true);
 
                 IHandler oldHandler = linkManger.get(m.getDeviceName());
@@ -56,18 +57,20 @@ public class DeviceTask implements Runnable {
                     }
                 } catch (ClosedChannelException e) {
                     logger.error(m.getDeviceName() + " has been closed!");
+                } catch (Exception e) {
+                    logger.error(m.getDeviceName() + " close error!", e);
                 }
                 linkManger.remove(m.getDeviceName());
 
                 //todo 考虑实际设备名和设备上报的带sim卡信息的不一样
                 linkManger.add(m.getDeviceName(), handler);
-                handler.setDeviceName(m.getDeviceName());
 
                 Thread.sleep(delay);
 
                 DeviceResponseMsg m1 = new DeviceResponseMsg(DEVICE_REGISTER_RESPONSE_MSG);
                 m1.setTime(Instant.now());
                 m1.setDeviceType(m.getDeviceType());
+                m1.setSeq(m.getSeq());
                 handler.getSendList().add(m1.toByteBuffer());
                 handler.setNeedResponse(false);
                 handler.updateOps();
@@ -84,6 +87,7 @@ public class DeviceTask implements Runnable {
 
                 HeartBeatResponseMsg m1 = new HeartBeatResponseMsg(DEVICE_HEARTBEAT_RESPONSE_MSG);
                 m1.setDeviceType(m.getDeviceType());
+                m1.setSeq(m.getSeq());
                 handler.getSendList().add(m1.toByteBuffer());
                 handler.setNeedResponse(false);
                 handler.updateOps();
@@ -100,13 +104,11 @@ public class DeviceTask implements Runnable {
                         }
                     }
                 });
-
             }
 
             if (msg.getMsgType().equals(DEVICE_START_FINISH_MSG)) {
                 DeviceStartFinishMsg m = (DeviceStartFinishMsg) msg;
                 handler.setNeedSend(false);
-
                 linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap());
 
                 //k = {1,2,3,4}
@@ -126,12 +128,14 @@ public class DeviceTask implements Runnable {
             if (msg.getMsgType().equals(DEVICE_TASK_FINISH_MSG)) {
                 DeviceTaskFinishMsg m = (DeviceTaskFinishMsg) msg;
                 handler.setNeedResponse(true);
+                linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap());
+
                 DeviceTaskFinishResponseMsg m1 = new DeviceTaskFinishResponseMsg(DEVICE_TASK_FINISH_RESPONSE_MSG);
                 m1.setDeviceType(msg.getDeviceType());
+                m1.setSeq(m.getSeq());
                 handler.getSendList().add(m1.toByteBuffer());
                 handler.setNeedResponse(false);
                 handler.updateOps();
-
 
                 m.getMap().forEach((k, v) -> {
                     //如果上报消息的端口状态也是运行中，和设置一致，则需要解锁
@@ -140,24 +144,26 @@ public class DeviceTask implements Runnable {
                     }
                 });
 
-                linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap());
-
-
                 linkManger.getOrderService().finishOrder(handler.getDeviceName(), m.getMap());
             }
         } catch (InvalidMsgException e) {
-            logger.error("msg body check error!" + msg.getMsgType(), e);
-
-            try {
-                Thread.sleep(delay);
-            } catch (InterruptedException e1) {
-                logger.error(e.getMessage(), e);
+            if (e.getCode() == ErrorCode.DEVICE_XOR_ERROR.getCode()) {
+                logger.error("msg body check error!" + msg.getMsgType(), e);
+            }
+            if (e.getCode() == ErrorCode.DEVICE_SIM_FORMAT_ERROR.getCode()) {
+                logger.error("msg sim info check error!" + msg.getMsgType(), e);
             }
 
-            ServerErrorMsg m = new ServerErrorMsg(SERVER_ERROR_MSG);
-            m.setDeviceType(msg.getDeviceType());
-            handler.getSendList().add(m.toByteBuffer());
-            handler.updateOps();
+//            try {
+//                Thread.sleep(delay);
+//            } catch (InterruptedException e1) {
+//                logger.error(e.getMessage(), e);
+//            }
+
+//            ServerErrorMsg m = new ServerErrorMsg(SERVER_ERROR_MSG);
+//            m.setDeviceType(msg.getDeviceType());
+//            handler.getSendList().add(m.toByteBuffer());
+//            handler.updateOps();
 
         } catch (Exception e) {
             logger.error("other error!" + msg.getMsgType(), e);

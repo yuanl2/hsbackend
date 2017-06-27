@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -62,6 +63,15 @@ public class SocketHandler implements IHandler {
     private ReentrantLock lock = new ReentrantLock();
 
     private Condition condition = lock.newCondition();
+
+    private AtomicInteger seq = new AtomicInteger();
+
+    public int getSeq() {
+        if (seq.get() > 200) {
+            seq.set(0);
+        }
+        return seq.incrementAndGet();
+    }
 
     public SocketHandler() {
         for (int i = 1; i <= 4; i++) {
@@ -279,6 +289,7 @@ public class SocketHandler implements IHandler {
             hasConnected = false;
             try {
                 if (getSocketChannel() != null) {
+                    seq = null;
                     linkManger = null;
                     headBuffer = null;
                     bodyBuffer = null;

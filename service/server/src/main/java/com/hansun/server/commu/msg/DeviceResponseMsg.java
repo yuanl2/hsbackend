@@ -10,6 +10,7 @@ import java.util.Date;
 
 import static com.hansun.server.common.MsgConstant.BODY_LENGTH_FIELD_SIZE;
 import static com.hansun.server.common.MsgConstant.DEVICE_SEPARATOR_FIELD;
+import static com.hansun.server.common.MsgConstant.DEVICE_SEQ_FIELD_SIZE;
 
 /**
  * Created by yuanl2 on 2017/5/10.
@@ -32,16 +33,18 @@ public class DeviceResponseMsg extends AbstractMsg {
 
     @Override
     public ByteBuffer toByteBuffer() {
-        ByteBuffer sendBuffer = ByteBuffer.allocate(34);
+        ByteBuffer sendBuffer = ByteBuffer.allocate(38);
         StringBuilder headBuilder = new StringBuilder();
         headBuilder.append(getTitle()).append(getMsgType()).append(DEVICE_SEPARATOR_FIELD);
 
-        StringBuilder builder = new StringBuilder();
-        builder.append(getDeviceType()).append(DEVICE_SEPARATOR_FIELD).append(getTime(getTime())).append(DEVICE_SEPARATOR_FIELD);
-        byte[] body = builder.toString().getBytes();//17 byte
+        MsgOutputStream outBody = new MsgOutputStream();
+        outBody.writeString(MsgUtil.getMsgBodyLength(Integer.valueOf(getSeq()),DEVICE_SEQ_FIELD_SIZE)).writeString(DEVICE_SEPARATOR_FIELD)
+                .writeString(getDeviceType()).writeString(DEVICE_SEPARATOR_FIELD)
+                .writeString(getTime(getTime())).writeString(DEVICE_SEPARATOR_FIELD);
+        byte[] body = outBody.toBytes();//17 byte
 
         int bodySize = body.length + 5;
-        headBuilder.append(MsgUtil.getMsgBodyLength(bodySize,BODY_LENGTH_FIELD_SIZE)).append(DEVICE_SEPARATOR_FIELD);
+        headBuilder.append(MsgUtil.getMsgBodyLength(bodySize, BODY_LENGTH_FIELD_SIZE)).append(DEVICE_SEPARATOR_FIELD);
         byte[] head = headBuilder.toString().getBytes();
         sendBuffer.put(head);// 12 byte
         sendBuffer.put(body);

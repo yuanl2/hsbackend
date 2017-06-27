@@ -115,6 +115,7 @@ public class OrderService {
                 throw new ServerException("can not create order for handler for device not exist  " + device.getName());
             }
 
+            msg.setSeq(String.valueOf(handler.getSeq()));
             syncAsynMsgController.createSyncWaitResult(msg, handler,index);
             handler.sendMsg(msg, device.getPort());
         } catch (Exception e) {

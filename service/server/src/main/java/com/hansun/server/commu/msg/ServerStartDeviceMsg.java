@@ -10,6 +10,7 @@ import java.util.Map;
 
 import static com.hansun.server.common.MsgConstant.BODY_LENGTH_FIELD_SIZE;
 import static com.hansun.server.common.MsgConstant.DEVICE_SEPARATOR_FIELD;
+import static com.hansun.server.common.MsgConstant.DEVICE_SEQ_FIELD_SIZE;
 
 /**
  * Created by yuanl2 on 2017/5/16.
@@ -53,12 +54,14 @@ public class ServerStartDeviceMsg extends AbstractMsg {
 
     @Override
     public ByteBuffer toByteBuffer() {
-        ByteBuffer sendBuffer = ByteBuffer.allocate(31);
+        ByteBuffer sendBuffer = ByteBuffer.allocate(35);
         StringBuilder headBuilder = new StringBuilder();
         headBuilder.append(getTitle()).append(getMsgType()).append(DEVICE_SEPARATOR_FIELD);
         byte[] head = headBuilder.toString().getBytes();
 
         MsgOutputStream builder1 = new MsgOutputStream();
+        builder1.writeString(MsgUtil.getMsgBodyLength(Integer.valueOf(getSeq()), DEVICE_SEQ_FIELD_SIZE));
+        builder1.writeString(DEVICE_SEPARATOR_FIELD);
         builder1.writeString(getDeviceType());
         builder1.writeString(DEVICE_SEPARATOR_FIELD);
 
