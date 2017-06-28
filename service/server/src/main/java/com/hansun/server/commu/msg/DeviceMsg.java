@@ -85,7 +85,7 @@ public class DeviceMsg extends AbstractMsg {
 
         String simName = msgInputStream.readString(DEVICE_NAME_FIELD_SIZE);
 
-        if (!isLetterDigitOrChinese(simName)) {
+        if (!isLetterDigit(simName.substring(7,simName.length()))) {
             throw new InvalidMsgException("device sim name is invalid " + simName, ErrorCode.DEVICE_SIM_FORMAT_ERROR.getCode());
         }
 

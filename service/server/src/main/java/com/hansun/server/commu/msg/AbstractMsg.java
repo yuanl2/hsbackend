@@ -218,7 +218,7 @@ public abstract class AbstractMsg implements IMsg {
     }
 
 
-    public static boolean isLetterDigitOrChinese(String str) {
+    public static boolean isLetterDigit(String str) {
         String regex = "^[a-z0-9A-Z]+$";
         return str.matches(regex);
     }
