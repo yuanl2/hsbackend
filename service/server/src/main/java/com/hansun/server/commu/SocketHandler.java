@@ -67,7 +67,7 @@ public class SocketHandler implements IHandler {
     private AtomicInteger seq = new AtomicInteger();
 
     public int getSeq() {
-        if (seq.get() > 200) {
+        if (seq.get() > 998) {
             seq.set(0);
         }
         return seq.incrementAndGet();

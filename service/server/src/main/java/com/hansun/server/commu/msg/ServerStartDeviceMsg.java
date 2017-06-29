@@ -57,13 +57,12 @@ public class ServerStartDeviceMsg extends AbstractMsg {
         ByteBuffer sendBuffer = ByteBuffer.allocate(35);
         StringBuilder headBuilder = new StringBuilder();
         headBuilder.append(getTitle()).append(getMsgType()).append(DEVICE_SEPARATOR_FIELD);
-        byte[] head = headBuilder.toString().getBytes();
 
         MsgOutputStream builder1 = new MsgOutputStream();
-        builder1.writeString(MsgUtil.getMsgBodyLength(Integer.valueOf(getSeq()), DEVICE_SEQ_FIELD_SIZE));
+        builder1.writeString(MsgUtil.getMsgBodyLength(Integer.valueOf(getSeq()), DEVICE_SEQ_FIELD_SIZE));//4 byte
         builder1.writeString(DEVICE_SEPARATOR_FIELD);
-        builder1.writeString(getDeviceType());
-        builder1.writeString(DEVICE_SEPARATOR_FIELD);
+//        builder1.writeString(getDeviceType());//4 byte
+//        builder1.writeString(DEVICE_SEPARATOR_FIELD);
 
         status.forEach((k, v) -> {
             builder1.writeString(v);
@@ -77,6 +76,7 @@ public class ServerStartDeviceMsg extends AbstractMsg {
         byte[] body = builder1.toBytes();//14 byte
         int bodySize = body.length + 5;
         headBuilder.append(MsgUtil.getMsgBodyLength(bodySize, BODY_LENGTH_FIELD_SIZE)).append(DEVICE_SEPARATOR_FIELD);
+        byte[] head = headBuilder.toString().getBytes();
         sendBuffer.put(head);// 12 byte
         sendBuffer.put(body);
         StringBuilder sb = new StringBuilder();
