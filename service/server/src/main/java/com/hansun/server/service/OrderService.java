@@ -172,7 +172,7 @@ public class OrderService {
 
         });
 
-        dataStore.updateDeviceStatus(deviceBoxName, map);
+        dataStore.updateDeviceStatus(deviceBoxName, map, "0");
     }
 
 //    public void OrderNotFinish(String name, int orderStatus) {

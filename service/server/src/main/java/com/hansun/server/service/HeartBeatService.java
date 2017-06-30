@@ -107,7 +107,7 @@ public class HeartBeatService {
     class DeviceConnect implements DeviceListener<String> {
 
         @Override
-        public void connnect(String simid, Map map) {
+        public void connnect(String simid, Map map, String dup) {
             try {
                 Integer index = deviceIDMapSlot.get(simid);
                 if (index == null) {
@@ -124,7 +124,7 @@ public class HeartBeatService {
                     slotMapDeviceIDs.get(next).add(simid);
                     deviceIDMapSlot.put(simid,next);
                     //id只是设备盒子的id，具体对应4个具体的设备
-                    dataStore.updateDeviceStatus(simid, map);
+                    dataStore.updateDeviceStatus(simid, map, dup);
                 }
             } catch (Exception e) {
                 logger.error("DeviceConnect: connect error " + simid, e);
@@ -149,7 +149,7 @@ public class HeartBeatService {
             map.put(2,DeviceStatus.DISCONNECTED);
             map.put(3,DeviceStatus.DISCONNECTED);
             map.put(4,DeviceStatus.DISCONNECTED);
-            dataStore.updateDeviceStatus(simid,map);
+            dataStore.updateDeviceStatus(simid,map,"0");
         }
     }
 }

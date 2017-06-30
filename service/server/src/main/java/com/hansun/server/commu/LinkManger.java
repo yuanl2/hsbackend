@@ -105,12 +105,16 @@ public class LinkManger {
         listeners.add(listener);
     }
 
-    public void processHeart(String deviceName, Map map, Map portMap) {
-        listeners.forEach(l -> l.connnect(deviceName, map));
+    public void processHeart(String deviceName, Map map, Map portMap, String dup) {
+        listeners.forEach(l -> l.connnect(deviceName, map, dup));
 
         //需要判断当前设备所有端口是否还有订单，和设备运行时间是否相符合
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
 
+        updateOrderStatus(portMap, deviceList);
+    }
+
+    private void updateOrderStatus(Map portMap, List<Device> deviceList) {
         if (deviceList != null) {
             for (Device device : deviceList) {
                 Order order = orderService.getOrder(device.getId());

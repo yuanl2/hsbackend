@@ -45,7 +45,10 @@ public class HeartBeatMsg extends AbstractMsg {
     @Override
     public void validate() throws InvalidMsgException {
         int checkxor = getXOR();
+
         setSeq(msgInputStream.readString(DEVICE_SEQ_FIELD_SIZE));
+        msgInputStream.skipBytes(1);
+        setDup(msgInputStream.readString(DEVICE_DUP_FIELD_SIZE));
         msgInputStream.skipBytes(1);
 
         setDeviceType(msgInputStream.readString(DEVICE_TYPE_FIELD_SIZE));

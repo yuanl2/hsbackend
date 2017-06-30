@@ -57,6 +57,8 @@ public class DeviceTaskFinishMsg extends AbstractMsg {
 
         setSeq(msgInputStream.readString(DEVICE_SEQ_FIELD_SIZE));
         msgInputStream.skipBytes(1);
+        setDup(msgInputStream.readString(DEVICE_DUP_FIELD_SIZE));
+        msgInputStream.skipBytes(1);
 
         setDeviceType(msgInputStream.readString(DEVICE_TYPE_FIELD_SIZE));
         msgInputStream.skipBytes(1);

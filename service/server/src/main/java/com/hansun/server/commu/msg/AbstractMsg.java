@@ -13,10 +13,11 @@ import static com.hansun.server.common.MsgConstant.*;
 public abstract class AbstractMsg implements IMsg {
     private final static Logger logger = LoggerFactory.getLogger(AbstractMsg.class);
 
-    private String title = "TRV";
-    private String MsgType;
-    private String DeviceType;
-    private String seq;
+    protected String title = "TRV";
+    protected String MsgType;
+    protected String DeviceType;
+    protected String seq;
+    protected String dup;
     protected MsgInputStream msgInputStream;
 
     public void setMsgType(String msgType) {
@@ -76,6 +77,14 @@ public abstract class AbstractMsg implements IMsg {
 
     public void setSeq(String seq) {
         this.seq = seq;
+    }
+
+    public String getDup() {
+        return dup;
+    }
+
+    public void setDup(String dup) {
+        this.dup = dup;
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.hansun.server.db;
 
 import com.hansun.dto.*;
+import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.ServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -191,7 +192,7 @@ public class DataStore {
         return device;
     }
 
-    public void updateDeviceStatus(String simid, Map<Integer, Integer> portMap) {
+    public void updateDeviceStatus(String simid, Map<Integer, Integer> portMap, String dup) {
         List<Device> devices = deviceSimCache.get(simid);
 
         if (devices != null) {
@@ -208,6 +209,9 @@ public class DataStore {
                     int status = (int) portMap.get(device2.getPort());
                     //如果与当前设备状态不一致才需要更新
                     if (device2.getStatus() != status) {
+                        if(Integer.valueOf(dup) > 0){
+                            device2.setStatus(DeviceStatus.BADNETWORK);
+                        }
                         logger.info(simid + " device_id =" + device2.getId() + " update old status = " + device2.getStatus() + " new status = " + status);
                         device2.setStatus(status);
                         deviceTable.updateStatus(status, s.getId());

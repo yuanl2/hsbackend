@@ -8,4 +8,5 @@ public class DeviceStatus {
     public static final int IDLE = 1;
     public static final int INVALID = 2;
     public static final int SERVICE = 3;
+    public static final int BADNETWORK = 4;
 }

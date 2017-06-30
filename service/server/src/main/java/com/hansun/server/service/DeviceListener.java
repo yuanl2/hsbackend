@@ -7,7 +7,7 @@ import java.util.Map;
  */
 public interface DeviceListener<T> {
 
-    void connnect(T t, Map portMap);
+    void connnect(T t, Map portMap, String dup);
 
     void disconnect(T t);
 
