@@ -358,6 +358,9 @@ public class DataStore {
         return deviceSimCache.keySet();
     }
 
+    public boolean containDeviceBox(String deviceBox){
+       return deviceSimCache.containsKey(deviceBox);
+    }
     /*******************************************************************
      * Location
      * *****************************************************************

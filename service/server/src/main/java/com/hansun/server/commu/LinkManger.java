@@ -81,6 +81,9 @@ public class LinkManger {
         logger.info("LinkManger add deviceSimCard = " + id);
     }
 
+    public boolean isValidDevice(String deviceBox){
+        return deviceService.containDeviceBox(deviceBox);
+    }
 
     public void remove(String id) {
         try {

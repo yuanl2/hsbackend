@@ -206,6 +206,7 @@ public class ClientTask implements Runnable {
         headbuilder.append("AP00,");
         StringBuilder builder = new StringBuilder();
         builder.append("005,");
+        builder.append("00,");
         builder.append("000,");
         builder.append("0000,");
         builder.append("0000000015060000,");
@@ -239,6 +240,7 @@ public class ClientTask implements Runnable {
         headbuilder.append("AP01,");
         StringBuilder builder = new StringBuilder();
         builder.append("002,");
+        builder.append("00,");
         builder.append("000,");
         builder.append("0000,");
         builder.append("0000000015060000,");
@@ -269,6 +271,7 @@ public class ClientTask implements Runnable {
         headbuilder.append("AP03,");
         StringBuilder builder = new StringBuilder();
         builder.append("000,");
+        builder.append("00,");
         builder.append("000,");
         builder.append("1111,");
         builder.append("0501050015060200,");
@@ -300,6 +303,7 @@ public class ClientTask implements Runnable {
         headbuilder.append("AP05,");
         StringBuilder builder = new StringBuilder();
         builder.append("000,");
+        builder.append("00,");
         builder.append("000,");
         builder.append("0000,");
         builder.append("0000000000000000,");

@@ -46,6 +46,11 @@ public class DeviceTask implements Runnable {
             //如果是上电之后第一次上报状态和设备名，需要加入缓存中，以便后续下发消息使用
             if (msg.getMsgType().equals(DEVICE_REGISTER_MSG)) {
                 DeviceMsg m = (DeviceMsg) msg;
+
+                if (!linkManger.isValidDevice(m.getDeviceName())) {
+                    logger.error("no this deviceBox name = " + m.getDeviceName());
+                    return;
+                }
                 handler.setDeviceName(m.getDeviceName());
                 handler.setNeedResponse(true);
 

@@ -58,4 +58,8 @@ public class DeviceService {
     public List<Device> getDevicesByDeviceBox(String simID) {
         return dataStore.queryDeviceByDeviceBox(simID);
     }
+
+    public boolean containDeviceBox(String deviceBox){
+        return dataStore.containDeviceBox(deviceBox);
+    }
 }
