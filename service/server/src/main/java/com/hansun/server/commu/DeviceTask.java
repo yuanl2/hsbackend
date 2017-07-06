@@ -120,7 +120,7 @@ public class DeviceTask implements Runnable {
                 m.getMap().forEach((k, v) -> {
                     String s = handler.getDeviceName();
                     if (v == OrderStatus.SERVICE) {//device on port is running status
-                        linkManger.getOrderService().startOrder(s, k);  //SIM800_898602B8191650210001 1  (对应就是端口1的设备启动了)
+                        linkManger.getOrderService().processStartOrder(s, k);  //SIM800_898602B8191650210001 1  (对应就是端口1的设备启动了)
 
                         MsgWaitResult result = getHandler().getLinkManger().getSyncAsynMsgController().getMsgWaitResult(handler, k);
                         if (result != null) {
@@ -149,7 +149,7 @@ public class DeviceTask implements Runnable {
                     }
                 });
 
-                linkManger.getOrderService().finishOrder(handler.getDeviceName(), m.getMap());
+                linkManger.getOrderService().processFinishOrder(handler.getDeviceName(), m.getMap());
             }
         } catch (InvalidMsgException e) {
             if (e.getCode() == ErrorCode.DEVICE_XOR_ERROR.getCode()) {
@@ -158,18 +158,6 @@ public class DeviceTask implements Runnable {
             if (e.getCode() == ErrorCode.DEVICE_SIM_FORMAT_ERROR.getCode()) {
                 logger.error("msg sim info check error!" + msg.getMsgType(), e);
             }
-
-//            try {
-//                Thread.sleep(delay);
-//            } catch (InterruptedException e1) {
-//                logger.error(e.getMessage(), e);
-//            }
-
-//            ServerErrorMsg m = new ServerErrorMsg(SERVER_ERROR_MSG);
-//            m.setDeviceType(msg.getDeviceType());
-//            handler.getSendList().add(m.toByteBuffer());
-//            handler.updateOps();
-
         } catch (Exception e) {
             logger.error("other error!" + msg.getMsgType(), e);
         } finally {

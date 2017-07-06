@@ -215,6 +215,11 @@ public class DemoController {
 
         return "device_running";
     }
+
+    @RequestMapping("/report")
+    public String reportpage(Model model, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        return "report";
+    }
 }
 
 

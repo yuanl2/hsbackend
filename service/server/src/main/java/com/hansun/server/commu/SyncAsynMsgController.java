@@ -155,11 +155,13 @@ public class SyncAsynMsgController {
     private boolean processResult(MsgWaitResult result) {
         if (result.getResponseMsg() != null) {
             /* 如果已经设置了结果了，则需要notify */
+            logger.info("processResult receive response msg = " + result.getResponseMsg().getMsgType());
             result.notifyResponsed();
 
             return true;
         } else if (result.computeTimeout()) {
                 /* 如果超时了，需要进行超时处理 */
+            logger.info("processResult msg timeout = " + result.getRequestMsg().getMsgType());
             return result.notifyTimeout();
         }
 //
@@ -206,18 +208,5 @@ public class SyncAsynMsgController {
         synchronized (waitList) {
             return waitList.get(key);
         }
-    }
-
-    /**
-     * 对于服务器下发的启动设备命令，需要收到对应的设备启动成功命令才会停止重发机制
-     *
-     * @param msgType
-     * @return
-     */
-    private String getResponseMsgType(String msgType) {
-        if (msgType.equals("BP03")) {
-            return "AP03";
-        }
-        return null;
     }
 }

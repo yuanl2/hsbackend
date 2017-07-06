@@ -131,7 +131,7 @@ public class OrderService {
         return orderStore.insertOrder(order);
     }
 
-    public void startOrder(String deviceBoxName, int port) {
+    public void processStartOrder(String deviceBoxName, int port) {
         Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, port);
         Order order = orderStore.queryOrder(d.getId());
         if (order != null && order.getOrderStatus() != OrderStatus.SERVICE) {
@@ -148,7 +148,7 @@ public class OrderService {
         }
     }
 
-    public void finishOrder(String deviceBoxName, Map<Integer, Integer> map) {
+    public void processFinishOrder(String deviceBoxName, Map<Integer, Integer> map) {
         map.forEach((k, v) -> {
             Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, k);
             Order order = orderStore.queryOrder(d.getId());
