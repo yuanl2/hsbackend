@@ -17,11 +17,11 @@ import java.util.Optional;
  */
 public class OrderTable {
 
-    private static final String SELECT = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, ,createTime ,orderName,orderStatus FROM consumeorder WHERE orderID = ?";
-    private static final String SELECTBYDEVICE = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, ,createTime ,orderName,orderStatus FROM consumeorder WHERE startTime >= ? and endTime <= ? and deviceID in";
-    private static final String SELECTBYNAME = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, ,createTime ,orderName,orderStatus FROM consumeorder WHERE accountName = ?";
-    private static final String SELECT_ALL = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, ,createTime ,orderName,orderStatus FROM consumeorder";
-    private static final String SELECT_NOTFINISH = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, ,createTime ,orderName,orderStatus FROM consumeorder where endTime == null";
+    private static final String SELECT = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, createTime ,orderName,orderStatus FROM consumeorder WHERE orderID = ?";
+    private static final String SELECTBYDEVICE = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, createTime ,orderName,orderStatus FROM consumeorder WHERE startTime >= ? and endTime <= ? and deviceID in ";
+    private static final String SELECTBYNAME = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, createTime ,orderName,orderStatus FROM consumeorder WHERE accountName = ?";
+    private static final String SELECT_ALL = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, createTime ,orderName,orderStatus FROM consumeorder";
+    private static final String SELECT_NOTFINISH = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, createTime ,orderName,orderStatus FROM consumeorder where endTime == null";
 
     private static final String DELETE = "DELETE FROM consumeorder WHERE accountName = ?";
     private static final String INSERT = "INSERT INTO consumeorder (orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount, price, duration, createTime, orderName, orderStatus) VALUES (?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ? ,?)";
@@ -299,9 +299,9 @@ public class OrderTable {
             conn = connectionPoolManager.getConnection();
             selectStatement = conn.prepareStatement(SELECTBYDEVICE + builder.toString());
             selectStatement.setTimestamp(1, Timestamp.from(startTime));
-            selectStatement.setTimestamp(21, Timestamp.from(endTIme));
-            for (int i = 3; i <= deviceID.size(); i++) {
-                selectStatement.setLong(i, deviceID.get(i));
+            selectStatement.setTimestamp(2, Timestamp.from(endTIme));
+            for (int i = 0; i < deviceID.size(); i++) {
+                selectStatement.setLong(i+3, deviceID.get(i));
             }
             return Optional.ofNullable(selectStatement.executeQuery())
                     .map(resultSet -> {

@@ -11,7 +11,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -39,31 +43,33 @@ public class OrderController {
 
     @RequestMapping(value = "order/device/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> getOrderByDevice(@PathVariable Long id,
-                                              @RequestParam(value = "startTime", required = false) Instant startTime,
-                                              @RequestParam(value = "endTime", required = false) Instant endTime,
+                                              @RequestParam(value = "startTime", required = false) String startTime,
+                                              @RequestParam(value = "endTime", required = false) String endTime,
                                               UriComponentsBuilder ucBuilder) {
         logger.debug("get order by deviceid ", id);
-        List<Order> user = orderService.queryOrderByDevice(id, startTime, endTime);
+
+
+        List<Order> user = orderService.queryOrderByDevice(id, convertTime(startTime), convertTime(endTime));
         return new ResponseEntity<List<Order>>(user, HttpStatus.OK);
     }
 
     @RequestMapping(value = "order/user/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> getOrderByUser(@PathVariable String id,
-                                            @RequestParam(value = "startTime", required = false) Instant startTime,
-                                            @RequestParam(value = "endTime", required = false) Instant endTime,
+                                            @RequestParam(value = "startTime", required = false) String startTime,
+                                            @RequestParam(value = "endTime", required = false) String endTime,
                                             UriComponentsBuilder ucBuilder) {
         logger.debug("get order by userid ", id);
-        List<Order> user = orderService.queryOrderByUser(id, startTime, endTime);
+        List<Order> user = orderService.queryOrderByUser(id, convertTime(startTime), convertTime(endTime));
         return new ResponseEntity<List<Order>>(user, HttpStatus.OK);
     }
 
     @RequestMapping(value = "order/area/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> getOrderByArea(@PathVariable String id,
-                                            @RequestParam(value = "startTime", required = false) Instant startTime,
-                                            @RequestParam(value = "endTime", required = false) Instant endTime,
+                                            @RequestParam(value = "startTime", required = false) String startTime,
+                                            @RequestParam(value = "endTime", required = false) String endTime,
                                             UriComponentsBuilder ucBuilder) {
         logger.debug("get order by area ", id);
-        List<Order> user = orderService.queryOrderByArea(id, startTime, endTime);
+        List<Order> user = orderService.queryOrderByArea(id, convertTime(startTime), convertTime(endTime));
         return new ResponseEntity<List<Order>>(user, HttpStatus.OK);
     }
 
@@ -73,4 +79,20 @@ public class OrderController {
 //        orderService.deleteOrder(id);
 //        return new ResponseEntity<Order>(HttpStatus.NO_CONTENT);
 //    }
+
+
+    private static Instant convertTime(String time) {
+        try {
+            if(time == null){
+
+                return Instant.now();
+            }
+            DateFormat formatter1;
+            formatter1 = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
+            Date d = (Date) formatter1.parse(time);
+            return d.toInstant();
+        } catch (ParseException e) {
+            return null;
+        }
+    }
 }
