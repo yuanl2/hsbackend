@@ -1,6 +1,7 @@
 package com.hansun.server.controller;
 
 import com.hansun.dto.Order;
+import com.hansun.server.common.OrderDetail;
 import com.hansun.server.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +50,8 @@ public class OrderController {
         logger.debug("get order by deviceid ", id);
 
 
-        List<Order> user = orderService.queryOrderByDevice(id, convertTime(startTime), convertTime(endTime));
-        return new ResponseEntity<List<Order>>(user, HttpStatus.OK);
+        List<OrderDetail> user = orderService.queryOrderByDevice(id, convertTime(startTime), convertTime(endTime));
+        return new ResponseEntity<List<OrderDetail>>(user, HttpStatus.OK);
     }
 
     @RequestMapping(value = "order/user/{id}", method = RequestMethod.GET)
@@ -59,8 +60,8 @@ public class OrderController {
                                             @RequestParam(value = "endTime", required = false) String endTime,
                                             UriComponentsBuilder ucBuilder) {
         logger.debug("get order by userid ", id);
-        List<Order> user = orderService.queryOrderByUser(id, convertTime(startTime), convertTime(endTime));
-        return new ResponseEntity<List<Order>>(user, HttpStatus.OK);
+        List<OrderDetail> user = orderService.queryOrderByUser(id, convertTime(startTime), convertTime(endTime));
+        return new ResponseEntity<List<OrderDetail>>(user, HttpStatus.OK);
     }
 
     @RequestMapping(value = "order/area/{id}", method = RequestMethod.GET)
@@ -69,8 +70,8 @@ public class OrderController {
                                             @RequestParam(value = "endTime", required = false) String endTime,
                                             UriComponentsBuilder ucBuilder) {
         logger.debug("get order by area ", id);
-        List<Order> user = orderService.queryOrderByArea(id, convertTime(startTime), convertTime(endTime));
-        return new ResponseEntity<List<Order>>(user, HttpStatus.OK);
+        List<OrderDetail> user = orderService.queryOrderByArea(id, convertTime(startTime), convertTime(endTime));
+        return new ResponseEntity<List<OrderDetail>>(user, HttpStatus.OK);
     }
 
 //    @RequestMapping(value = "user/{id}", method = RequestMethod.DELETE)
@@ -88,7 +89,7 @@ public class OrderController {
                 return Instant.now();
             }
             DateFormat formatter1;
-            formatter1 = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
+            formatter1 = new SimpleDateFormat("yyyyMMddhhmmss");
             Date d = (Date) formatter1.parse(time);
             return d.toInstant();
         } catch (ParseException e) {

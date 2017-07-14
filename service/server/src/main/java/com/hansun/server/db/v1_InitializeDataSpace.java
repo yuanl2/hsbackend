@@ -61,7 +61,7 @@ public class v1_InitializeDataSpace {
 
         if (!manager.tableExists("location")) {
             manager.createTable("CREATE TABLE location (" +
-                    "locationID int(11) NOT NULL," +
+                    "locationID int(11) NOT NULL AUTO_INCREMENT," +
                     "provinceID int(11) NOT NULL," +
                     "cityID int(11) NOT NULL," +
                     "areaID int(11) NOT NULL," +

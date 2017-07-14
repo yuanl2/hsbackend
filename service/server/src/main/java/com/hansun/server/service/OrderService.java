@@ -3,9 +3,8 @@ package com.hansun.server.service;
 import com.hansun.dto.Device;
 import com.hansun.dto.Location;
 import com.hansun.dto.Order;
-import com.hansun.server.common.DeviceStatus;
-import com.hansun.server.common.OrderStatus;
-import com.hansun.server.common.ServerException;
+import com.hansun.dto.User;
+import com.hansun.server.common.*;
 import com.hansun.server.commu.*;
 import com.hansun.server.commu.msg.ServerStartDeviceMsg;
 
@@ -21,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
@@ -116,7 +116,7 @@ public class OrderService {
             }
 
             msg.setSeq(String.valueOf(handler.getSeq()));
-            syncAsynMsgController.createSyncWaitResult(msg, handler,index);
+            syncAsynMsgController.createSyncWaitResult(msg, handler, index);
             handler.sendMsg(msg, device.getPort());
         } catch (Exception e) {
             logger.error("createStartMsgToDevice error", e);
@@ -212,22 +212,61 @@ public class OrderService {
         orderStore.deleteOrder(deviceID);
     }
 
-    public List<Order> queryOrderByDevice(Long id, Instant startTime, Instant endTime) {
+    public List<OrderDetail> queryOrderByDevice(Long id, Instant startTime, Instant endTime) {
         List<Long> deviceIDs = new ArrayList<>();
         deviceIDs.add(id);
-        return orderStore.queryByDevice(deviceIDs, startTime, endTime);
+        List<Order> orderList = orderStore.queryByDevice(deviceIDs, startTime, endTime);
+        List<OrderDetail> orderDetailList = new ArrayList<>();
+
+        orderList.forEach(
+                k -> {
+                    try {
+                        OrderDetail orderDetail = new OrderDetail(k);
+                        Device device = dataStore.queryDeviceByDeviceID(k.getDeviceID());
+                        Location location = dataStore.queryLocationByLocationID(device.getLocationID());
+                        orderDetail.setAreaName(location.getAreaName());
+                        orderDetail.setAddress(location.getAddress());
+                        orderDetail.setDeviceName(device.getName());
+                        orderDetail.setUser(dataStore.queryUser(device.getOwnerID()).getName());
+                        orderDetail.setCity(location.getCity());
+                        orderDetail.setProvince(location.getProvince());
+                        orderDetailList.add(orderDetail);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                }
+        );
+        return orderDetailList;
     }
 
-    public List<Order> queryOrderByUser(String id, Instant startTime, Instant endTime) {
-        List<Device> devices = dataStore.queryDeviceByOwner(Integer.valueOf(id));
+    public List<OrderDetail> queryOrderByUser(String user, Instant startTime, Instant endTime) {
+        int id = -1;
+
+        List<Device> devices;
+        if (!Utils.isNumeric(user)) {
+            for (User u : dataStore.queryAllUser()
+                    ) {
+                if (u.getName().equals(user)) {
+                    id = u.getId();
+                }
+            }
+            devices = dataStore.queryDeviceByOwner(id);
+        } else {
+            devices = dataStore.queryDeviceByOwner(Integer.valueOf(user));
+        }
         List<Long> deviceIDs = new ArrayList<>();
         devices.forEach(k -> {
             deviceIDs.add(k.getId());
         });
-        return orderStore.queryByDevice(deviceIDs, startTime, endTime);
+
+        List<OrderDetail> orderDetailList = new ArrayList<>();
+        deviceIDs.forEach(
+                k -> orderDetailList.addAll(queryOrderByDevice(k, startTime, endTime))
+        );
+        return orderDetailList;
     }
 
-    public List<Order> queryOrderByArea(String id, Instant startTime, Instant endTime) {
+    public List<OrderDetail> queryOrderByArea(String id, Instant startTime, Instant endTime) {
         List<Location> locationList = dataStore.queryLocationByAreaID(Integer.valueOf(id));
         List<Long> deviceIDs = new ArrayList<>();
         locationList.forEach(k -> {
@@ -238,7 +277,11 @@ public class OrderService {
                 });
             }
         });
-        return orderStore.queryByDevice(deviceIDs, startTime, endTime);
+        List<OrderDetail> orderDetailList = new ArrayList<>();
+        deviceIDs.forEach(
+                k -> orderDetailList.addAll(queryOrderByDevice(k, startTime, endTime))
+        );
+        return orderDetailList;
     }
 
     public static String getSequenceNumber() {
