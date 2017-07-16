@@ -2,6 +2,7 @@ package com.hansun.server.commu;
 
 import com.hansun.dto.Device;
 import com.hansun.dto.Order;
+import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.HSServiceProperties;
 import com.hansun.server.common.OrderStatus;
 import com.hansun.server.commu.msg.MsgTime;
@@ -81,7 +82,7 @@ public class LinkManger {
         logger.info("LinkManger add deviceSimCard = " + id);
     }
 
-    public boolean isValidDevice(String deviceBox){
+    public boolean isValidDevice(String deviceBox) {
         return deviceService.containDeviceBox(deviceBox);
     }
 
@@ -129,13 +130,45 @@ public class LinkManger {
                             || Instant.now().isAfter(order.getStartTime().plus(Duration.ofMinutes(order.getDuration())))) {
                         //设备没有收到后续结束报文，所以收到心跳消息，判断当前设备是否还在运行，如果指示时间为0，而订单是运行中，则更新订单为finish
                         if (order.getOrderStatus() == OrderStatus.SERVICE) {
-                            logger.info(order.getId() + " update order status to " + OrderStatus.FINISH);
+                            logger.info(order.getId() + " update order status from service to " + OrderStatus.FINISH);
+                            order.setOrderStatus(OrderStatus.FINISH);
+                            order.setEndTime(Instant.now());
+                            orderService.updateOrder(order);
+
+                            device.setStatus(DeviceStatus.IDLE);
+                            deviceService.updateDevice(device);
+                            orderService.deleteOrder(device.getId());
+                            logger.info("order delete = " + order);
+                        } else if(order.getOrderStatus() == OrderStatus.FINISH){
+                            logger.error("order = " + order + " has finished! Delete error");
                             orderService.deleteOrder(device.getId());
                         } else {
-                            logger.info(order.getId() + " remove order " + order);
-                            orderService.removeOrder(device.getId());
+                            logger.error(order.getId() + " update order status from start to " + OrderStatus.FINISH);
+                            order.setOrderStatus(OrderStatus.FINISH);
+                            order.setEndTime(Instant.now());
+                            orderService.updateOrder(order);
+
+                            device.setStatus(DeviceStatus.IDLE);
+                            deviceService.updateDevice(device);
+                            orderService.deleteOrder(device.getId());
+                            logger.info("order delete = " + order);
                         }
                     }
+                } else if (msgTime.getTime() != 0) {
+                    if (order.getOrderStatus() == OrderStatus.START) {
+                        logger.info("update order before = " + order);
+                        order.setOrderStatus(OrderStatus.SERVICE);
+                        order.setStartTime(Instant.now());
+                        orderService.updateOrder(order);
+
+                        //不能等心跳消息来了再更新设备的状态，应该根据业务的回应及时更新
+                        device.setStatus(DeviceStatus.SERVICE);
+                        deviceService.updateDevice(device);
+                    } else if (order.getOrderStatus() == OrderStatus.FINISH) {
+                        logger.error("order = " + order + " status is error. Has finished!");
+                    }
+                } else {
+                    logger.error(device.getId() + " have no order now");
                 }
             }
         }

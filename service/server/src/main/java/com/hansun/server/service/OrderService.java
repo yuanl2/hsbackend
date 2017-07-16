@@ -22,6 +22,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
@@ -154,18 +155,20 @@ public class OrderService {
             Order order = orderStore.queryOrder(d.getId());
 
             if (order != null && v == DeviceStatus.IDLE) {
-                logger.info("update order before = " + order);
-                order.setOrderStatus(OrderStatus.FINISH);
-                order.setEndTime(Instant.now());
-                orderStore.updateOrder(order);
+                if (Instant.now().isAfter(order.getCreateTime().plus(Duration.ofMinutes(order.getDuration())))
+                        || Instant.now().isAfter(order.getStartTime().plus(Duration.ofMinutes(order.getDuration())))) {
+                    logger.info("update order before = " + order);
+                    order.setOrderStatus(OrderStatus.FINISH);
+                    order.setEndTime(Instant.now());
+                    orderStore.updateOrder(order);
 
-                d.setStatus(DeviceStatus.IDLE);
-                dataStore.updateDevice(d);
+                    d.setStatus(DeviceStatus.IDLE);
+                    dataStore.updateDevice(d);
 
-                //remove order from cache not table
-                orderStore.deleteOrder(d.getId());
-                logger.info("order delete = " + order);
-
+                    //remove order from cache not table
+                    orderStore.deleteOrder(d.getId());
+                    logger.info("order delete = " + order);
+                }
             } else {
                 logger.error(d.getId() + " have no order now");
             }

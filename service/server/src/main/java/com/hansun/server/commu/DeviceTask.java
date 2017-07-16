@@ -120,7 +120,7 @@ public class DeviceTask implements Runnable {
                 m.getMap().forEach((k, v) -> {
                     String s = handler.getDeviceName();
                     if (v == OrderStatus.SERVICE) {//device on port is running status
-                        linkManger.getOrderService().processStartOrder(s, k);  //SIM800_898602B8191650210001 1  (对应就是端口1的设备启动了)
+//                        linkManger.getOrderService().processStartOrder(s, k);  //SIM800_898602B8191650210001 1  (对应就是端口1的设备启动了)
 
                         MsgWaitResult result = getHandler().getLinkManger().getSyncAsynMsgController().getMsgWaitResult(handler, k);
                         if (result != null) {
@@ -147,9 +147,9 @@ public class DeviceTask implements Runnable {
                     if (handler.getPortStatus().get(k).equals(v)) {
                         handler.setNeedSend(false);
                     }
-                });
+            });
 
-                linkManger.getOrderService().processFinishOrder(handler.getDeviceName(), m.getMap());
+//                linkManger.getOrderService().processFinishOrder(handler.getDeviceName(), m.getMap());
             }
         } catch (InvalidMsgException e) {
             if (e.getCode() == ErrorCode.DEVICE_XOR_ERROR.getCode()) {
