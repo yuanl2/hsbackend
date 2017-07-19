@@ -36,6 +36,7 @@ public class v1_InitializeDataSpace {
                     "userName VARCHAR(45) NOT NULL," +
                     "password VARCHAR(45) NOT NULL," +
                     "addtionInfo VARCHAR(45) NULL," +
+                    "created DATETIME NOT NULL," +
                     "expired DATETIME NOT NULL," +
                     "role VARCHAR(45) NOT NULL," +
                     "islocked tinyint(4) DEFAULT NULL," +

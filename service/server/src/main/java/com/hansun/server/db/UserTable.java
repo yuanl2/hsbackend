@@ -15,12 +15,12 @@ import java.util.Optional;
  * Created by yuanl2 on 2017/3/29.
  */
 public class UserTable {
-    private static final String SELECT = "SELECT userID, userType, userName, password, addtionInfo, expired ,role, islocked FROM user WHERE userID = ?";
-    private static final String SELECTBYNAME = "SELECT userID, userType, userName, password, addtionInfo, expired ,role, islocked FROM user WHERE userName = ?";
-    private static final String SELECT_ALL = "SELECT userID, userType, userName, password, addtionInfo, expired,role, islocked FROM user";
+    private static final String SELECT = "SELECT userID, userType, userName, password, addtionInfo, expired ,role, islocked, created FROM user WHERE userID = ?";
+    private static final String SELECTBYNAME = "SELECT userID, userType, userName, password, addtionInfo, expired ,role, islocked, created FROM user WHERE userName = ?";
+    private static final String SELECT_ALL = "SELECT userID, userType, userName, password, addtionInfo, expired,role, islocked, created FROM user";
     private static final String DELETE = "DELETE FROM user WHERE userID = ?";
-    private static final String INSERT = "INSERT INTO user (userType, userName, password, addtionInfo, expired, role, islocked) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    private static final String UPDATE = "UPDATE user SET userType = ? , userName = ? , password = ? , addtionInfo = ? , expired = ? , role = ?, islocked = ? WHERE userID = ?";
+    private static final String INSERT = "INSERT INTO user (userType, userName, password, addtionInfo, expired, role, islocked, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String UPDATE = "UPDATE user SET userType = ? , userName = ? , password = ? , addtionInfo = ? , expired = ? , role = ?, islocked = ? , created = ? WHERE userID = ?";
 
     private ConnectionPoolManager connectionPoolManager;
 
@@ -49,6 +49,11 @@ public class UserTable {
             }
             insertStatement.setString(6, user.getRole());
             insertStatement.setBoolean(7, user.isLocked());
+            if (user.getCreateTime() != null) {
+                insertStatement.setTimestamp(8, Timestamp.from(user.getCreateTime()));
+            } else {
+                insertStatement.setTimestamp(8, null);
+            }
             insertStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -87,6 +92,11 @@ public class UserTable {
             }
             updateStatement.setString(6, user.getRole());
             updateStatement.setBoolean(7, user.isLocked());
+            if (user.getCreateTime() != null) {
+                insertStatement.setTimestamp(8, Timestamp.from(user.getCreateTime()));
+            } else {
+                insertStatement.setTimestamp(8, null);
+            }
             updateStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -157,6 +167,10 @@ public class UserTable {
                                 }
                                 user.setRole(resultSet.getString("role"));
                                 user.setLocked(resultSet.getBoolean("islocked"));
+                                Timestamp createdTime = resultSet.getTimestamp("created");
+                                if (createdTime != null) {
+                                    user.setCreateTime(createdTime.toInstant());
+                                }
                                 return user;
                             }
                             return null;
@@ -212,6 +226,10 @@ public class UserTable {
                                 }
                                 user.setRole(resultSet.getString("role"));
                                 user.setLocked(resultSet.getBoolean("islocked"));
+                                Timestamp createdTime = resultSet.getTimestamp("created");
+                                if (createdTime != null) {
+                                    user.setCreateTime(createdTime.toInstant());
+                                }
                                 return user;
                             }
                             return null;
@@ -267,6 +285,10 @@ public class UserTable {
                                 }
                                 user.setRole(resultSet.getString("role"));
                                 user.setLocked(resultSet.getBoolean("islocked"));
+                                Timestamp createdTime = resultSet.getTimestamp("created");
+                                if (createdTime != null) {
+                                    user.setCreateTime(createdTime.toInstant());
+                                }
                                 list.add(user);
                             }
                             return list;

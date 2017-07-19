@@ -27,6 +27,11 @@ public class User implements UserDetails {
     @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
     private Instant expiredTime;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
+    @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
+    private Instant createTime;
+
     public int getId() {
         return id;
     }
@@ -121,6 +126,14 @@ public class User implements UserDetails {
         this.locked = locked;
     }
 
+    public Instant getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Instant createTime) {
+        this.createTime = createTime;
+    }
+
     @Override
     public String toString() {
         return "user{" +
@@ -128,6 +141,7 @@ public class User implements UserDetails {
                 ", userType=" + userType +
                 ", name=" + name + "\n" +
                 ", addtionInfo=" + addtionInfo +
+                ", createTime=" + (createTime == null ? null : createTime.toString()) +
                 ", expiredTime=" + (expiredTime == null ? null : expiredTime.toString()) +
                 ", locked=" + locked +
                 ", role=" + role +
