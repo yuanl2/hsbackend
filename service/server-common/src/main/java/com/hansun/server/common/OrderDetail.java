@@ -21,7 +21,8 @@ public class OrderDetail extends Order {
     private String cTime;
     private String sTime;
     private String month;
-    private String day;
+    private int day;
+    private String createDate;
     private String eTime;
     private long id;
     private long deviceID;
@@ -51,7 +52,8 @@ public class OrderDetail extends Order {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
             month = (calendar.get(Calendar.MONTH) + 1) + "月份";
-            day = new SimpleDateFormat("yyyy-MM-dd").format(date);
+            day = calendar.get(Calendar.DAY_OF_MONTH);
+            createDate = new SimpleDateFormat("yyyy-MM-dd").format(date);
             cTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
 
             createTime = order.getStartTime();
@@ -221,11 +223,15 @@ public class OrderDetail extends Order {
         return month;
     }
 
-    public String getDay() {
+    public int getDay() {
         return day;
     }
 
     public String geteTime() {
         return eTime;
+    }
+
+    public String getCreateDate() {
+        return createDate;
     }
 }

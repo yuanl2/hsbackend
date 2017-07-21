@@ -2,6 +2,7 @@ package com.hansun.server.controller;
 
 import com.hansun.dto.Order;
 import com.hansun.server.common.OrderDetail;
+import com.hansun.server.common.OrderStatisticsForUser;
 import com.hansun.server.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +73,16 @@ public class OrderController {
         logger.debug("get order by area ", id);
         List<OrderDetail> user = orderService.queryOrderByArea(id, convertTime(startTime), convertTime(endTime));
         return new ResponseEntity<List<OrderDetail>>(user, HttpStatus.OK);
+    }
+
+
+    @RequestMapping(value = "order/info/{user}", method = RequestMethod.GET)
+    public ResponseEntity<?> getOrderStatisticsByUser(@PathVariable String user,
+                                            @RequestParam(value = "endTime", required = false) String endTime,
+                                            UriComponentsBuilder ucBuilder) {
+        logger.debug("get order Statistics by user ", user);
+        OrderStatisticsForUser orderStatisticsForUser = orderService.queryOrderStatisticsByUser(user, convertTime(endTime));
+        return new ResponseEntity<OrderStatisticsForUser>(orderStatisticsForUser, HttpStatus.OK);
     }
 
 //    @RequestMapping(value = "user/{id}", method = RequestMethod.DELETE)
