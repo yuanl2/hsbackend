@@ -19,9 +19,9 @@ import static com.hansun.server.common.MsgConstant.*;
 public class DeviceTask implements Runnable {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private IHandler handler;
-    private IMsg msg;
-    private int delay;
+    protected IHandler handler;
+    protected IMsg msg;
+    protected int delay;
 
     public DeviceTask(IHandler handler, IMsg msg, int delay) {
         this.handler = handler;

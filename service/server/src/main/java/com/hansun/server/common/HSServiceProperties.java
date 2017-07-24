@@ -27,9 +27,11 @@ public class HSServiceProperties {
 
     private static final String SOCKET_ADDRESS = "socket.socketaddress";
     private static final String SOCKET_PORT = "socket.socketport";
+    private static final String SOCKET_PORT_4G = "socket.socketport4g";
 
     private static final String DEFAULT_SOCKET_ADDRESS = "localhost";
-    private static final String DEFAULT_SOCKET_PORT = "9090";
+    private static final String DEFAULT_SOCKET_PORT = "8090";
+    private static final String DEFAULT_SOCKET_PORT_4G = "8089";
 
     private static final String HEART_BEAT_INTERNAL = "socket.heartbeatinternal";
     private static final String DEFAULT_HEART_BEAT_INTERNAL = "3000000";
@@ -113,6 +115,10 @@ public class HSServiceProperties {
 
     public String getSocketPort() {
         return env.getProperty(SOCKET_PORT, DEFAULT_SOCKET_PORT);
+    }
+
+    public String getSocketPort4G() {
+        return env.getProperty(SOCKET_PORT_4G, DEFAULT_SOCKET_PORT_4G);
     }
 
     public String getHeartBeatInternal() {
