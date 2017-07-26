@@ -118,6 +118,14 @@ public class LinkManger {
         updateOrderStatus(portMap, deviceList);
     }
 
+    public void updateDeviceLoginTime(String deviceName){
+        List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
+        for (Device device : deviceList) {
+            device.setLoginTime(Instant.now());
+            deviceService.updateDevice(device);
+        }
+    }
+
     private void updateOrderStatus(Map portMap, List<Device> deviceList) {
         if (deviceList != null) {
             for (Device device : deviceList) {

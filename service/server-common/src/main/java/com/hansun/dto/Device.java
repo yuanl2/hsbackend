@@ -26,6 +26,10 @@ public class Device {
     private int ownerID;
     private String owner;
     private int status;
+
+    @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
+    @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
+    private Instant loginTime;
     /**
      * 设备上报的sim卡名字，初始化连接带有sim卡信息
      */
@@ -155,6 +159,14 @@ public class Device {
         this.port = port;
     }
 
+    public Instant getLoginTime() {
+        return loginTime;
+    }
+
+    public void setLoginTime(Instant loginTime) {
+        this.loginTime = loginTime;
+    }
+
     @Override
     public String toString() {
         return "device{" +
@@ -172,6 +184,8 @@ public class Device {
                 ", status=" + status +
                 ", simCard=" + simCard +
                 ", port=" + port +
+                ", beginTime=" + beginTime +
+                ", loginTime=" + loginTime +
                 "}";
     }
 
