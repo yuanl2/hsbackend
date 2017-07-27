@@ -25,6 +25,7 @@ public class v1_InitializeDataSpace {
                     "simcard  varchar(45) NOT NULL," +
                     "port INT(4) NOT NULL DEFAULT 1," +
                     "loginTime DATETIME DEFAULT NULL," +
+                    "logoutTime DATETIME DEFAULT NULL," +
                     "PRIMARY KEY (deviceID)," +
                     "UNIQUE KEY deviceID_UNIQUE (deviceID))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");

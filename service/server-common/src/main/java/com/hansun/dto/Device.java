@@ -30,6 +30,10 @@ public class Device {
     @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
     @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
     private Instant loginTime;
+
+    @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
+    @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
+    private Instant logoutTime;
     /**
      * 设备上报的sim卡名字，初始化连接带有sim卡信息
      */
@@ -167,6 +171,14 @@ public class Device {
         this.loginTime = loginTime;
     }
 
+    public Instant getLogoutTime() {
+        return logoutTime;
+    }
+
+    public void setLogoutTime(Instant logoutTime) {
+        this.logoutTime = logoutTime;
+    }
+
     @Override
     public String toString() {
         return "device{" +
@@ -186,6 +198,7 @@ public class Device {
                 ", port=" + port +
                 ", beginTime=" + beginTime +
                 ", loginTime=" + loginTime +
+                ", logoutTime=" + logoutTime +
                 "}";
     }
 

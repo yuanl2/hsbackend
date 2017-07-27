@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
@@ -209,12 +210,15 @@ public class DataStore {
                     int status = (int) portMap.get(device2.getPort());
                     //如果与当前设备状态不一致才需要更新
                     if (device2.getStatus() != status) {
+                        if(status == DeviceStatus.DISCONNECTED){
+                            device2.setLogoutTime(Instant.now());
+                        }
                         if(Integer.valueOf(dup) > 0){
                             device2.setStatus(DeviceStatus.BADNETWORK);
                         }
                         logger.info(simid + " device_id =" + device2.getId() + " update old status = " + device2.getStatus() + " new status = " + status);
                         device2.setStatus(status);
-                        deviceTable.updateStatus(status, s.getId());
+                        deviceTable.update(device2,device2.getId());
                         deviceCache.put(s.getId(), device2);
                     }
                 }

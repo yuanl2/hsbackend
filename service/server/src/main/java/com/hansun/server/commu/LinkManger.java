@@ -126,6 +126,14 @@ public class LinkManger {
         }
     }
 
+    public void updateDeviceLogoutTime(String deviceName){
+        List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
+        for (Device device : deviceList) {
+            device.setLogoutTime(Instant.now());
+            deviceService.updateDevice(device);
+        }
+    }
+
     private void updateOrderStatus(Map portMap, List<Device> deviceList) {
         if (deviceList != null) {
             for (Device device : deviceList) {
