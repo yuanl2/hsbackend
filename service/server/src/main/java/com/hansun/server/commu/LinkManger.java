@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -66,6 +67,16 @@ public class LinkManger {
     @PreDestroy
     public void shutdown() {
         logger.info("Shutting down LinkManger");
+
+        map.forEach((k, v) -> {
+            try {
+                v.handleClose();
+            } catch (IOException e) {
+
+            }
+            updateDeviceLogoutTime(k);
+        });
+
         executorService.shutdown();
     }
 
@@ -121,6 +132,7 @@ public class LinkManger {
     public void updateDeviceLoginTime(String deviceName){
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
         for (Device device : deviceList) {
+            device.setStatus(DeviceStatus.IDLE);
             device.setLoginTime(Instant.now());
             deviceService.updateDevice(device);
         }
@@ -177,9 +189,11 @@ public class LinkManger {
                         order.setStartTime(Instant.now());
                         orderService.updateOrder(order);
 
-                        //不能等心跳消息来了再更新设备的状态，应该根据业务的回应及时更新
-                        device.setStatus(DeviceStatus.SERVICE);
-                        deviceService.updateDevice(device);
+                        if (device.getStatus() != DeviceStatus.SERVICE) {
+                            //不能等心跳消息来了再更新设备的状态，应该根据业务的回应及时更新
+                            device.setStatus(DeviceStatus.SERVICE);
+                            deviceService.updateDevice(device);
+                        }
                     } else if (order.getOrderStatus() == OrderStatus.FINISH) {
                         logger.error("order = " + order + " status is error. Has finished!");
                     }
