@@ -176,14 +176,14 @@ public abstract class AbstractMsg implements IMsg {
     public String toString() {
         StringBuffer strBuffer = new StringBuffer();
 
-        strBuffer.append("Msg\n");
+        strBuffer.append("Msg = ");
         strBuffer.append("msgHeader:msgTitle= " + getTitle());
         strBuffer.append(" msgType=" + getMsgType());
         strBuffer.append(" deviceType=" + getDeviceType());
-        strBuffer.append("\n");
-        strBuffer.append("msgHead:" + getMsgHeadStr(msgHead));
-        strBuffer.append("\n");
-        strBuffer.append("msgBody:" + getMsgBodyStr(msgBody));
+//        strBuffer.append("\n");
+        strBuffer.append(" msgHead:" + getMsgHeadStr(msgHead));
+//        strBuffer.append("\n");
+        strBuffer.append(" msgBody:" + getMsgBodyStr(msgBody));
         return strBuffer.toString();
     }
 

@@ -129,6 +129,9 @@ public class OrderService {
 
         createStartMsgToDevice(order);
         order.setOrderStatus(OrderStatus.START);
+        Device device = dataStore.queryDeviceByDeviceID(order.getDeviceID());
+        device.setStatus(DeviceStatus.SERVICE);
+        dataStore.updateDevice(device);
         return orderStore.insertOrder(order);
     }
 

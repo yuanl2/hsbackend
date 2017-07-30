@@ -83,9 +83,9 @@ public class SocketHandler implements IHandler {
         try {
             lock.lock();
             if (needSend) {
-                logger.info(deviceName + " isNeedSend wait for sending");
+                logger.debug(deviceName + " isNeedSend wait for sending");
                 condition.await(5, TimeUnit.SECONDS);
-                logger.info(deviceName + " isNeedSend now can send");
+                logger.debug(deviceName + " isNeedSend now can send");
             }
         } catch (Exception e) {
             logger.error(deviceName + " setNeedSend " + needSend, e);
@@ -99,7 +99,7 @@ public class SocketHandler implements IHandler {
         try {
             lock.lock();
             this.needSend = needSend;
-            logger.info(deviceName + " setNeedSend = " + needSend);
+            logger.debug(deviceName + " setNeedSend = " + needSend);
             if (!needSend) {
                 condition.signalAll();
             }
@@ -115,9 +115,9 @@ public class SocketHandler implements IHandler {
         synchronized (object) {
             if (needResponse) {
                 try {
-                    logger.info(deviceName + " isNeedResponse wait for sending");
+                    logger.debug(deviceName + " isNeedResponse wait for sending");
                     object.wait();
-                    logger.info(deviceName + " isNeedResponse now can send");
+                    logger.debug(deviceName + " isNeedResponse now can send");
                 } catch (InterruptedException e) {
                     logger.error(deviceName + " object.wait() error", e);
                 }
@@ -129,7 +129,7 @@ public class SocketHandler implements IHandler {
     public void setNeedResponse(boolean needResponse) {
         synchronized (object) {
             this.needResponse = needResponse;
-            logger.info(deviceName + " setNeedResponse = " + needResponse);
+            logger.debug(deviceName + " setNeedResponse = " + needResponse);
             if (!needResponse) {//如果设置为true，则说明回文发送了，等待的业务消息可以接着发送
                 object.notifyAll();
             }
@@ -252,7 +252,7 @@ public class SocketHandler implements IHandler {
         headBuffer.clear();
         bodyBuffer.clear();
         if (msg != null) {
-            logger.info("device " + getSocketChannel().getRemoteAddress() + " msg " + msg.toString());
+            logger.info("device " + getSocketChannel().getRemoteAddress() + " deviceBoxName = " + getDeviceName() + " msg " + msg.toString());
             linkManger.process(new DeviceTask(this, msg, Integer.parseInt(linkManger.getResponseDelay())));
         }
     }
@@ -336,7 +336,7 @@ public class SocketHandler implements IHandler {
         try {
             lock.lock();
             while (needSend && !Thread.currentThread().isInterrupted()) {
-                logger.info(deviceName + " isNeedSend wait for sending");
+                logger.debug(deviceName + " isNeedSend wait for sending");
                 //如果之前的业务消息还未收到设备回复，也需要等待
                 condition.await(10, TimeUnit.SECONDS);
 
@@ -345,7 +345,7 @@ public class SocketHandler implements IHandler {
                     return;
                 }
             }
-            logger.info(deviceName + " isNeedSend now can send");
+            logger.debug(deviceName + " isNeedSend now can send");
             needSend = true;
             getSendList().add(msg.toByteBuffer());
             updateOps();
