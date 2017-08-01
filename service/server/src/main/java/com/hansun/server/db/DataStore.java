@@ -209,18 +209,24 @@ public class DataStore {
                 } else {
                     int status = (int) portMap.get(device2.getPort());
                     //如果与当前设备状态不一致才需要更新
-                    if (device2.getStatus() != status) {
-                        if(status == DeviceStatus.DISCONNECTED){
-                            device2.setLogoutTime(Instant.now());
-                        }
-                        if(Integer.valueOf(dup) > 0){
-                            device2.setStatus(DeviceStatus.BADNETWORK);
-                        }
-                        logger.info(simid + " device_id =" + device2.getId() + " update old status = " + device2.getStatus() + " new status = " + status);
+
+                    int oldStatus = device2.getStatus();
+                    if (status == DeviceStatus.DISCONNECTED) {
+                        device2.setLogoutTime(Instant.now());
                         device2.setStatus(status);
-                        deviceTable.update(device2,device2.getId());
+                    }
+                    if (Integer.valueOf(dup) > 1) {
+                        device2.setStatus(DeviceStatus.BADNETWORK);
+                    }
+                    //只需要设备断联或者重发报文才需要更新设备的状态
+                    //如果上报的是空闲状态，后续更新订单状态时会更新设备的状态的
+
+                    if (device2.getStatus() != oldStatus) {
+                        logger.info(simid + " device_id =" + device2.getId() + " update old status = " + device2.getStatus() + " new status = " + status);
+                        deviceTable.update(device2, device2.getId());
                         deviceCache.put(s.getId(), device2);
                     }
+
                 }
             }
         } else {

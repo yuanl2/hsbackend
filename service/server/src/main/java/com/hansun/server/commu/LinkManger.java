@@ -198,7 +198,7 @@ public class LinkManger {
                         logger.error("order = " + order + " status is error. Has finished!");
                     }
                 } else {
-                    logger.error(device.getId() + " have no order now");
+                    logger.debug(device.getId() + " have no order now");
                 }
             }
         }

@@ -107,8 +107,8 @@ public class TimerService {
 
                     logger.debug("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
 
-                    if (d.getStatus() == DeviceStatus.SERVICE || d.getStatus() == DeviceStatus.DISCONNECTED) {
-                        Thread.sleep((random.nextInt(5) + 10) * 1000);
+                    if (d.getStatus() == DeviceStatus.SERVICE || d.getStatus() == DeviceStatus.DISCONNECTED || d.getStatus() == DeviceStatus.BADNETWORK) {
+                        Thread.sleep((random.nextInt(10) + 20) * 1000);
                     } else {
                         logger.info("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
                         Order order = new Order();
@@ -129,7 +129,7 @@ public class TimerService {
 //
 //                        //wait for task finish
 //                        Thread.sleep(sleep * 60 * 1000);
-                        Thread.sleep((random.nextInt(6) * 5 + 70) * 1000);
+                        Thread.sleep((random.nextInt(6) * 5 + 120) * 1000);
                     }
                 } catch (Exception e) {
                     logger.error("device_id = " + device_id, e);
