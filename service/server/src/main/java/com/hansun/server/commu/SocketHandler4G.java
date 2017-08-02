@@ -27,7 +27,7 @@ import static com.hansun.server.common.MsgConstant.*;
 /**
  * Created by yuanl2 on 2017/5/9.
  */
-public class SocketHandler4G implements IHandler {
+public class SocketHandler4G extends AbstractHandler implements IHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -55,21 +55,21 @@ public class SocketHandler4G implements IHandler {
      */
     private SelectionKey selectionKey;
 
-    private boolean needResponse;
-
-    private Object object = new Object();
-
-
-    private boolean needSend;
-
-    private ReentrantLock lock = new ReentrantLock();
-
-    private Condition condition = lock.newCondition();
+//    private boolean needResponse;
+//
+//    private Object object = new Object();
+//
+//
+//    private boolean needSend;
+//
+//    private ReentrantLock lock = new ReentrantLock();
+//
+//    private Condition condition = lock.newCondition();
 
     private AtomicInteger seq = new AtomicInteger();
 
     public int getSeq() {
-        if (seq.get() > 998) {
+        if (seq.get() > 254) {
             seq.set(0);
         }
         return seq.incrementAndGet();
@@ -81,62 +81,62 @@ public class SocketHandler4G implements IHandler {
         }
     }
 
-    public boolean isNeedSend() {
-        try {
-            lock.lock();
-            if (needSend) {
-                logger.info(deviceName + " isNeedSend wait for sending");
-                condition.await(5, TimeUnit.SECONDS);
-                logger.info(deviceName + " isNeedSend now can send");
-            }
-        } catch (Exception e) {
-            logger.error(deviceName + " setNeedSend " + needSend, e);
-        } finally {
-            lock.unlock();
-        }
-        return needSend;
-    }
-
-    public void setNeedSend(boolean needSend) {
-        try {
-            lock.lock();
-            this.needSend = needSend;
-            logger.info(deviceName + " setNeedSend = " + needSend);
-            if (!needSend) {
-                condition.signalAll();
-            }
-        } catch (Exception e) {
-            logger.error(deviceName + " setNeedSend " + needSend, e);
-        } finally {
-            lock.unlock();
-        }
-
-    }
-
-    public boolean isNeedResponse() {
-        synchronized (object) {
-            if (needResponse) {
-                try {
-                    logger.info(deviceName + " isNeedResponse wait for sending");
-                    object.wait();
-                    logger.info(deviceName + " isNeedResponse now can send");
-                } catch (InterruptedException e) {
-                    logger.error(deviceName + " object.wait() error", e);
-                }
-            }
-            return needResponse;
-        }
-    }
-
-    public void setNeedResponse(boolean needResponse) {
-        synchronized (object) {
-            this.needResponse = needResponse;
-            logger.info(deviceName + " setNeedResponse = " + needResponse);
-            if (!needResponse) {//如果设置为true，则说明回文发送了，等待的业务消息可以接着发送
-                object.notifyAll();
-            }
-        }
-    }
+//    public boolean isNeedSend() {
+//        try {
+//            lock.lock();
+//            if (needSend) {
+//                logger.info(deviceName + " isNeedSend wait for sending");
+//                condition.await(5, TimeUnit.SECONDS);
+//                logger.info(deviceName + " isNeedSend now can send");
+//            }
+//        } catch (Exception e) {
+//            logger.error(deviceName + " setNeedSend " + needSend, e);
+//        } finally {
+//            lock.unlock();
+//        }
+//        return needSend;
+//    }
+//
+//    public void setNeedSend(boolean needSend) {
+//        try {
+//            lock.lock();
+//            this.needSend = needSend;
+//            logger.info(deviceName + " setNeedSend = " + needSend);
+//            if (!needSend) {
+//                condition.signalAll();
+//            }
+//        } catch (Exception e) {
+//            logger.error(deviceName + " setNeedSend " + needSend, e);
+//        } finally {
+//            lock.unlock();
+//        }
+//
+//    }
+//
+//    public boolean isNeedResponse() {
+//        synchronized (object) {
+//            if (needResponse) {
+//                try {
+//                    logger.info(deviceName + " isNeedResponse wait for sending");
+//                    object.wait();
+//                    logger.info(deviceName + " isNeedResponse now can send");
+//                } catch (InterruptedException e) {
+//                    logger.error(deviceName + " object.wait() error", e);
+//                }
+//            }
+//            return needResponse;
+//        }
+//    }
+//
+//    public void setNeedResponse(boolean needResponse) {
+//        synchronized (object) {
+//            this.needResponse = needResponse;
+//            logger.info(deviceName + " setNeedResponse = " + needResponse);
+//            if (!needResponse) {//如果设置为true，则说明回文发送了，等待的业务消息可以接着发送
+//                object.notifyAll();
+//            }
+//        }
+//    }
 
     /**
      * 设置socketChannel
@@ -241,7 +241,7 @@ public class SocketHandler4G implements IHandler {
         headBuffer.rewind();
         headBuffer.clear();
         if (msg != null) {
-            logger.info("device " + getSocketChannel().getRemoteAddress() + " msg " + msg.toString());
+            logger.info("device " + getSocketChannel().getRemoteAddress() + " deviceBoxName = " + getDeviceName() + " msg " + msg.toString());
             linkManger.process(new DeviceTask4G(this, msg, Integer.parseInt(linkManger.getResponseDelay())));
         }
     }
@@ -282,25 +282,25 @@ public class SocketHandler4G implements IHandler {
                     linkManger = null;
                     headBuffer = null;
                     bodyBuffer = null;
-                    setNeedResponse(false);
+//                    setNeedResponse(false);
                     getSelectionKey().cancel();
                     getSocketChannel().close();
-                    lock.lock();
-
-                    int waitThreadNum = lock.getWaitQueueLength(condition);
-                    //如果有其他线程被wait了，需要唤醒他们结束等待退出
-                    if (waitThreadNum > 0) {
-                        logger.info("waitThreadNum = " + waitThreadNum + " need to wake up");
-                        condition.notifyAll();
-                    }
+//                    lock.lock();
+//
+//                    int waitThreadNum = lock.getWaitQueueLength(condition);
+//                    //如果有其他线程被wait了，需要唤醒他们结束等待退出
+//                    if (waitThreadNum > 0) {
+//                        logger.info("waitThreadNum = " + waitThreadNum + " need to wake up");
+//                        condition.notifyAll();
+//                    }
                     linkManger.remove(deviceName);
                 }
             } catch (IOException e) {
                 logger.error("handleClose error " + getDeviceName(), e);
             } catch (Exception e) {
                 logger.error("handleClose error " + getDeviceName(), e);
-            } finally {
-                lock.unlock();
+//            } finally {
+//                lock.unlock();
             }
         } else {
             logger.error(" not connect device ");
@@ -319,34 +319,34 @@ public class SocketHandler4G implements IHandler {
             return;
         }
 
-        //如果当前有设备的响应消息需要优先回复，则wait
-        isNeedResponse();
-
-        try {
-            lock.lock();
-            while (needSend && !Thread.currentThread().isInterrupted()) {
-                logger.info(deviceName + " isNeedSend wait for sending");
-                //如果之前的业务消息还未收到设备回复，也需要等待
-                condition.await(10, TimeUnit.SECONDS);
-
-                if (!hasConnected) {
-                    logger.error("link is closed");
-                    return;
-                }
-            }
-            logger.info(deviceName + " isNeedSend now can send");
-            needSend = true;
+//        //如果当前有设备的响应消息需要优先回复，则wait
+//        isNeedResponse();
+//
+//        try {
+//            lock.lock();
+//            while (needSend && !Thread.currentThread().isInterrupted()) {
+//                logger.info(deviceName + " isNeedSend wait for sending");
+//                //如果之前的业务消息还未收到设备回复，也需要等待
+//                condition.await(10, TimeUnit.SECONDS);
+//
+//                if (!hasConnected) {
+//                    logger.error("link is closed");
+//                    return;
+//                }
+//            }
+//            logger.info(deviceName + " isNeedSend now can send");
+//            needSend = true;
             getSendList().add(msg.toByteBuffer());
             updateOps();
 
             //update portStatus
             portStatus.put(port, DeviceStatus.SERVICE);
-
-        } catch (Exception e) {
-            logger.error(deviceName + " setNeedSend " + needSend, e);
-        } finally {
-            lock.unlock();
-        }
+//
+//        } catch (Exception e) {
+//            logger.error(deviceName + " setNeedSend " + needSend, e);
+//        } finally {
+//            lock.unlock();
+//        }
     }
 
     public void updateOps() {

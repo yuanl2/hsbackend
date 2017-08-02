@@ -73,7 +73,6 @@ public class SyncMsgWaitResult extends MsgWaitResult {
                     return getResponseMsg();
                 }
             }
-
         }
     }
 
@@ -89,7 +88,6 @@ public class SyncMsgWaitResult extends MsgWaitResult {
 //			/*随后notify */
 //            notify();
         }
-
     }
 
     /**
@@ -104,6 +102,7 @@ public class SyncMsgWaitResult extends MsgWaitResult {
                     logger.info("resend msg : " + getRequestMsg() + " retrytCount =" + retryCount + " on device " + handler.getDeviceName());
                     IMsg msg = getRequestMsg();
                     msg.setSeq(String.valueOf(handler.getSeq()));
+                    msg.setDup("01");
                     handler.sendMsg(msg, getPort());
                 }
                 return false;
@@ -130,7 +129,5 @@ public class SyncMsgWaitResult extends MsgWaitResult {
             /* 然后上报 */
             notify();
         }
-
     }
-
 }

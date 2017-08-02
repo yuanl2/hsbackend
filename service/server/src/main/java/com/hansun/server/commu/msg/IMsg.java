@@ -34,4 +34,8 @@ public interface IMsg {
     String getSeq();
 
     void setSeq(String seq);
+
+    void setDup(String dup);
+
+    String getDup();
 }

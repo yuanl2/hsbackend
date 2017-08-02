@@ -25,7 +25,7 @@ import static com.hansun.server.common.MsgConstant.*;
 /**
  * Created by yuanl2 on 2017/5/9.
  */
-public class SocketHandler implements IHandler {
+public class SocketHandler extends AbstractHandler implements IHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -67,7 +67,7 @@ public class SocketHandler implements IHandler {
     private AtomicInteger seq = new AtomicInteger();
 
     public int getSeq() {
-        if (seq.get() > 998) {
+        if (seq.get() > 254) {
             seq.set(0);
         }
         return seq.incrementAndGet();

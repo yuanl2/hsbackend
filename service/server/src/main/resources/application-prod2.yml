@@ -14,6 +14,7 @@ datasource:
 socket:
   socketaddress: 10.207.42.78
   socketport: 8090
+  socketport4g: 8089
   heartbeatinternal: 300000
   sweepbeatinternal: 30000
 influxDB:
