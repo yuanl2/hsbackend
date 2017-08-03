@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.hansun.server.common.MsgConstant.*;
+import static com.hansun.server.common.MsgConstant4g.*;
 
 /**
  * Created by yuanl2 on 2017/5/9.

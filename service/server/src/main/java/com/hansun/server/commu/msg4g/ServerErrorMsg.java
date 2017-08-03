@@ -5,8 +5,8 @@ import com.hansun.server.util.MsgUtil;
 
 import java.nio.ByteBuffer;
 
-import static com.hansun.server.common.MsgConstant.BODY_LENGTH_FIELD_SIZE;
-import static com.hansun.server.common.MsgConstant.DEVICE_SEPARATOR_FIELD;
+import static com.hansun.server.common.MsgConstant4g.BODY_LENGTH_FIELD_SIZE;
+import static com.hansun.server.common.MsgConstant4g.DEVICE_SEPARATOR_FIELD;
 
 /**
  * Created by yuanl2 on 2017/5/16.

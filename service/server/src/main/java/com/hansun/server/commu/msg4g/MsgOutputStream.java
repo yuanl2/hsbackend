@@ -1,9 +1,3 @@
-/**
- * @(#)MsgOutputStream.java	06/09/06
- * 
- * COPYRIGHT DaTang Mobile Communications Equipment CO.,LTD
- */
-
 package com.hansun.server.commu.msg4g;
 
 

@@ -4,11 +4,11 @@ import com.hansun.server.common.InvalidMsgException;
 import com.hansun.server.util.MsgUtil;
 
 import java.nio.ByteBuffer;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.Calendar;
 import java.util.Date;
 
-import static com.hansun.server.common.MsgConstant.*;
+import static com.hansun.server.common.MsgConstant4g.*;
 
 /**
  * Created by yuanl2 on 2017/5/10.
@@ -36,7 +36,7 @@ public class DeviceResponseMsg extends AbstractMsg {
         headBuilder.append(getTitle()).append(DEVICE_SEPARATOR_FIELD).append(getMsgType()).append(DEVICE_SEPARATOR_FIELD);
 
         MsgOutputStream outBody = new MsgOutputStream();
-        outBody.writeString(MsgUtil.getMsgBodyLength(Integer.valueOf(getSeq()),DEVICE_SEQ_FIELD_SIZE)).writeString(DEVICE_SEPARATOR_FIELD)
+        outBody.writeString(MsgUtil.getMsgBodyLength(Integer.valueOf(getSeq()), DEVICE_SEQ_FIELD_SIZE)).writeString(DEVICE_SEPARATOR_FIELD)
                 .writeString(getDup()).writeString(DEVICE_SEPARATOR_FIELD)
                 .writeString(getDeviceType()).writeString(DEVICE_SEPARATOR_FIELD)
                 .writeString(getTime(getTime())).writeString(DEVICE_SEPARATOR_FIELD);
@@ -58,8 +58,14 @@ public class DeviceResponseMsg extends AbstractMsg {
     }
 
     public static String getTime(Instant time) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmm");
-        return format.format(Date.from(time));
+        Date date = Date.from(time);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+        int second = calendar.get(Calendar.SECOND);
+        int value = hour * 3600 + minute * 60 + second;
+        return MsgUtil.getMsgBodyLength(value, SERVER_TIME_SECOND_SIZE);
     }
 
     @Override

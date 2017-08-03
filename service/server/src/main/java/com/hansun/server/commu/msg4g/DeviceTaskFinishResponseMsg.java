@@ -5,7 +5,7 @@ import com.hansun.server.util.MsgUtil;
 
 import java.nio.ByteBuffer;
 
-import static com.hansun.server.common.MsgConstant.*;
+import static com.hansun.server.common.MsgConstant4g.*;
 
 /**
  * Created by yuanl2 on 2017/5/16.

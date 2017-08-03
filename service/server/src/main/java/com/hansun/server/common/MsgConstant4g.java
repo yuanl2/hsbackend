@@ -31,6 +31,7 @@ public class MsgConstant4g {
     public static final int DEVICE_XOR_FIELD_SIZE = 3;
     public static final int DEVICE_SEQ_FIELD_SIZE = 3;
     public static final int DEVICE_DUP_FIELD_SIZE = 2;
+    public static final int SERVER_TIME_SECOND_SIZE = 5;
 
     public static final String DEVICE_SEPARATOR_FIELD = ",";
 
