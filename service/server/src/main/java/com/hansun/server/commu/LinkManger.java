@@ -182,7 +182,7 @@ public class LinkManger {
                             logger.info("order delete = " + order);
                         }
                     }
-                } else if (msgTime.getTime() != 0) {
+                } else if (order != null && msgTime.getTime() != 0) {
                     if (order.getOrderStatus() == OrderStatus.START) {
                         logger.info("update order before = " + order);
                         order.setOrderStatus(OrderStatus.SERVICE);
