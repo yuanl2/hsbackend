@@ -27,7 +27,7 @@ public class MsgConstant4g {
     public static final int DEVICE_STATUS_FIELD_SIZE = 4;
     public static final int DEVICE_RUNNING_TIME_FIELD_SIZE = 16;
 
-    public static final int DEVICE_NAME_FIELD_SIZE = 27;
+    public static final int DEVICE_NAME_FIELD_SIZE = 25;
     public static final int DEVICE_XOR_FIELD_SIZE = 3;
     public static final int DEVICE_SEQ_FIELD_SIZE = 3;
     public static final int DEVICE_DUP_FIELD_SIZE = 2;

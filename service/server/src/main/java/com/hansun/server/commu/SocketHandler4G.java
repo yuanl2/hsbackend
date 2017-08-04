@@ -1,10 +1,9 @@
 package com.hansun.server.commu;
 
 import com.hansun.server.common.DeviceStatus;
-import com.hansun.server.commu.msg.AbstractMsg;
+import com.hansun.server.commu.msg4g.AbstractMsg;
 import com.hansun.server.commu.msg.IMsg;
-import com.hansun.server.commu.msg.MsgInputStream;
-import com.hansun.server.commu.msg.Test4GMsg;
+import com.hansun.server.commu.msg4g.MsgInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,12 +15,10 @@ import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
-import static com.hansun.server.common.MsgConstant.*;
+
+import static com.hansun.server.common.MsgConstant4g.*;
 
 
 /**
@@ -36,7 +33,7 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
     private String deviceName;
 
     //缓冲区的长度
-    private static final int BUFSIZE = 1024;
+    private static final int BUFSIZE = 13;
     /**
      * 用来接收消息
      */
@@ -235,11 +232,24 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
         headBuffer.rewind();
         byte[] head = new byte[BUFSIZE];
         headBuffer.get(head);
+        MsgInputStream headMsgInputStream = new MsgInputStream(head);
+        headMsgInputStream.readString(IDENTIFIER_FIELD_SIZE + CMD_FIELD_SIZE + 2);
+        int len = Integer.valueOf(headMsgInputStream.readString(BODY_LENGTH_FIELD_SIZE));
+        bodyBuffer = ByteBuffer.allocate(len);
+        bytesRead = getSocketChannel().read(bodyBuffer);
+        if (bytesRead == -1) {
+            logger.info("Client close " + ((SocketChannel) key.channel()).getRemoteAddress());
+            handleClose();
+            return;
+        }
+        bodyBuffer.rewind();
+        IMsg msg = AbstractMsg.fromByteBuffer(head, bodyBuffer);
 
-        IMsg msg = new Test4GMsg();
-        msg.setMsgBody(head);
+        //设备添加了 x0d x0a 两个byte数据，需要过滤掉
+//        getSocketChannel().read(ByteBuffer.allocate(2));
         headBuffer.rewind();
         headBuffer.clear();
+        bodyBuffer.clear();
         if (msg != null) {
             logger.info("device " + getSocketChannel().getRemoteAddress() + " deviceBoxName = " + getDeviceName() + " msg " + msg.toString());
             linkManger.process(new DeviceTask4G(this, msg, Integer.parseInt(linkManger.getResponseDelay())));
