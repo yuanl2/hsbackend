@@ -53,4 +53,6 @@ public interface IHandler {
     Map<Integer, Integer> getPortStatus();
 
     int getSeq();
+
+    boolean isHasConnected();
 }

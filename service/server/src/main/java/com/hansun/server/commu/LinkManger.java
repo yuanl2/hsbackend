@@ -69,12 +69,18 @@ public class LinkManger {
         logger.info("Shutting down LinkManger");
 
         map.forEach((k, v) -> {
-            try {
-                v.handleClose();
-            } catch (IOException e) {
+            if (v.isHasConnected()) {
+                try {
+                    logger.info("server down will clone link for " + v.getDeviceName());
+                    v.handleClose();
+                } catch (IOException e) {
 
+                }
+                updateDeviceLogoutTime(k);
             }
-            updateDeviceLogoutTime(k);
+            else{
+                logger.info("status is disconnected for " + v.getDeviceName());
+            }
         });
 
         executorService.shutdown();
