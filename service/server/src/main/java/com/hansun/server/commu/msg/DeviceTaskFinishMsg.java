@@ -3,6 +3,7 @@ package com.hansun.server.commu.msg;
 import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.ErrorCode;
 import com.hansun.server.common.InvalidMsgException;
+import com.hansun.server.commu.common.MsgTime;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;

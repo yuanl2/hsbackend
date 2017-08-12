@@ -1,7 +1,6 @@
 package com.hansun;
 
 import com.hansun.server.commu.msg.AbstractMsg;
-import com.hansun.server.commu.msg.MsgOutputStream;
 import com.hansun.server.util.MsgUtil;
 
 import java.io.IOException;

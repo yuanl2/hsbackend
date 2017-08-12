@@ -3,6 +3,7 @@ package com.hansun.server.commu.msg;
 import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.ErrorCode;
 import com.hansun.server.common.InvalidMsgException;
+import com.hansun.server.commu.common.MsgTime;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -86,7 +87,7 @@ public class DeviceMsg extends AbstractMsg {
 
         String simName = msgInputStream.readString(DEVICE_NAME_FIELD_SIZE);
 
-        if (!isLetterDigit(simName.substring(7,simName.length()))) {
+        if (!isLetterDigit(simName)) {
             throw new InvalidMsgException("device sim name is invalid " + simName, ErrorCode.DEVICE_SIM_FORMAT_ERROR.getCode());
         }
 

@@ -1,4 +1,4 @@
-package com.hansun.server.commu.msg;
+package com.hansun.server.commu.common;
 
 import com.hansun.server.common.InvalidMsgException;
 

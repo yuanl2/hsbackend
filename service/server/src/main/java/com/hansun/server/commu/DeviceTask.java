@@ -4,6 +4,7 @@ import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.ErrorCode;
 import com.hansun.server.common.InvalidMsgException;
 import com.hansun.server.common.OrderStatus;
+import com.hansun.server.commu.common.IMsg;
 import com.hansun.server.commu.msg.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,7 +104,7 @@ public class DeviceTask implements Runnable {
                     if (handler.getPortStatus().get(k) == DeviceStatus.SERVICE) {
                         handler.setNeedSend(false);
                         if (v == DeviceStatus.SERVICE) {//如果设备运行了
-                            MsgWaitResult result = getHandler().getLinkManger().getSyncAsynMsgController().getMsgWaitResult(handler, k);
+                            MsgWaitResult result = getHandler().getLinkManger().getSyncAsynMsgController().getMsgWaitResult(handler, k+"");
                             if (result != null) {
                                 result.setResponseMsg(msg);//后续会删除请求下发的消息
                             }
@@ -123,7 +124,7 @@ public class DeviceTask implements Runnable {
                     if (v == OrderStatus.SERVICE) {//device on port is running status
 //                        linkManger.getOrderService().processStartOrder(s, k);  //SIM800_898602B8191650210001 1  (对应就是端口1的设备启动了)
 
-                        MsgWaitResult result = getHandler().getLinkManger().getSyncAsynMsgController().getMsgWaitResult(handler, k);
+                        MsgWaitResult result = getHandler().getLinkManger().getSyncAsynMsgController().getMsgWaitResult(handler, k+"");
                         if (result != null) {
                             result.setResponseMsg(msg);//后续会删除请求下发的消息
                         }

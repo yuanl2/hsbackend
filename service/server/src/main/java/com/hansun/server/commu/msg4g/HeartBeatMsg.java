@@ -3,6 +3,7 @@ package com.hansun.server.commu.msg4g;
 import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.ErrorCode;
 import com.hansun.server.common.InvalidMsgException;
+import com.hansun.server.commu.common.MsgTime;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -17,32 +18,12 @@ public class HeartBeatMsg extends AbstractMsg {
     public HeartBeatMsg() {
     }
 
-    private Map<Integer, Integer> map = new HashMap<>();
-
     @Override
     public ByteBuffer toByteBuffer() {
         return null;
     }
 
-    public Map<Integer, Integer> getMap() {
-        return map;
-    }
-
-    public void setMap(Map<Integer, Integer> map) {
-        this.map = map;
-    }
-
-    private Map<Integer, MsgTime> portMap = new HashMap<>();
-
-    public Map<Integer, MsgTime> getPortMap() {
-        return portMap;
-    }
-
-    public void setPortMap(Map<Integer, MsgTime> portMap) {
-        this.portMap = portMap;
-    }
-
-    @Override
+     @Override
     public void validate() throws InvalidMsgException {
         int checkxor = getXOR();
 
@@ -71,6 +52,22 @@ public class HeartBeatMsg extends AbstractMsg {
             int runTime = Integer.valueOf(times.substring(i * 4 + 2, i * 4 + 4));
             portMap.put(i+1,new MsgTime(time,runTime));
         }
+        msgInputStream.skipBytes(1);
+
+         //add preseq
+         String preSeq = msgInputStream.readString(DEVICE_PRE_SEQ_FIELD_SIZE);
+         for (int i = 0; i < 4; i++) {
+             preSeqMap.put(i + 1, preSeq.substring(i * 3, i * 3 + 3));
+         }
+         msgInputStream.skipBytes(1);
+
+        String simName = msgInputStream.readString(DEVICE_NAME_FIELD_SIZE);
+
+        if (!isLetterDigit(simName)) {
+            throw new InvalidMsgException("device sim name is invalid " + simName, ErrorCode.DEVICE_SIM_FORMAT_ERROR.getCode());
+        }
+
+        setDeviceName(simName);
         msgInputStream.skipBytes(1);
         int xor = Integer.valueOf(msgInputStream.readString(DEVICE_XOR_FIELD_SIZE));
         if (xor != checkxor) {

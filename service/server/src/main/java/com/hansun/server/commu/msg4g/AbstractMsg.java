@@ -1,17 +1,22 @@
 package com.hansun.server.commu.msg4g;
 
-import com.hansun.server.commu.msg.IMsg;
+import com.hansun.server.commu.common.IMsg;
+import com.hansun.server.commu.common.IMsg4g;
+import com.hansun.server.commu.common.MsgInputStream;
+import com.hansun.server.commu.common.MsgTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.hansun.server.common.MsgConstant4g.*;
 
 /**
  * Created by yuanl2 on 2017/5/9.
  */
-public abstract class AbstractMsg implements IMsg {
+public abstract class AbstractMsg implements IMsg4g {
     private final static Logger logger = LoggerFactory.getLogger(AbstractMsg.class);
 
     protected String title = "TRVBP";
@@ -20,6 +25,20 @@ public abstract class AbstractMsg implements IMsg {
     protected String seq;
     protected String dup = "00";
     protected MsgInputStream msgInputStream;
+
+    protected String deviceName;
+
+    protected Map<Integer, MsgTime> portMap = new HashMap<>();
+    protected Map<Integer, Integer> map = new HashMap<>();
+    protected Map<Integer,String> preSeqMap = new HashMap<>();
+
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
+    }
 
     public void setMsgType(String msgType) {
         MsgType = msgType;
@@ -86,6 +105,27 @@ public abstract class AbstractMsg implements IMsg {
 
     public void setDup(String dup) {
         this.dup = dup;
+    }
+
+    public Map<Integer, Integer> getMap() {
+        return map;
+    }
+
+
+    public Map<Integer, MsgTime> getPortMap() {
+        return portMap;
+    }
+
+    public void setMap(Map<Integer, Integer> map) {
+        this.map = map;
+    }
+
+    public Map<Integer, String> getPreSeqMap() {
+        return preSeqMap;
+    }
+
+    public void setPreSeqMap(Map<Integer, String> preSeqMap) {
+        this.preSeqMap = preSeqMap;
     }
 
     /**
@@ -230,5 +270,9 @@ public abstract class AbstractMsg implements IMsg {
     public static boolean isLetterDigit(String str) {
         String regex = "^[a-z0-9A-Z]+$";
         return str.matches(regex);
+    }
+
+    public void setPortMap(Map<Integer, MsgTime> portMap) {
+        this.portMap = portMap;
     }
 }

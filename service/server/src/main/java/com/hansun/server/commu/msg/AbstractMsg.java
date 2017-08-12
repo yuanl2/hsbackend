@@ -1,5 +1,7 @@
 package com.hansun.server.commu.msg;
 
+import com.hansun.server.commu.common.IMsg;
+import com.hansun.server.commu.common.MsgInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

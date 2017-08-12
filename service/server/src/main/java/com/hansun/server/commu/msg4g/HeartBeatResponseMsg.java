@@ -1,6 +1,7 @@
 package com.hansun.server.commu.msg4g;
 
 import com.hansun.server.common.InvalidMsgException;
+import com.hansun.server.commu.common.MsgOutputStream;
 import com.hansun.server.util.MsgUtil;
 
 import java.nio.ByteBuffer;
@@ -16,9 +17,9 @@ public class HeartBeatResponseMsg extends AbstractMsg {
     }
     @Override
     public ByteBuffer toByteBuffer() {
-        ByteBuffer sendBuffer = ByteBuffer.allocate(28);
+        ByteBuffer sendBuffer = ByteBuffer.allocate(29);
         StringBuilder headBuilder = new StringBuilder();
-        headBuilder.append(getTitle()).append(getMsgType()).append(DEVICE_SEPARATOR_FIELD);
+        headBuilder.append(getTitle()).append(DEVICE_SEPARATOR_FIELD).append(getMsgType()).append(DEVICE_SEPARATOR_FIELD);
 
         MsgOutputStream outBody = new MsgOutputStream();
         outBody.writeString(MsgUtil.getMsgBodyLength(Integer.valueOf(getSeq()),DEVICE_SEQ_FIELD_SIZE)).writeString(DEVICE_SEPARATOR_FIELD)

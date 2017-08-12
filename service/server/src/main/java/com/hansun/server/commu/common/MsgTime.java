@@ -1,4 +1,4 @@
-package com.hansun.server.commu.msg4g;
+package com.hansun.server.commu.common;
 
 /**
  * Created by yuanl2 on 2017/6/10.

@@ -20,4 +20,12 @@ public abstract class AbstractHandler implements IHandler {
     public void setNeedSend(boolean needSend) {
 
     }
+
+    public boolean isFistMsg(){
+        return false;
+    }
+
+    public void setFistMsg(boolean fistMsg){
+
+    }
 }

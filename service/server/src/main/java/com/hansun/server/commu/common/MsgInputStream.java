@@ -1,4 +1,4 @@
-package com.hansun.server.commu.msg;
+package com.hansun.server.commu.common;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -3,7 +3,7 @@ package com.hansun.server.commu;
 
 import com.hansun.server.common.ServerException;
 import com.hansun.server.common.TimeoutException;
-import com.hansun.server.commu.msg.IMsg;
+import com.hansun.server.commu.common.IMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

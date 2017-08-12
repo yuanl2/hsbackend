@@ -1,6 +1,7 @@
 package com.hansun.server.commu.msg4g;
 
 import com.hansun.server.common.InvalidMsgException;
+import com.hansun.server.commu.common.MsgOutputStream;
 import com.hansun.server.util.MsgUtil;
 
 import java.nio.ByteBuffer;
@@ -21,27 +22,14 @@ public class ServerStartDeviceMsg extends AbstractMsg {
     /**
      * 每个端口启动时长
      */
-    private Map<Integer, String> map = new HashMap<>();
+    private Map<Integer, String> startMap = new HashMap<>();
 
-    /**
-     * 每个端口状态
-     */
-    private Map<Integer, String> status = new HashMap<>();
-
-    public Map<Integer, String> getMap() {
-        return map;
+    public Map<Integer, String> getStartMap() {
+        return startMap;
     }
 
-    public void setMap(Map<Integer, String> map) {
-        this.map = map;
-    }
-
-    public Map<Integer, String> getStatus() {
-        return status;
-    }
-
-    public void setStatus(Map<Integer, String> status) {
-        this.status = status;
+    public void setStartMap(Map<Integer, String> startMap) {
+        this.startMap = startMap;
     }
 
     @Override
@@ -51,26 +39,29 @@ public class ServerStartDeviceMsg extends AbstractMsg {
 
     @Override
     public ByteBuffer toByteBuffer() {
-        ByteBuffer sendBuffer = ByteBuffer.allocate(43);
+        ByteBuffer sendBuffer = ByteBuffer.allocate(44);
         StringBuilder headBuilder = new StringBuilder();
         headBuilder.append(getTitle()).append(DEVICE_SEPARATOR_FIELD).append(getMsgType()).append(DEVICE_SEPARATOR_FIELD);
+        //5+1+2+1 = 9
 
         MsgOutputStream builder1 = new MsgOutputStream();
         builder1.writeString(MsgUtil.getMsgBodyLength(Integer.valueOf(getSeq()), DEVICE_SEQ_FIELD_SIZE)).writeString(DEVICE_SEPARATOR_FIELD)
                 .writeString(getDup()).writeString(DEVICE_SEPARATOR_FIELD)
                 .writeString(getDeviceType()).writeString(DEVICE_SEPARATOR_FIELD);
+        //3+1+2+1+3+1 = 11
 
-        status.forEach((k, v) -> builder1.writeString(v));
+        map.forEach((k, v) -> builder1.writeString(v+""));
         builder1.writeString(DEVICE_SEPARATOR_FIELD);//5 bytes
-        map.forEach((k, v) -> builder1.writeString(v));
+        startMap.forEach((k, v) -> builder1.writeString(v));
         builder1.writeString(DEVICE_SEPARATOR_FIELD);//9 bytes
 
-        byte[] body = builder1.toBytes();//14 byte
+        byte[] body = builder1.toBytes();//25 byte
         int bodySize = body.length + 5;
-        headBuilder.append(MsgUtil.getMsgBodyLength(bodySize, BODY_LENGTH_FIELD_SIZE)).append(DEVICE_SEPARATOR_FIELD);
+        headBuilder.append(MsgUtil.getMsgBodyLength(bodySize, BODY_LENGTH_FIELD_SIZE)).append(DEVICE_SEPARATOR_FIELD);//4
         byte[] head = headBuilder.toString().getBytes();
-        sendBuffer.put(head);// 12 byte
-        sendBuffer.put(body);
+
+        sendBuffer.put(head);// 14 byte
+        sendBuffer.put(body);//30
         StringBuilder sb = new StringBuilder();
         sb.append(MsgUtil.getMsgBodyLength(AbstractMsg.getCheckData(head, body, 0, 0), 3)).append(DEVICE_SEPARATOR_FIELD);
 

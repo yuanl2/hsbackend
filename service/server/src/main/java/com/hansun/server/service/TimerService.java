@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -57,10 +58,30 @@ public class TimerService {
         min = hsServiceProperties.getOrderIntervalMin();
         max = hsServiceProperties.getOrderIntervalMax();
         flag = hsServiceProperties.getOrderIntervalFlag();
-        Set<Long> deviceList = dataStore.getAllDevices();
-        if (deviceList != null && deviceList.size() > 0) {
-            deviceList.forEach(k -> executor.submit(new Schedule_Task(k)));
+        Set<String> deviceBoxs = dataStore.getAllDeviceBoxes();
+
+        if(deviceBoxs != null && deviceBoxs.size()> 0){
+            Set<Long> deviceList = dataStore.getAllDevices();
+            if (deviceList != null && deviceList.size() > 0) {
+
+                deviceBoxs.forEach(k->{
+
+                    final List<Long> lists = new ArrayList<>();
+                    deviceList.forEach(d->{
+                        Device device = dataStore.queryDeviceByDeviceID(d);
+                        if(device.getSimCard().equalsIgnoreCase(k)){
+                            lists.add(d);
+                        }
+
+                    });
+
+                    executor.submit(new Schedule_Task(lists,k));
+
+                });
+
+            }
         }
+
     }
 
     @PreDestroy
@@ -82,54 +103,52 @@ public class TimerService {
 
     private class Schedule_Task implements Runnable {
 
-        private long device_id;
+        private List<Long> device_id;
 
-        public Schedule_Task(long device_id) {
+        private String boxName;
+        public Schedule_Task(List<Long> device_id, String boxName) {
             this.device_id = device_id;
+            this.boxName = boxName;
         }
 
         public void run() {
             boolean threadFlag;
-            logger.info("device_id = " + device_id + " start run");
             Random random = new Random();
             while (!Thread.currentThread().interrupted()) {
                 try {
                     synchronized (object) {
                         if (!isFlag()) {
-                            logger.info("device_id = " + device_id + " start wait for false");
+                            logger.info("boxName = " + boxName + " start wait for false");
                             object.wait();
-                            logger.info("device_id = " + device_id + " continue run for true");
+                            logger.info("boxName = " + boxName + " continue run for true");
                         }
                     }
-                    int type = random.nextInt(4);
-                    Consume consume = consumeList.get(type);
-                    Device d = dataStore.queryDeviceByDeviceID(device_id);
 
-                    logger.debug("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
+                    for (Long deviceID:
+                            device_id) {
+                        int type = random.nextInt(4);
+                        Consume consume = consumeList.get(type);
+                        Device d = dataStore.queryDeviceByDeviceID(deviceID);
 
-                    if (d.getStatus() == DeviceStatus.SERVICE || d.getStatus() == DeviceStatus.DISCONNECTED || d.getStatus() == DeviceStatus.BADNETWORK) {
-                        Thread.sleep((random.nextInt(10) + 20) * 1000);
-                    } else {
-                        logger.info("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
-                        Order order = new Order();
-                        order.setOrderName("ordername-" + orderService.getSequenceNumber());
-                        order.setStartTime(Instant.now());
-                        order.setCreateTime(Instant.now());
-                        order.setPayAccount("test-payaccount-" + orderService.getSequenceNumber());
-                        order.setOrderStatus(OrderStatus.CREATED);
-                        order.setDeviceID(Long.valueOf(device_id));
-                        order.setConsumeType(Integer.valueOf(consume.getId()));
-                        orderService.createOrder(order);
-                        logger.info("device_id = " + device_id + " start order " + order);
+                        logger.debug("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
 
-//                        //wait for task finish
-//                        Thread.sleep(consume.getDuration() * 60 * 1000);
-//
-//                        int sleep = random.nextInt(max - min) + min;
-//
-//                        //wait for task finish
-//                        Thread.sleep(sleep * 60 * 1000);
-                        Thread.sleep((random.nextInt(6) * 5 + 120) * 1000);
+                        if (d.getStatus() == DeviceStatus.SERVICE || d.getStatus() == DeviceStatus.DISCONNECTED || d.getStatus() == DeviceStatus.BADNETWORK) {
+                            Thread.sleep((random.nextInt(5) + 10) * 1000);
+                        } else {
+                            logger.info("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
+                            Order order = new Order();
+                            order.setOrderName("ordername-" + orderService.getSequenceNumber());
+                            order.setStartTime(Instant.now());
+                            order.setCreateTime(Instant.now());
+                            order.setPayAccount("test-payaccount-" + orderService.getSequenceNumber());
+                            order.setOrderStatus(OrderStatus.CREATED);
+                            order.setDeviceID(Long.valueOf(deviceID));
+                            order.setDeviceName(boxName);
+                            order.setConsumeType(Integer.valueOf(consume.getId()));
+                            orderService.createOrder(order);
+                            logger.info("device_id = " + deviceID + " start order " + order);
+                            Thread.sleep((random.nextInt(5) + 10) * 1000);
+                        }
                     }
                 } catch (Exception e) {
                     logger.error("device_id = " + device_id, e);

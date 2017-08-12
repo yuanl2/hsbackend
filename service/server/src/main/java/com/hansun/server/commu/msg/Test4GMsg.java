@@ -1,6 +1,7 @@
 package com.hansun.server.commu.msg;
 
 import com.hansun.server.common.InvalidMsgException;
+import com.hansun.server.commu.common.IMsg;
 
 import java.nio.ByteBuffer;
 

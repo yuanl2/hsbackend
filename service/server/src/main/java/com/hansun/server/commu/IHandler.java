@@ -1,6 +1,6 @@
 package com.hansun.server.commu;
 
-import com.hansun.server.commu.msg.IMsg;
+import com.hansun.server.commu.common.IMsg;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -55,4 +55,8 @@ public interface IHandler {
     int getSeq();
 
     boolean isHasConnected();
+
+    boolean isFistMsg();
+
+    void setFistMsg(boolean fistMsg);
 }

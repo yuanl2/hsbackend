@@ -5,7 +5,7 @@ import com.hansun.dto.Order;
 import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.HSServiceProperties;
 import com.hansun.server.common.OrderStatus;
-import com.hansun.server.commu.msg.MsgTime;
+import com.hansun.server.commu.common.MsgTime;
 import com.hansun.server.service.DeviceListener;
 import com.hansun.server.service.DeviceService;
 import com.hansun.server.service.OrderService;
@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -165,27 +164,27 @@ public class LinkManger {
                         //设备没有收到后续结束报文，所以收到心跳消息，判断当前设备是否还在运行，如果指示时间为0，而订单是运行中，则更新订单为finish
                         if (order.getOrderStatus() == OrderStatus.SERVICE) {
                             logger.info(order.getId() + " update order status from service to " + OrderStatus.FINISH);
-                            order.setOrderStatus(OrderStatus.FINISH);
-                            order.setEndTime(Instant.now());
-                            orderService.updateOrder(order);
+//                            order.setOrderStatus(OrderStatus.FINISH);
+//                            order.setEndTime(Instant.now());
+//                            orderService.updateOrder(order);
 
                             device.setStatus(DeviceStatus.IDLE);
                             deviceService.updateDevice(device);
                             orderService.deleteOrder(device.getId());
-                            logger.info("order delete = " + order);
+//                            logger.info("order delete = " + order);
                         } else if(order.getOrderStatus() == OrderStatus.FINISH){
                             logger.error("order = " + order + " has finished! Delete error");
                             orderService.deleteOrder(device.getId());
                         } else {
                             logger.error(order.getId() + " update order status from start to " + OrderStatus.FINISH);
-                            order.setOrderStatus(OrderStatus.FINISH);
-                            order.setEndTime(Instant.now());
-                            orderService.updateOrder(order);
+//                            order.setOrderStatus(OrderStatus.FINISH);
+//                            order.setEndTime(Instant.now());
+//                            orderService.updateOrder(order);
 
                             device.setStatus(DeviceStatus.IDLE);
                             deviceService.updateDevice(device);
                             orderService.deleteOrder(device.getId());
-                            logger.info("order delete = " + order);
+//                            logger.info("order delete = " + order);
                         }
                     }
                 } else if (order != null && msgTime.getTime() != 0) {

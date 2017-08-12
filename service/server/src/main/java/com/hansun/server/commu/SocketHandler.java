@@ -1,6 +1,8 @@
 package com.hansun.server.commu;
 
 import com.hansun.server.common.DeviceStatus;
+import com.hansun.server.commu.common.IMsg;
+import com.hansun.server.commu.common.MsgInputStream;
 import com.hansun.server.commu.msg.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.hansun.server.common.MsgConstant.*;

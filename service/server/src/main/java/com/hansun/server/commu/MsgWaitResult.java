@@ -1,6 +1,6 @@
 package com.hansun.server.commu;
 
-import com.hansun.server.commu.msg.IMsg;
+import com.hansun.server.commu.common.IMsg;
 
 public abstract class MsgWaitResult {
 

@@ -1,6 +1,7 @@
 package com.hansun.server.commu.msg4g;
 
 import com.hansun.server.common.InvalidMsgException;
+import com.hansun.server.commu.common.MsgOutputStream;
 import com.hansun.server.util.MsgUtil;
 
 import java.nio.ByteBuffer;
@@ -31,9 +32,10 @@ public class DeviceResponseMsg extends AbstractMsg {
 
     @Override
     public ByteBuffer toByteBuffer() {
-        ByteBuffer sendBuffer = ByteBuffer.allocate(42);
+        ByteBuffer sendBuffer = ByteBuffer.allocate(35);
         StringBuilder headBuilder = new StringBuilder();
-        headBuilder.append(getTitle()).append(DEVICE_SEPARATOR_FIELD).append(getMsgType()).append(DEVICE_SEPARATOR_FIELD);
+        headBuilder.append(getTitle()).append(DEVICE_SEPARATOR_FIELD).append(getMsgType()).append(DEVICE_SEPARATOR_FIELD);//9
+
 
         MsgOutputStream outBody = new MsgOutputStream();
         outBody.writeString(MsgUtil.getMsgBodyLength(Integer.valueOf(getSeq()), DEVICE_SEQ_FIELD_SIZE)).writeString(DEVICE_SEPARATOR_FIELD)
@@ -43,10 +45,10 @@ public class DeviceResponseMsg extends AbstractMsg {
         byte[] body = outBody.toBytes();//17 byte
 
         int bodySize = body.length + 5;
-        headBuilder.append(MsgUtil.getMsgBodyLength(bodySize, BODY_LENGTH_FIELD_SIZE)).append(DEVICE_SEPARATOR_FIELD);
+        headBuilder.append(MsgUtil.getMsgBodyLength(bodySize, BODY_LENGTH_FIELD_SIZE)).append(DEVICE_SEPARATOR_FIELD);//4
         byte[] head = headBuilder.toString().getBytes();
-        sendBuffer.put(head);// 12 byte
-        sendBuffer.put(body);
+        sendBuffer.put(head);// 13 byte
+        sendBuffer.put(body);// 22
 
         StringBuilder sb = new StringBuilder();
         sb.append(MsgUtil.getMsgBodyLength(AbstractMsg.getCheckData(head, body, 0, 0), 3)).append(DEVICE_SEPARATOR_FIELD);

@@ -1,7 +1,7 @@
 package com.hansun.server.commu;
 
 import com.hansun.server.common.HSServiceProperties;
-import com.hansun.server.commu.msg.IMsg;
+import com.hansun.server.commu.common.IMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -191,7 +191,7 @@ public class SyncAsynMsgController {
      */
     public SyncMsgWaitResult createSyncWaitResult(IMsg msg, IHandler handler, int port) {
 
-        String key = handler.getDeviceName() + "_" + port;
+        String key = handler.getDeviceName() + "_" + msg.getSeq();
         /* 先要转换该timeout，因为输入的timeout是毫秒为单位的 每次Sleep一个 */
         SyncMsgWaitResult syncWaitResult = new SyncMsgWaitResult(msg, resendInterval / SLEEP_TIME, handler, port);
         syncWaitResult.setRetryCount(retryCount);
@@ -203,8 +203,8 @@ public class SyncAsynMsgController {
     }
 
 
-    public MsgWaitResult getMsgWaitResult(IHandler handler, int port) {
-        String key = handler.getDeviceName() + "_" + port;
+    public MsgWaitResult getMsgWaitResult(IHandler handler, String seq) {
+        String key = handler.getDeviceName() + "_" + seq;
         synchronized (waitList) {
             return waitList.get(key);
         }

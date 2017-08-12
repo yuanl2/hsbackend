@@ -1,9 +1,9 @@
 package com.hansun.server.commu;
 
 import com.hansun.server.common.DeviceStatus;
+import com.hansun.server.commu.common.MsgInputStream;
 import com.hansun.server.commu.msg4g.AbstractMsg;
-import com.hansun.server.commu.msg.IMsg;
-import com.hansun.server.commu.msg4g.MsgInputStream;
+import com.hansun.server.commu.common.IMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +40,10 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
     private ByteBuffer headBuffer = null;
 
     private ByteBuffer bodyBuffer = null;
+
+    private boolean needResponse;
+
+    private Object object = new Object();
 
     /**
      * 用于收发消息
@@ -164,6 +168,8 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
 
     private LinkManger linkManger;
 
+    private boolean fistMsg;
+
     public LinkManger getLinkManger() {
         return linkManger;
     }
@@ -205,6 +211,14 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
         return portStatus;
     }
 
+    public boolean isFistMsg() {
+        return fistMsg;
+    }
+
+    public void setFistMsg(boolean fistMsg) {
+        this.fistMsg = fistMsg;
+    }
+
     @Override
     public void handleAccept(SelectionKey key) throws IOException {
         SocketChannel clntChan = ((ServerSocketChannel) key.channel()).accept();
@@ -232,6 +246,15 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
         headBuffer.rewind();
         byte[] head = new byte[BUFSIZE];
         headBuffer.get(head);
+        String headContent = new String(head);
+        logger.info("handleRead head = " + headContent);
+
+        if(!headContent.startsWith("TRVAP")){
+            headBuffer.rewind();
+            headBuffer.clear();
+            return;
+        }
+
         MsgInputStream headMsgInputStream = new MsgInputStream(head);
         headMsgInputStream.readString(IDENTIFIER_FIELD_SIZE + CMD_FIELD_SIZE + 2);
         int len = Integer.valueOf(headMsgInputStream.readString(BODY_LENGTH_FIELD_SIZE));
@@ -374,6 +397,32 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
         } catch (Exception e) {
             logger.error("updateOps error ", e);
             //todo 更新失败，最好不要走到这里
+        }
+    }
+
+
+    public boolean isNeedResponse() {
+        synchronized (object) {
+            if (needResponse) {
+                try {
+                    logger.debug(deviceName + " isNeedResponse wait for sending");
+                    object.wait();
+                    logger.debug(deviceName + " isNeedResponse now can send");
+                } catch (InterruptedException e) {
+                    logger.error(deviceName + " object.wait() error", e);
+                }
+            }
+            return needResponse;
+        }
+    }
+
+    public void setNeedResponse(boolean needResponse) {
+        synchronized (object) {
+            this.needResponse = needResponse;
+            logger.debug(deviceName + " setNeedResponse = " + needResponse);
+            if (!needResponse) {//如果设置为true，则说明回文发送了，等待的业务消息可以接着发送
+                object.notifyAll();
+            }
         }
     }
 }

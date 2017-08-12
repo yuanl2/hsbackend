@@ -1,7 +1,6 @@
 package com.hansun;
 
 import com.hansun.server.commu.msg.AbstractMsg;
-import com.hansun.server.commu.msg.IMsg;
 
 import java.net.InetSocketAddress;
 import java.net.SocketException;

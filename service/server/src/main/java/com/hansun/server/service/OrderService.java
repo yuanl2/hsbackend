@@ -78,47 +78,96 @@ public class OrderService {
             }
             int index = device.getPort();
 
-            ServerStartDeviceMsg msg = new ServerStartDeviceMsg(DEVICE_START_MSG);
-            msg.setDeviceType("000");
+            //4g device
+            if(device.getSimCard().length() == MsgConstant4g.DEVICE_NAME_FIELD_SIZE){
 
-            order.setPrice(dataStore.queryConsume(order.getConsumeType()).getPrice());
-            order.setDuration(dataStore.queryConsume(order.getConsumeType()).getDuration());
+                com.hansun.server.commu.msg4g.ServerStartDeviceMsg msg = new com.hansun.server.commu.msg4g.ServerStartDeviceMsg(MsgConstant4g.DEVICE_START_MSG);
+                msg.setDeviceType("001");
 
-            Map<Integer, String> map = new HashMap<>();
-            for (int i = 1; i <= 4; i++) {
-                if (index == i) {
-                    map.put(i, "1");
-                } else {
-                    map.put(i, "0");
-                }
-            }
-            msg.setStatus(map);
-            Map<Integer, String> times = new HashMap<>();
-            for (int i = 1; i <= 4; i++) {
-                if (index == i) {
-                    int duration = order.getDuration();
-                    if (duration < 10) {
-                        times.put(i, "0" + order.getDuration());
+                order.setPrice(dataStore.queryConsume(order.getConsumeType()).getPrice());
+                order.setDuration(dataStore.queryConsume(order.getConsumeType()).getDuration());
+
+                Map<Integer, Integer> map = new HashMap<>();
+                for (int i = 1; i <= 4; i++) {
+                    if (index == i) {
+                        map.put(i, 1);
                     } else {
-                        times.put(i, order.getDuration() + "");
+                        map.put(i, 0);
                     }
-                } else {
-                    times.put(i, "00");
                 }
+                msg.setMap(map);
+                Map<Integer, String> times = new HashMap<>();
+                for (int i = 1; i <= 4; i++) {
+                    if (index == i) {
+                        int duration = order.getDuration();
+                        if (duration < 10) {
+                            times.put(i, "0" + order.getDuration());
+                        } else {
+                            times.put(i, order.getDuration() + "");
+                        }
+                    } else {
+                        times.put(i, "00");
+                    }
+                }
+                msg.setStartMap(times);
+
+                String simcard = device.getSimCard();
+
+                IHandler handler = linkManger.get(simcard);
+                if (handler == null) {
+                    logger.error("can not create order for handler for device not exist  " + device.getName());
+                    throw new ServerException("can not create order for handler for device not exist  " + device.getName());
+                }
+
+                msg.setSeq(String.valueOf(handler.getSeq()));
+                syncAsynMsgController.createSyncWaitResult(msg, handler, index);
+                handler.sendMsg(msg, device.getPort());
             }
-            msg.setMap(times);
+            else{
+                ServerStartDeviceMsg msg = new ServerStartDeviceMsg(DEVICE_START_MSG);
+                msg.setDeviceType("000");
 
-            String simcard = device.getSimCard();
+                order.setPrice(dataStore.queryConsume(order.getConsumeType()).getPrice());
+                order.setDuration(dataStore.queryConsume(order.getConsumeType()).getDuration());
 
-            IHandler handler = linkManger.get(simcard);
-            if (handler == null) {
-                logger.error("can not create order for handler for device not exist  " + device.getName());
-                throw new ServerException("can not create order for handler for device not exist  " + device.getName());
+                Map<Integer, String> map = new HashMap<>();
+                for (int i = 1; i <= 4; i++) {
+                    if (index == i) {
+                        map.put(i, "1");
+                    } else {
+                        map.put(i, "0");
+                    }
+                }
+                msg.setStatus(map);
+                Map<Integer, String> times = new HashMap<>();
+                for (int i = 1; i <= 4; i++) {
+                    if (index == i) {
+                        int duration = order.getDuration();
+                        if (duration < 10) {
+                            times.put(i, "0" + order.getDuration());
+                        } else {
+                            times.put(i, order.getDuration() + "");
+                        }
+                    } else {
+                        times.put(i, "00");
+                    }
+                }
+                msg.setMap(times);
+
+                String simcard = device.getSimCard();
+
+                IHandler handler = linkManger.get(simcard);
+                if (handler == null) {
+                    logger.error("can not create order for handler for device not exist  " + device.getName());
+                    throw new ServerException("can not create order for handler for device not exist  " + device.getName());
+                }
+
+                msg.setSeq(String.valueOf(handler.getSeq()));
+                syncAsynMsgController.createSyncWaitResult(msg, handler, index);
+                handler.sendMsg(msg, device.getPort());
             }
 
-            msg.setSeq(String.valueOf(handler.getSeq()));
-            syncAsynMsgController.createSyncWaitResult(msg, handler, index);
-            handler.sendMsg(msg, device.getPort());
+
         } catch (Exception e) {
             logger.error("createStartMsgToDevice error", e);
             throw new ServerException("createStartMsgToDevice error", e);
@@ -204,7 +253,6 @@ public class OrderService {
 
     public void deleteOrder(Long deviceID) {
         Order order = orderStore.queryOrder(deviceID);
-        logger.info("update order before = " + order);
         if (order != null) {
             order.setEndTime(Instant.now());
             order.setOrderStatus(OrderStatus.FINISH);
