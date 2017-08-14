@@ -141,7 +141,7 @@ public abstract class AbstractMsg implements IMsg4g {
 
     public static IMsg fromByteBuffer(byte[] head, ByteBuffer bodyBuffer) {
 
-        logger.info("head content = " + new String(head));
+        logger.debug("head content = " + new String(head));
 
         MsgInputStream headMsgInputStream = new MsgInputStream(head);
         String title = headMsgInputStream.readString(IDENTIFIER_FIELD_SIZE);
@@ -151,7 +151,7 @@ public abstract class AbstractMsg implements IMsg4g {
         int len = Integer.valueOf(headMsgInputStream.readString(BODY_LENGTH_FIELD_SIZE));
         byte[] body = new byte[len];
         bodyBuffer.get(body);
-        logger.info("body content = " + new String(body));
+        logger.debug("body content = " + new String(body));
 
         switch (cmd) {
             case DEVICE_REGISTER_MSG:
@@ -222,8 +222,8 @@ public abstract class AbstractMsg implements IMsg4g {
         strBuffer.append("msgHeader:msgTitle= " + getTitle());
         strBuffer.append(" msgType=" + getMsgType());
         strBuffer.append(" deviceType=" + getDeviceType());
-        strBuffer.append(" msgHead:" + getMsgHeadStr(msgHead));
-        strBuffer.append(" msgBody:" + getMsgBodyStr(msgBody));
+        strBuffer.append(" msgHead:" + new String(msgHead));
+        strBuffer.append(" msgBody:" + new String(msgBody));
         return strBuffer.toString();
     }
 

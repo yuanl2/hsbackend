@@ -239,7 +239,7 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
     public void handleRead(SelectionKey key) throws IOException {
         long bytesRead = getSocketChannel().read(headBuffer);
         if (bytesRead == -1) {
-            logger.info("Client close " + ((SocketChannel) key.channel()).getRemoteAddress());
+            logger.error("Client close " + ((SocketChannel) key.channel()).getRemoteAddress());
             handleClose();
             return;
         }
@@ -247,8 +247,9 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
         byte[] head = new byte[BUFSIZE];
         headBuffer.get(head);
         String headContent = new String(head);
-        logger.info("handleRead head = " + headContent);
+        logger.debug("handleRead head = " + headContent);
 
+        //ignore msg not with "TRVAP" start
         if(!headContent.startsWith("TRVAP")){
             headBuffer.rewind();
             headBuffer.clear();
@@ -261,7 +262,7 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
         bodyBuffer = ByteBuffer.allocate(len);
         bytesRead = getSocketChannel().read(bodyBuffer);
         if (bytesRead == -1) {
-            logger.info("Client close " + ((SocketChannel) key.channel()).getRemoteAddress());
+            logger.error("Client close " + ((SocketChannel) key.channel()).getRemoteAddress());
             handleClose();
             return;
         }

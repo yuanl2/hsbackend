@@ -105,6 +105,18 @@ public class LinkManger {
     public void remove(String id) {
         try {
             if (map.containsKey(id)) {
+
+                List<Device> list = deviceService.getDevicesByDeviceBox(id);
+
+                if (list != null && list.size() > 0) {
+                    //对于设备重连的情况，需要先设置设备的logout时间和状态，等连上后再更新
+                    list.forEach(k -> {
+                        k.setStatus(DeviceStatus.DISCONNECTED);
+                        k.setLogoutTime(Instant.now());
+                        deviceService.updateDevice(k);
+                    });
+                }
+
                 map.remove(id);
                 logger.info("LinkManger remove deviceSim = " + id);
             } else {
@@ -136,18 +148,22 @@ public class LinkManger {
 
     public void updateDeviceLoginTime(String deviceName){
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
-        for (Device device : deviceList) {
-            device.setStatus(DeviceStatus.IDLE);
-            device.setLoginTime(Instant.now());
-            deviceService.updateDevice(device);
+        if (deviceList != null && deviceList.size() > 0) {
+            for (Device device : deviceList) {
+                device.setStatus(DeviceStatus.IDLE);
+                device.setLoginTime(Instant.now());
+                deviceService.updateDevice(device);
+            }
         }
     }
 
     public void updateDeviceLogoutTime(String deviceName){
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
-        for (Device device : deviceList) {
-            device.setLogoutTime(Instant.now());
-            deviceService.updateDevice(device);
+        if (deviceList != null && deviceList.size() > 0) {
+            for (Device device : deviceList) {
+                device.setLogoutTime(Instant.now());
+                deviceService.updateDevice(device);
+            }
         }
     }
 

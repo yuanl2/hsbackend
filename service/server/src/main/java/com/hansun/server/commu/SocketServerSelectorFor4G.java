@@ -156,7 +156,7 @@ public class SocketServerSelectorFor4G {
                     } catch (Exception e) {
                         if (handler != null) {
                             logger.error("process other error " + handler.getDeviceName(), e);
-                            handler.handleClose();
+//                            handler.handleClose();
                         } else {
                             logger.error("process error ", e);
                         }
