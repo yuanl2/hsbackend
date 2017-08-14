@@ -169,8 +169,9 @@ public class LinkManger {
 //                            orderService.updateOrder(order);
 
                             device.setStatus(DeviceStatus.IDLE);
-                            deviceService.updateDevice(device);
                             orderService.deleteOrder(device.getId());
+                            deviceService.updateDevice(device);
+
 //                            logger.info("order delete = " + order);
                         } else if(order.getOrderStatus() == OrderStatus.FINISH){
                             logger.error("order = " + order + " has finished! Delete error");
@@ -182,8 +183,9 @@ public class LinkManger {
 //                            orderService.updateOrder(order);
 
                             device.setStatus(DeviceStatus.IDLE);
-                            deviceService.updateDevice(device);
                             orderService.deleteOrder(device.getId());
+                            deviceService.updateDevice(device);
+
 //                            logger.info("order delete = " + order);
                         }
                     }
