@@ -297,6 +297,17 @@ public class DataStore {
         return deviceSimCache.get(deviceBoxName);
     }
 
+
+    public List<Device> queryAllDevices(){
+        Optional<List<Device>> result = deviceTable.selectAll();
+        if (result.isPresent()) {
+            List<Device> devices = result.get();
+            devices.forEach(device -> autoFillDevice(device));
+            return devices;
+        }
+        return null;
+    }
+
     /**
      * 把一些基本不动的配置信息读取到缓存中，减少数据库的存取
      */

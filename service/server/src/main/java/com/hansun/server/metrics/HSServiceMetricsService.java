@@ -10,7 +10,7 @@ import org.springframework.util.StringUtils;
 
 @Service
 public class HSServiceMetricsService {
-    private static final Logger log = LoggerFactory.getLogger(HSServiceMetricsService.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private InfluxDBClientHelper influxDbClientHelper;
@@ -18,7 +18,7 @@ public class HSServiceMetricsService {
     public void sendMetrics(HSServiceMetrics metrics) {
         influxDbClientHelper.emitMetrics(metrics);
 
-        log.trace("Metric {} sent", metrics.getMeasurement());
+        logger.info("Metric {} sent", metrics.getMeasurement());
     }
 
     public void sendMetrics(String metricsName) {

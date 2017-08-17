@@ -47,6 +47,10 @@ public class DeviceService {
         return dataStore.queryDeviceByOwner(useID);
     }
 
+    public List<Device> getAllDevices() {
+        return dataStore.queryAllDevices();
+    }
+
     public List<Device> getDevicesByLocationID(int locationID) {
         return dataStore.queryDeviceByLocation(locationID);
     }

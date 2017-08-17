@@ -220,6 +220,24 @@ public class DemoController {
     public String reportpage(Model model, HttpServletRequest request, HttpServletResponse response) throws IOException {
         return "report";
     }
+
+
+    @RequestMapping("/device_monitor")
+    public String device_monitor(Model model, @RequestParam(value = "userid", required = true, defaultValue = "-1") int userid,
+                       HttpServletRequest request, HttpServletResponse response) throws IOException {
+        logger.info("userid " + userid);
+        model.addAttribute("userid", userid);
+
+        if(userid == -1){
+            List<Device> list = deviceService.getAllDevices();
+            model.addAttribute("devices", list);
+        }
+        else{
+            List<Device> list = deviceService.getDevicesByOwner(userid);
+            model.addAttribute("devices", list);
+        }
+        return "device_monitor";
+    }
 }
 
 
