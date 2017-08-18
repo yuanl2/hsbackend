@@ -35,7 +35,6 @@ public class LinkManger {
 
     private List<DeviceListener> listeners = new ArrayList<>();
 
-    //因为多线程处理
     private Map<String, IHandler> map = new ConcurrentHashMap<>();
 
     @Autowired
@@ -52,11 +51,6 @@ public class LinkManger {
     @Autowired
     private SyncAsynMsgController syncAsynMsgController;
 
-    public SyncAsynMsgController getSyncAsynMsgController() {
-        return syncAsynMsgController;
-    }
-
-
     @PostConstruct
     public void init() {
         logger.info("LinkManger process msg thread pool number = " + hsServiceProperties.getProcessMsgThreadNum());
@@ -65,12 +59,13 @@ public class LinkManger {
 
     @PreDestroy
     public void shutdown() {
-        logger.info("Shutting down LinkManger");
+        logger.info("Shutting down LinkManger and close handler for device size = " + map.size());
 
+        long begin = System.currentTimeMillis();
         map.forEach((k, v) -> {
             if (v.isHasConnected()) {
                 try {
-                    logger.info("server down will clone link for " + v.getDeviceName());
+                    logger.info("server down will close link for " + v.getDeviceName());
                     v.handleClose();
                 } catch (IOException e) {
 
@@ -78,11 +73,16 @@ public class LinkManger {
                 updateDeviceLogoutTime(k);
             }
             else{
-                logger.info("status is disconnected for " + v.getDeviceName());
+                logger.debug("status is disconnected for " + v.getDeviceName());
             }
         });
-
         executorService.shutdown();
+        long end = System.currentTimeMillis();
+        logger.info("Shutting down LinkManger consume time = " + ( end - begin ) + " ms");
+    }
+
+    public SyncAsynMsgController getSyncAsynMsgController() {
+        return syncAsynMsgController;
     }
 
     public OrderService getOrderService() {
@@ -102,21 +102,18 @@ public class LinkManger {
         return deviceService.containDeviceBox(deviceBox);
     }
 
-    public void remove(String id) {
+    public void remove(String id, final Instant time) {
         try {
             if (map.containsKey(id)) {
-
                 List<Device> list = deviceService.getDevicesByDeviceBox(id);
-
                 if (list != null && list.size() > 0) {
                     //对于设备重连的情况，需要先设置设备的logout时间和状态，等连上后再更新
                     list.forEach(k -> {
                         k.setStatus(DeviceStatus.DISCONNECTED);
-                        k.setLogoutTime(Instant.now());
+                        k.setLogoutTime(time);
                         deviceService.updateDevice(k);
                     });
                 }
-
                 map.remove(id);
                 logger.info("LinkManger remove deviceSim = " + id);
             } else {
@@ -124,9 +121,7 @@ public class LinkManger {
             }
         } catch (Exception e) {
             logger.error("LinkManger not contains deviceSimCard = " + id);
-
         }
-
     }
 
     public IHandler get(String id) {
@@ -139,10 +134,8 @@ public class LinkManger {
 
     public void processHeart(String deviceName, Map map, Map portMap, String dup) {
         listeners.forEach(l -> l.connnect(deviceName, map, dup));
-
         //需要判断当前设备所有端口是否还有订单，和设备运行时间是否相符合
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
-
         updateOrderStatus(portMap, deviceList);
     }
 

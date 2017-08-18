@@ -12,6 +12,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.time.Instant;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,6 +56,9 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
      * 如果发现不需要发送了。
      */
     private SelectionKey selectionKey;
+
+
+    private Instant lastDeviceMsgTime;
 
 //    private boolean needResponse;
 //
@@ -327,7 +331,7 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
 //                        logger.info("waitThreadNum = " + waitThreadNum + " need to wake up");
 //                        condition.notifyAll();
 //                    }
-                    linkManger.remove(deviceName);
+                    linkManger.remove(deviceName, getLastDeviceMsgTime());
                 }
             } catch (IOException e) {
                 logger.error("handleClose error " + getDeviceName(), e);
@@ -354,7 +358,7 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
         }
 
 //        //如果当前有设备的响应消息需要优先回复，则wait
-//        isNeedResponse();
+        isNeedResponse();
 //
 //        try {
 //            lock.lock();
@@ -425,5 +429,14 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
                 object.notifyAll();
             }
         }
+    }
+
+    public Instant getLastDeviceMsgTime() {
+        return lastDeviceMsgTime;
+    }
+
+    @Override
+    public void setLastDeviceMsgTime(Instant lastDeviceMsgTime) {
+        this.lastDeviceMsgTime = lastDeviceMsgTime;
     }
 }

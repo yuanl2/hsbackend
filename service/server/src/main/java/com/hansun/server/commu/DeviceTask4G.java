@@ -38,6 +38,8 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
         try {
             msg.validate();
 
+            handler.setLastDeviceMsgTime(Instant.now());
+
             LinkManger linkManger = handler.getLinkManger();
             //如果是上电之后第一次上报状态和设备名，需要加入缓存中，以便后续下发消息使用
             if (msg.getMsgType().equals(DEVICE_REGISTER_MSG)) {
@@ -195,7 +197,9 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
             } catch (Exception e) {
                 logger.error(m.getDeviceName() + " close error!", e);
             }
-            linkManger.remove(m.getDeviceName());
+
+            //this code is duplicated with handleClose method in IHandler
+//            linkManger.remove(m.getDeviceName(), handler.getLastDeviceMsgTime());
 
             //todo 考虑实际设备名和设备上报的带sim卡信息的不一样
             linkManger.add(m.getDeviceName(), handler);

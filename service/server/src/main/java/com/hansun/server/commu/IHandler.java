@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.time.Instant;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -59,4 +60,8 @@ public interface IHandler {
     boolean isFistMsg();
 
     void setFistMsg(boolean fistMsg);
+
+    void setLastDeviceMsgTime(Instant time);
+
+    Instant getLastDeviceMsgTime();
 }

@@ -66,7 +66,7 @@ public class DeviceTask implements Runnable {
                 } catch (Exception e) {
                     logger.error(m.getDeviceName() + " close error!", e);
                 }
-                linkManger.remove(m.getDeviceName());
+//                linkManger.remove(m.getDeviceName());
 
                 //todo 考虑实际设备名和设备上报的带sim卡信息的不一样
                 linkManger.add(m.getDeviceName(), handler);

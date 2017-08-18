@@ -64,8 +64,7 @@ public class HeartBeatService {
 
         if (!deviceBoxIDs.isEmpty()) {
             deviceBoxIDs.forEach(k -> {
-                logger.info("HeartBeatService deviceIDMapSlot put  " + k + "  into "+ currentIndex);
-
+                logger.debug("HeartBeatService deviceIDMapSlot put  " + k + "  into "+ currentIndex);
                 deviceIDMapSlot.put(k, currentIndex);
                 slotMapDeviceIDs.get(currentIndex).add(k);
             });
@@ -83,7 +82,6 @@ public class HeartBeatService {
 
     class DeviceStatusTask extends TimerTask {
         public void run() {
-
             Set<String> sets;
             try {
                 //5秒扫一格，

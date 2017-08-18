@@ -58,7 +58,6 @@ public class SocketHandler extends AbstractHandler implements IHandler {
 
     private Object object = new Object();
 
-
     private boolean needSend;
 
     private ReentrantLock lock = new ReentrantLock();
@@ -305,7 +304,7 @@ public class SocketHandler extends AbstractHandler implements IHandler {
                         logger.info("waitThreadNum = " + waitThreadNum + " need to wake up");
                         condition.notifyAll();
                     }
-                    linkManger.remove(deviceName);
+                    linkManger.remove(deviceName, getLastDeviceMsgTime());
                 }
             } catch (IOException e) {
                 logger.error("handleClose error " + getDeviceName(), e);
