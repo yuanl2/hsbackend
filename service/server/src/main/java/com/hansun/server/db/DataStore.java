@@ -178,17 +178,17 @@ public class DataStore {
         deviceTable.update(device, device.getId());
         deviceCache.put(device.getId(), device);
 
-        if (device.getSimCard() != device2.getSimCard()) {
-            logger.info("device.getSimCard() = " + device.getSimCard() + " device2.getSimCard() = " + device2.getSimCard());
-            if (deviceSimCache.get(device2.getSimCard()) != null) {
-                deviceSimCache.get(device2.getSimCard()).remove(device2);
-            }
-
-            if (deviceSimCache.get(device.getSimCard()) == null) {
-                deviceSimCache.put(device.getSimCard(), new ArrayList<>());
-            }
-            deviceSimCache.get(device.getSimCard()).add(device);
-        }
+//        if (device.getSimCard() != device2.getSimCard()) {
+//            logger.info("device.getSimCard() = " + device.getSimCard() + " device2.getSimCard() = " + device2.getSimCard());
+//            if (deviceSimCache.get(device2.getSimCard()) != null) {
+//                deviceSimCache.get(device2.getSimCard()).remove(device2);
+//            }
+//
+//            if (deviceSimCache.get(device.getSimCard()) == null) {
+//                deviceSimCache.put(device.getSimCard(), new ArrayList<>());
+//            }
+//            deviceSimCache.get(device.getSimCard()).add(device);
+//        }
 
         return device;
     }
