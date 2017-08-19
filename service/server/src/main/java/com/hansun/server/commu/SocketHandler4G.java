@@ -338,10 +338,6 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
             hasConnected = false;
             try {
                 if (getSocketChannel() != null) {
-                    seq = null;
-                    linkManger = null;
-                    headBuffer = null;
-                    bodyBuffer = null;
 //                    setNeedResponse(false);
                     getSelectionKey().cancel();
                     getSocketChannel().close();
@@ -360,6 +356,10 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
                 logger.error("handleClose Exception error " + getDeviceName(), e);
             } finally {
                 linkManger.remove(deviceName, getLastDeviceMsgTime());
+                seq = null;
+                linkManger = null;
+                headBuffer = null;
+                bodyBuffer = null;
             }
         } else {
             logger.error(" not connect device ");
