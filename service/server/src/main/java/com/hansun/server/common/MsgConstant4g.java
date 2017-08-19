@@ -8,6 +8,10 @@ public class MsgConstant4g {
     public static final String DEVICE_REGISTER_MSG = "00";
     public static final String DEVICE_REGISTER_RESPONSE_MSG = "00";
 
+
+    public static final String DEVICE_REGISTER_MSG_V1 = "10";
+    public static final String DEVICE_REGISTER_RESPONSE_MSG_V1 = "10";
+
     public static final String DEVICE_HEARTBEAT_MSG = "01";
     public static final String DEVICE_HEARTBEAT_RESPONSE_MSG = "01";
 

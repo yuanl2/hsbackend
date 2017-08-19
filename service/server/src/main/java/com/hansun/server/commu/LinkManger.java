@@ -5,6 +5,7 @@ import com.hansun.dto.Order;
 import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.HSServiceProperties;
 import com.hansun.server.common.OrderStatus;
+import com.hansun.server.commu.common.IMsg4g;
 import com.hansun.server.commu.common.MsgTime;
 import com.hansun.server.service.DeviceListener;
 import com.hansun.server.service.DeviceService;
@@ -145,6 +146,19 @@ public class LinkManger {
             for (Device device : deviceList) {
                 device.setStatus(DeviceStatus.IDLE);
                 device.setLoginTime(Instant.now());
+                deviceService.updateDevice(device);
+            }
+        }
+    }
+
+    public void updateDeviceLogoutTime(String deviceName, int loginReason, int signal){
+        List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
+        if (deviceList != null && deviceList.size() > 0) {
+            for (Device device : deviceList) {
+                device.setStatus(DeviceStatus.IDLE);
+                device.setLoginTime(Instant.now());
+                device.setLoginReason(loginReason);
+                device.setSignal(signal);
                 deviceService.updateDevice(device);
             }
         }

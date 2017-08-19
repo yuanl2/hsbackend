@@ -26,6 +26,8 @@ public class Device {
     private int ownerID;
     private String owner;
     private int status;
+    private int signal = -1;
+    private int loginReason = -1;
 
     @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
     @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
@@ -179,6 +181,22 @@ public class Device {
         this.logoutTime = logoutTime;
     }
 
+    public int getSignal() {
+        return signal;
+    }
+
+    public void setSignal(int signal) {
+        this.signal = signal;
+    }
+
+    public int getLoginReason() {
+        return loginReason;
+    }
+
+    public void setLoginReason(int loginReason) {
+        this.loginReason = loginReason;
+    }
+
     @Override
     public String toString() {
         return "device{" +
@@ -194,6 +212,8 @@ public class Device {
                 ", owner=" + owner +
                 ", ownerID=" + ownerID +
                 ", status=" + status +
+                ", signal=" + signal +
+                ", loginReason=" + loginReason +
                 ", simCard=" + simCard +
                 ", port=" + port +
                 ", beginTime=" + beginTime +

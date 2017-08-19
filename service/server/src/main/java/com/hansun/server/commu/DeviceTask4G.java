@@ -46,7 +46,7 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
                 DeviceMsg m = (DeviceMsg) msg;
 
                 if (needClearOldLink(linkManger, m)) return;
-
+                handler.setNeedResponse(true);
                 Thread.sleep(delay);
 
                 DeviceResponseMsg m1 = new DeviceResponseMsg(DEVICE_REGISTER_RESPONSE_MSG);
@@ -54,7 +54,7 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
                 m1.setDeviceType(m.getDeviceType());
                 m1.setSeq(m.getSeq());
                 handler.getSendList().add(m1.toByteBuffer());
-//                handler.setNeedResponse(false);
+                handler.setNeedResponse(false);
                 handler.updateOps();
             }
 
@@ -63,7 +63,6 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
                 HeartBeatMsg m = (HeartBeatMsg) msg;
 
                 if (needClearOldLink(linkManger, m)) return;
-
 
 //                handler.setNeedResponse(true);
                 linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap(), m.getDup());
@@ -97,7 +96,6 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
                     if (result != null) {
                         result.setResponseMsg(msg);//后续会删除请求下发的消息
                     }
-
                 });
             }
 
@@ -130,7 +128,6 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
                     if (result != null) {
                         result.setResponseMsg(msg);//后续会删除请求下发的消息
                     }
-
                 });
             }
 
@@ -138,8 +135,6 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
                 DeviceTaskFinishMsg m = (DeviceTaskFinishMsg) msg;
 
                 if (needClearOldLink(linkManger, m)) return;
-
-//                handler.setNeedResponse(true);
 
 //                handler.setNeedResponse(true);
                 linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap(), m.getDup());
@@ -204,7 +199,13 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
             //todo 考虑实际设备名和设备上报的带sim卡信息的不一样
             linkManger.add(m.getDeviceName(), handler);
 
-            linkManger.updateDeviceLoginTime(m.getDeviceName());
+            if (m.getMsgType().equals(DEVICE_REGISTER_MSG)) {
+                DeviceMsg msgV1 = (DeviceMsg) m;
+                linkManger.updateDeviceLogoutTime(m.getDeviceName(),
+                        Integer.valueOf(msgV1.getLogin_reason()), Integer.valueOf(msgV1.getSignal()));
+            } else {
+                linkManger.updateDeviceLoginTime(m.getDeviceName());
+            }
         }
         return false;
     }

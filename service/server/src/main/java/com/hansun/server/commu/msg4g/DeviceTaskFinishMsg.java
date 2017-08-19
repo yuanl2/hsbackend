@@ -37,51 +37,49 @@ public class DeviceTaskFinishMsg extends AbstractMsg {
     public void validate() throws InvalidMsgException {
         int checkxor = getXOR();
 
-        setSeq(msgInputStream.readString(DEVICE_SEQ_FIELD_SIZE));
-        msgInputStream.skipBytes(1);
-        setDup(msgInputStream.readString(DEVICE_DUP_FIELD_SIZE));
-        msgInputStream.skipBytes(1);
+        String body = new String(msgBody);
+        String[] content = body.split(DEVICE_SEPARATOR_FIELD);
 
-        setDeviceType(msgInputStream.readString(DEVICE_TYPE_FIELD_SIZE));
-        msgInputStream.skipBytes(1);
+        setSeq(content[0]);
+        setDup(content[1]);
+        setDeviceType(content[2]);
 
-        byte[] status = msgInputStream.readBytes(DEVICE_STATUS_FIELD_SIZE);
-        for (int i = 1; i <= status.length; i++) {
-            if (status[i - 1] == 49) {//'1'
+        String status = content[3];
+        for (int i = 1; i <= status.length(); i++) {
+            if (status.charAt(i - 1) == 49) {//'1'
                 getMap().put(i, DeviceStatus.SERVICE);
-            } else if (status[i - 1] == 48) { //'0'
+            } else if (status.charAt(i - 1) == 48) { //'0'
                 getMap().put(i, DeviceStatus.IDLE);
-            } else if (status[i - 1] == 88) { //'X'
+            } else if (status.charAt(i - 1) == 88) { //'X'
                 getMap().put(i, DeviceStatus.INVALID);
             }
         }
-        msgInputStream.skipBytes(1);
-        String times = msgInputStream.readString(DEVICE_RUNNING_TIME_FIELD_SIZE);
+        String times = content[4];
         for (int i = 0; i < 4; i++) {
-            int time = Integer.valueOf(times.substring(i * 4, i * 4 + 2));
-            int runTime = Integer.valueOf(times.substring(i * 4 + 2, i * 4 + 4));
-            portMap.put(i+1,new MsgTime(time,runTime));
+            int time = Integer.valueOf(times.substring(i * 4, i * 4 + 1));
+            int runTime = Integer.valueOf(times.substring(i * 4 + 2, i * 4 + 3));
+            portMap.put(i + 1, new MsgTime(time, runTime));
         }
-        msgInputStream.skipBytes(1);
+
         //add preseq
-        String preSeq = msgInputStream.readString(DEVICE_PRE_SEQ_FIELD_SIZE);
+        String preSeq = content[5];
         for (int i = 0; i < 4; i++) {
             preSeqMap.put(i + 1, preSeq.substring(i * 3, i * 3 + 3));
         }
-        msgInputStream.skipBytes(1);
 
-        String simName = msgInputStream.readString(DEVICE_NAME_FIELD_SIZE);
+        String simName = content[6];
 
         if (!isLetterDigit(simName)) {
             throw new InvalidMsgException("device sim name is invalid " + simName, ErrorCode.DEVICE_SIM_FORMAT_ERROR.getCode());
         }
 
         setDeviceName(simName);
-        msgInputStream.skipBytes(1);
-        int xor = Integer.valueOf(msgInputStream.readString(DEVICE_XOR_FIELD_SIZE));
+
+        int xor = Integer.valueOf(content[7]);
         if (xor != checkxor) {
-            throw new InvalidMsgException("message check xor error!", ErrorCode.DEVICE_XOR_ERROR.getCode());
+            throw new InvalidMsgException("message check xor error! checkxor = " + checkxor + " xor = " + xor, ErrorCode.DEVICE_XOR_ERROR.getCode());
         }
-        msgInputStream = null;
+        content = null;
+        body = null;
     }
 }

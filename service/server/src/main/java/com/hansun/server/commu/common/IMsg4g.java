@@ -10,4 +10,6 @@ public interface IMsg4g extends IMsg {
     String getDeviceName();
 
     void setDeviceName(String deviceName);
+
+
 }

@@ -262,7 +262,29 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
 
         MsgInputStream headMsgInputStream = new MsgInputStream(head);
         headMsgInputStream.readString(IDENTIFIER_FIELD_SIZE + CMD_FIELD_SIZE + 2);
-        int len = Integer.valueOf(headMsgInputStream.readString(BODY_LENGTH_FIELD_SIZE));
+        int len = -1;
+        try {
+            len = Integer.valueOf(headMsgInputStream.readString(BODY_LENGTH_FIELD_SIZE));
+        } catch (Exception e) {
+            logger.error("Msg head parse error! " + headContent);
+            boolean exit = false;
+            while (exit) {
+                bodyBuffer = ByteBuffer.allocate(1);
+                bytesRead = getSocketChannel().read(bodyBuffer);
+                if (bytesRead == -1) {
+                    exit = true;
+                } else {
+                    // '#'
+                    if (bodyBuffer.get() == 35) {
+                        exit = true;
+                    }
+                }
+            }
+            headBuffer.rewind();
+            headBuffer.clear();
+            bodyBuffer.clear();
+            return;
+        }
         bodyBuffer = ByteBuffer.allocate(len);
         bytesRead = getSocketChannel().read(bodyBuffer);
         if (bytesRead == -1) {
@@ -331,14 +353,13 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
 //                        logger.info("waitThreadNum = " + waitThreadNum + " need to wake up");
 //                        condition.notifyAll();
 //                    }
-                    linkManger.remove(deviceName, getLastDeviceMsgTime());
                 }
             } catch (IOException e) {
-                logger.error("handleClose error " + getDeviceName(), e);
+                logger.error("handleClose IOException error " + getDeviceName(), e);
             } catch (Exception e) {
-                logger.error("handleClose error " + getDeviceName(), e);
-//            } finally {
-//                lock.unlock();
+                logger.error("handleClose Exception error " + getDeviceName(), e);
+            } finally {
+                linkManger.remove(deviceName, getLastDeviceMsgTime());
             }
         } else {
             logger.error(" not connect device ");

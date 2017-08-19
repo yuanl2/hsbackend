@@ -24,10 +24,7 @@ public abstract class AbstractMsg implements IMsg4g {
     protected String DeviceType;
     protected String seq;
     protected String dup = "00";
-    protected MsgInputStream msgInputStream;
-
     protected String deviceName;
-
     protected Map<Integer, MsgTime> portMap = new HashMap<>();
     protected Map<Integer, Integer> map = new HashMap<>();
     protected Map<Integer,String> preSeqMap = new HashMap<>();
@@ -50,7 +47,6 @@ public abstract class AbstractMsg implements IMsg4g {
 
     public void setMsgBody(byte[] msgBody) {
         this.msgBody = msgBody;
-        msgInputStream = new MsgInputStream(msgBody);
     }
 
     public String getTitle() {

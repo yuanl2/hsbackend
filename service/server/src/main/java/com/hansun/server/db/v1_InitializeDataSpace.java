@@ -26,6 +26,8 @@ public class v1_InitializeDataSpace {
                     "port INT(4) NOT NULL DEFAULT 1," +
                     "loginTime DATETIME DEFAULT NULL," +
                     "logoutTime DATETIME DEFAULT NULL," +
+                    "signalValue INT(4) NOT NULL DEFAULT -1," +
+                    "loginReason INT(4) NOT NULL DEFAULT -1," +
                     "PRIMARY KEY (deviceID)," +
                     "UNIQUE KEY deviceID_UNIQUE (deviceID))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");

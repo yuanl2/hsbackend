@@ -26,12 +26,6 @@ public class DeviceErrorMsg extends AbstractMsg {
 
     @Override
     public void validate() throws InvalidMsgException {
-        setDeviceType(msgInputStream.readString(DEVICE_TYPE_FIELD_SIZE));
-        msgInputStream.skipBytes(1);
-        int xor = Integer.valueOf(msgInputStream.readString(DEVICE_XOR_FIELD_SIZE));
-        if (xor != checkxor) {
-            throw new InvalidMsgException("message check xor error!", ErrorCode.DEVICE_XOR_ERROR.getCode());
-        }
-        msgInputStream = null;
+
     }
 }
