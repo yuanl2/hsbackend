@@ -21,7 +21,7 @@ public class OrderTable {
     private static final String SELECTBYDEVICE = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, createTime ,orderName,orderStatus FROM consumeorder WHERE startTime >= ? and endTime <= ? and deviceID in ";
     private static final String SELECTBYNAME = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, createTime ,orderName,orderStatus FROM consumeorder WHERE accountName = ?";
     private static final String SELECT_ALL = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, createTime ,orderName,orderStatus FROM consumeorder";
-    private static final String SELECT_NOTFINISH = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, createTime ,orderName,orderStatus FROM consumeorder where endTime == null";
+    private static final String SELECT_NOTFINISH = "SELECT orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount,price, duration, createTime ,orderName,orderStatus FROM consumeorder where orderStatus != ? order by startTime Desc";
 
     private static final String DELETE = "DELETE FROM consumeorder WHERE accountName = ?";
     private static final String INSERT = "INSERT INTO consumeorder (orderID, deviceID, startTime, endTime, consumeType, accountType, payAccount, price, duration, createTime, orderName, orderStatus) VALUES (?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ? ,?)";
@@ -214,12 +214,12 @@ public class OrderTable {
     }
 
 
-    public Optional<List<Order>> selectNotFinish() {
+    public Optional<List<Order>> selectNotFinish(int status) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             selectStatement = conn.prepareStatement(SELECT_NOTFINISH);
-            selectStatement.setTimestamp(1, null);
+            selectStatement.setInt(1, status);
             return Optional.ofNullable(selectStatement.executeQuery())
                     .map(resultSet -> {
                         try {

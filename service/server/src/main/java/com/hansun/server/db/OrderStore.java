@@ -1,6 +1,7 @@
 package com.hansun.server.db;
 
 import com.hansun.dto.Order;
+import com.hansun.server.common.OrderStatus;
 import com.hansun.server.common.ServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,7 @@ public class OrderStore {
     @PostConstruct
     private void init() {
         orderTable = new OrderTable(connectionPoolManager);
+        initOrderCache();
     }
 
     @PreDestroy
@@ -77,19 +79,30 @@ public class OrderStore {
         return null;
     }
 
-
-    public List<Order> queryNotFinish() {
-        Optional<List<Order>> result = orderTable.selectNotFinish();
+    public List<Order> queryNotFinish(int status) {
+        Optional<List<Order>> result = orderTable.selectNotFinish(status);
         if (result.isPresent()) {
             return result.get();
         }
         return null;
     }
 
-
     public Order insertOrder(Order order) {
         orderCache.put(order.getDeviceID(), order);
         orderTable.insert(order);
         return order;
+    }
+
+    private void initOrderCache() {
+        long begin = System.currentTimeMillis();
+        List<Order> notFinishedOrders = queryNotFinish(OrderStatus.FINISH);
+        if (notFinishedOrders != null && notFinishedOrders.size() > 0) {
+            notFinishedOrders.forEach(k -> {
+                logger.debug("init orderCache add order = " + k);
+                orderCache.putIfAbsent(k.getDeviceID(), k);
+            });
+        }
+        long end = System.currentTimeMillis();
+        logger.info("init orderCache consume time = " + (end - begin) + " ms");
     }
 }
