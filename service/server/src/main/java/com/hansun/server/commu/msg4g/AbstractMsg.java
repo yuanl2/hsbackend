@@ -107,7 +107,6 @@ public abstract class AbstractMsg implements IMsg4g {
         return map;
     }
 
-
     public Map<Integer, MsgTime> getPortMap() {
         return portMap;
     }

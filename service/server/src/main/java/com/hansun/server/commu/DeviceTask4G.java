@@ -199,12 +199,13 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
             //todo 考虑实际设备名和设备上报的带sim卡信息的不一样
             linkManger.add(m.getDeviceName(), handler);
 
+            //如果是重连后的第一条消息，则会携带设备当前端口的状态，进行更新
             if (m.getMsgType().equals(DEVICE_REGISTER_MSG)) {
                 DeviceMsg msgV1 = (DeviceMsg) m;
                 linkManger.updateDeviceLogoutTime(m.getDeviceName(),
-                        Integer.valueOf(msgV1.getLogin_reason()), Integer.valueOf(msgV1.getSignal()));
+                        Integer.valueOf(msgV1.getLogin_reason()), Integer.valueOf(msgV1.getSignal()), m.getMap());
             } else {
-                linkManger.updateDeviceLoginTime(m.getDeviceName());
+                linkManger.updateDeviceLoginTime(m.getDeviceName(), m.getMap());
             }
         }
         return false;

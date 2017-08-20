@@ -71,7 +71,7 @@ public class DeviceTask implements Runnable {
                 //todo 考虑实际设备名和设备上报的带sim卡信息的不一样
                 linkManger.add(m.getDeviceName(), handler);
 
-                linkManger.updateDeviceLoginTime(m.getDeviceName());
+                linkManger.updateDeviceLoginTime(m.getDeviceName(), m.getMap());
                 Thread.sleep(delay);
 
                 DeviceResponseMsg m1 = new DeviceResponseMsg(DEVICE_REGISTER_RESPONSE_MSG);

@@ -123,49 +123,49 @@ public class OrderService {
                 syncAsynMsgController.createSyncWaitResult(msg, handler, index);
                 handler.sendMsg(msg, device.getPort());
             }
-            else{
-                ServerStartDeviceMsg msg = new ServerStartDeviceMsg(DEVICE_START_MSG);
-                msg.setDeviceType("000");
-
-                order.setPrice(dataStore.queryConsume(order.getConsumeType()).getPrice());
-                order.setDuration(dataStore.queryConsume(order.getConsumeType()).getDuration());
-
-                Map<Integer, String> map = new HashMap<>();
-                for (int i = 1; i <= 4; i++) {
-                    if (index == i) {
-                        map.put(i, "1");
-                    } else {
-                        map.put(i, "0");
-                    }
-                }
-                msg.setStatus(map);
-                Map<Integer, String> times = new HashMap<>();
-                for (int i = 1; i <= 4; i++) {
-                    if (index == i) {
-                        int duration = order.getDuration();
-                        if (duration < 10) {
-                            times.put(i, "0" + order.getDuration());
-                        } else {
-                            times.put(i, order.getDuration() + "");
-                        }
-                    } else {
-                        times.put(i, "00");
-                    }
-                }
-                msg.setMap(times);
-
-                String simcard = device.getSimCard();
-
-                IHandler handler = linkManger.get(simcard);
-                if (handler == null) {
-                    logger.error("can not create order for handler for device not exist  " + device.getName());
-                    throw new ServerException("can not create order for handler for device not exist  " + device.getName());
-                }
-
-                msg.setSeq(String.valueOf(handler.getSeq()));
-                syncAsynMsgController.createSyncWaitResult(msg, handler, index);
-                handler.sendMsg(msg, device.getPort());
-            }
+//            else{
+//                ServerStartDeviceMsg msg = new ServerStartDeviceMsg(DEVICE_START_MSG);
+//                msg.setDeviceType("000");
+//
+//                order.setPrice(dataStore.queryConsume(order.getConsumeType()).getPrice());
+//                order.setDuration(dataStore.queryConsume(order.getConsumeType()).getDuration());
+//
+//                Map<Integer, String> map = new HashMap<>();
+//                for (int i = 1; i <= 4; i++) {
+//                    if (index == i) {
+//                        map.put(i, "1");
+//                    } else {
+//                        map.put(i, "0");
+//                    }
+//                }
+//                msg.setStatus(map);
+//                Map<Integer, String> times = new HashMap<>();
+//                for (int i = 1; i <= 4; i++) {
+//                    if (index == i) {
+//                        int duration = order.getDuration();
+//                        if (duration < 10) {
+//                            times.put(i, "0" + order.getDuration());
+//                        } else {
+//                            times.put(i, order.getDuration() + "");
+//                        }
+//                    } else {
+//                        times.put(i, "00");
+//                    }
+//                }
+//                msg.setMap(times);
+//
+//                String simcard = device.getSimCard();
+//
+//                IHandler handler = linkManger.get(simcard);
+//                if (handler == null) {
+//                    logger.error("can not create order for handler for device not exist  " + device.getName());
+//                    throw new ServerException("can not create order for handler for device not exist  " + device.getName());
+//                }
+//
+//                msg.setSeq(String.valueOf(handler.getSeq()));
+//                syncAsynMsgController.createSyncWaitResult(msg, handler, index);
+//                handler.sendMsg(msg, device.getPort());
+//            }
 
 
         } catch (Exception e) {

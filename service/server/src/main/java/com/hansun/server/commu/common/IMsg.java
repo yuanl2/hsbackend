@@ -3,6 +3,7 @@ package com.hansun.server.commu.common;
 import com.hansun.server.common.InvalidMsgException;
 
 import java.nio.ByteBuffer;
+import java.util.Map;
 
 
 /**
@@ -38,4 +39,6 @@ public interface IMsg {
     void setDup(String dup);
 
     String getDup();
+
+    Map<Integer, Integer> getMap();
 }

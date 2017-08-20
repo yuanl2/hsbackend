@@ -140,22 +140,22 @@ public class LinkManger {
         updateOrderStatus(portMap, deviceList);
     }
 
-    public void updateDeviceLoginTime(String deviceName){
+    public void updateDeviceLoginTime(String deviceName,Map<Integer,Integer> map){
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
         if (deviceList != null && deviceList.size() > 0) {
             for (Device device : deviceList) {
-                device.setStatus(DeviceStatus.IDLE);
+                device.setStatus(map.get(device.getPort()));
                 device.setLoginTime(Instant.now());
                 deviceService.updateDevice(device);
             }
         }
     }
 
-    public void updateDeviceLogoutTime(String deviceName, int loginReason, int signal){
+    public void updateDeviceLogoutTime(String deviceName, int loginReason, int signal,Map<Integer,Integer> map){
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
         if (deviceList != null && deviceList.size() > 0) {
             for (Device device : deviceList) {
-                device.setStatus(DeviceStatus.IDLE);
+                device.setStatus(map.get(device.getPort()));
                 device.setLoginTime(Instant.now());
                 device.setLoginReason(loginReason);
                 device.setSignal(signal);

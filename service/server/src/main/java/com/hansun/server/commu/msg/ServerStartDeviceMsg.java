@@ -24,18 +24,18 @@ public class ServerStartDeviceMsg extends AbstractMsg {
     /**
      * 每个端口启动时长
      */
-    private Map<Integer, String> map = new HashMap<>();
+    private Map<Integer, Integer> map = new HashMap<>();
 
     /**
      * 每个端口状态
      */
     private Map<Integer, String> status = new HashMap<>();
 
-    public Map<Integer, String> getMap() {
+    public Map<Integer, Integer> getMap() {
         return map;
     }
 
-    public void setMap(Map<Integer, String> map) {
+    public void setMap(Map<Integer, Integer> map) {
         this.map = map;
     }
 
@@ -65,11 +65,11 @@ public class ServerStartDeviceMsg extends AbstractMsg {
 //        builder1.writeString(DEVICE_SEPARATOR_FIELD);
 
         status.forEach((k, v) -> {
-            builder1.writeString(v);
+            builder1.writeString(v+"");
         });
         builder1.writeString(DEVICE_SEPARATOR_FIELD);//5 bytes
         map.forEach((k, v) -> {
-            builder1.writeString(v);
+            builder1.writeString(v+"");
         });
         builder1.writeString(DEVICE_SEPARATOR_FIELD);//9 bytes
 

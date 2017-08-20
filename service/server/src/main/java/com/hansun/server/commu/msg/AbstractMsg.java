@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.hansun.server.common.MsgConstant.*;
 
@@ -21,6 +23,7 @@ public abstract class AbstractMsg implements IMsg {
     protected String seq;
     protected String dup;
     protected MsgInputStream msgInputStream;
+    protected Map<Integer, Integer> map = new HashMap<>();
 
     public void setMsgType(String msgType) {
         MsgType = msgType;
@@ -89,6 +92,9 @@ public abstract class AbstractMsg implements IMsg {
         this.dup = dup;
     }
 
+    public Map<Integer, Integer> getMap() {
+        return map;
+    }
     /**
      * 具体消息重载
      *
