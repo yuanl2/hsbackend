@@ -3,6 +3,7 @@ package com.hansun.server.service;
 import com.hansun.dto.User;
 import com.hansun.server.db.DataStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Role;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,7 +16,9 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by yuanl2 on 2017/3/29.
@@ -81,7 +84,11 @@ public class UserService implements UserDetailsService {
         }
 
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("Role"));
+        String role = user.getRole();
+        for (String r :
+                role.split(",")) {
+            authorities.add(new SimpleGrantedAuthority(r));
+        }
         return new org.springframework.security.core.userdetails.User(user.getName(), user.getPassword(), user.isEnabled(), user.isAccountNonExpired(), user.isCredentialsNonExpired(), user.isAccountNonLocked(), authorities);
     }
 }
