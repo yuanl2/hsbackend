@@ -44,7 +44,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().
+        http.csrf().disable().authorizeRequests().
                 antMatchers("/", "/index", "/index/**", "/device", "/device/**", "/callback",
                         "/callback/**", "/js/**", "/css/**", "/pic/**", "/api/deviceStatus", "/api//deviceStatus/**",
                         "/detail", "/detail/**", "/disable", "/disable/**","/testcmd","/testcmd/**",
@@ -54,6 +54,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .and()
                 .logout()
-                .permitAll().and().httpBasic();
+                .permitAll()
+                .and().httpBasic();
     }
 }
