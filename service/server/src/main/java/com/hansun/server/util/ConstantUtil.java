@@ -6,12 +6,12 @@ public class ConstantUtil {
 	 */
 	
 	//初始化
-	public static String APP_ID = "wxcb6ea72d13ed049f";//微信开发平台应用id
-	public static String APP_SECRET = "14846f1b249062e2cd376fea98dfd3d7";//应用对应的凭证
+	public static String APP_ID = "wx4b72ad15df4fe82d";//微信开发平台应用id
+	public static String APP_SECRET = "2af45cf76c9aff9395d630c969e09c56";//应用对应的凭证
 	//应用对应的密钥
 	public static String APP_KEY = "L8LrMqqeGRxST5reouB0K66CaYAWpqhAVsq7ggKkxHCOastWksvuX1uvmvQclxaHoYd3ElNBrNO2DHnnzgfVG9Qs473M3DTOZug5er46FhuGofumV8H2FVR9qkjSlC5K";
-	public static String PARTNER = "1900000109";//财付通商户号
-	public static String PARTNER_KEY = "8934e7d15453e97507ef794cf7b0519d";//商户号对应的密钥
+	public static String PARTNER = "1466854102";
+	public static String PARTNER_KEY = "F61CC619B42291E9C7C6A314425571D2";//商户号对应的密钥
 	public static String TOKENURL = "https://api.weixin.qq.com/cgi-bin/token";//获取access_token对应的url
 	public static String GRANT_TYPE = "client_credential";//常量固定值 
 	public static String EXPIRE_ERRCODE = "42001";//access_token失效后请求返回的errcode
@@ -26,7 +26,7 @@ public class ConstantUtil {
 
 	public static String  GET_CODE_URL_WX = "https://open.weixin.qq.com/connect/oauth2/authorize";
 	//回调地址
-	public static String REDIRECT_URI_WX = "http://localhost/topay/callback";
+	public static String REDIRECT_URI_WX = "http://www.knocknock.vip/hsservice/callback";
 	public static String REDIRECT_URI_ZFB = "http://jfshanghu.daoqidata.com/topay/callback";
 
 	public static String GET_OPENID_URL_WX = "https://api.weixin.qq.com/sns/oauth2/access_token";

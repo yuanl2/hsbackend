@@ -45,10 +45,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().authorizeRequests().
-                antMatchers("/", "/index", "/index/**", "/device", "/device/**", "/callback",
-                        "/callback/**", "/js/**", "/css/**", "/pic/**", "/api/deviceStatus", "/api//deviceStatus/**",
+                antMatchers("/", "/index", "/index/**", "/device", "/device/**", "/callback","/callback/**","/assets/**",
+                        "/callback/**", "/js/**", "/css/**", "/pic/**", "/api/deviceStatus", "/api/deviceStatus/**",
                         "/detail", "/detail/**", "/disable", "/disable/**","/testcmd","/testcmd/**",
-                        "/finish","/finish/**").permitAll()
+                        "/finish","/finish/**","/weixin/savepackage/**").permitAll()
                 .anyRequest().authenticated()
                 .and().formLogin().loginPage("/login")
                 .permitAll()

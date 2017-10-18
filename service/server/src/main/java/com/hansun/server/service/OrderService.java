@@ -13,6 +13,7 @@ import com.hansun.server.db.OrderStore;
 import com.hansun.server.db.PayAcountStore;
 import com.hansun.server.metrics.HSServiceMetrics;
 import com.hansun.server.metrics.HSServiceMetricsService;
+import com.hansun.server.util.MsgUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,17 +79,25 @@ public class OrderService {
             }
             int index = device.getPort();
 
+            String deviceType = MsgUtil.getMsgBodyLength(device.getType(),3);
             //4g device
             if(device.getSimCard().length() == MsgConstant4g.DEVICE_NAME_FIELD_SIZE){
 
+                int portNum =1;
                 com.hansun.server.commu.msg4g.ServerStartDeviceMsg msg = new com.hansun.server.commu.msg4g.ServerStartDeviceMsg(MsgConstant4g.DEVICE_START_MSG);
-                msg.setDeviceType("001");
+                msg.setDeviceType(deviceType);
 
                 order.setPrice(dataStore.queryConsume(order.getConsumeType()).getPrice());
                 order.setDuration(dataStore.queryConsume(order.getConsumeType()).getDuration());
 
+                if(deviceType.equals("000")){
+                    portNum = 4;
+                }
+                else if(deviceType.equals("100")){
+                    portNum = 1;
+                }
                 Map<Integer, Integer> map = new HashMap<>();
-                for (int i = 1; i <= 4; i++) {
+                for (int i = 1; i <= portNum; i++) {
                     if (index == i) {
                         map.put(i, 1);
                     } else {
@@ -97,7 +106,7 @@ public class OrderService {
                 }
                 msg.setMap(map);
                 Map<Integer, String> times = new HashMap<>();
-                for (int i = 1; i <= 4; i++) {
+                for (int i = 1; i <= portNum; i++) {
                     if (index == i) {
                         int duration = order.getDuration();
                         if (duration < 10) {

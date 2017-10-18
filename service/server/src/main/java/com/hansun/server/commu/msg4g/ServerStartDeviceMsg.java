@@ -39,7 +39,17 @@ public class ServerStartDeviceMsg extends AbstractMsg {
 
     @Override
     public ByteBuffer toByteBuffer() {
-        ByteBuffer sendBuffer = ByteBuffer.allocate(44);
+        int portNum = 1;
+
+        if(getDeviceType().equals("000")){
+            portNum = 4;
+        }
+        else if (getDeviceType().equals("100")) {
+            portNum = 1;
+        }
+
+
+        ByteBuffer sendBuffer = ByteBuffer.allocate(32 + 3 * portNum);
         StringBuilder headBuilder = new StringBuilder();
         headBuilder.append(getTitle()).append(DEVICE_SEPARATOR_FIELD).append(getMsgType()).append(DEVICE_SEPARATOR_FIELD);
         //5+1+2+1 = 9

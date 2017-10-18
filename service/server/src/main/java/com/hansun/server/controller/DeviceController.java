@@ -115,11 +115,11 @@ public class DeviceController {
                                @RequestParam(value = "pay_method", required = true, defaultValue = "wx") String pay_method,
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
         Device d = deviceService.getDevice(Long.valueOf(device_id));
-        Order o = orderService.getOrder(Long.valueOf(device_id));
-        if (o != null) {
-            logger.error("device servering.... = " + device_id);
-            return String.valueOf(DeviceStatus.SERVICE);
-        }
+//        Order o = orderService.getOrder(Long.valueOf(device_id));
+//        if (d.getStatus() == DeviceStatus.SERVICE) {
+//            logger.error("device servering.... = " + device_id);
+//            return String.valueOf(DeviceStatus.SERVICE);
+//        }
 
         if (d != null) {
             logger.info("device_id = " + device_id);

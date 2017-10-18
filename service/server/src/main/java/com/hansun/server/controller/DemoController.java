@@ -48,25 +48,27 @@ public class DemoController {
     private OrderService orderService;
 
     @RequestMapping("/device")
-    public String hello(Model model, @RequestParam(value = "device_id", required = false, defaultValue = "World") String name,
+    public String dispatch(Model model, @RequestParam(value = "device_id", required = false, defaultValue = "World") String name,
                         HttpServletRequest request, HttpServletResponse response) {
         String useragent = request.getHeader("User-Agent");
         logger.info("request from " + useragent);
         String url = "index?device_id=" + name;
         //go wechat flow
         String state = name;
+        String reg =  ".*micromessenger.*";
         try {
-//
-//            if (useragent.contains("MicroMessenger")) {
-//                // Constant.GET_CODE_URL_WX = https://open.weixin.qq.com/connect/oauth2/authorize 请求WX接口
-//                url = ConstantUtil.GET_CODE_URL_WX + "?appid=" + ConstantUtil.APP_ID + "&redirect_uri=" + ConstantUtil.REDIRECT_URI_WX
-//                        + "&response_type=code&scope=snsapi_base&state=" + state + ":WXZF"
-//                        + "#wechat_redirect";
-//            } else {
-////                url = Constant.GET_CODE_URL_ZFB + "?app_id=" + Constant.APPID_ZFB + "&scope=auth_base&redirect_uri="
-////                        + URLEncoder.encode(REDIRECT_URI_ZFB, "utf-8") + "&state=" + state + ":ZFBZF"
-////                        + (payForm.getFrom() == null ? ":ZC" : ":JF");
-//            }
+
+            if (useragent.toLowerCase().matches(reg)) {
+                // Constant.GET_CODE_URL_WX = https://open.weixin.qq.com/connect/oauth2/authorize 请求WX接口
+                url = ConstantUtil.GET_CODE_URL_WX + "?appid=" + ConstantUtil.APP_ID + "&redirect_uri=" + ConstantUtil.REDIRECT_URI_WX
+                        + "&response_type=code&scope=snsapi_base&state=" + state + ":WXZF"
+                        + "#wechat_redirect";
+                logger.info("dispatch wx url = " + url);
+            } else {
+//                url = Constant.GET_CODE_URL_ZFB + "?app_id=" + Constant.APPID_ZFB + "&scope=auth_base&redirect_uri="
+//                        + URLEncoder.encode(REDIRECT_URI_ZFB, "utf-8") + "&state=" + state + ":ZFBZF"
+//                        + (payForm.getFrom() == null ? ":ZC" : ":JF");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -86,9 +88,15 @@ public class DemoController {
     @RequestMapping("/callback")
     public String window(String code, String state, String auth_code, HttpServletRequest request) {
 
+        logger.info(request.getContextPath());
+        logger.info(request.getPathInfo());
+        logger.info(request.getRequestURI());
         logger.info("alicode====" + auth_code);
+        logger.info("state====" + state);
+        logger.info("code====" + code);
+
         Map requestParams = request.getParameterMap();
-        logger.info("PPPPPPPPPPPPPPPPPPPPPPpp" + requestParams.toString());
+        logger.info("requestParams.toString()" + requestParams.toString());
 
         String[] split = state.split(":");
 
@@ -105,6 +113,7 @@ public class DemoController {
                 String doGet = HttpClientUtil.doGet(url, null);
                 Map<Object, Object> jsonToMap = JSONObject.fromObject(doGet);
                 openid = (String) jsonToMap.get("openid");
+                logger.info("WXZF callback openid = "  + openid);
             }
             if ("ZFBZF".equals(split[1])) {
 //                AlipayClient alipayClient = new DefaultAlipayClient(Constant.GET_USERID_URL_ZFB, Constant.APPID_ZFB,
@@ -122,25 +131,80 @@ public class DemoController {
             e.printStackTrace();
 
         }
-        return "forward:/index?first=" + free + "&device_id=" + name;
+
+
+
+        return "redirect:index?openid=" + openid + "&device_id=" + name;
     }
+
+
+//    /**
+//     * @param payForm
+//     * @param request
+//     * @return //到页面 内部用 前端不用
+//     */
+//    @RequestMapping("/pn")
+//    public String pn(PayForm payForm, HttpServletRequest request) {
+//        /** 获取参数 */
+//        String sn = payForm.getSn();
+//        NewSysUser user = new NewSysUser();
+//        user.setUserNo(sn);
+//        NewSysUser findUser = null;
+//        NewProductSn findsn = null;
+//        try {
+//            findUser = userBiz.findUser(user);
+//            if (findUser != null) {
+//                String shortname = findUser.getUserShortname();
+//                shortname = URLEncoder.encode(shortname);
+//                String encode = "http://jfshanghu.daoqidata.com/PhonePospInterface/wxPNPay2.jsp?saruname=" + shortname
+//                        + "&saruLruid=" + findUser.getUserNo() + "&openid=" + payForm.getOpenid() + "&unionid="
+//                        + payForm.getUnionid() + "&from=" + payForm.getFrom() + "&type=" + payForm.getType();
+//                return "redirect:" + encode;
+//            }
+//            NewProductSn newProductSn = new NewProductSn();
+//            newProductSn.setQrcode(sn);
+//
+//            findsn = ProductSnBiz.findBySn(newProductSn);
+//            if (findsn == null) {
+//                return "redirect:" + "http://mp.weixin.qq.com/s/87lyKJlu0NA91f_hj4jvpw";
+//            }
+//
+//            NewSysUser user2 = new NewSysUser();
+//            user2.setId(findsn.getUserId());
+//            findUser = userBiz.findUser(user2);
+//            if (findUser != null) {
+//                String shortname = findUser.getUserShortname();
+//                shortname = URLEncoder.encode(shortname);
+//                String encode = "http://jfshanghu.daoqidata.com/PhonePospInterface/wxPNPay2.jsp?saruname=" + shortname
+//                        + "&saruLruid=" + findUser.getUserNo() + "&openid=" + payForm.getOpenid() + "&unionid="
+//                        + payForm.getUnionid() + "&from=" + payForm.getFrom() + "&type=" + payForm.getType();
+//                return "redirect:" + encode;
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return "redirect:" + "http://mp.weixin.qq.com/s/QQfieiV8ooIx5nYc3zOtpw";
+//    }
+
+
 
     @RequestMapping("/index")
     public String page(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "000000") String name,
-                       @RequestParam(value = "first", required = false, defaultValue = "0") String first,
+                       @RequestParam(value = "openid", required = false, defaultValue = "0") String openid,
                        HttpServletRequest request, HttpServletResponse response) throws IOException {
-        logger.info("page " + first + "device_id " + name);
+        logger.info("openid " + openid + "device_id " + name);
         model.addAttribute("device_id", name);
+        model.addAttribute("openid", openid);
 
         List<Consume> consumes = dataStore.queryAllConsume();
 
-        if (first.equals("0")) {
+        if (!openid.equals('0')) {
             model.addAttribute("consumes", consumes);
-            return "index_0";
+            return "newdevice";
         } else {
             consumes.removeIf(k -> k.getPrice() <= 0);
             model.addAttribute("consumes", consumes);
-            return "index";
+            return "newdevice";
         }
     }
 

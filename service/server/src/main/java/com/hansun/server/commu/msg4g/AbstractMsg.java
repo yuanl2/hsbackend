@@ -17,7 +17,7 @@ import static com.hansun.server.common.MsgConstant4g.*;
  * Created by yuanl2 on 2017/5/9.
  */
 public abstract class AbstractMsg implements IMsg4g {
-    private final static Logger logger = LoggerFactory.getLogger(AbstractMsg.class);
+    protected final static Logger logger = LoggerFactory.getLogger(AbstractMsg.class);
 
     protected String title = "TRVBP";
     protected String MsgType;

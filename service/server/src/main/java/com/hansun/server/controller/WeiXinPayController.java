@@ -10,6 +10,7 @@ import com.hansun.server.util.ConstantUtil;
 import com.hansun.server.util.TenpayUtil;
 import com.hansun.server.util.WXUtil;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.hansun.ResponsePage;
@@ -25,14 +26,14 @@ import java.util.Map;
  * @author seven_cm
  * @dateTime 2014-11-29
  */
-@RestController
-@RequestMapping("/weixin/")
+@Controller
+@RequestMapping("/weixin")
 public class WeiXinPayController extends ResponsePage {
 
 	private org.slf4j.Logger log = LoggerFactory.getLogger(WeiXinPayController.class);
 
 	
-	@RequestMapping(value ="weixin.do",produces = "application/json")
+	@RequestMapping(value ="savepackage",produces = "application/json")
 	public String doWeinXinRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Map<Object,Object> resInfo = new HashMap<Object, Object>();
 		//接收财付通通知的URL
@@ -70,11 +71,11 @@ public class WeiXinPayController extends ResponsePage {
 			String deviceID = request.getParameter("deviceID");
 			//设置package订单参数
 			packageReqHandler.setParameter("bank_type", "WX");//银行渠道
-			packageReqHandler.setParameter("body", "测试"); //商品描述   
+			packageReqHandler.setParameter("body", "测试" + deviceID); //商品描述
 			packageReqHandler.setParameter("notify_url", notify_url); //接收财付通通知的URL  
 			packageReqHandler.setParameter("partner", ConstantUtil.PARTNER); //商户号    
 			packageReqHandler.setParameter("out_trade_no", out_trade_no); //商家订单号   
-			packageReqHandler.setParameter("total_fee", "1"); //商品金额,以分为单位  
+			packageReqHandler.setParameter("total_fee", "0.01"); //商品金额,以分为单位
 			packageReqHandler.setParameter("spbill_create_ip",request.getRemoteAddr()); //订单生成的机器IP，指用户浏览器端IP  
 			packageReqHandler.setParameter("fee_type", "1"); //币种，1人民币   66
 			packageReqHandler.setParameter("input_charset", "GBK"); //字符编码

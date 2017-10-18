@@ -132,7 +132,8 @@ public class TimerService {
 
                         logger.debug("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
 
-                        if (d.getStatus() == DeviceStatus.SERVICE || d.getStatus() == DeviceStatus.DISCONNECTED || d.getStatus() == DeviceStatus.BADNETWORK) {
+                        if (d.getStatus() == DeviceStatus.SERVICE || d.getStatus() == DeviceStatus.DISCONNECTED || d.getStatus() == DeviceStatus.BADNETWORK ||
+                                d.getStatus() == DeviceStatus.INVALID) {
                             Thread.sleep((random.nextInt(5) + 10) * 1000);
                         } else {
                             logger.info("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
