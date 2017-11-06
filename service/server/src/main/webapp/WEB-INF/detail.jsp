@@ -62,7 +62,7 @@
                 if (device_status == "1") {
                     if (m == "xy") $('#xy_form').submit();
                     else if (m == "pf") $('#pf_form').submit();
-                      else if (m == "testcmd") $('#testcmd_form').submit();
+                    else if (m == "testcmd") $('#testcmd_form').submit();
                     else if (m == "zfb") $('#zfb_form').submit();
                     else if (m == "tp") $('#tp_form').submit();
                     else if (m == "wx" || m == "kb") $.mydialog.alert('微信支付，请使用微信扫一扫');

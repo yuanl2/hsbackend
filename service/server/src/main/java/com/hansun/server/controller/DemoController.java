@@ -62,7 +62,7 @@ public class DemoController {
                 // Constant.GET_CODE_URL_WX = https://open.weixin.qq.com/connect/oauth2/authorize 请求WX接口
                 url = ConstantUtil.GET_CODE_URL_WX + "?appid=" + ConstantUtil.APP_ID + "&redirect_uri=" + ConstantUtil.REDIRECT_URI_WX
                         + "&response_type=code&scope=snsapi_base&state=" + state + ":WXZF"
-                        + "#wechat_redirect";
+                        + "&connect_redirect=1#wechat_redirect";
                 logger.info("dispatch wx url = " + url);
             } else {
 //                url = Constant.GET_CODE_URL_ZFB + "?app_id=" + Constant.APPID_ZFB + "&scope=auth_base&redirect_uri="
@@ -131,8 +131,6 @@ public class DemoController {
             e.printStackTrace();
 
         }
-
-
 
         return "redirect:index?openid=" + openid + "&device_id=" + name;
     }

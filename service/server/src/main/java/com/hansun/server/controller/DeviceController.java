@@ -122,7 +122,7 @@ public class DeviceController {
 //        }
 
         if (d != null) {
-            logger.info("device_id = " + device_id);
+            logger.info("device_id = " + device_id + " device status = " + d.getStatus());
             return String.valueOf(d.getStatus());
         } else {
             logger.error("can't get device for device_id = " + device_id);

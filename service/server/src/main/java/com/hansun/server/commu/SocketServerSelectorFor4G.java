@@ -108,7 +108,7 @@ public class SocketServerSelectorFor4G {
             if (selector.select(TIMEOUT) == 0) {
                 //在等待信道准备的同时，也可以异步地执行其他任务，
                 //这里只是简单地打印"."
-                System.out.print(".");
+//                System.out.print(".");
                 continue;
             } else {
                 //准备好的信道所关联的Key集合的iterator实例
