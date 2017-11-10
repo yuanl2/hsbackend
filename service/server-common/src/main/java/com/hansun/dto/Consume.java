@@ -10,6 +10,7 @@ public class Consume {
     private int duration;
     private String description;
     private String picpath;
+    private String deviceType;
 
     public int getId() {
         return id;
@@ -51,6 +52,14 @@ public class Consume {
         this.picpath = picpath;
     }
 
+    public String getDeviceType() {
+        return deviceType;
+    }
+
+    public void setDeviceType(String deviceType) {
+        this.deviceType = deviceType;
+    }
+
     @Override
     public String toString() {
         return "consume{" +
@@ -58,13 +67,14 @@ public class Consume {
                 ", price=" + price +
                 ", duration=" + duration +
                 ", description=" + description +
+                ", deviceType=" + deviceType +
                 ", picpath=" + picpath + "\n" +
                 "}";
     }
 
     @Override
     public int hashCode() {
-        return Float.hashCode(this.price) * 31
+        return Float.hashCode(this.price) * 31 * deviceType.hashCode()
                 + this.duration;
     }
 
@@ -73,8 +83,8 @@ public class Consume {
         if (this == obj) {
             return true;
         } else {
-            return obj instanceof Consume && this.getDuration() == (((Consume) obj).getDuration())
-                    && this.getPrice() == (((Consume) obj).getPrice());
+            return obj instanceof Consume && this.getDeviceType() == ((Consume) obj).getDeviceType() && this.getDuration() == ((Consume) obj).getDuration()
+                    && this.getPrice() == ((Consume) obj).getPrice();
         }
     }
 }

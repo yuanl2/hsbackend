@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang = "zh-CN">
 <html>
 	<head>
-		<title>Dopetrope by HTML5 UP</title>
+		<title>爱摩客-Knocknock</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
@@ -92,7 +92,7 @@ $(function(){
                                 if(data.status=='0'){
                     //        		alert("下单成功");
                     //        		location.href="blue/wxweb/order?userId="+$("#userId").val();
-                                    wxpay(data.msg);
+                                    onBridgeReady(data,data.orderId);
                                 }else if(data.status=='1'&&data.status!=undefined){
                                     alert(data.msg);
                                 }else if(data.status=='XNB'){
@@ -162,7 +162,6 @@ function wxpay(obj){
 					var orderId = data.msg;
 					onBridgeReady(result, orderId);
 				}
-
 			},
 			error : function(data) {
 					alert("网络不稳定");
@@ -182,8 +181,15 @@ function onBridgeReady(data, orderId){
 	       },
 	       function(res){
 	           if(res.err_msg == "get_brand_wcpay_request:ok" ) {
-	        	   location.href="blue/wxweb/paysuccess?orderId="+orderId;
+	           	   location.href="/hsservice/paysuccess?orderId="+orderId+"&product_id="+data.product_id+"&device_id="+data.device_id+"&userId="+data.userId;
 	           }// 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回    ok，但并不保证它绝对可靠。
+	           else if (res.err_msg == "get_brand_wcpay_request:cancel") {
+               	   alert("你已取消支付")
+               }
+               else if (res.err_msg == "get_brand_wcpay_request:fail") {
+                   alert("支付失败！")
+                   location.href="/hsservice/index?device_id="+data.device_id;
+               }
 	       }
 	   );
 	}

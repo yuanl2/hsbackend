@@ -90,6 +90,7 @@ public class v1_InitializeDataSpace {
                     "duration int(11) NOT NULL," +
                     "description varchar(45) NOT NULL," +
                     "picpath varchar(45) DEFAULT NULL," +
+                    "deviceType VARCHAR(45) NOT NULL," +
                     "PRIMARY KEY (consumeID))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         }

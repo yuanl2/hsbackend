@@ -41,7 +41,6 @@ public class TimerService {
     @Autowired
     private DataStore dataStore;
 
-    private List<Consume> consumeList;
 
     private int min;
     private int max;
@@ -53,7 +52,6 @@ public class TimerService {
     @PostConstruct
     private void init() {
         object = new Object();
-        consumeList = dataStore.queryAllConsume();
         executor = Executors.newFixedThreadPool(30);
         min = hsServiceProperties.getOrderIntervalMin();
         max = hsServiceProperties.getOrderIntervalMax();
@@ -127,8 +125,9 @@ public class TimerService {
                     for (Long deviceID:
                             device_id) {
                         int type = random.nextInt(4);
-                        Consume consume = consumeList.get(type);
                         Device d = dataStore.queryDeviceByDeviceID(deviceID);
+                        List<Consume> consumeList = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()));
+                        Consume consume = consumeList.get(type);
 
                         logger.debug("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
 

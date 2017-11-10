@@ -32,6 +32,8 @@ public class DataStore {
     private Map<String, List<Device>> deviceSimCache = new ConcurrentHashMap<>();
     private Map<Integer, User> userCache = new ConcurrentHashMap<>();
     private Map<Integer, Consume> consumeCache = new ConcurrentHashMap<>();
+    private Map<String, List<Consume>> deviceTypeConsumeCache = new ConcurrentHashMap<>();
+
 
     private DeviceTable deviceTable;
     private LocationTable locationTable;
@@ -69,6 +71,7 @@ public class DataStore {
             locationCache.clear();
             userCache.clear();
             consumeCache.clear();
+            deviceTypeConsumeCache.clear();
             deviceSimCache.clear();
             connectionPoolManager.destroy();
         } catch (SQLException e) {
@@ -226,7 +229,6 @@ public class DataStore {
                         deviceTable.update(device2, device2.getId());
                         deviceCache.put(s.getId(), device2);
                     }
-
                 }
             }
         } else {
@@ -297,7 +299,6 @@ public class DataStore {
         return deviceSimCache.get(deviceBoxName);
     }
 
-
     public List<Device> queryAllDevices(){
         Optional<List<Device>> result = deviceTable.selectAll();
         if (result.isPresent()) {
@@ -327,11 +328,21 @@ public class DataStore {
             areaList.get().forEach(d -> areaCache.put(d.getId(), d));
             logger.info("initCache areaList " + areaCache.size());
         }
+
         Optional<List<Consume>> consumeList = consumeTable.selectAll();
         if (consumeList.isPresent()) {
-            consumeList.get().forEach(d -> consumeCache.put(d.getId(), d));
+            consumeList.get().forEach(d -> {
+                        consumeCache.put(d.getId(), d);
+                        String type = d.getDeviceType();
+                        deviceTypeConsumeCache.computeIfAbsent(type, k ->
+                                new ArrayList<>()
+                        ).add(d);
+                    }
+            );
             logger.info("initCache consumeList " + consumeCache.size());
+            logger.info("initCache deviceSimCache " + deviceTypeConsumeCache.size());
         }
+
         Optional<List<User>> userList = userTable.selectAll();
         if (userList.isPresent()) {
             userList.get().forEach(d -> userCache.put(d.getId(), d));
@@ -578,10 +589,13 @@ public class DataStore {
             throw ServerException.badRequest("Create Consume ." + consume);
         }
         consumeCache.put(c.get().getId(), c.get());
+        deviceTypeConsumeCache.computeIfAbsent(consume.getDeviceType(),k -> new ArrayList<>()).add(consume);
         return consume;
     }
 
     public void deleteConsumeByConsumeID(int consumeID) {
+        Consume consume = consumeCache.get(consumeID);
+        deviceTypeConsumeCache.get(consume.getDeviceType()).remove(consume);
         consumeTable.delete(consumeID);
         consumeCache.remove(consumeID);
     }
@@ -597,11 +611,23 @@ public class DataStore {
     }
 
     public List<Consume> queryAllConsume() {
-        Optional<List<Consume>> result = consumeTable.selectAll();
-        if (result.isPresent()) {
-            return result.get();
+        List<Consume> lists = new ArrayList<>(consumeCache.values());
+        if (lists == null || lists.size() == 0) {
+            Optional<List<Consume>> result = consumeTable.selectAll();
+            if (result.isPresent()) {
+                return result.get();
+            }
         }
-        return null;
+        return lists;
+    }
+
+    public List<Consume> queryAllConsumeByDeviceType(String deviceType) {
+        List<Consume> result = deviceTypeConsumeCache.get(deviceType);
+//        Optional<List<Consume>> result = consumeTable.selectAll();
+//        if (result.isPresent()) {
+//            return result.get();
+//        }
+        return result;
     }
 
     public Consume updateConsume(Consume consume) {
@@ -613,6 +639,8 @@ public class DataStore {
                 throw ServerException.conflict("Cannot update Consume for not exist.");
             }
         }
+        deviceTypeConsumeCache.get(consume.getDeviceType()).remove(consume2);
+        deviceTypeConsumeCache.get(consume.getDeviceType()).add(consume);
         consumeTable.update(consume, consume.getId());
         consumeCache.put(consume.getId(), consume);
         return consume;

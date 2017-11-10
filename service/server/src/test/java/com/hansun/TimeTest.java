@@ -60,11 +60,11 @@ public class TimeTest {
             conmusers.add("payAccount00" + i);
         }
 
-        List<Consume> consumeTypes = new ArrayList<>();
-        consumeTypes.add(new Consume("2-Minute", 1, 2));
-        consumeTypes.add(new Consume("5-Minute", 2, 5));
-        consumeTypes.add(new Consume("8-inute", 3, 8));
-        consumeTypes.add(new Consume("15-Minute", 5, 15));
+        List<ConsumeEntity> consumeTypes = new ArrayList<>();
+        consumeTypes.add(new ConsumeEntity("2-Minute", 1, 2));
+        consumeTypes.add(new ConsumeEntity("5-Minute", 2, 5));
+        consumeTypes.add(new ConsumeEntity("8-inute", 3, 8));
+        consumeTypes.add(new ConsumeEntity("15-Minute", 5, 15));
 
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter("consume_data.txt"));
@@ -83,7 +83,7 @@ public class TimeTest {
                         }
                         Instant in = instant.minus(Period.ofDays(i)).plus(hour, ChronoUnit.HOURS);
                         String time = in.getEpochSecond() + "" + in.getNano();
-                        Consume con = consumeTypes.get(random.nextInt(4));
+                        ConsumeEntity con = consumeTypes.get(random.nextInt(4));
                         str = "consume_data,deviceid=" + s.getDeviceID()
                                 + ",consume=" + conmusers.get(random.nextInt(1000))
                                 + ",type=" + con.getType()
@@ -111,7 +111,7 @@ public class TimeTest {
                         }
                         Instant in = instant.minus(Period.ofDays(i)).plus(hour, ChronoUnit.HOURS);
                         String time = in.getEpochSecond() + "" + in.getNano();
-                        Consume con = consumeTypes.get(random.nextInt(4));
+                        ConsumeEntity con = consumeTypes.get(random.nextInt(4));
                         str = "consume_data,deviceid=" + s.getDeviceID()
                                 + ",consume=" + conmusers.get(random.nextInt(1000))
                                 + ",type=" + con.getType()
@@ -139,7 +139,7 @@ public class TimeTest {
                         }
                         Instant in = instant.minus(Period.ofDays(i)).plus(hour, ChronoUnit.HOURS);
                         String time = in.getEpochSecond() + "" + in.getNano();
-                        Consume con = consumeTypes.get(random.nextInt(4));
+                        ConsumeEntity con = consumeTypes.get(random.nextInt(4));
                         str = "consume_data,deviceid=" + s.getDeviceID()
                                 + ",consume=" + conmusers.get(random.nextInt(1000))
                                 + ",type=" + con.getType()
@@ -168,7 +168,7 @@ public class TimeTest {
                         }
                         Instant in = instant.minus(Period.ofDays(i)).plus(hour, ChronoUnit.HOURS);
                         String time = in.getEpochSecond() + "" + in.getNano();
-                        Consume con = consumeTypes.get(random.nextInt(4));
+                        ConsumeEntity con = consumeTypes.get(random.nextInt(4));
                         str = "consume_data,deviceid=" + s.getDeviceID()
                                 + ",consume=" + conmusers.get(random.nextInt(1000))
                                 + ",type=" + con.getType()
@@ -196,7 +196,7 @@ public class TimeTest {
                         }
                         Instant in = instant.minus(Period.ofDays(i)).plus(hour, ChronoUnit.HOURS);
                         String time = in.getEpochSecond() + "" + in.getNano();
-                        Consume con = consumeTypes.get(random.nextInt(4));
+                        ConsumeEntity con = consumeTypes.get(random.nextInt(4));
                         str = "consume_data,deviceid=" + s.getDeviceID()
                                 + ",consume=" + conmusers.get(random.nextInt(1000))
                                 + ",type=" + con.getType()
@@ -259,7 +259,7 @@ class DeviceEntity {
     }
 }
 
-class Consume {
+class ConsumeEntity {
     private String type;
     private int prices;
     private int duration;
@@ -288,7 +288,7 @@ class Consume {
         this.duration = duration;
     }
 
-    public Consume(String type, int prices, int duration) {
+    public ConsumeEntity(String type, int prices, int duration) {
         this.type = type;
         this.prices = prices;
         this.duration = duration;

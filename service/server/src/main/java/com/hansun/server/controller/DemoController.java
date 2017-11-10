@@ -49,13 +49,13 @@ public class DemoController {
 
     @RequestMapping("/device")
     public String dispatch(Model model, @RequestParam(value = "device_id", required = false, defaultValue = "World") String name,
-                        HttpServletRequest request, HttpServletResponse response) {
+                           HttpServletRequest request, HttpServletResponse response) {
         String useragent = request.getHeader("User-Agent");
         logger.info("request from " + useragent);
         String url = "index?device_id=" + name;
         //go wechat flow
         String state = name;
-        String reg =  ".*micromessenger.*";
+        String reg = ".*micromessenger.*";
         try {
 
             if (useragent.toLowerCase().matches(reg)) {
@@ -113,7 +113,7 @@ public class DemoController {
                 String doGet = HttpClientUtil.doGet(url, null);
                 Map<Object, Object> jsonToMap = JSONObject.fromObject(doGet);
                 openid = (String) jsonToMap.get("openid");
-                logger.info("WXZF callback openid = "  + openid);
+                logger.info("WXZF callback openid = " + openid);
             }
             if ("ZFBZF".equals(split[1])) {
 //                AlipayClient alipayClient = new DefaultAlipayClient(Constant.GET_USERID_URL_ZFB, Constant.APPID_ZFB,
@@ -185,7 +185,6 @@ public class DemoController {
 //    }
 
 
-
     @RequestMapping("/index")
     public String page(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "000000") String name,
                        @RequestParam(value = "openid", required = false, defaultValue = "0") String openid,
@@ -194,15 +193,20 @@ public class DemoController {
         model.addAttribute("device_id", name);
         model.addAttribute("openid", openid);
 
-        List<Consume> consumes = dataStore.queryAllConsume();
+        Device d = dataStore.queryDeviceByDeviceID(Long.valueOf(name));
 
-        if (!openid.equals('0')) {
-            model.addAttribute("consumes", consumes);
-            return "newdevice";
+        if (d != null) {
+            List<Consume> consumes = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()));
+            if (!openid.equals('0')) {
+                model.addAttribute("consumes", consumes);
+                return "newdevice";
+            } else {
+                consumes.removeIf(k -> k.getPrice() <= 0);
+                model.addAttribute("consumes", consumes);
+                return "newdevice";
+            }
         } else {
-            consumes.removeIf(k -> k.getPrice() <= 0);
-            model.addAttribute("consumes", consumes);
-            return "newdevice";
+            return "error";
         }
     }
 
@@ -266,7 +270,6 @@ public class DemoController {
         order.setConsumeType(Integer.valueOf(product_id));
 
 
-
         orderService.createOrder(order);
 
         model.addAttribute("device_id", device_id);
@@ -279,6 +282,39 @@ public class DemoController {
         return "device_running";
     }
 
+
+    @RequestMapping(value = "/paysuccess")
+    public String doWeinXinPay(Model model,@RequestParam(value = "device_id", required = true, defaultValue = "0") String device_id,
+                               @RequestParam(value = "product_id", required = true, defaultValue = "0") String product_id,
+                               @RequestParam(value = "orderId", required = true, defaultValue = "0") String orderId,
+                               @RequestParam(value = "userId", required = true, defaultValue = "0") String userId,
+
+                               HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        logger.info("device_id " + device_id);
+
+        Consume consume = dataStore.queryConsume(Integer.valueOf(product_id));
+
+        Order order = new Order();
+        order.setOrderName(orderId);
+        order.setStartTime(Instant.now());
+        order.setCreateTime(Instant.now());
+        order.setPayAccount(userId);
+        order.setOrderStatus(OrderStatus.CREATED);
+        order.setDeviceID(Long.valueOf(device_id));
+        order.setPrice(consume.getPrice());
+        order.setConsumeType(Integer.valueOf(product_id));
+
+        orderService.createOrder(order);
+
+        model.addAttribute("device_id", device_id);
+        model.addAttribute("duration", consume.getDuration());
+
+        order.setOrderStatus(OrderStatus.SERVICE);
+        orderService.updateOrder(order);
+        return "device_running";
+    }
+
     @RequestMapping("/report")
     public String reportpage(Model model, HttpServletRequest request, HttpServletResponse response) throws IOException {
         return "report";
@@ -287,15 +323,14 @@ public class DemoController {
 
     @RequestMapping("/device_monitor")
     public String device_monitor(Model model, @RequestParam(value = "userid", required = true, defaultValue = "-1") int userid,
-                       HttpServletRequest request, HttpServletResponse response) throws IOException {
+                                 HttpServletRequest request, HttpServletResponse response) throws IOException {
         logger.info("userid " + userid);
         model.addAttribute("userid", userid);
 
-        if(userid == -1){
+        if (userid == -1) {
             List<Device> list = deviceService.getAllDevices();
             model.addAttribute("devices", list);
-        }
-        else{
+        } else {
             List<Device> list = deviceService.getDevicesByOwner(userid);
             model.addAttribute("devices", list);
         }
