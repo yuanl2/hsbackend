@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -291,22 +292,33 @@ public class DemoController {
 
                                HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        logger.info("device_id " + device_id);
+        logger.info("paysuccess  userId = {} orderId = {} device_id = {}",userId,orderId,device_id);
 
+
+        Order o = orderService.getOrder(Long.valueOf(device_id));
         Consume consume = dataStore.queryConsume(Integer.valueOf(product_id));
+
+        //deny access multi times
+        if (o != null && o.getPayAccount().equals(userId) &&
+                (o.getOrderStatus() < OrderStatus.FINISH) && (Instant.now().isBefore(o.getCreateTime().plus(Duration.ofMinutes(o.getDuration())))
+                || Instant.now().isBefore(o.getStartTime().plus(Duration.ofMinutes(o.getDuration()))))) {
+            model.addAttribute("device_id", device_id);
+            model.addAttribute("duration", consume.getDuration());
+            return "device_running";
+        }
 
         Order order = new Order();
         order.setOrderName(orderId);
         order.setStartTime(Instant.now());
         order.setCreateTime(Instant.now());
         order.setPayAccount(userId);
-        order.setOrderStatus(OrderStatus.CREATED);
+        order.setOrderStatus(OrderStatus.NOTSTART);
         order.setDeviceID(Long.valueOf(device_id));
         order.setPrice(consume.getPrice());
         order.setConsumeType(Integer.valueOf(product_id));
 
         orderService.createOrder(order);
-
+        logger.info("create order {}",order);
         model.addAttribute("device_id", device_id);
         model.addAttribute("duration", consume.getDuration());
 
