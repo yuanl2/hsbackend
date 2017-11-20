@@ -1,0 +1,70 @@
+
+/*= Reset CSS 
+============= */
+html, body {border: 0; margin: 0; padding: 0;}
+body {font:"sans-serif"; min-width: 100%; min-height: 100%; color: #666;}
+.container{margin: 0 auto; max-width: 1060px;}
+
+h2 span{position: relative; padding-bottom: 10px;}
+h2 span:after{content: ""; width: 50%; height: 3px; background-color: #fff; position: absolute; left: 25%; bottom: 0;}
+*{margin: 0; padding: 0; box-sizing:;}
+img{max-width: 100%; vertical-align: middle;}
+.full-length{width: 100%; float: left; padding-bottom: 80px;}
+h3{font-size: 20px; margin: 5px 0 10px;}
+p{font-weight: 300; line-height: 20px; font-size: 14px; margin-bottom: 15px;}
+.btn{display: inline-block; padding: 5px 10px; font-size: 14px; color: #fff; border: 2px solid #4d92d9; background-color: #4d92d9; text-decoration: none; transition: 0.4s;}
+.btn:hover{background-color: transparent; color: #4d92d9; transition: 0.4s;}
+.text-desc{position: absolute; left: 0; top: 0; background-color: #fff; height: 100%; opacity: 0; width: 100%; padding: 20px;}
+/*= Reset CSS End
+================= *
+
+
+/* effect-6 css */
+.port-6{float: left; width: 100%; position: relative; overflow: hidden; text-align: center;overflow:hidden;}
+.port-6.effect-3 img{transition: 0.5s;}
+.port-6.effect-3:hover img{transform: scale(0.3) translateY(-110%); position: relative; z-index: 9;}
+.port-6.effect-3 .text-desc {
+    transform: translateY(100%);
+    opacity: 0;
+    padding: 132px 20px;
+    transition: 0.5s;
+}
+
+.port-6.effect-3:hover .text-desc{transform: translateY(-34px); opacity: 1;overflow:hidden;}
+/* effect-6 css end */
+
+/*= Media Screen CSS
+==================== */
+@media only screen and (max-width: 1090px){
+	ul{width: 340px; margin: 0 auto;}
+	li{width: 100%; margin: 20px 0;}
+	.port-5.effect-1 {z-index: 19;}
+}
+
+@media only screen and (max-width: 360px){
+	ul{width: 300px;}
+	
+	.port-6.effect-3 .text-desc .btn,
+	
+}
+/*= Media Screen CSS End
+======================== */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
