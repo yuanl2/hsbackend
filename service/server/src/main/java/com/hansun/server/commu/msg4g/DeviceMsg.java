@@ -64,6 +64,7 @@ public class DeviceMsg extends AbstractMsg {
     public void setSignal(String signal) {
         this.signal = signal;
     }
+
     @Override
     public void validate() throws InvalidMsgException {
         int checkxor = getXOR();
@@ -96,7 +97,7 @@ public class DeviceMsg extends AbstractMsg {
             /** status
              *  __ __ __
              *  first:  device power      1: on      0: off
-             *  second: device run status 1: running 0: idle
+             *  second: device run status 1: running 0: idle // reserve
              *  third:  device status     1: fine    0: error
              *  001  device idle
              *  011  device stop but in reset
@@ -104,25 +105,18 @@ public class DeviceMsg extends AbstractMsg {
              *  if the third status is '0', device error
              *
              */
-            if(status.charAt(2) == 48){
-                getMap().put(1,DeviceStatus.FAULT);
-            }
-            else if(status.equals("001")){
-                getMap().put(1,DeviceStatus.IDLE);
-            }
-            else if(status.equals("101")){
-                getMap().put(1,DeviceStatus.SERVICE);
-            }
-//            else if(status.equals("111")) {
-//                getMap().put(1, DeviceStatus.SERVICE);
-//            }
-            else{
+            if (status.charAt(2) == 48) {
+                getMap().put(1, DeviceStatus.FAULT);
+            } else if (status.equals("001") || status.equals("011")) {
+                getMap().put(1, DeviceStatus.IDLE);
+            } else if (status.equals("101") || status.equals("101")) {
+                getMap().put(1, DeviceStatus.SERVICE);
+            } else {
                 getMap().put(1, DeviceStatus.INVALID);
             }
         } else {
             throw new InvalidMsgException("not support device type = " + getDeviceType(), ErrorCode.DEVICE_TYPE_ERROR.getCode());
         }
-
 
 
         String times = content[4];

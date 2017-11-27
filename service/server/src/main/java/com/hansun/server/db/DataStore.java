@@ -224,8 +224,9 @@ public class DataStore {
                     //只需要设备断联或者重发报文才需要更新设备的状态
                     //如果上报的是空闲状态，后续更新订单状态时会更新设备的状态的
 
-                    if (device2.getStatus() != oldStatus) {
+                    if (status != oldStatus) {
                         logger.info(simid + " device_id =" + device2.getId() + " update old status = " + device2.getStatus() + " new status = " + status);
+                        device2.setStatus(status);
                         deviceTable.update(device2, device2.getId());
                         deviceCache.put(s.getId(), device2);
                     }

@@ -51,10 +51,11 @@ public class HeartBeatMsg extends AbstractMsg {
              }
          } else if (getDeviceType().equals("100")) {
 
+
              /** status
               *  __ __ __
               *  first:  device power      1: on      0: off
-              *  second: device run status 1: running 0: idle
+              *  second: device run status 1: running 0: idle // reserve
               *  third:  device status     1: fine    0: error
               *  001  device idle
               *  011  device stop but in reset
@@ -62,19 +63,13 @@ public class HeartBeatMsg extends AbstractMsg {
               *  if the third status is '0', device error
               *
               */
-             if(status.charAt(2) == 48){
-                 getMap().put(1,DeviceStatus.FAULT);
-             }
-             else if(status.equals("001")){
-                 getMap().put(1,DeviceStatus.IDLE);
-             }
-             else if(status.equals("011")){
-                 getMap().put(1,DeviceStatus.SERVICE);
-             }
-             else if(status.equals("111")) {
+             if (status.charAt(2) == 48) {
+                 getMap().put(1, DeviceStatus.FAULT);
+             } else if (status.equals("001") || status.equals("011")) {
+                 getMap().put(1, DeviceStatus.IDLE);
+             } else if (status.equals("101") || status.equals("101")) {
                  getMap().put(1, DeviceStatus.SERVICE);
-             }
-             else{
+             } else {
                  getMap().put(1, DeviceStatus.INVALID);
              }
          } else {
