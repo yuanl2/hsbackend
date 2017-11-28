@@ -200,11 +200,11 @@ public class DemoController {
             List<Consume> consumes = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()));
             if (!openid.equals('0')) {
                 model.addAttribute("consumes", consumes);
-                return "newdevice";
+                return "test";
             } else {
                 consumes.removeIf(k -> k.getPrice() <= 0);
                 model.addAttribute("consumes", consumes);
-                return "newdevice";
+                return "test";
             }
         } else {
             return "error";
@@ -215,16 +215,16 @@ public class DemoController {
     @RequestMapping("/detail")
     public String detailpage(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "World") String device_id,
                              @RequestParam(value = "product_id", required = true, defaultValue = "0") String product_id,
-                             @RequestParam(value = "extra", required = false, defaultValue = "0") String extra,
+                             @RequestParam(value = "user_id", required = false, defaultValue = "0") String user_id,
                              HttpServletRequest request, HttpServletResponse response) throws IOException {
         logger.info("product_id " + product_id + "device_id " + device_id);
         model.addAttribute("device_id", device_id);
         model.addAttribute("product_id", product_id);
-        model.addAttribute("extra", extra);
+        model.addAttribute("openid", user_id);
 
         Consume consume = dataStore.queryConsume(Integer.valueOf(product_id));
         model.addAttribute("consume", consume);
-        return "detail";
+        return "testdetail";
     }
 
 
@@ -247,7 +247,7 @@ public class DemoController {
         orderService.deleteOrder(Long.valueOf(device_id));
         model.addAttribute("device_id", device_id);
         model.addAttribute("extra", extra);
-        return "device_finish";
+        return "testfinish";
     }
 
     @RequestMapping("/testcmd")
@@ -302,9 +302,15 @@ public class DemoController {
         if (o != null && o.getPayAccount().equals(userId) &&
                 (o.getOrderStatus() < OrderStatus.FINISH) && (Instant.now().isBefore(o.getCreateTime().plus(Duration.ofMinutes(o.getDuration())))
                 || Instant.now().isBefore(o.getStartTime().plus(Duration.ofMinutes(o.getDuration()))))) {
+            int time =(int)(Instant.now().toEpochMilli() - o.getStartTime().toEpochMilli())/1000;
             model.addAttribute("device_id", device_id);
-            model.addAttribute("duration", consume.getDuration());
+            model.addAttribute("duration", time);
+            model.addAttribute("orderId",o.getId());
             return "device_running";
+        }
+
+        if(orderId.equals('0')){
+            orderId = orderService.getOrderName();
         }
 
         Order order = new Order();
@@ -320,11 +326,12 @@ public class DemoController {
         orderService.createOrder(order);
         logger.info("create order {}",order);
         model.addAttribute("device_id", device_id);
-        model.addAttribute("duration", consume.getDuration());
+        model.addAttribute("duration", consume.getDuration() * 60);
+        model.addAttribute("orderId",orderId);
 
         order.setOrderStatus(OrderStatus.SERVICE);
         orderService.updateOrder(order);
-        return "device_running";
+        return "testrunning";
     }
 
     @RequestMapping("/report")

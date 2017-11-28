@@ -62,6 +62,6 @@
     }
     setInterval(getRTime,1000);
     </script>
-   <span id="footer">服务电话: <span class="phone">XXXXXXXXXXXXXXXXXXXX</span></span>
+   <span id="footer">服务电话: <span class="phone">XXXXXXXXXXXXXXXXX</span></span>
 </body>
 </html>

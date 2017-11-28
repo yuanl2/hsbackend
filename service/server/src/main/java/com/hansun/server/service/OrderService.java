@@ -477,4 +477,14 @@ public class OrderService {
         str = str + haomiao.substring(haomiao.length() - 6, haomiao.length());
         return str;
     }
+
+    public static String getOrderName() {
+        Date d = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyMMddhhmmss"); // 12
+        String str = sdf.format(d);
+        String haomiao = String.valueOf(System.nanoTime());
+        str = str + haomiao.substring(haomiao.length() - 6, haomiao.length());
+        return "Free" + str;
+    }
+
 }
