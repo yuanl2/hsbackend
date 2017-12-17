@@ -7,6 +7,9 @@ import com.hansun.server.common.HSServiceProperties;
 import com.hansun.server.common.OrderStatus;
 import com.hansun.server.commu.common.IMsg4g;
 import com.hansun.server.commu.common.MsgTime;
+import com.hansun.server.metrics.HSServiceMetrics;
+import com.hansun.server.metrics.HSServiceMetricsService;
+import com.hansun.server.metrics.Metrics;
 import com.hansun.server.service.DeviceListener;
 import com.hansun.server.service.DeviceService;
 import com.hansun.server.service.OrderService;
@@ -51,6 +54,9 @@ public class LinkManger {
 
     @Autowired
     private SyncAsynMsgController syncAsynMsgController;
+
+    @Autowired
+    private HSServiceMetricsService hsServiceMetricsService;
 
     @PostConstruct
     public void init() {
@@ -187,6 +193,14 @@ public class LinkManger {
                         //设备没有收到后续结束报文，所以收到心跳消息，判断当前设备是否还在运行，如果指示时间为0，而订单是运行中，则更新订单为finish
                         if (order.getOrderStatus() == OrderStatus.SERVICE) {
                             logger.info(order.getId() + " update order status from service to " + OrderStatus.FINISH);
+
+
+                            HSServiceMetrics.Builder builder = HSServiceMetrics.builder();
+                            builder.measurement(Metrics.ORDER_FINISH).device(String.valueOf(device.getId())).area(device.getAreaName()).user(device.getOwner())
+                                    .count(1).duration(order.getDuration()).price(order.getPrice());
+                            hsServiceMetricsService.sendMetrics(builder.build());
+
+
 //                            order.setOrderStatus(OrderStatus.FINISH);
 //                            order.setEndTime(Instant.now());
 //                            orderService.updateOrder(order);
@@ -194,6 +208,7 @@ public class LinkManger {
                             device.setStatus(DeviceStatus.IDLE);
                             orderService.deleteOrder(device.getId());
                             deviceService.updateDevice(device);
+
 
 //                            logger.info("order delete = " + order);
                         } else if(order.getOrderStatus() == OrderStatus.FINISH){

@@ -8,6 +8,7 @@ import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.OrderStatus;
 import com.hansun.server.db.DataStore;
 import com.hansun.server.db.OrderStore;
+import com.hansun.server.metrics.HSServiceMetricsService;
 import com.hansun.server.service.DeviceService;
 import com.hansun.server.service.OrderService;
 import com.hansun.server.service.TimerService;
@@ -47,6 +48,9 @@ public class DemoController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private HSServiceMetricsService hsServiceMetricsService;
 
     @RequestMapping("/device")
     public String dispatch(Model model, @RequestParam(value = "device_id", required = false, defaultValue = "World") String name,
@@ -279,6 +283,8 @@ public class DemoController {
 
         order.setOrderStatus(OrderStatus.SERVICE);
         orderService.updateOrder(order);
+
+//        hsServiceMetricsService.sendMetrics();
 
         return "device_running";
     }

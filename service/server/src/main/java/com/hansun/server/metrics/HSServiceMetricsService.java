@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
+
 
 @Service
 public class HSServiceMetricsService {
@@ -15,9 +17,16 @@ public class HSServiceMetricsService {
     @Autowired
     private InfluxDBClientHelper influxDbClientHelper;
 
+    @PostConstruct
+    private void init() {
+        HSServiceMetrics.Builder builder = HSServiceMetrics.builder();
+        builder.measurement(Metrics.ORDER_FINISH).device(String.valueOf(20170400001l)).area("test").user("user1")
+                .count(1).duration(15).price(5.0f);
+        sendMetrics(builder.build());
+    }
+
     public void sendMetrics(HSServiceMetrics metrics) {
         influxDbClientHelper.emitMetrics(metrics);
-
         logger.info("Metric {} sent", metrics.getMeasurement());
     }
 

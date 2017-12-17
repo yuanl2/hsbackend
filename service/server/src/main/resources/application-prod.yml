@@ -21,7 +21,7 @@ influxDB:
   username: hsuser
   password: qazwsx123
   url: http://localhost:8086
-  retentionpolicy: default
+  retentionpolicy: autogen
   name: metrics
   batchtimeout: 1000
   batchsize: 1000

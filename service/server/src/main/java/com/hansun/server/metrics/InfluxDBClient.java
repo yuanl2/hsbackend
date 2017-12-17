@@ -36,33 +36,37 @@ public class InfluxDBClient {
         this.retentionPolicy = retentionPolicy;
         this.influxDBUrl = influxDBUrl;
         influxDB.enableBatch(batchSize, maxTimeBeforeBatchFlush, TimeUnit.MILLISECONDS);
+        System.out.print(ping());
     }
 
     /**
      * Method to ping influxDB.
+     *
      * @return Pong
      */
     public Pong ping() {
         return influxDB.ping();
     }
 
-        /**
-         * Method to query influxDB.
-         * @param query
-         * @return  QueryResult
-         */
-        public QueryResult getQueryResult(String query) {
-            //if influxDB is not present in local environment then return null
-            if (!checkIfLocalInfluxDBExist()) {
-                return null;
-            }
-            QueryResult queryResult = influxDB.query(new Query(query, influxDBName));
-            return queryResult;
+    /**
+     * Method to query influxDB.
+     *
+     * @param query
+     * @return QueryResult
+     */
+    public QueryResult getQueryResult(String query) {
+        //if influxDB is not present in local environment then return null
+        if (!checkIfLocalInfluxDBExist()) {
+            return null;
         }
+        QueryResult queryResult = influxDB.query(new Query(query, influxDBName));
+        return queryResult;
+    }
 
 
     /**
      * Method to add single Point to influxDB
+     *
      * @param measurement
      * @param tagsMap
      * @param fieldsMap
@@ -82,6 +86,7 @@ public class InfluxDBClient {
 
     /**
      * Method to add single Point to influxDB
+     *
      * @param measurement
      * @param tagsMap
      * @param fieldsMap
@@ -103,6 +108,7 @@ public class InfluxDBClient {
 
     /**
      * Method to create BatchPoint
+     *
      * @param measurement
      * @param pointMap
      */
@@ -144,9 +150,10 @@ public class InfluxDBClient {
 
     /**
      * Helper method to create single Point
+     *
      * @param tagsMap
      * @param fieldsMap
-     * @return  Point
+     * @return Point
      */
     public Point createPoint(String measurement, Map<String, String> tagsMap, Map<String, Object> fieldsMap) {
         Point.Builder pointBuilder = Point.measurement(measurement)
@@ -159,10 +166,11 @@ public class InfluxDBClient {
 
     /**
      * Helper method to create single Point
+     *
      * @param tagsMap
      * @param fieldsMap
      * @param timestamp
-     * @return  Point
+     * @return Point
      */
     public Point createPoint(String measurement, Map<String, String> tagsMap, Map<String, Object> fieldsMap, long timestamp) {
         Point.Builder pointBuilder = Point.measurement(measurement)

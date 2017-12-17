@@ -77,11 +77,21 @@ public class Metrics {
     public static final String MACHINE_ACCOUNT_WILL_EXPIRE = "machine.account.will.expire";
     public static final String COUNTERPOLICY_TOO_MANY_REQUEST = "counterpolicy.too.many.request";
 
+
+    public static final String ORDER_FINISH = "order.finish";
+
     // Metrics tag
     public static final String TAG_CLIENT_ID = "clientid";
+    public static final String TAG_DEVICEID= "deviceID";
+    public static final String TAG_AREAID = "areaID";
+    public static final String TAG_USERID = "userID";
+
 
     // Metrics field
     public static final String FIELD_DURATION = "duration";
+    public static final String FIELD_COUNT = "count";
+    public static final String FIELD_PRICE = "price";
+
     public static final String FIELD_GAUGE = "gauge";
     public static final String FIELD_MESSAGE = "message";
 }

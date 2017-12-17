@@ -13,6 +13,7 @@ import com.hansun.server.db.OrderStore;
 import com.hansun.server.db.PayAcountStore;
 import com.hansun.server.metrics.HSServiceMetrics;
 import com.hansun.server.metrics.HSServiceMetricsService;
+import com.hansun.server.metrics.InfluxDBClientHelper;
 import com.hansun.server.util.MsgUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +54,10 @@ public class OrderService {
 
     @Autowired
     private LinkManger linkManger;
+
+
+    @Autowired
+    private InfluxDBClientHelper influxDBClientHelper;
 
     @PostConstruct
     public void init() {
@@ -190,7 +195,8 @@ public class OrderService {
         Device device = dataStore.queryDeviceByDeviceID(order.getDeviceID());
         device.setStatus(DeviceStatus.SERVICE);
         dataStore.updateDevice(device);
-        return orderStore.insertOrder(order);
+        Order result =  orderStore.insertOrder(order);
+        return result;
     }
 
     public void processStartOrder(String deviceBoxName, int port) {
