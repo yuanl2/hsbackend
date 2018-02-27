@@ -1,8 +1,6 @@
 package com.hansun.server.controller;
 
 import com.hansun.dto.Consume;
-import com.hansun.dto.Consume;
-import com.hansun.server.service.ConsumeService;
 import com.hansun.server.service.ConsumeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

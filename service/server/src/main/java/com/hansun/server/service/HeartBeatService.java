@@ -69,7 +69,7 @@ public class HeartBeatService {
                 slotMapDeviceIDs.get(currentIndex).add(k);
             });
         }
-        timer.schedule(new DeviceStatusTask(), Long.valueOf(Long.valueOf(hsServiceProperties.getHeartBeatInternal())),
+        timer.schedule(new DeviceStatusTask(), Long.valueOf(Long.valueOf(hsServiceProperties.getSweepBeatInternal())),
                 Long.valueOf(hsServiceProperties.getSweepBeatInternal()));
     }
 
