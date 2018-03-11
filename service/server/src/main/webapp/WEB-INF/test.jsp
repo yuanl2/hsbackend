@@ -74,7 +74,7 @@ $(function(){
             return;
         }
           myAjax_tb("/hsservice/api/deviceStatus","device_id="+$("#device_id").val(), function (device_status) {
-                  if (device_status == '1' || device_status == '0') {
+                  if (device_status == '1') {
                     location.href="/hsservice/detail?device_id="+$("#device_id").val() + "&product_id="+pid+ "&user_id="+$("#userId").val();
                   }
                   else if (device_status == "3") { alert('设备正在使用'); }

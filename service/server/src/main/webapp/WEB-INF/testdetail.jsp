@@ -76,7 +76,7 @@ $(function(){
             return;
         }
           myAjax_tb("/hsservice/api/deviceStatus","device_id="+$("#device_id").val(), function (device_status) {
-                  if (device_status == '1' || device_status == '0') {
+                  if (device_status == '1') {
                     if( price > 0) {
                     $.ajax({
                             url : '/hsservice/weixin/savepackage?callback=test',
