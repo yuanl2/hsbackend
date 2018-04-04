@@ -193,7 +193,7 @@ public class OrderService {
         createStartMsgToDevice(order);
         order.setOrderStatus(OrderStatus.START);
         Device device = dataStore.queryDeviceByDeviceID(order.getDeviceID());
-        device.setStatus(DeviceStatus.SERVICE);
+        device.setStatus(DeviceStatus.STARTTASK);
         dataStore.updateDevice(device);
         Order result =  orderStore.insertOrder(order);
         return result;

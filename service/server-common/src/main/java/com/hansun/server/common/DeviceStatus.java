@@ -7,7 +7,8 @@ public class DeviceStatus {
     public static final int DISCONNECTED = 0;
     public static final int IDLE = 1;
     public static final int INVALID = 2;
-    public static final int SERVICE = 3;
-    public static final int BADNETWORK = 4;
-    public static final int FAULT = 5;
+    public static final int STARTTASK = 3;
+    public static final int SERVICE = 4;
+    public static final int BADNETWORK =5;
+    public static final int FAULT = 6;
 }

@@ -114,12 +114,13 @@ $(function(){
 
                         }
                           }
-                          else if (device_status == "3") { alert('设备正在使用'); }
+                          else if (device_status == "3") { alert('已有用户支持'); }
+                          else if (device_status == "4") { alert('设备正在使用'); }
                           else if (device_status == "-1") { location.href = "/hsservice/disable?device_id=${device_id}"; }
                           else if (device_status == "0") { alert('设备离线'); }
                           else if (device_status == "2") { alert('无此设备'); }
-                          else if (device_status == "4") { alert('网络不好'); }
-                          else if (device_status == "5") { alert('设备故障'); }
+                          else if (device_status == "5") { alert('网络不好'); }
+                          else if (device_status == "6") { alert('设备故障'); }
                          }, function () { alert("请求设备状态出错"); })
 
 

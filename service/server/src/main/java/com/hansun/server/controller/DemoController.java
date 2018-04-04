@@ -310,8 +310,9 @@ public class DemoController {
             int time =(int)(Instant.now().toEpochMilli() - o.getStartTime().toEpochMilli())/1000;
             model.addAttribute("device_id", device_id);
             model.addAttribute("duration", time);
+            model.addAttribute("startTime", o.getCreateTime().toEpochMilli());
             model.addAttribute("orderId",o.getId());
-            return "device_running";
+            return "testrunning";
         }
 
         if(orderId.equals('0')){
@@ -344,7 +345,7 @@ public class DemoController {
             }
         }
 
-        if(count > 0) {
+        if (count > 0) {
             model.addAttribute("device_id", device_id);
             model.addAttribute("duration", consume.getDuration() * 60);
             model.addAttribute("startTime", order.getCreateTime().toEpochMilli());
@@ -353,8 +354,7 @@ public class DemoController {
             orderService.updateOrder(order);
             logger.info(" device {} now forward testrunning", device_id);
             return "testrunning";
-        }
-        else{
+        } else {
             model.addAttribute("device_id", device_id);
             model.addAttribute("duration", consume.getDuration() * 60);
             model.addAttribute("startTime", order.getCreateTime().toEpochMilli());
