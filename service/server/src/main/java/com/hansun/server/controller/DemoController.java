@@ -303,7 +303,6 @@ public class DemoController {
 
         Order o = orderService.getOrder(Long.valueOf(device_id));
         Consume consume = dataStore.queryConsume(Integer.valueOf(product_id));
-
         //deny access multi times
         if (o != null && o.getPayAccount().equals(userId) &&
                 (o.getOrderStatus() < OrderStatus.FINISH) && (Instant.now().isBefore(o.getCreateTime().plus(Duration.ofMinutes(o.getDuration())))
@@ -331,13 +330,40 @@ public class DemoController {
 
         orderService.createOrder(order);
         logger.info("create order {}",order);
-        model.addAttribute("device_id", device_id);
-        model.addAttribute("duration", consume.getDuration() * 60);
-        model.addAttribute("orderId",orderId);
 
-        order.setOrderStatus(OrderStatus.SERVICE);
-        orderService.updateOrder(order);
-        return "testrunning";
+        int count = 15;
+        while (count > 0){
+            count--;
+            if(deviceService.getDevice(Long.valueOf(device_id)).getStatus() != DeviceStatus.SERVICE){
+                logger.info(" device {} not running count = {}", device_id, count);
+                Thread.sleep(200);
+            }
+            else{
+                logger.info(" device {} is running count = {}", device_id, count);
+                break;
+            }
+        }
+
+        if(count > 0) {
+            model.addAttribute("device_id", device_id);
+            model.addAttribute("duration", consume.getDuration() * 60);
+            model.addAttribute("startTime", order.getCreateTime().toEpochMilli());
+            model.addAttribute("orderId", orderId);
+            order.setOrderStatus(OrderStatus.SERVICE);
+            orderService.updateOrder(order);
+            logger.info(" device {} now forward testrunning", device_id);
+            return "testrunning";
+        }
+        else{
+            model.addAttribute("device_id", device_id);
+            model.addAttribute("duration", consume.getDuration() * 60);
+            model.addAttribute("startTime", order.getCreateTime().toEpochMilli());
+            model.addAttribute("orderId", orderId);
+            order.setOrderStatus(OrderStatus.DEVICE_ERROR);
+            orderService.updateOrder(order);
+            logger.info(" device {} now forward testrunerror", device_id);
+            return "testrunerror";
+        }
     }
 
     @RequestMapping("/report")

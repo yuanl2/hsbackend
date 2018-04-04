@@ -109,7 +109,7 @@ public class DeviceMsg extends AbstractMsg {
                 getMap().put(1, DeviceStatus.FAULT);
             } else if (status.equals("001") || status.equals("011")) {
                 getMap().put(1, DeviceStatus.IDLE);
-            } else if (status.equals("101") || status.equals("101")) {
+            } else if (status.equals("101") || status.equals("111")) {
                 getMap().put(1, DeviceStatus.SERVICE);
             } else {
                 getMap().put(1, DeviceStatus.INVALID);

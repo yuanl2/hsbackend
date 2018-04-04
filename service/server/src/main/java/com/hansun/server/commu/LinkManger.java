@@ -143,7 +143,7 @@ public class LinkManger {
         listeners.forEach(l -> l.connnect(deviceName, map, dup));
         //需要判断当前设备所有端口是否还有订单，和设备运行时间是否相符合
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
-        updateOrderStatus(portMap, deviceList);
+        updateOrderStatus(map, portMap, deviceList);
     }
 
     public void updateDeviceLoginTime(String deviceName,Map<Integer,Integer> map){
@@ -175,16 +175,19 @@ public class LinkManger {
         if (deviceList != null && deviceList.size() > 0) {
             for (Device device : deviceList) {
                 device.setLogoutTime(Instant.now());
+                //如果服务器重启，设备需要设置状态为断链
+                device.setStatus(DeviceStatus.DISCONNECTED);
                 deviceService.updateDevice(device);
             }
         }
     }
 
-    private void updateOrderStatus(Map portMap, List<Device> deviceList) {
+    private void updateOrderStatus(Map map, Map portMap, List<Device> deviceList) {
         if (deviceList != null) {
             for (Device device : deviceList) {
                 Order order = orderService.getOrder(device.getId());
                 MsgTime msgTime = (MsgTime) portMap.get(device.getPort());
+                int status = (Integer)map.get(device.getPort());
 
                 if (order != null && msgTime.getTime() == 0) {
                     //如果订单还在缓存中，但是结束时在当前时间之前，则需要从缓存中删除该订单
