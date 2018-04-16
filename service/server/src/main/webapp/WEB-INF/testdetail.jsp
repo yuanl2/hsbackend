@@ -91,7 +91,6 @@ $(function(){
                             success : function(data) {
                                 if(data.status=='0'){
                     //        		alert("下单成功");
-                    //        		location.href="blue/wxweb/order?userId="+$("#userId").val();
                                     onBridgeReady(data,data.orderId);
                                 }else if(data.status=='1'&&data.status!=undefined){
                                     alert(data.msg);

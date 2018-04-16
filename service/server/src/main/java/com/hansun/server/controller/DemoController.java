@@ -291,55 +291,70 @@ public class DemoController {
 
 
     @RequestMapping(value = "/paysuccess")
-    public String doWeinXinPay(Model model,@RequestParam(value = "device_id", required = true, defaultValue = "0") String device_id,
+    public String doWeinXinPay(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "0") String device_id,
                                @RequestParam(value = "product_id", required = true, defaultValue = "0") String product_id,
                                @RequestParam(value = "orderId", required = true, defaultValue = "0") String orderId,
                                @RequestParam(value = "userId", required = true, defaultValue = "0") String userId,
 
                                HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        logger.info("paysuccess  userId = {} orderId = {} device_id = {}",userId,orderId,device_id);
+        logger.info("paysuccess  userId = {} orderId = {} device_id = {}", userId, orderId, device_id);
 
-
-        Order o = orderService.getOrder(Long.valueOf(device_id));
+        long deviceID = Long.valueOf(device_id);
+        Order o = orderService.getOrder(deviceID);
         Consume consume = dataStore.queryConsume(Integer.valueOf(product_id));
         //deny access multi times
         if (o != null && o.getPayAccount().equals(userId) &&
                 (o.getOrderStatus() < OrderStatus.FINISH) && (Instant.now().isBefore(o.getCreateTime().plus(Duration.ofMinutes(o.getDuration())))
                 || Instant.now().isBefore(o.getStartTime().plus(Duration.ofMinutes(o.getDuration()))))) {
-            int time =(int)(Instant.now().toEpochMilli() - o.getStartTime().toEpochMilli())/1000;
+            int time = (int) (Instant.now().toEpochMilli() - o.getStartTime().toEpochMilli()) / 1000;
             model.addAttribute("device_id", device_id);
             model.addAttribute("duration", time);
             model.addAttribute("startTime", o.getCreateTime().toEpochMilli());
-            model.addAttribute("orderId",o.getId());
+            model.addAttribute("orderId", o.getId());
             return "testrunning";
         }
 
-        if(orderId.equals('0')){
+        if (orderId.equals('0')) {
             orderId = orderService.getOrderName();
         }
 
-        Order order = new Order();
-        order.setOrderName(orderId);
-        order.setStartTime(Instant.now());
-        order.setCreateTime(Instant.now());
-        order.setPayAccount(userId);
-        order.setOrderStatus(OrderStatus.NOTSTART);
-        order.setDeviceID(Long.valueOf(device_id));
-        order.setPrice(consume.getPrice());
-        order.setConsumeType(Integer.valueOf(product_id));
-
-        orderService.createOrder(order);
-        logger.info("create order {}",order);
-
         int count = 15;
-        while (count > 0){
+        Order order1 = null;
+        while (count > 0) {
             count--;
-            if(deviceService.getDevice(Long.valueOf(device_id)).getStatus() != DeviceStatus.SERVICE){
+            order1 = orderService.getOrderByOrderID(orderId);
+            if (order1 == null || order1.getOrderStatus() != OrderStatus.PAYDONE) {
+                logger.info(" device {} not receive pay success notify count = {}", device_id, count);
+                Thread.sleep(200);
+            } else {
+                logger.info(" device {} receive pay success notify count = {}", device_id, count);
+                break;
+            }
+        }
+
+        if (count > 0) {
+            orderService.createStartMsgToDevice(order1);
+        } else {
+            model.addAttribute("device_id", device_id);
+            model.addAttribute("duration", consume.getDuration() * 60);
+            model.addAttribute("startTime", order1.getCreateTime().toEpochMilli());
+            model.addAttribute("orderId", orderId);
+            order1.setOrderStatus(OrderStatus.USER_NOT_PAY);
+            orderService.updateOrder(order1);
+            logger.info(" device {} orderId {} now forward testrunerror", device_id, orderId);
+            return "testrunerror";
+        }
+
+        count = 15;
+        while (count > 0) {
+            count--;
+            int status = deviceService.getDevice(deviceID).getStatus();
+            logger.info("device status {} ", status);
+            if ( status != DeviceStatus.SERVICE) {
                 logger.info(" device {} not running count = {}", device_id, count);
                 Thread.sleep(200);
-            }
-            else{
+            } else {
                 logger.info(" device {} is running count = {}", device_id, count);
                 break;
             }
@@ -348,20 +363,20 @@ public class DemoController {
         if (count > 0) {
             model.addAttribute("device_id", device_id);
             model.addAttribute("duration", consume.getDuration() * 60);
-            model.addAttribute("startTime", order.getCreateTime().toEpochMilli());
+            model.addAttribute("startTime", order1.getStartTime().toEpochMilli());
             model.addAttribute("orderId", orderId);
-            order.setOrderStatus(OrderStatus.SERVICE);
-            orderService.updateOrder(order);
+            order1.setOrderStatus(OrderStatus.SERVICE);
+            orderService.updateOrder(order1);
             logger.info(" device {} now forward testrunning", device_id);
             return "testrunning";
         } else {
             model.addAttribute("device_id", device_id);
             model.addAttribute("duration", consume.getDuration() * 60);
-            model.addAttribute("startTime", order.getCreateTime().toEpochMilli());
+            model.addAttribute("startTime", order1.getCreateTime().toEpochMilli());
             model.addAttribute("orderId", orderId);
-            order.setOrderStatus(OrderStatus.DEVICE_ERROR);
-            orderService.updateOrder(order);
-            logger.info(" device {} now forward testrunerror", device_id);
+            order1.setOrderStatus(OrderStatus.DEVICE_ERROR);
+            orderService.updateOrder(order1);
+            logger.info(" device {} orderId {} now forward testrunerror", device_id, orderId);
             return "testrunerror";
         }
     }

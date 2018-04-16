@@ -202,7 +202,7 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
             //如果是重连后的第一条消息，则会携带设备当前端口的状态，进行更新
             if (m.getMsgType().equals(DEVICE_REGISTER_MSG)) {
                 DeviceMsg msgV1 = (DeviceMsg) m;
-                linkManger.updateDeviceLogoutTime(m.getDeviceName(),
+                linkManger.updateDeviceLoginTime(m.getDeviceName(),
                         Integer.valueOf(msgV1.getLogin_reason()), Integer.valueOf(msgV1.getSignal()), m.getMap());
             } else {
                 linkManger.updateDeviceLoginTime(m.getDeviceName(), m.getMap());

@@ -27,8 +27,8 @@ public class DeviceService {
         return device1;
     }
 
-    public Device updateDevice(Device device) {
-        return dataStore.updateDevice(device);
+    public Device updateDevice(Device device, int status) {
+        return dataStore.updateDevice(device, status);
     }
 
     public void deleteDevice(Long deviceID) {

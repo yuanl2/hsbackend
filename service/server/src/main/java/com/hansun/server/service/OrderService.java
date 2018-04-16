@@ -76,7 +76,7 @@ public class OrderService {
 
     public void createStartMsgToDevice(Order order) {
         try {
-            order.setId(Long.valueOf(getSequenceNumber()));
+//            order.setId(Long.valueOf(getSequenceNumber()));
             Device device = dataStore.queryDeviceByDeviceID(order.getDeviceID());
             if (device == null) {
                 logger.error("can not create order for device not exist  " + order.getDeviceName());
@@ -92,6 +92,7 @@ public class OrderService {
                 com.hansun.server.commu.msg4g.ServerStartDeviceMsg msg = new com.hansun.server.commu.msg4g.ServerStartDeviceMsg(MsgConstant4g.DEVICE_START_MSG);
                 msg.setDeviceType(deviceType);
 
+                order.setStartTime(Instant.now());
                 order.setPrice(dataStore.queryConsume(order.getConsumeType()).getPrice());
                 order.setDuration(dataStore.queryConsume(order.getConsumeType()).getDuration());
 
@@ -189,12 +190,9 @@ public class OrderService {
     }
 
     public Order createOrder(Order order) {
-
-        createStartMsgToDevice(order);
-        order.setOrderStatus(OrderStatus.START);
-        Device device = dataStore.queryDeviceByDeviceID(order.getDeviceID());
-        device.setStatus(DeviceStatus.STARTTASK);
-        dataStore.updateDevice(device);
+//        Device device = dataStore.queryDeviceByDeviceID(order.getDeviceID());
+//        device.setStatus(DeviceStatus.STARTTASK);
+//        dataStore.updateDevice(device);
         Order result =  orderStore.insertOrder(order);
         return result;
     }
@@ -209,8 +207,7 @@ public class OrderService {
             orderStore.updateOrder(order);
 
             //不能等心跳消息来了再更新设备的状态，应该根据业务的回应及时更新
-            d.setStatus(DeviceStatus.SERVICE);
-            dataStore.updateDevice(d);
+            dataStore.updateDevice(d,DeviceStatus.SERVICE);
         } else {
             logger.error(d.getId() + " have no order now");
         }
@@ -229,8 +226,7 @@ public class OrderService {
                     order.setEndTime(Instant.now());
                     orderStore.updateOrder(order);
 
-                    d.setStatus(DeviceStatus.IDLE);
-                    dataStore.updateDevice(d);
+                    dataStore.updateDevice(d,DeviceStatus.IDLE);
 
                     //remove order from cache not table
                     orderStore.deleteOrder(d.getId());
@@ -264,6 +260,10 @@ public class OrderService {
 
     public Order getOrder(Long deviceID) {
         return orderStore.queryOrder(deviceID);
+    }
+
+    public Order getOrderByOrderID(String orderID) {
+        return orderStore.queryOrder(orderID);
     }
 
     public void deleteOrder(Long deviceID) {

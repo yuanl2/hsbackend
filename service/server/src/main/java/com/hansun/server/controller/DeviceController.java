@@ -89,7 +89,7 @@ public class DeviceController {
 
     @RequestMapping(value = "devices/id/{id}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateDevice(@PathVariable Long id, @RequestBody Device device, UriComponentsBuilder ucBuilder) {
-        Device d = deviceService.updateDevice(device);
+        Device d = deviceService.updateDevice(device,device.getStatus());
         return new ResponseEntity<Device>(d, HttpStatus.OK);
     }
 

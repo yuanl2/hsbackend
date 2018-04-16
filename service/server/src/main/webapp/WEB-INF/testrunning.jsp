@@ -67,9 +67,10 @@
     var t = EndTime.getTime() - NowTime.getTime();
 
     if( NowTime > EndTime ) {
+       window.clearInterval(getRTime);
        location.href="index?device_id=${device_id}";
     }
-    if( t <= 1000 && t >= -3000 ) {
+    if( t <= 1000 && t >= -2000 ) {
        window.clearInterval(getRTime);
        location.href = "finish?device_id=${device_id}&extra=";
     }

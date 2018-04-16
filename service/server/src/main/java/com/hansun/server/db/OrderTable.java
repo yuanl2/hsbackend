@@ -364,12 +364,12 @@ public class OrderTable {
         }
     }
 
-    public Optional<Order> select(int userID) {
+    public Optional<Order> select(long orderID) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             selectStatement = conn.prepareStatement(SELECT);
-            selectStatement.setInt(1, userID);
+            selectStatement.setLong(1, orderID);
             return Optional.ofNullable(selectStatement.executeQuery())
                     .map(resultSet -> {
                         try {

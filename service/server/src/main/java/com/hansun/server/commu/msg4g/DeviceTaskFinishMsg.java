@@ -88,8 +88,8 @@ public class DeviceTaskFinishMsg extends AbstractMsg {
 
         String times = content[4];
         for (int i = 0; i < portNum; i++) {
-            int time = Integer.valueOf(times.substring(i * 4, i * 4 + 1));
-            int runTime = Integer.valueOf(times.substring(i * 4 + 2, i * 4 + 3));
+            int time = Integer.valueOf(times.substring(i * 4, i * 4 + 2));
+            int runTime = Integer.valueOf(times.substring(i * 4 + 2, i * 4 + 4));
             portMap.put(i + 1, new MsgTime(time, runTime));
         }
 

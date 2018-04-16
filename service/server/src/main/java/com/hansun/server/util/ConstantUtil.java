@@ -27,7 +27,8 @@ public class ConstantUtil {
 	public static String  GET_CODE_URL_WX = "https://open.weixin.qq.com/connect/oauth2/authorize";
 	//回调地址
 	public static String REDIRECT_URI_WX = "http://www.knocknock.vip/hsservice/callback";
-	public static String REDIRECT_URI_ZFB = "http://jfshanghu.daoqidata.com/topay/callback";
+	public static String PAY_SUCCESS_NOTIFY = "http://www.knocknock.vip/hsservice/weixin/payNotify";
 
+	public static String WECHAT_UNIFIEDORDER = "https://api.mch.weixin.qq.com/pay/unifiedorder";
 	public static String GET_OPENID_URL_WX = "https://api.weixin.qq.com/sns/oauth2/access_token";
 }

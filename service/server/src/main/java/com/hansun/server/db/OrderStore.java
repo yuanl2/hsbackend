@@ -52,8 +52,8 @@ public class OrderStore {
         return orderCache.get(deviceID); // 根据deviceID获取订单
     }
 
-    public Order queryOrder(String name) {
-        Optional<Order> result = orderTable.select(name);
+    public Order queryOrder(String orderID) {
+        Optional<Order> result = orderTable.select(Long.valueOf(orderID));
         if (result.isPresent()) {
             Order d = result.get();
             return d;
@@ -62,6 +62,7 @@ public class OrderStore {
     }
 
     public Order updateOrder(Order order) {
+        orderCache.put(order.getDeviceID(),order);
         orderTable.update(order, order.getId());
         logger.info("update order = " + order);
         return order;
