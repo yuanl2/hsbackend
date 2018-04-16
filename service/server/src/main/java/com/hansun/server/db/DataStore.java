@@ -75,6 +75,7 @@ public class DataStore {
             deviceSimCache.clear();
             connectionPoolManager.destroy();
         } catch (SQLException e) {
+            logger.error("destroy datastore error",e);
             throw new ServerException(e);
         }
     }
@@ -179,11 +180,14 @@ public class DataStore {
             }
         }
         int oldStatus = device.getStatus();
-        device.setStatus(status);
-        deviceTable.update(device, device.getId());
-        deviceCache.put(device.getId(), device);
-
-        logger.info("update device status before {} update value {}", oldStatus, status);
+        if (oldStatus != status) {
+            device.setStatus(status);
+            deviceTable.update(device, device.getId());
+            deviceCache.put(device.getId(), device);
+            logger.info("update device status before {} update value {}", oldStatus, status);
+        } else {
+            logger.info("{} the status {} is not changed", device.getId(), status);
+        }
 //        if (device.getSimCard() != device2.getSimCard()) {
 //            logger.info("device.getSimCard() = " + device.getSimCard() + " device2.getSimCard() = " + device2.getSimCard());
 //            if (deviceSimCache.get(device2.getSimCard()) != null) {
@@ -228,18 +232,15 @@ public class DataStore {
                     //如果上报的是空闲状态，后续更新订单状态时会更新设备的状态的
 
                     if (status != oldStatus) {
-                        logger.info(simid + " device_id =" + device2.getId() + " update old status = " + device2.getStatus() + " new status = " + status);
+                        logger.info("deviceBoxName = {} device_id = {} update old status = {} new status = {}" ,simid, device2.getId(), device2.getStatus(), status);
                         device2.setStatus(status);
                         deviceTable.update(device2, device2.getId());
                         deviceCache.put(s.getId(), device2);
-                        logger.info("query device status {}", deviceCache.get(s.getId()));
-                        logger.info("query device2 status {}", device2);
-
                     }
                 }
             }
         } else {
-            logger.error("update device failed, not exist " + simid);
+            logger.error("update device failed, not exist {}", simid);
         }
     }
 
@@ -346,26 +347,26 @@ public class DataStore {
                         ).add(d);
                     }
             );
-            logger.info("initCache consumeList " + consumeCache.size());
-            logger.info("initCache deviceSimCache " + deviceTypeConsumeCache.size());
+            logger.info("initCache consumeList = {} ", consumeCache.size());
+            logger.info("initCache deviceSimCache = {} ", deviceTypeConsumeCache.size());
         }
 
         Optional<List<User>> userList = userTable.selectAll();
         if (userList.isPresent()) {
             userList.get().forEach(d -> userCache.put(d.getId(), d));
-            logger.info("initCache userList " + userCache.size());
+            logger.info("initCache userList = {}", userCache.size());
         }
         Optional<List<Province>> provinceList = provinceTable.selectAll();
         if (provinceList.isPresent()) {
             provinceList.get().forEach(d -> provinceCache.put(d.getId(), d));
-            logger.info("initCache provinceList " + provinceCache.size());
+            logger.info("initCache provinceList = {}", provinceCache.size());
         }
         Optional<List<Location>> locationList = locationTable.selectAll();
         if (locationList.isPresent()) {
             locationList.get().forEach(d -> {
                 autoFillLocaiton(d);
                 locationCache.put(d.getId(), d);
-                logger.info("initCache locationList " + locationCache.size());
+                logger.info("initCache locationList = {}", locationCache.size());
             });
         }
         Optional<List<Device>> deviceList = deviceTable.selectAll();
@@ -381,12 +382,12 @@ public class DataStore {
                         ).add(d);
                     }
             );
-            logger.info("initCache deviceCache " + deviceCache.size());
-            logger.info("initCache deviceSimCache " + deviceSimCache.size());
+            logger.info("initCache deviceCache = {}", deviceCache.size());
+            logger.info("initCache deviceSimCache = {}", deviceSimCache.size());
         }
 
         long end = System.currentTimeMillis();
-        logger.info("end initCache " + end + " init time " + (end - begin));
+        logger.info("end initCache = {} init time = {} ", end, (end - begin));
     }
 
     public Set<Long> getAllDevices() {

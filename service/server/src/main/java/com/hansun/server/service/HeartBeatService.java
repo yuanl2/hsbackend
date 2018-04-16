@@ -121,8 +121,8 @@ public class HeartBeatService {
                     logger.debug("DeviceConnect connnect " + simid + " move to next " + next);
                     slotMapDeviceIDs.get(next).add(simid);
                     deviceIDMapSlot.put(simid,next);
-                    //id只是设备盒子的id，具体对应4个具体的设备
-                    dataStore.updateDeviceStatus(simid, map, dup);
+//                    //id只是设备盒子的id，具体对应4个具体的设备
+//                    dataStore.updateDeviceStatus(simid, map, dup);
                 }
             } catch (Exception e) {
                 logger.error("DeviceConnect: connect error " + simid, e);

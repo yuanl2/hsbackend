@@ -55,6 +55,8 @@ public interface IHandler {
 
     int getSeq();
 
+    int setSeq(int value);
+
     boolean isHasConnected();
 
     boolean isFistMsg();

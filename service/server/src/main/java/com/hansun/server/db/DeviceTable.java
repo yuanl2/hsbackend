@@ -15,19 +15,19 @@ import java.util.Optional;
  * Created by yuanl2 on 2017/3/29.
  */
 public class DeviceTable {
-    private static final String SELECT_BY_DEVICEID = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status, beginTime, simcard, port, loginTime, logoutTime,signalValue, loginReason FROM device WHERE deviceID = ?";
-    private static final String SELECT_BY_OWNER = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status, beginTime, simcard, port, loginTime, logoutTime, signalValue, loginReason FROM device WHERE owner = ?";
-    private static final String SELECT_BY_LOCATIONID = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status ,beginTime, simcard, port, loginTime, logoutTime, signalValue, loginReason FROM device WHERE locationID = ?";
-    private static final String SELECT_ALL = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status , beginTime, simcard, port, loginTime, logoutTime, signalValue, loginReason FROM device";
+    private static final String SELECT_BY_DEVICEID = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status, beginTime, simcard, port, loginTime, logoutTime,signalValue, loginReason, seq FROM device WHERE deviceID = ?";
+    private static final String SELECT_BY_OWNER = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status, beginTime, simcard, port, loginTime, logoutTime, signalValue, loginReason, seq FROM device WHERE owner = ?";
+    private static final String SELECT_BY_LOCATIONID = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status ,beginTime, simcard, port, loginTime, logoutTime, signalValue, loginReason, seq FROM device WHERE locationID = ?";
+    private static final String SELECT_ALL = "SELECT deviceID, deviceType, deviceName, locationID, owner, addtionInfo, status , beginTime, simcard, port, loginTime, logoutTime, signalValue, loginReason, seq FROM device";
 
     private static final String DELETE_BY_DEVICEID = "DELETE FROM device WHERE deviceID = ?";
     private static final String DELETE_BY_OWNER = "DELETE FROM device WHERE owner = ?";
     private static final String DELETE_BY_LOCATIONID = "DELETE FROM device WHERE locationID = ?";
 
     private static final String INSERT =
-            "INSERT INTO device (deviceID, deviceType, deviceName, locationID, owner,addtionInfo,status, beginTime, simcard, port, loginTime, logoutTime , signalValue , loginReason ) VALUES (?, ? , ?, ?, ?, ?, ?, ?, ? ,? ,?, ? ,?, ?)";
+            "INSERT INTO device (deviceID, deviceType, deviceName, locationID, owner,addtionInfo,status, beginTime, simcard, port, loginTime, logoutTime , signalValue , loginReason, seq ) VALUES (?, ?, ? , ?, ?, ?, ?, ?, ?, ? ,? ,?, ? ,?, ?)";
     private static final String UPDATE =
-            "UPDATE device SET deviceType = ?, deviceName = ?, locationID = ?,owner = ?, addtionInfo = ?, status = ?, beginTime = ?, simcard = ? , port = ? , loginTime = ? , logoutTime =? , signalValue = ? , loginReason = ? WHERE deviceID = ?";
+            "UPDATE device SET deviceType = ?, deviceName = ?, locationID = ?,owner = ?, addtionInfo = ?, status = ?, beginTime = ?, simcard = ? , port = ? , loginTime = ? , logoutTime =? , signalValue = ? , loginReason = ?, seq = ? WHERE deviceID = ?";
     private static final String UPDATE_STATUS =
             "UPDATE device SET status = ? WHERE deviceID like ?";
     private ConnectionPoolManager connectionPoolManager;
@@ -72,6 +72,7 @@ public class DeviceTable {
             }
             insertStatement.setInt(13,device.getSignal());
             insertStatement.setInt(14,device.getLoginReason());
+            insertStatement.setInt(15,device.getSeq());
             insertStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -98,7 +99,7 @@ public class DeviceTable {
         try {
             conn = connectionPoolManager.getConnection();
             updateStatement = conn.prepareStatement(UPDATE);
-            updateStatement.setLong(14, id);
+            updateStatement.setLong(15, id);
             updateStatement.setInt(1, device.getType());
             updateStatement.setString(2, device.getName());
             updateStatement.setInt(3, device.getLocationID());
@@ -124,6 +125,7 @@ public class DeviceTable {
             }
             updateStatement.setInt(12,device.getSignal());
             updateStatement.setInt(13,device.getLoginReason());
+            updateStatement.setInt(14,device.getSeq());
             updateStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -288,6 +290,7 @@ public class DeviceTable {
                                 }
                                 device.setSignal(resultSet.getInt("signalValue"));
                                 device.setLoginReason(resultSet.getInt("loginReason"));
+                                device.setSeq(resultSet.getInt("seq"));
                                 return device;
                             }
                             return null;
@@ -356,6 +359,7 @@ public class DeviceTable {
                                 }
                                 device.setSignal(resultSet.getInt("signalValue"));
                                 device.setLoginReason(resultSet.getInt("loginReason"));
+                                device.setSeq(resultSet.getInt("seq"));
                                 list.add(device);
                             }
                             return list;
@@ -424,6 +428,7 @@ public class DeviceTable {
                                 }
                                 device.setSignal(resultSet.getInt("signalValue"));
                                 device.setLoginReason(resultSet.getInt("loginReason"));
+                                device.setSeq(resultSet.getInt("seq"));
                                 list.add(device);
                             }
                             return list;
@@ -491,6 +496,7 @@ public class DeviceTable {
                                 }
                                 device.setSignal(resultSet.getInt("signalValue"));
                                 device.setLoginReason(resultSet.getInt("loginReason"));
+                                device.setSeq(resultSet.getInt("seq"));
                                 list.add(device);
                             }
                             return list;

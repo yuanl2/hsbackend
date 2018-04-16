@@ -24,5 +24,8 @@ public class Test {
         System.out.println(time.substring(0,2));
         System.out.println(time.substring(2,4));
 
+        String seq = "001";
+        System.out.println(Integer.valueOf(seq));
+
     }
 }

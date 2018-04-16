@@ -26,9 +26,10 @@ public class DeviceStartFinishMsg extends AbstractMsg {
         int checkxor = getXOR();
 
         String body = new String(msgBody);
-
+        logger.info("body = {}" , body);
         String[] content = body.split(DEVICE_SEPARATOR_FIELD);
 
+        logger.info("content[0] = {}" , content[0]);
         setSeq(content[0]);
         setDup(content[1]);
         setDeviceType(content[2]);

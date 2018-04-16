@@ -77,7 +77,7 @@ $(function(){
                   if (device_status == '1') {
                     location.href="/hsservice/detail?device_id="+$("#device_id").val() + "&product_id="+pid+ "&user_id="+$("#userId").val();
                   }
-                  else if (device_status == "3") { alert('已有用户支持'); }
+                  else if (device_status == "3") { alert('已有用户支付使用'); }
                   else if (device_status == "4") { alert('设备正在使用'); }
                   else if (device_status == "-1") { location.href = "/hsservice/disable?device_id=${device_id}"; }
                   else if (device_status == "0") { alert('设备离线'); }

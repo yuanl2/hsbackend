@@ -73,6 +73,16 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
 
     private AtomicInteger seq = new AtomicInteger();
 
+    public int setSeq(int value) {
+        if (value > 254) {
+            seq.set(0);
+            return 0;
+        } else {
+            seq.set(value);
+            return value;
+        }
+    }
+
     public int getSeq() {
         if (seq.get() > 254) {
             seq.set(0);
@@ -243,7 +253,7 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
     public void handleRead(SelectionKey key) throws IOException {
         long bytesRead = getSocketChannel().read(headBuffer);
         if (bytesRead == -1) {
-            logger.error("Client close " + ((SocketChannel) key.channel()).getRemoteAddress());
+            logger.error("Client close on {}", ((SocketChannel) key.channel()).getRemoteAddress());
             handleClose();
             return;
         }
@@ -251,7 +261,7 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
         byte[] head = new byte[BUFSIZE];
         headBuffer.get(head);
         String headContent = new String(head);
-        logger.debug("handleRead head = " + headContent);
+        logger.debug("handleRead head = {}", headContent);
 
         //ignore msg not with "TRVAP" start
         if(!headContent.startsWith("TRVAP")){
@@ -266,7 +276,7 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
         try {
             len = Integer.valueOf(headMsgInputStream.readString(BODY_LENGTH_FIELD_SIZE));
         } catch (Exception e) {
-            logger.error("Msg head parse error! " + headContent);
+            logger.error("Msg head parse error! {}", headContent);
             boolean exit = false;
             while (exit) {
                 bodyBuffer = ByteBuffer.allocate(1);
@@ -288,7 +298,7 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
         bodyBuffer = ByteBuffer.allocate(len);
         bytesRead = getSocketChannel().read(bodyBuffer);
         if (bytesRead == -1) {
-            logger.error("Client close " + ((SocketChannel) key.channel()).getRemoteAddress());
+            logger.error("Client close on {}", ((SocketChannel) key.channel()).getRemoteAddress());
             handleClose();
             return;
         }
@@ -301,7 +311,7 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
         headBuffer.clear();
         bodyBuffer.clear();
         if (msg != null) {
-            logger.info("device " + getSocketChannel().getRemoteAddress() + " deviceBoxName = " + getDeviceName() + " msg " + msg.toString());
+            logger.info("device = {} deviceBoxName = {} msg = {} ", getSocketChannel().getRemoteAddress(), getDeviceName(), msg.toString());
             linkManger.process(new DeviceTask4G(this, msg, Integer.parseInt(linkManger.getResponseDelay())));
         }
     }
@@ -326,7 +336,7 @@ public class SocketHandler4G extends AbstractHandler implements IHandler {
                     sendList.removeFirst();
                 }
             }
-            logger.info("send msg context = " + content + " on " + getSocketChannel().getRemoteAddress() + " byte number " + number);
+            logger.info("send msg context = {} on {}", content, getSocketChannel().getRemoteAddress());
             updateOps();
         }
     }

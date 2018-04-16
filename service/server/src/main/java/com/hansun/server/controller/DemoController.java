@@ -56,7 +56,7 @@ public class DemoController {
     public String dispatch(Model model, @RequestParam(value = "device_id", required = false, defaultValue = "World") String name,
                            HttpServletRequest request, HttpServletResponse response) {
         String useragent = request.getHeader("User-Agent");
-        logger.info("request from " + useragent);
+        logger.info("request from {}", useragent);
         String url = "index?device_id=" + name;
         //go wechat flow
         String state = name;
@@ -68,7 +68,7 @@ public class DemoController {
                 url = ConstantUtil.GET_CODE_URL_WX + "?appid=" + ConstantUtil.APP_ID + "&redirect_uri=" + ConstantUtil.REDIRECT_URI_WX
                         + "&response_type=code&scope=snsapi_base&state=" + state + ":WXZF"
                         + "&connect_redirect=1#wechat_redirect";
-                logger.info("dispatch wx url = " + url);
+                logger.info("dispatch wx url = {}", url);
             } else {
 //                url = Constant.GET_CODE_URL_ZFB + "?app_id=" + Constant.APPID_ZFB + "&scope=auth_base&redirect_uri="
 //                        + URLEncoder.encode(REDIRECT_URI_ZFB, "utf-8") + "&state=" + state + ":ZFBZF"
@@ -96,9 +96,9 @@ public class DemoController {
         logger.info(request.getContextPath());
         logger.info(request.getPathInfo());
         logger.info(request.getRequestURI());
-        logger.info("alicode====" + auth_code);
-        logger.info("state====" + state);
-        logger.info("code====" + code);
+        logger.info("alicode = {}", auth_code);
+        logger.info("state = {}", state);
+        logger.info("code = {}", code);
 
         Map requestParams = request.getParameterMap();
         logger.info("requestParams.toString()" + requestParams.toString());
@@ -118,7 +118,7 @@ public class DemoController {
                 String doGet = HttpClientUtil.doGet(url, null);
                 Map<Object, Object> jsonToMap = JSONObject.fromObject(doGet);
                 openid = (String) jsonToMap.get("openid");
-                logger.info("WXZF callback openid = " + openid);
+                logger.info("WXZF callback openid = {}", openid);
             }
             if ("ZFBZF".equals(split[1])) {
 //                AlipayClient alipayClient = new DefaultAlipayClient(Constant.GET_USERID_URL_ZFB, Constant.APPID_ZFB,
@@ -133,8 +133,7 @@ public class DemoController {
 
 
         } catch (Exception e) {
-            e.printStackTrace();
-
+            logger.error("ZF error ", e);
         }
 
         return "redirect:index?openid=" + openid + "&device_id=" + name;
@@ -194,7 +193,7 @@ public class DemoController {
     public String page(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "000000") String name,
                        @RequestParam(value = "openid", required = false, defaultValue = "0") String openid,
                        HttpServletRequest request, HttpServletResponse response) throws IOException {
-        logger.info("openid " + openid + "device_id " + name);
+        logger.info("openid {} device_id {} ", openid, name);
         model.addAttribute("device_id", name);
         model.addAttribute("openid", openid);
 
@@ -221,7 +220,7 @@ public class DemoController {
                              @RequestParam(value = "product_id", required = true, defaultValue = "0") String product_id,
                              @RequestParam(value = "user_id", required = false, defaultValue = "0") String user_id,
                              HttpServletRequest request, HttpServletResponse response) throws IOException {
-        logger.info("product_id " + product_id + "device_id " + device_id);
+        logger.info("product_id {} device_id {}", product_id, device_id);
         model.addAttribute("device_id", device_id);
         model.addAttribute("product_id", product_id);
         model.addAttribute("openid", user_id);
@@ -236,7 +235,7 @@ public class DemoController {
     public String disablepage(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "World") String device_id,
                               @RequestParam(value = "extra", required = false, defaultValue = "0") String extra,
                               HttpServletRequest request, HttpServletResponse response) throws IOException {
-        logger.info("device_id " + device_id);
+        logger.info("device_id {}", device_id);
         model.addAttribute("device_id", device_id);
         model.addAttribute("extra", extra);
         return "device_disable";
@@ -247,7 +246,7 @@ public class DemoController {
     public String finishpage(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "World") String device_id,
                              @RequestParam(value = "extra", required = false, defaultValue = "0") String extra,
                              HttpServletRequest request, HttpServletResponse response) throws IOException {
-        logger.info("device_id " + device_id);
+        logger.info("device_id {}", device_id);
         orderService.deleteOrder(Long.valueOf(device_id));
         model.addAttribute("device_id", device_id);
         model.addAttribute("extra", extra);
@@ -260,7 +259,7 @@ public class DemoController {
                           @RequestParam(value = "product_id", required = false, defaultValue = "0") String product_id,
                           @RequestParam(value = "divfee", required = false, defaultValue = "0") String divfee,
                           HttpServletRequest request, HttpServletResponse response) throws IOException {
-        logger.info("device_id " + device_id);
+        logger.info("device_id {}", device_id);
 
         Consume consume = dataStore.queryConsume(Integer.valueOf(product_id));
 
@@ -305,11 +304,10 @@ public class DemoController {
         Consume consume = dataStore.queryConsume(Integer.valueOf(product_id));
         //deny access multi times
         if (o != null && o.getPayAccount().equals(userId) &&
-                (o.getOrderStatus() < OrderStatus.FINISH) && (Instant.now().isBefore(o.getCreateTime().plus(Duration.ofMinutes(o.getDuration())))
+                (o.getOrderStatus() == OrderStatus.SERVICE) && (Instant.now().isBefore(o.getCreateTime().plus(Duration.ofMinutes(o.getDuration())))
                 || Instant.now().isBefore(o.getStartTime().plus(Duration.ofMinutes(o.getDuration()))))) {
-            int time = (int) (Instant.now().toEpochMilli() - o.getStartTime().toEpochMilli()) / 1000;
             model.addAttribute("device_id", device_id);
-            model.addAttribute("duration", time);
+            model.addAttribute("duration", consume.getDuration() * 60);
             model.addAttribute("startTime", o.getCreateTime().toEpochMilli());
             model.addAttribute("orderId", o.getId());
             return "testrunning";
@@ -390,7 +388,7 @@ public class DemoController {
     @RequestMapping("/device_monitor")
     public String device_monitor(Model model, @RequestParam(value = "userid", required = true, defaultValue = "-1") int userid,
                                  HttpServletRequest request, HttpServletResponse response) throws IOException {
-        logger.info("userid " + userid);
+        logger.info("userid {}", userid);
         model.addAttribute("userid", userid);
 
         if (userid == -1) {

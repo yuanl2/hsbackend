@@ -38,4 +38,5 @@ public abstract class AbstractHandler implements IHandler {
     public Instant getLastDeviceMsgTime() {
         return null;
     }
+
 }

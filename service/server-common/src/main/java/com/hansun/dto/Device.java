@@ -29,6 +29,9 @@ public class Device {
     private int signal = -1;
     private int loginReason = -1;
 
+    //add last seq number
+    private int seq;
+
     @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
     @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
     private Instant loginTime;
@@ -197,6 +200,14 @@ public class Device {
         this.loginReason = loginReason;
     }
 
+    public int getSeq() {
+        return seq;
+    }
+
+    public void setSeq(int seq) {
+        this.seq = seq;
+    }
+
     @Override
     public String toString() {
         return "device{" +
@@ -219,6 +230,7 @@ public class Device {
                 ", beginTime=" + beginTime +
                 ", loginTime=" + loginTime +
                 ", logoutTime=" + logoutTime +
+                ", seq=" + seq +
                 "}";
     }
 

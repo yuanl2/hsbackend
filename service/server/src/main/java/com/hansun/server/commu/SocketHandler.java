@@ -73,6 +73,11 @@ public class SocketHandler extends AbstractHandler implements IHandler {
         return seq.incrementAndGet();
     }
 
+    @Override
+    public int setSeq(int value) {
+        return 0;
+    }
+
     public SocketHandler() {
         for (int i = 1; i <= 4; i++) {
             portStatus.put(i, DeviceStatus.DISCONNECTED);

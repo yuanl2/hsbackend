@@ -266,6 +266,10 @@ public class OrderService {
         return orderStore.queryOrder(orderID);
     }
 
+    /**
+     * 更新订单状态为完成，并且删除缓存中的订单
+     * @param deviceID
+     */
     public void deleteOrder(Long deviceID) {
         Order order = orderStore.queryOrder(deviceID);
         if (order != null) {
@@ -277,6 +281,10 @@ public class OrderService {
         }
     }
 
+    /**
+     * 不更新订单状态为完成，并且删除缓存中的订单
+     * @param deviceID
+     */
     public void removeOrder(Long deviceID) {
         orderStore.deleteOrder(deviceID);
     }

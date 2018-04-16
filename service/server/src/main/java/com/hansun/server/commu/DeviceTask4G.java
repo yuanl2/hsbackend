@@ -1,9 +1,7 @@
 package com.hansun.server.commu;
 
-import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.ErrorCode;
 import com.hansun.server.common.InvalidMsgException;
-import com.hansun.server.common.OrderStatus;
 import com.hansun.server.commu.common.IMsg;
 import com.hansun.server.commu.common.IMsg4g;
 import com.hansun.server.commu.msg4g.*;
@@ -65,7 +63,7 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
                 if (needClearOldLink(linkManger, m)) return;
 
 //                handler.setNeedResponse(true);
-                linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap(), m.getDup());
+                linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap(), m.getDup(), msg);
 
                 Thread.sleep(delay);
 
@@ -106,11 +104,8 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
 
 
 //                handler.setNeedSend(false);
-                linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap(), m.getDup());
+                linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap(), m.getDup(), msg);
 
-//                //k = {1,2,3,4}
-//                m.getMap().forEach((k, v) -> {
-//                    String s = handler.getDeviceName();
 //                    if (v == OrderStatus.SERVICE) {//device on port is running status
 ////                        linkManger.getOrderService().processStartOrder(s, k);  //SIM800_898602B8191650210001 1  (对应就是端口1的设备启动了)
 //
@@ -137,7 +132,7 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
                 if (needClearOldLink(linkManger, m)) return;
 
 //                handler.setNeedResponse(true);
-                linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap(), m.getDup());
+                linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap(), m.getDup(), msg);
 
                 DeviceTaskFinishResponseMsg m1 = new DeviceTaskFinishResponseMsg(DEVICE_TASK_FINISH_RESPONSE_MSG);
                 m1.setDeviceType(msg.getDeviceType());
@@ -175,23 +170,27 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
         if (!handler.isFistMsg()) {
             handler.setFistMsg(true);
             if (!linkManger.isValidDevice(m.getDeviceName())) {
-                logger.error("no this deviceBox name = " + m.getDeviceName());
+                logger.error("no this deviceBox name = {}", m.getDeviceName());
                 return true;
             }
             handler.setDeviceName(m.getDeviceName());
-//                handler.setNeedResponse(true);
-
             IHandler oldHandler = linkManger.get(m.getDeviceName());
             try {
                 if (oldHandler != null) {
-                    logger.info("device need to clear old handler " + m.getDeviceName() + " address:  " + oldHandler.getSocketChannel().getRemoteAddress());
+                    logger.info("device need to clear old handler {} address on {}", m.getDeviceName(), oldHandler.getSocketChannel().getRemoteAddress());
                     oldHandler.handleClose();
                 }
             } catch (ClosedChannelException e) {
-                logger.error(m.getDeviceName() + " has been closed!");
+                logger.error("{} has been closed!", m.getDeviceName());
             } catch (Exception e) {
-                logger.error(m.getDeviceName() + " close error!", e);
+                logger.error("{} close error!", m.getDeviceName(), e);
             }
+
+            /**
+             * yuanl2 for test 2018-04-16
+             * get seq number for this device last time and set
+             */
+            linkManger.initialHandler(m.getDeviceName(),handler);
 
             //this code is duplicated with handleClose method in IHandler
 //            linkManger.remove(m.getDeviceName(), handler.getLastDeviceMsgTime());

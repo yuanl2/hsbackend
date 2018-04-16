@@ -28,6 +28,7 @@ public class v1_InitializeDataSpace {
                     "logoutTime DATETIME DEFAULT NULL," +
                     "signalValue INT(4) NOT NULL DEFAULT -1," +
                     "loginReason INT(4) NOT NULL DEFAULT -1," +
+                    "seq int(4) DEFAULT 0," +
                     "PRIMARY KEY (deviceID)," +
                     "UNIQUE KEY deviceID_UNIQUE (deviceID))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");

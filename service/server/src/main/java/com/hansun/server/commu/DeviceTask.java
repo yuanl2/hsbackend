@@ -88,7 +88,7 @@ public class DeviceTask implements Runnable {
                 HeartBeatMsg m = (HeartBeatMsg) msg;
 
                 handler.setNeedResponse(true);
-                linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap(),m.getDup());
+                linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap(),m.getDup(), msg);
 
                 Thread.sleep(delay);
 
@@ -116,7 +116,7 @@ public class DeviceTask implements Runnable {
             if (msg.getMsgType().equals(DEVICE_START_FINISH_MSG)) {
                 DeviceStartFinishMsg m = (DeviceStartFinishMsg) msg;
                 handler.setNeedSend(false);
-                linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap(), m.getDup());
+                linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap(), m.getDup(), msg);
 
                 //k = {1,2,3,4}
                 m.getMap().forEach((k, v) -> {
@@ -135,7 +135,7 @@ public class DeviceTask implements Runnable {
             if (msg.getMsgType().equals(DEVICE_TASK_FINISH_MSG)) {
                 DeviceTaskFinishMsg m = (DeviceTaskFinishMsg) msg;
                 handler.setNeedResponse(true);
-                linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap(), m.getDup());
+                linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap(), m.getDup(), msg);
 
                 DeviceTaskFinishResponseMsg m1 = new DeviceTaskFinishResponseMsg(DEVICE_TASK_FINISH_RESPONSE_MSG);
                 m1.setDeviceType(msg.getDeviceType());

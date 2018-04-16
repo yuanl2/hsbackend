@@ -1,6 +1,7 @@
 package com.hansun.server.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.hansun.dto.Consume;
 import com.hansun.dto.Order;
 import com.hansun.server.common.OrderStatus;
 import com.hansun.server.db.DataStore;
@@ -11,7 +12,6 @@ import com.hansun.server.util.MD5Util;
 import com.hansun.server.util.TenpayUtil;
 import com.wxpay.HttpKit;
 import com.wxpay.Pay;
-import net.sf.json.JSONObject;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -28,10 +28,10 @@ import java.time.Instant;
 import java.util.*;
 
 /**
- * 微信支付服务端简单示例
+ * 微信支付服务端
  *
- * @author seven_cm
- * @dateTime 2014-11-29
+ * @author
+ * @dateTime 2017-11-29
  */
 @RestController
 @RequestMapping("/weixin")
@@ -67,7 +67,7 @@ public class WXPayController {
         //---------------生成订单号 结束------------------------
         String openId = userId;
 
-        String fee = String.valueOf( (int)(Double.valueOf(price) * 100));
+        String fee = String.valueOf((int) (Double.valueOf(price) * 100));
         Map<String, String> paraMap = new HashMap<String, String>();
         paraMap.put("appid", ConstantUtil.APP_ID);
         paraMap.put("attach", "test pay product_id=" + product_id);
@@ -107,6 +107,7 @@ public class WXPayController {
 
         resInfo.put("status", "0");
         resInfo.put("orderId", out_trade_no);
+
         SortedMap<String, String> payMap = new TreeMap<String, String>();
         payMap.put("appId", ConstantUtil.APP_ID);
         payMap.put("signType", "MD5");
@@ -115,21 +116,22 @@ public class WXPayController {
         payMap.put("timeStamp", create_timestamp());
         String paySign = createSign(payMap, ConstantUtil.PARTNER_KEY);
 
-        resInfo.put("paySign",paySign);
+        resInfo.put("paySign", paySign);
         resInfo.put("appId", ConstantUtil.APP_ID);
         resInfo.put("signType", "MD5");
         resInfo.put("package", "prepay_id=" + prepay_id);
         resInfo.put("nonceStr", payMap.get("nonceStr"));
         resInfo.put("timeStamp", payMap.get("timeStamp"));
-        resInfo.put("product_id",product_id);
-        resInfo.put("device_id",device_id);
-        resInfo.put("userId",userId);
+        resInfo.put("product_id", product_id);
+        resInfo.put("device_id", device_id);
+        resInfo.put("userId", userId);
 
         for (Map.Entry entry :
                 resInfo.entrySet()) {
             log.info(entry.getKey() + " = {} ", entry.getValue());
         }
         String strJson = JSON.toJSONString(resInfo);
+        Consume consume = dataStore.queryConsume(Integer.valueOf(product_id));
 
         //在预支付时，就生成订单
         Order order = new Order();
@@ -142,15 +144,12 @@ public class WXPayController {
         order.setDeviceID(Long.valueOf(device_id));
         order.setPrice(Float.valueOf(price));
         order.setConsumeType(Integer.valueOf(product_id));
+        order.setDuration(consume.getDuration());
         orderService.createOrder(order);
-        log.info("create order {}",order);
-
+        log.info("create order {}", order);
         return strJson;
     }
 
-    /**
-     * 获取支付
-     */
     @RequestMapping(value = {"payNotify"})
     @ResponseBody
     public void payNotify(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -181,15 +180,13 @@ public class WXPayController {
             String total_fee = resultMap.get("total_fee");
             String transaction_id = resultMap.get("transaction_id");
             String return_code = resultMap.get("return_code");
-            System.out.println("return_code:" + return_code);
             //验证签名------------------------------------------------
-            System.out.println("微信回传:" + sign);
 //            resultMap.remove("sign");
 
             if (resultMap.get("result_code").toString().equalsIgnoreCase("SUCCESS")) {
-                log.info("wechat pay ---- return success");
+                log.info("wechat pay return success");
                 if (verifyWeixinNotify(resultMap)) {
-                    log.info("wechat pay ---- verify sign success");
+                    log.info("wechat pay verify sign success");
 
                     // ====================================================================
                     // 通知微信.异步确认成功.必写.不然会一直通知后台.八次之后就认为交易失败了.
@@ -200,7 +197,7 @@ public class WXPayController {
                     // 处理业务 -修改订单支付状态
                     Order order = orderService.getOrderByOrderID(out_trade_no);
                     if (order != null) {
-                        log.info("wechat pay callback : modify order No = {} status to PAYDONE ", out_trade_no);
+                        log.info("wechat pay callback : modify order = {} status to PAYDONE ", out_trade_no);
                         order.setOrderStatus(OrderStatus.PAYDONE);
                         orderService.updateOrder(order);
                     } else {
@@ -208,8 +205,7 @@ public class WXPayController {
                         return;
                     }
 
-                }
-                else{
+                } else {
                     resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"
                             + "<return_msg><![CDATA[sign error]]></return_msg>" + "</xml> ";
 
@@ -223,7 +219,7 @@ public class WXPayController {
                 out.close();
             }
         } catch (Exception e) {
-            log.error("pay notify exception",e);
+            log.error("pay notify exception", e);
         }
     }
 
@@ -245,13 +241,13 @@ public class WXPayController {
         try {
             createSign = getSign(parameterMap, ConstantUtil.PARTNER_KEY);
         } catch (UnsupportedEncodingException e) {
-            log.error("wechat pay  ~~~~~~~~~~~~~~~~ verify sign failed");
+            log.error("wechat pay verify sign failed");
             return false;
         }
         if (createSign.equals(sign)) {
             return true;
         } else {
-            log.error("wechat pay  ~~~~~~~~~~~~~~~~ verify sign failed");
+            log.error("wechat pay verify sign failed");
             return false;
         }
     }
@@ -284,7 +280,7 @@ public class WXPayController {
     /**
      * 创建md5摘要,规则是:按参数名称a-z排序,遇到空值的参数不参加签名。
      */
-    public String createSign(SortedMap<String, String> packageParams,String paternerKey) {
+    public String createSign(SortedMap<String, String> packageParams, String paternerKey) {
         StringBuffer sb = new StringBuffer();
         Set es = packageParams.entrySet();
         Iterator it = es.iterator();
@@ -298,10 +294,10 @@ public class WXPayController {
             }
         }
         sb.append("key=" + paternerKey);
-        System.out.println("md5 sb:" + sb+"key="+paternerKey);
+        System.out.println("md5 sb:" + sb + "key=" + paternerKey);
         String sign = MD5Util.MD5Encode(sb.toString(), "utf-8")
                 .toUpperCase();
-        log.info("packge sign value:{}",sign);
+        log.info("packge sign value:{}", sign);
         return sign;
 
     }
@@ -339,7 +335,6 @@ public class WXPayController {
         Map<String, String> map = null;
         XmlPullParser pullParser = XmlPullParserFactory.newInstance().newPullParser();
         pullParser.setInput(inputStream, "UTF-8"); // 为xml设置要解析的xml数据
-
         int eventType = pullParser.getEventType();
 
         while (eventType != XmlPullParser.END_DOCUMENT) {
