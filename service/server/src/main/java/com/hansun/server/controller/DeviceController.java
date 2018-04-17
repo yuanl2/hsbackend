@@ -3,6 +3,7 @@ package com.hansun.server.controller;
 import com.hansun.dto.Device;
 import com.hansun.dto.Order;
 import com.hansun.server.common.DeviceStatus;
+import com.hansun.server.common.OrderStatus;
 import com.hansun.server.service.DeviceService;
 import com.hansun.server.service.OrderService;
 import org.slf4j.Logger;
@@ -115,17 +116,19 @@ public class DeviceController {
                                @RequestParam(value = "pay_method", required = true, defaultValue = "wx") String pay_method,
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
         Device d = deviceService.getDevice(Long.valueOf(device_id));
-//        Order o = orderService.getOrder(Long.valueOf(device_id));
-//        if (d.getStatus() == DeviceStatus.SERVICE) {
-//            logger.error("device servering.... = " + device_id);
-//            return String.valueOf(DeviceStatus.SERVICE);
-//        }
+        Order o = orderService.getOrder(Long.valueOf(device_id));
+        if (d.getStatus() == DeviceStatus.SERVICE) {
+            logger.error("device {} running", device_id);
+            return String.valueOf(DeviceStatus.SERVICE);
+        } else if (d.getStatus() == DeviceStatus.IDLE && o != null) {
+            return String.valueOf(DeviceStatus.STARTTASK);
+        }
 
         if (d != null) {
-            logger.info("device_id = " + device_id + " device status = " + d.getStatus());
+            logger.info("device_id = {} device status = {}" , device_id, d.getStatus());
             return String.valueOf(d.getStatus());
         } else {
-            logger.error("can't get device for device_id = " + device_id);
+            logger.error("can't get device for device_id = {}", device_id);
             return String.valueOf(DeviceStatus.INVALID);
         }
     }
