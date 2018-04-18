@@ -6,11 +6,11 @@ public class ConstantUtil {
 	 */
 	
 	//初始化
-	public static String APP_ID = "wx4b72ad15df4fe82d";//微信开发平台应用id
-	public static String APP_SECRET = "2af45cf76c9aff9395d630c969e09c56";//应用对应的凭证
+	public static String APP_ID = "wx4545e351e2762a50";//微信开发平台应用id
+	public static String APP_SECRET = "231a62d2600868a938105ce049bcb874";//应用对应的凭证
 	//应用对应的密钥
 	public static String APP_KEY = "L8LrMqqeGRxST5reouB0K66CaYAWpqhAVsq7ggKkxHCOastWksvuX1uvmvQclxaHoYd3ElNBrNO2DHnnzgfVG9Qs473M3DTOZug5er46FhuGofumV8H2FVR9qkjSlC5K";
-	public static String PARTNER = "1466854102";
+	public static String PARTNER = "1488463572";
 	public static String PARTNER_KEY = "F61CC619B42291E9C7C6A314425571D2";//商户号对应的密钥
 	public static String TOKENURL = "https://api.weixin.qq.com/cgi-bin/token";//获取access_token对应的url
 	public static String GRANT_TYPE = "client_credential";//常量固定值 
