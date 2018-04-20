@@ -9,9 +9,14 @@
     <link rel="stylesheet" href="css/font-awesome.min.css" />
     <link rel="stylesheet" href="css/animate.min.css" />
     <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/404-1.css" />
+    <link rel="stylesheet" href="css/test-running.css" />
 </head>
 <body>
 <input type='hidden' id='device_id' value='${device_id}'/>
+<input type='hidden' id='orderId' value='${orderId}'/>
+<input type='hidden' id='startTime' value='${startTime}'/>
+<input type='hidden' id='duration' value='${duration}'/>
 <section id="about">
 	<div class="container">
 		<div class="row text-center">
@@ -22,35 +27,30 @@
             </div>
 			<div class="col-md-4">
                 <div class="test-contact-text1 ">
-                    <p class="span1">设备${device_id}运行结束</p>
+                    <p class="span1"> 设备${device_id}下发失败</p>
                     <p class="span2">订单号 ${orderId}</p>
-                </div>
-                <div class="contact-text1 ">
-                     <p>爱生活，爱摩客！欢迎使用爱摩客</p>
+
                 </div>
 			</div>
 		</div>
 	</div>
 		<div class="container">
+    			<div class="row text-center">
+        					<p>请联系退款事宜</p>
+        		</div>
     		<div class="row text-center">
-    					<p>联系方式 Tel: XXXXXXXXXXX </p>
+    					<p>联系方式 Tel: 400-821-0741 </p>
     		</div>
     	</div>
 </section>
 <footer id="footer">
 		<div class="container">
-		    		<div class="row">
-            					<p></p>
-            		</div>
+            <div class="row">
+                        <p></p>
+            </div>
     	</div>
 </footer>
 <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
 <script type="text/javascript" src="js/bootstrap.min.js"></script>
- <script type="text/javascript">
-    function getRTime(){
-        location.href = "https://weidian.com/item.html?itemID=2249828861";
-    }
-    setTimeout(getRTime,3000);
-    </script>
 </body>
 </html>

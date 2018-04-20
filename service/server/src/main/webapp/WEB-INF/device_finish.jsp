@@ -1,36 +1,57 @@
 <%@ page contentType="text/html;charset=utf-8"%>
-<!DOCTYPE html>
-
+<%@ page language="java" import="com.hansun.dto.Consume" pageEncoding="UTF-8"%>
 <html xmlns="http://www.w3.org/1999/xhtml" lang = "zh-CN">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0" />
-<link rel="stylesheet" href="css/404-1.css" /><title>
-
-</title>
-	<style style="text/css">
-		#footer {
-			color: white;
-			background-color: #e94917;
-			display: block;
-			text-align: center;
-			padding: 0.5em 1em;
-			position: absolute;
-			bottom: 0;
-			width: 100%;
-			z-index: 10;
-		}
-		.phone {
-			font-family:Verdana, Geneva, Tahoma, sans-serif;
-		}
-	</style>
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>爱摩客-Knocknock</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/font-awesome.min.css" />
+    <link rel="stylesheet" href="css/animate.min.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/test-running.css" />
 </head>
 <body>
-   <div class="img">
-    	<img src="pic/qiqiu.png"/>
-    </div>
-    <p class="error">${device_id} 爱生活，爱摩客！欢迎使用爱摩客。</p>
-    <span class="word" style="padding:1em;">${device_id} 设备运行结束，请重新扫码</span>
-	<span id="footer">服务电话: <span class="phone">XXXXXXXXXXXXXXXXXXXX</span></span>
+<input type='hidden' id='device_id' value='${device_id}'/>
+<section id="about">
+	<div class="container">
+		<div class="row text-center">
+            <div class="col-md-4">
+                <div class="contact-text1 ">
+                    <img src="images/1111.png" alt="" />
+                </div>
+            </div>
+			<div class="col-md-4">
+                <div class="test-contact-text1 ">
+                    <p class="span1">设备${device_id}运行结束</p>
+                    <p class="span2">订单号 ${orderId}</p>
+                </div>
+                <div class="contact-text1 ">
+                     <p>爱生活，爱摩客！欢迎使用爱摩客</p>
+                </div>
+			</div>
+		</div>
+	</div>
+		<div class="container">
+    		<div class="row text-center">
+    					<p>联系方式 Tel: 400-821-0741 </p>
+    		</div>
+    	</div>
+</section>
+<footer id="footer">
+		<div class="container">
+		    		<div class="row">
+            					<p></p>
+            		</div>
+    	</div>
+</footer>
+<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+ <script type="text/javascript">
+    function getRTime(){
+        location.href = "https://weidian.com/item.html?itemID=2249828861";
+    }
+    setTimeout(getRTime,3000);
+    </script>
 </body>
 </html>

@@ -30,24 +30,19 @@
                     <img src="images/1111.png" alt="" />
                 </div>
             </div>
-			<div class="col-md-4">
-                <input type='hidden' name='product_id' value='<%=product_id%>'/>
-                <input type='hidden' name='product_price' value='<%=price%>'/>
-                <input type='hidden' name='device_id' value='${device_id}'/>
-                <input type='hidden' name='extra' value=''/>
-                <input type='hidden' name='openid' value='${openid}'/>
-				<div class="features">
-					<img src="<%=path%>" alt="<%=desc%>" />
-				</div>
+               <div class="col-md-4">
+                <div class="test-contact-text1 ">
+                    <p class="span1">设备${device_id}不存在</p>
+                </div>
 			</div>
 		</div>
 	</div>
 		<div class="container">
     			<div class="row text-center">
-        					<p>爱生活 爱摩客</p>
+        			<p>爱生活 爱摩客</p>
         		</div>
     		<div class="row text-center">
-    					<p>联系方式 Tel: XXXXXXXXXXX </p>
+    			    <p>联系方式 Tel: 400-821-0741 </p>
     		</div>
     	</div>
 </section>
@@ -61,6 +56,15 @@
 <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
 <script type="text/javascript" src="js/bootstrap.min.js"></script>
 <script>
+window.alert = function(name){
+     var iframe = document.createElement("IFRAME");
+    iframe.style.display="none";
+    iframe.setAttribute("src", 'data:text/plain,');
+    document.documentElement.appendChild(iframe);
+    window.frames[0].window.alert(name);
+    iframe.parentNode.removeChild(iframe);
+}
+
 $(function(){
 	$(".col-md-4").click(function(){
 	    var pid = $(this).find("input[name='product_id']").val();

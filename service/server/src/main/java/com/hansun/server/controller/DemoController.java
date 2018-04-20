@@ -7,14 +7,11 @@ import com.hansun.server.HttpClientUtil;
 import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.OrderStatus;
 import com.hansun.server.db.DataStore;
-import com.hansun.server.db.OrderStore;
 import com.hansun.server.metrics.HSServiceMetricsService;
 import com.hansun.server.service.DeviceService;
 import com.hansun.server.service.OrderService;
-import com.hansun.server.service.TimerService;
 import com.hansun.server.util.ConstantUtil;
 import net.sf.json.JSONObject;
-import org.apache.tools.ant.taskdefs.condition.Or;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,14 +49,29 @@ public class DemoController {
     @Autowired
     private HSServiceMetricsService hsServiceMetricsService;
 
+    /**
+     * 页面访问入口，调用微信的authorize接口，获取用户在该公众号下的openid
+     * @param model
+     * @param device_id
+     * @param request
+     * @param response
+     * @return
+     */
     @RequestMapping("/device")
-    public String dispatch(Model model, @RequestParam(value = "device_id", required = false, defaultValue = "World") String name,
+    public String dispatch(Model model, @RequestParam(value = "device_id", required = false, defaultValue = "1") String device_id,
                            HttpServletRequest request, HttpServletResponse response) {
         String useragent = request.getHeader("User-Agent");
         logger.info("request from {}", useragent);
-        String url = "index?device_id=" + name;
+
+        Device device = deviceService.getDevice(Long.valueOf(device_id));
+        if (device == null) {
+            logger.error("device {} not exists", device_id);
+            return "device_not_exist";
+        }
+
+        String url = "index?device_id=" + device_id;
         //go wechat flow
-        String state = name;
+        String state = device_id;
         String reg = ".*micromessenger.*";
         try {
 
@@ -75,11 +87,8 @@ public class DemoController {
 //                        + (payForm.getFrom() == null ? ":ZC" : ":JF");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("get user openid error",e);
         }
-
-//        model.addAttribute("device_id", name);
-//        model.addAttribute("useragent", useragent);
         return "redirect:" + url;
     }
 
@@ -92,16 +101,12 @@ public class DemoController {
      */
     @RequestMapping("/callback")
     public String window(String code, String state, String auth_code, HttpServletRequest request) {
-
-        logger.info(request.getContextPath());
-        logger.info(request.getPathInfo());
-        logger.info(request.getRequestURI());
         logger.info("alicode = {}", auth_code);
         logger.info("state = {}", state);
         logger.info("code = {}", code);
 
         Map requestParams = request.getParameterMap();
-        logger.info("requestParams.toString()" + requestParams.toString());
+        logger.debug("requestParams.toString()" + requestParams.toString());
 
         String[] split = state.split(":");
 
@@ -139,56 +144,6 @@ public class DemoController {
         return "redirect:index?openid=" + openid + "&device_id=" + name;
     }
 
-
-//    /**
-//     * @param payForm
-//     * @param request
-//     * @return //到页面 内部用 前端不用
-//     */
-//    @RequestMapping("/pn")
-//    public String pn(PayForm payForm, HttpServletRequest request) {
-//        /** 获取参数 */
-//        String sn = payForm.getSn();
-//        NewSysUser user = new NewSysUser();
-//        user.setUserNo(sn);
-//        NewSysUser findUser = null;
-//        NewProductSn findsn = null;
-//        try {
-//            findUser = userBiz.findUser(user);
-//            if (findUser != null) {
-//                String shortname = findUser.getUserShortname();
-//                shortname = URLEncoder.encode(shortname);
-//                String encode = "http://jfshanghu.daoqidata.com/PhonePospInterface/wxPNPay2.jsp?saruname=" + shortname
-//                        + "&saruLruid=" + findUser.getUserNo() + "&openid=" + payForm.getOpenid() + "&unionid="
-//                        + payForm.getUnionid() + "&from=" + payForm.getFrom() + "&type=" + payForm.getType();
-//                return "redirect:" + encode;
-//            }
-//            NewProductSn newProductSn = new NewProductSn();
-//            newProductSn.setQrcode(sn);
-//
-//            findsn = ProductSnBiz.findBySn(newProductSn);
-//            if (findsn == null) {
-//                return "redirect:" + "http://mp.weixin.qq.com/s/87lyKJlu0NA91f_hj4jvpw";
-//            }
-//
-//            NewSysUser user2 = new NewSysUser();
-//            user2.setId(findsn.getUserId());
-//            findUser = userBiz.findUser(user2);
-//            if (findUser != null) {
-//                String shortname = findUser.getUserShortname();
-//                shortname = URLEncoder.encode(shortname);
-//                String encode = "http://jfshanghu.daoqidata.com/PhonePospInterface/wxPNPay2.jsp?saruname=" + shortname
-//                        + "&saruLruid=" + findUser.getUserNo() + "&openid=" + payForm.getOpenid() + "&unionid="
-//                        + payForm.getUnionid() + "&from=" + payForm.getFrom() + "&type=" + payForm.getType();
-//                return "redirect:" + encode;
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return "redirect:" + "http://mp.weixin.qq.com/s/QQfieiV8ooIx5nYc3zOtpw";
-//    }
-
-
     @RequestMapping("/index")
     public String page(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "000000") String name,
                        @RequestParam(value = "openid", required = false, defaultValue = "0") String openid,
@@ -203,11 +158,11 @@ public class DemoController {
             List<Consume> consumes = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()));
             if (!openid.equals('0')) {
                 model.addAttribute("consumes", consumes);
-                return "test";
+                return "device_index";
             } else {
                 consumes.removeIf(k -> k.getPrice() <= 0);
                 model.addAttribute("consumes", consumes);
-                return "test";
+                return "device_index";
             }
         } else {
             return "error";
@@ -227,7 +182,7 @@ public class DemoController {
 
         Consume consume = dataStore.queryConsume(Integer.valueOf(product_id));
         model.addAttribute("consume", consume);
-        return "testdetail";
+        return "device_detail";
     }
 
 
@@ -250,7 +205,7 @@ public class DemoController {
         orderService.deleteOrder(Long.valueOf(device_id));
         model.addAttribute("device_id", device_id);
         model.addAttribute("extra", extra);
-        return "testfinish";
+        return "device_finish";
     }
 
     @RequestMapping("/testcmd")
@@ -294,7 +249,6 @@ public class DemoController {
                                @RequestParam(value = "product_id", required = true, defaultValue = "0") String product_id,
                                @RequestParam(value = "orderId", required = true, defaultValue = "0") String orderId,
                                @RequestParam(value = "userId", required = true, defaultValue = "0") String userId,
-
                                HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         logger.info("paysuccess  userId = {} orderId = {} device_id = {}", userId, orderId, device_id);
@@ -310,7 +264,8 @@ public class DemoController {
             model.addAttribute("duration", consume.getDuration() * 60);
             model.addAttribute("startTime", o.getCreateTime().toEpochMilli());
             model.addAttribute("orderId", o.getId());
-            return "testrunning";
+            logger.info(" device {} orderId {} now forward device_running again", device_id, orderId);
+            return "device_running";
         }
 
         if (orderId.equals('0')) {
@@ -340,8 +295,8 @@ public class DemoController {
             model.addAttribute("orderId", orderId);
             order1.setOrderStatus(OrderStatus.USER_NOT_PAY);
             orderService.updateOrder(order1);
-            logger.info(" device {} orderId {} now forward testrunerror", device_id, orderId);
-            return "testrunerror";
+            logger.info(" device {} orderId {} now forward device_run_error", device_id, orderId);
+            return "device_run_error";
         }
 
         count = 15;
@@ -365,8 +320,8 @@ public class DemoController {
             model.addAttribute("orderId", orderId);
             order1.setOrderStatus(OrderStatus.SERVICE);
             orderService.updateOrder(order1);
-            logger.info(" device {} now forward testrunning", device_id);
-            return "testrunning";
+            logger.info(" device {} now forward device_running", device_id);
+            return "device_running";
         } else {
             model.addAttribute("device_id", device_id);
             model.addAttribute("duration", consume.getDuration() * 60);
@@ -374,8 +329,8 @@ public class DemoController {
             model.addAttribute("orderId", orderId);
             order1.setOrderStatus(OrderStatus.DEVICE_ERROR);
             orderService.updateOrder(order1);
-            logger.info(" device {} orderId {} now forward testrunerror", device_id, orderId);
-            return "testrunerror";
+            logger.info(" device {} orderId {} now forward device_run_error", device_id, orderId);
+            return "device_run_error";
         }
     }
 

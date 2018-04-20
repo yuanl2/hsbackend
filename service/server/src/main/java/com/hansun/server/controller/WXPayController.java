@@ -54,7 +54,6 @@ public class WXPayController {
                                    @RequestParam(value = "price", required = true, defaultValue = "0") String price, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         Map<Object, Object> resInfo = new HashMap<Object, Object>();
-        //接收财付通通知的URL
         //---------------生成订单号 开始------------------------
         //当前时间 yyyyMMddHHmmss
         String currTime = TenpayUtil.getCurrTime();
@@ -85,7 +84,7 @@ public class WXPayController {
 
         for (Map.Entry entry :
                 paraMap.entrySet()) {
-            log.info(entry.getKey() + " = {} ", entry.getValue());
+            log.debug(entry.getKey() + " = {} ", entry.getValue());
         }
 
         String xml = ArrayToXml(paraMap, false);
@@ -99,10 +98,10 @@ public class WXPayController {
             Map<String, String> map = doXMLParse(xmlStr);
             for (Map.Entry entry :
                     map.entrySet()) {
-                log.info(entry.getKey() + " = {} ", entry.getValue());
+                log.debug(entry.getKey() + " = {} ", entry.getValue());
             }
             prepay_id = map.get("prepay_id");
-            log.info("prepay_id = {} ", prepay_id);
+            log.debug("prepay_id = {} ", prepay_id);
         }
 
         resInfo.put("status", "0");
@@ -128,7 +127,7 @@ public class WXPayController {
 
         for (Map.Entry entry :
                 resInfo.entrySet()) {
-            log.info(entry.getKey() + " = {} ", entry.getValue());
+            log.debug(entry.getKey() + " = {} ", entry.getValue());
         }
         String strJson = JSON.toJSONString(resInfo);
         Consume consume = dataStore.queryConsume(Integer.valueOf(product_id));
@@ -184,9 +183,9 @@ public class WXPayController {
 //            resultMap.remove("sign");
 
             if (resultMap.get("result_code").toString().equalsIgnoreCase("SUCCESS")) {
-                log.info("wechat pay return success");
+                log.debug("wechat pay return success");
                 if (verifyWeixinNotify(resultMap)) {
-                    log.info("wechat pay verify sign success");
+                    log.debug("wechat pay verify sign success");
 
                     // ====================================================================
                     // 通知微信.异步确认成功.必写.不然会一直通知后台.八次之后就认为交易失败了.

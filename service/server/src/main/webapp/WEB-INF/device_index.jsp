@@ -45,7 +45,7 @@
         					<p>爱生活 爱摩客</p>
         		</div>
     		<div class="row text-center">
-    					<p>联系方式 Tel: XXXXXXXXXXX </p>
+    					<p>联系方式 Tel: 400-821-0741 </p>
     		</div>
     	</div>
 </section>
@@ -59,6 +59,16 @@
 <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
 <script type="text/javascript" src="js/bootstrap.min.js"></script>
 <script>
+
+window.alert = function(name){
+     var iframe = document.createElement("IFRAME");
+    iframe.style.display="none";
+    iframe.setAttribute("src", 'data:text/plain,');
+    document.documentElement.appendChild(iframe);
+    window.frames[0].window.alert(name);
+    iframe.parentNode.removeChild(iframe);
+}
+
 $(function(){
 	$(".col-md-4").click(function(){
 	    var pid = $(this).find("input[name='product_id']").val();

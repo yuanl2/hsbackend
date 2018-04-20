@@ -1,69 +1,77 @@
 <%@ page contentType="text/html;charset=utf-8"%>
 <%@ page language="java" import="com.hansun.dto.Consume" pageEncoding="UTF-8"%>
-<%@ page language="java" import="java.util.List"%>
 <html xmlns="http://www.w3.org/1999/xhtml" lang = "zh-CN">
-<html>
-	<head>
-		<title>爱摩客-Knocknock</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
-		<link rel="stylesheet" href="assets/css/main.css" type="text/css"/>
-		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
-	</head>
-	<body class="homepage">
-        <input type='hidden' id='userId' value='${openid}'/>
-        <input type='hidden' id='device_id' value='${device_id}'/>
-        <input type="hidden" value="" id="userId"/>
-        <input type="hidden" value="000000005e12251e015e4b464446638c" id="chairId"/>
-        <input type="hidden" value="170000001791" id="chairNo"/>
-        <input type="hidden" value="170000001791" id="fullChairNo"/>
-        <input type="hidden" value="000000005d019dc2015da6373d3d4d26" id="storeId"/>
-        <input type="hidden" value="自营仓库3" id="storeName"/>
-        <input type="hidden" value="000000005c39b522015c3da68f3d0005" id="channelId"/>
-        <input type="hidden" value="公司仓库" id="channelName"/>
-        <!-- Header -->
-            <div id="header-wrapper">
-                <!-- Banner -->
-                    <section id="banner">
-                            <h2>爱生活，爱摩客！欢迎使用爱摩客</h2>
-                    </section>
-
-                <!-- Intro -->
-                    <section id="intro" class="container">
-                        <div class="row">
-                             <%
-                             List<Consume>  city=(List<Consume>)request.getAttribute("consumes");
-                             for(Consume row:city){
-                             %>
-                            <div class="item_list">
-                            <section>
-                                <input type='hidden' name='product_id' value='<%=row.getId() %>'/>
-                                <input type='hidden' name='product_price' value='<%=row.getPrice() %>'/>
-                                <input type='hidden' name='device_id' value='${device_id}'/>
-                                <input type='hidden' name='extra' value=''/>
-                                <input type='hidden' name='openid' value='${openid}'/>
-                                <i class="<%=row.getPicpath() %>"></i>
-                                <header>
-                                    <h2><%=row.getDescription() %></h2>
-                                </header>
-                                <p>￥ <%=row.getPrice() %></p>
-                            </section>
-                            </div>
-                             <% } %>
-                        </div>
-                        <footer>
-                            <ul class="actions">
-                                <li><a href="#" class="button big">Get Started</a></li>
-                                <li><a href="#" class="button alt big">Learn More</a></li>
-                            </ul>
-                        </footer>
-                    </section>
+<%
+     Consume consume = (Consume)request.getAttribute("consume");
+     int product_id = consume.getId();
+     float price = consume.getPrice();
+     String desc = consume.getDescription();
+     String path = consume.getPicpath();
+ %>
+<head>
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>爱摩客-Knocknock</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/font-awesome.min.css" />
+    <link rel="stylesheet" href="css/animate.min.css" />
+    <link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300,100' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,500,700,300,100' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<input type='hidden' id='userId' value='${openid}'/>
+<input type='hidden' id='device_id' value='${device_id}'/>
+<section id="about">
+	<div class="container">
+		<div class="row text-center">
+            <div class="col-md-4">
+                <div class="contact-text1 ">
+                    <img src="images/1111.png" alt="" />
+                </div>
             </div>
-<script src="assets/js/jquery.min.js"></script>
+			<div class="col-md-4">
+                <input type='hidden' name='product_id' value='<%=product_id%>'/>
+                <input type='hidden' name='product_price' value='<%=price%>'/>
+                <input type='hidden' name='device_id' value='${device_id}'/>
+                <input type='hidden' name='extra' value=''/>
+                <input type='hidden' name='openid' value='${openid}'/>
+				<div class="features">
+					<img src="<%=path%>" alt="<%=desc%>" />
+				</div>
+			</div>
+		</div>
+	</div>
+		<div class="container">
+    			<div class="row text-center">
+        					<p>爱生活 爱摩客</p>
+        		</div>
+    		<div class="row text-center">
+    					<p>联系方式 Tel: 400-821-0741 </p>
+    		</div>
+    	</div>
+</section>
+<footer id="footer">
+		<div class="container">
+		    		<div class="row">
+            					<p></p>
+            		</div>
+    	</div>
+</footer>
+<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
 <script>
+window.alert = function(name){
+     var iframe = document.createElement("IFRAME");
+    iframe.style.display="none";
+    iframe.setAttribute("src", 'data:text/plain,');
+    document.documentElement.appendChild(iframe);
+    window.frames[0].window.alert(name);
+    iframe.parentNode.removeChild(iframe);
+}
+
 $(function(){
-	$(".item_list").click(function(){
+	$(".col-md-4").click(function(){
 	    var pid = $(this).find("input[name='product_id']").val();
         var price = $(this).find("input[name='product_price']").val();
 		if($("#userId").val()==""){
@@ -78,6 +86,7 @@ $(function(){
         }
           myAjax_tb("/hsservice/api/deviceStatus","device_id="+$("#device_id").val(), function (device_status) {
                   if (device_status == '1') {
+                    if( price > 0) {
                     $.ajax({
                             url : '/hsservice/weixin/savepackage?callback=test',
                             type : 'post',
@@ -91,7 +100,6 @@ $(function(){
                             success : function(data) {
                                 if(data.status=='0'){
                     //        		alert("下单成功");
-                    //        		location.href="blue/wxweb/order?userId="+$("#userId").val();
                                     onBridgeReady(data,data.orderId);
                                 }else if(data.status=='1'&&data.status!=undefined){
                                     alert(data.msg);
@@ -108,24 +116,24 @@ $(function(){
 
                             }
                         });
-                              }
-                              else if (device_status == "3") { alert('设备正在使用'); }
-                              else if (device_status == "-1") { location.href = "/hsservice/disable?device_id=${device_id}"; }
-                              else if (device_status == "0") { alert('设备离线'); }
-                              else if (device_status == "2") { alert('无此设备'); }
-                              else if (device_status == "4") { alert('网络不好'); }
+                        }
+                        else{
+                           location.href="/hsservice/paysuccess?product_id="+pid+"&device_id="+$("#device_id").val()+"&userId="+$("#userId").val()
 
-                            }, function () { alert("请求设备状态出错"); })
+                        }
+                          }
+                          else if (device_status == "3") { alert('已有用户支付使用'); }
+                          else if (device_status == "4") { alert('设备正在使用'); }
+                          else if (device_status == "-1") { location.href = "/hsservice/disable?device_id=${device_id}"; }
+                          else if (device_status == "0") { alert('设备离线'); }
+                          else if (device_status == "2") { alert('无此设备'); }
+                          else if (device_status == "5") { alert('网络不好'); }
+                          else if (device_status == "6") { alert('设备故障'); }
+                         }, function () { alert("请求设备状态出错"); })
 
 
 	});
 });
-//function choice(obj) {
-//	$(".item_list").unbind("click");
-//
-//
-//
-//}
 
 //同步请求
 function myAjax_tb(url, data, fun, erfun) {
@@ -194,11 +202,5 @@ function onBridgeReady(data, orderId){
 	   );
 	}
 </script>
-		<!-- Scripts -->
-			<script src="assets/js/jquery.dropotron.min.js"></script>
-			<script src="assets/js/skel.min.js"></script>
-			<script src="assets/js/skel-viewport.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
-	</body>
+</body>
 </html>
