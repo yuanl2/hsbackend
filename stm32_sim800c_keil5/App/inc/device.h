@@ -43,6 +43,14 @@ enum
 #define DEVICE_STATUS_GPIO_PORT                   GPIOA
 #define DEVICE_STATUS_GPIO_PORT_CLK               RCC_APB2Periph_GPIOA
 
+#define DEVICE_CONNECT_PIN                         GPIO_Pin_13
+#define DEVICE_CONNECT_GPIO_PORT                   GPIOB
+#define DEVICE_CONNECT_GPIO_PORT_CLK               RCC_APB2Periph_GPIOB
+
+#define DEVICE_INTASK_PIN                         GPIO_Pin_14
+#define DEVICE_INTASK_GPIO_PORT                   GPIOB
+#define DEVICE_INTASK_GPIO_PORT_CLK               RCC_APB2Periph_GPIOB
+
 enum 
 {
 	GPIO_ENABLE = 0,
@@ -102,6 +110,8 @@ void Device_GPIO_Status(char *buf);
 bool isAnyDevBusy(void);
 bool isDevBusy(u8 Device);
 bool isDevWorking(u8 Device);
+void Device_Network_Ind(bool connected, bool enable_flash);
+void Device_InTask_Ind(bool intask);
 
 #endif
 

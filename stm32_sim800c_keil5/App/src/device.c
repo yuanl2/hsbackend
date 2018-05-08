@@ -69,6 +69,14 @@ void Device_Init(void)
 	GPIO_InitStructure.GPIO_Pin = DEVICE_BUSY_PIN | DEVICE_STATUS_PIN;	
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; 
 	GPIO_Init(DEVICE_BUSY_GPIO_PORT, &GPIO_InitStructure);
+
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+	GPIO_InitStructure.GPIO_Pin = DEVICE_CONNECT_PIN | DEVICE_INTASK_PIN;	
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(DEVICE_CONNECT_GPIO_PORT, &GPIO_InitStructure);	
+	Device_Network_Ind(FALSE, FALSE);
+
 #else
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);	
 
@@ -108,6 +116,7 @@ void Device_OFF(u8 Device)
 #else
 	GPIO_ResetBits(GPIO_PORT[Device], GPIO_PIN[Device]);						
 #endif
+	Device_InTask_Ind(FALSE);
 }
 
 void Device_ON(u8 Device)
@@ -115,11 +124,46 @@ void Device_ON(u8 Device)
 #if TEST
 	GPIO_SetBits(GPIO_PORT[Device][GPIO_ENABLE], GPIO_PIN[Device][GPIO_ENABLE]);	
 #else
-	GPIO_SetBits(GPIO_PORT[Device], GPIO_PIN[Device]);						
+	GPIO_SetBits(GPIO_PORT[Device], GPIO_PIN[Device]);				
 #endif
+	Device_InTask_Ind(TRUE);
 }
 
+void Device_Network_Ind(bool connected, bool enable_flash)
+{
+	static bool flash = FALSE;
+	if(connected){
+		if(enable_flash){
+			if(flash){
+				GPIO_ResetBits(DEVICE_CONNECT_GPIO_PORT, DEVICE_CONNECT_PIN);
+				flash = FALSE;				
+			}else{
+				GPIO_SetBits(DEVICE_CONNECT_GPIO_PORT, DEVICE_CONNECT_PIN);
+				flash = TRUE;				
+			}			
+		}else{
+			GPIO_ResetBits(DEVICE_CONNECT_GPIO_PORT, DEVICE_CONNECT_PIN);
+		}
+	}
+	else
+		GPIO_SetBits(DEVICE_CONNECT_GPIO_PORT, DEVICE_CONNECT_PIN);	
+}
 
+void Device_InTask_Ind(bool intask)
+{
+	static bool flash = FALSE;
+	if(intask){
+		if(flash){
+			GPIO_ResetBits(DEVICE_INTASK_GPIO_PORT, DEVICE_INTASK_PIN);	
+			flash = FALSE;
+		}else{
+			GPIO_SetBits(DEVICE_INTASK_GPIO_PORT, DEVICE_INTASK_PIN);
+			flash = TRUE;			
+		}		
+	}
+	else
+		GPIO_SetBits(DEVICE_INTASK_GPIO_PORT, DEVICE_INTASK_PIN);	
+}
 
 /*
 *********************************************************************************************************

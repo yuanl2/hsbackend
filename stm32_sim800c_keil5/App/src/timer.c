@@ -14,6 +14,7 @@ extern void Reset_Device_Status(u8 status);
 
 void TIM_Uart2_IRQHandler(void)
 {
+#if ENABLE_UART2
 	if (TIM_GetITStatus(TIM_UART2, TIM_IT_Update) != RESET)
 	{	 		
 		TIM_ClearITPendingBit(TIM_UART2, TIM_IT_Update);  
@@ -28,6 +29,14 @@ void TIM_Uart2_IRQHandler(void)
 		BSP_Printf("\n");
 		//Clear_Usart2();
 	}
+#else
+	if (TIM_GetITStatus(TIM_UART2, TIM_IT_Update) != RESET)
+	{	 		
+		TIM_ClearITPendingBit(TIM_UART2, TIM_IT_Update);
+		Device_Network_Ind(TRUE, TRUE);
+		TIM_SetCounter(TIM_UART2,0); 
+	}
+#endif
 }
 	    
 void TIM_General_IRQHandler(void)
@@ -81,8 +90,10 @@ void TIM_General_IRQHandler(void)
 							dev.portClosed |= 1<<index;
 							dev.wait_reply = FALSE;
 						}
-						else
+						else{
 							g_device_status[index].passed++;
+							Device_InTask_Ind(TRUE);
+						}
 					}
 				}	
 				break;
@@ -290,3 +301,22 @@ void TIM_Uart3_Set(u16 ms)
 #endif	
 	TIM_Uart3_Init((u16)arr, (u16)psc);
 }
+
+void TIM_Ind_Set(u16 ms)
+{
+	u32 arr,psc;
+#if DEV_STM32F103CB
+#if INTERNAL_CLOCK	
+	psc = 1999;
+	arr = ((8000000/1000)*ms)/(psc+1);
+#else
+	psc = 2399;
+	arr = ((72000000/1000)*ms)/(psc+1);
+#endif
+#else
+	psc = 29999;
+	arr = ((72000000/1000)*ms)/(psc+1);
+#endif
+	TIM_Uart2_Init((u16)arr, (u16)psc); //reuse TIM2 with Uart2
+}
+

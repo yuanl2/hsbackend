@@ -46,4 +46,5 @@ void TIM_General_Init(u16 arr,u16 psc);
 void TIM_Uart3_Init(u16 arr,u16 psc);
 void TIM_General_Set(u16 ms);
 void TIM_Uart3_Set(u16 ms);
+void TIM_Ind_Set(u16 ms);
 #endif

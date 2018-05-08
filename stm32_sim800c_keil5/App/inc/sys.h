@@ -76,4 +76,5 @@ void MSR_MSP(u32 addr);	//���ö�ջ��ַ
 #define INTERNAL_CLOCK  0
 #define CLOCK_TEST    0
 #define GPIO_TEST  0
+#define ENABLE_UART2 0
 #endif

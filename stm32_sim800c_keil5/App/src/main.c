@@ -71,6 +71,7 @@ int main(void)
 	u8 sum = 0;
 	u8 sum_msg = 0;	
 	MsgSrv *msgSrv=NULL;
+	bool retryConn = FALSE;
 	//�����ж����ȼ�����Ϊ��2��2λ��ռ���ȼ���2λ��Ӧ���ȼ�
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2); 
 	/* Enable GPIOx Clock */
@@ -162,7 +163,7 @@ int main(void)
 	}
 
 	BSP_Printf("YR4GC Connect to Network\r\n");
-	
+	Device_Network_Ind(TRUE, FALSE);
 	lastInActivity = lastOutActivity = RTC_GetCounter();
 	SendLogin();
 
@@ -173,11 +174,28 @@ int main(void)
 	TIM_General_Set(1000);
 	TIM_SetCounter(TIM_GENERAL,0); 
 	TIM_Cmd(TIM_GENERAL,ENABLE);
-	
+
+	//TIM_Cmd(TIM_UART2,ENABLE);
+
+	//for Connect-LED
+	//TIM_Ind_Set(1000);
+
 	while(1)
 	{		
 		while(isWorking())
 		{
+#if 0			
+			if(((lastInActivity>lastOutActivity)&&((lastInActivity-lastOutActivity)>REPLY_1_MIN))
+				|| ((lastOutActivity>lastInActivity)&&((lastOutActivity-lastInActivity)>REPLY_1_MIN)))
+			{
+				if(!retryConn){
+					BSP_Printf("Start flashing Connect-LED...\n");
+					TIM_SetCounter(TIM_UART2,0); 
+					TIM_Cmd(TIM_UART2,ENABLE);
+					retryConn = TRUE;
+				}
+			}
+#endif
 			if(((lastInActivity>lastOutActivity)&&((lastInActivity-lastOutActivity)>DISCONNECT_TIMEOUT))
 				|| ((lastOutActivity>lastInActivity)&&((lastOutActivity-lastInActivity)>DISCONNECT_TIMEOUT)))
 			{
@@ -249,6 +267,9 @@ int main(void)
 							msgSrv = (MsgSrv *)p;						
 							u8 seq = atoi(msgSrv->seq);
 							lastInActivity = RTC_GetCounter();
+							//TIM_Cmd(TIM_UART2,DISABLE);
+							//retryConn = FALSE;
+							//Device_Network_Ind(TRUE, FALSE);
 							BSP_Printf("[%d]: Recv[%d] Seq[%d] Dup[%d] from Server\n", lastInActivity, atoi(msgSrv->id), seq, atoi(msgSrv->dup));
 
 							if(!dev.is_login)
@@ -316,8 +337,7 @@ int main(void)
 										if(interface_on[i]){
 #if TEST										
 											//if(!isDevWorking(i) || isDevBusy(i))
-											//if(!isDevWorking(i))
-											if(0)
+											if(!isDevWorking(i))
 											{						
 												BSP_Printf("Wrong Status\n");	
 											}												
@@ -364,10 +384,14 @@ int main(void)
 Restart:
 		Reset_Device_Status();
 		YR4G_ResetRestart();
+		//TIM_Cmd(TIM_UART2,DISABLE);
+		//retryConn = FALSE;
+		Device_Network_Ind(FALSE, FALSE);
 		while(!YR4G_Link_Server())
 		{
 			BSP_Printf("INIT: YR Module not working\r\n");
 		}
+		Device_Network_Ind(TRUE, FALSE);
 		lastInActivity = lastOutActivity = RTC_GetCounter();
 		SendLogin();	
 	}
