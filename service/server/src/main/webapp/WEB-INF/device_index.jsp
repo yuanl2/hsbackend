@@ -21,7 +21,7 @@
 		<div class="row text-center">
             <div class="col-md-4">
                 <div class="contact-text ">
-                    <img src="images/1111.png" alt="" />
+                    <img src="images/1111.jpg" alt="" />
                 </div>
             </div>
 		    <% List<Consume>  city=(List<Consume>)request.getAttribute("consumes");
@@ -49,13 +49,6 @@
     		</div>
     	</div>
 </section>
-<footer id="footer">
-		<div class="container">
-		    		<div class="row">
-            					<p></p>
-            		</div>
-    	</div>
-</footer>
 <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
 <script type="text/javascript" src="js/bootstrap.min.js"></script>
 <script>
