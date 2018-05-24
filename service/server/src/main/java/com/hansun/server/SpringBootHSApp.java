@@ -10,6 +10,10 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 // same as @Configuration @EnableAutoConfiguration @ComponentScan
 public class SpringBootHSApp extends org.springframework.boot.context.web.SpringBootServletInitializer {
 
+    public SpringBootHSApp() {
+        setRegisterErrorPageFilter(false); // <- this one
+    }
+
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
         return application.sources(SpringBootHSApp.class);

@@ -48,7 +48,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 antMatchers("/", "/index", "/index/**", "/device", "/device/**", "/callback","/callback/**","/assets/**",
                         "/callback/**", "/js/**", "/css/**", "/pic/**", "/images/**","/api/deviceStatus", "/api/deviceStatus/**",
                         "/detail", "/detail/**", "/disable", "/disable/**","/testcmd","/testcmd/**",
-                        "/finish","/finish/**","/weixin/savepackage","/weixin/savepackage/**","/weixin/payNotify","/paysuccess","/paysuccess/**").permitAll()
+                        "/finish","/finish/**","/weixin/savepackage","/weixin/savepackage/**","/weixin/payNotify","/paysuccess","/paysuccess/**","/weixin/paycancel", "/weixin/paycancel/**").permitAll()
                 .anyRequest().authenticated()
                 .and().formLogin().loginPage("/login")
                 .permitAll()

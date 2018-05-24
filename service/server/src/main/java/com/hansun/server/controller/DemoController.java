@@ -243,7 +243,6 @@ public class DemoController {
         return "device_running";
     }
 
-
     @RequestMapping(value = "/paysuccess")
     public String doWeinXinPay(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "0") String device_id,
                                @RequestParam(value = "product_id", required = true, defaultValue = "0") String product_id,
@@ -272,14 +271,23 @@ public class DemoController {
             orderId = orderService.getOrderName();
         }
 
-        int count = 15;
+        int count = 20;
         Order order1 = null;
         while (count > 0) {
             count--;
             order1 = orderService.getOrderByOrderID(orderId);
+            if(order1!=null && order1.getOrderStatus() == OrderStatus.FINISH){
+                //重复收到了调用，直接返回
+                model.addAttribute("device_id", device_id);
+                model.addAttribute("duration", consume.getDuration() * 60);
+                model.addAttribute("startTime", order1.getCreateTime().toEpochMilli());
+                model.addAttribute("orderId", orderId);
+                logger.info(" device {} orderId {} now forward device_run_error", device_id, orderId);
+                return "device_run_error";
+            }
             if (order1 == null || order1.getOrderStatus() != OrderStatus.PAYDONE) {
                 logger.info(" device {} not receive pay success notify count = {}", device_id, count);
-                Thread.sleep(200);
+                Thread.sleep(500);
             } else {
                 logger.info(" device {} receive pay success notify count = {}", device_id, count);
                 break;
@@ -299,14 +307,14 @@ public class DemoController {
             return "device_run_error";
         }
 
-        count = 15;
+        count = 20;
         while (count > 0) {
             count--;
             int status = deviceService.getDevice(deviceID).getStatus();
             logger.info("device status {} ", status);
             if ( status != DeviceStatus.SERVICE) {
                 logger.info(" device {} not running count = {}", device_id, count);
-                Thread.sleep(200);
+                Thread.sleep(500);
             } else {
                 logger.info(" device {} is running count = {}", device_id, count);
                 break;

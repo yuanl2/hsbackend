@@ -2,6 +2,7 @@ package com.hansun.server.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.hansun.dto.Consume;
+import com.hansun.dto.Device;
 import com.hansun.dto.Order;
 import com.hansun.server.common.OrderStatus;
 import com.hansun.server.db.DataStore;
@@ -46,6 +47,25 @@ public class WXPayController {
 
     @Autowired
     private OrderService orderService;
+
+
+    @RequestMapping(value = "/paycancel", method = RequestMethod.POST)
+    public String paycancel(@RequestParam(value = "orderId", required = true, defaultValue = "0") String orderId,
+                            HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        log.info("paysuccess  orderId = {} ",orderId);
+
+        Order o = orderService.getOrderByOrderID(orderId);
+
+        o.setOrderStatus(OrderStatus.USER_NOT_PAY);
+
+        Device device = deviceService.getDevice(o.getDeviceID());
+        orderService.removeOrder(o.getDeviceID());
+        log.info("user cancel order delete from cache {}", o);
+        String deviceStatus = String.valueOf(device.getStatus());
+        log.info("device_id {} deviceStatus {}", device.getId() , deviceStatus);
+        return deviceStatus;
+    }
 
     @RequestMapping(value = "savepackage", method = RequestMethod.POST)
     public String doWeinXinRequest(@RequestParam(value = "userId", required = true, defaultValue = "0") String userId,

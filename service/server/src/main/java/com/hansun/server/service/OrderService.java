@@ -276,8 +276,9 @@ public class OrderService {
             order.setEndTime(Instant.now());
             order.setOrderStatus(OrderStatus.FINISH);
             orderStore.updateOrder(order);
+            logger.info("Before delete order {} " , order);
             orderStore.deleteOrder(deviceID);
-            logger.info("order delete = " + order);
+            logger.info("After delete order {}", orderStore.queryOrder(deviceID));
         }
     }
 

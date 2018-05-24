@@ -193,7 +193,8 @@ public class LinkManger {
                 int status = (Integer) map.get(device.getPort());
                 int setStatus = device.getStatus();
 
-                logger.info("status {} msgtime {} runtime {} ", status, msgTime.getTime(), msgTime.getRuntime());
+                logger.info("status {} msgtime {} runtime {} order {} ", status, msgTime.getTime(), msgTime.getRuntime(), order);
+
                 if (order != null && (msgTime.getTime() == 0 || status == DeviceStatus.IDLE)) {
                     //如果订单还在缓存中，但是结束时在当前时间之前，则需要从缓存中删除该订单
                     if (Instant.now().isAfter(order.getCreateTime().plus(Duration.ofMinutes(order.getDuration())))
@@ -225,6 +226,8 @@ public class LinkManger {
                             orderService.deleteOrder(device.getId());
                             setStatus = DeviceStatus.IDLE;
                         }
+                    }else{
+                        logger.info("order {} setstatus {} status {}", order, setStatus, status);
                     }
                 } else if (order != null && (status == DeviceStatus.SERVICE || msgTime.getTime() != 0)) {
                     if (order.getOrderStatus() == OrderStatus.NOTSTART || order.getOrderStatus() == OrderStatus.PAYDONE) {
@@ -248,6 +251,9 @@ public class LinkManger {
                     }
                 } else {
                     logger.debug("{} have no order now", device.getId());
+                    if (status == DeviceStatus.IDLE) {
+                        setStatus = status;
+                    }
                 }
 
                 if (status == DeviceStatus.DISCONNECTED) {
