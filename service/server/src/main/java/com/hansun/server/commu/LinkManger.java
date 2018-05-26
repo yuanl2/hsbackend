@@ -233,7 +233,9 @@ public class LinkManger {
                     if (order.getOrderStatus() == OrderStatus.NOTSTART || order.getOrderStatus() == OrderStatus.PAYDONE) {
                         logger.info("update order before = {}", order);
                         order.setOrderStatus(OrderStatus.SERVICE);
-                        order.setStartTime(Instant.now());
+                        if(order.getStartTime() == null) {
+                            order.setStartTime(Instant.now());
+                        }
                         orderService.updateOrder(order);
 
                         if (device.getStatus() != DeviceStatus.SERVICE) {

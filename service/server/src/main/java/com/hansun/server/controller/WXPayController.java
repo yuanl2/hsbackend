@@ -59,6 +59,7 @@ public class WXPayController {
 
         o.setOrderStatus(OrderStatus.USER_NOT_PAY);
 
+
         Device device = deviceService.getDevice(o.getDeviceID());
         orderService.removeOrder(o.getDeviceID());
         log.info("user cancel order delete from cache {}", o);
@@ -157,7 +158,7 @@ public class WXPayController {
         order.setId(Long.valueOf(out_trade_no));
         order.setOrderName(out_trade_no);
         order.setCreateTime(Instant.now());
-        order.setStartTime(Instant.now());
+//        order.setStartTime(Instant.now());
         order.setPayAccount(userId);
         order.setOrderStatus(OrderStatus.CREATED);
         order.setDeviceID(Long.valueOf(device_id));

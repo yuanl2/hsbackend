@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Created by yuanl2 on 2017/4/27.
@@ -99,11 +100,13 @@ public class OrderStore {
         List<Order> notFinishedOrders = queryNotFinish(OrderStatus.FINISH);
         if (notFinishedOrders != null && notFinishedOrders.size() > 0) {
             notFinishedOrders.forEach(k -> {
-                logger.debug("init orderCache add order = " + k);
-                orderCache.putIfAbsent(k.getDeviceID(), k);
+                if(k.getOrderStatus() == OrderStatus.NOTSTART || k.getOrderStatus() == OrderStatus.PAYDONE || k.getOrderStatus() == OrderStatus.SERVICE) {
+                    logger.debug("init orderCache add order = {} ", k);
+                    orderCache.putIfAbsent(k.getDeviceID(), k);
+                }
             });
         }
         long end = System.currentTimeMillis();
-        logger.info("init orderCache consume time = " + (end - begin) + " ms");
+        logger.info("init orderCache consume time = {} ms",(end - begin));
     }
 }

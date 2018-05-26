@@ -255,6 +255,11 @@ public class DemoController {
         long deviceID = Long.valueOf(device_id);
         Order o = orderService.getOrder(deviceID);
         Consume consume = dataStore.queryConsume(Integer.valueOf(product_id));
+
+        //订单在用户点击微信支付的时候就创建了订单，但是如果用户cancel了订单，也会有订单数据，只是状态不一样
+        if(o!=null && o.getOrderStatus() == OrderStatus.CREATED){
+            o.setOrderStatus(OrderStatus.NOTSTART);
+        }
         //deny access multi times
         if (o != null && o.getPayAccount().equals(userId) &&
                 (o.getOrderStatus() == OrderStatus.SERVICE) && (Instant.now().isBefore(o.getCreateTime().plus(Duration.ofMinutes(o.getDuration())))
@@ -296,6 +301,8 @@ public class DemoController {
 
         if (count > 0) {
             orderService.createStartMsgToDevice(order1);
+            //update order start time
+            order1.setStartTime(Instant.now());
         } else {
             model.addAttribute("device_id", device_id);
             model.addAttribute("duration", consume.getDuration() * 60);
