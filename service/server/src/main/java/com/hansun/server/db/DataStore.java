@@ -182,12 +182,33 @@ public class DataStore {
         int oldStatus = device.getStatus();
         if (oldStatus != status) {
             device.setStatus(status);
-            deviceTable.update(device, device.getId());
+            deviceTable.updateStatus(status, device.getId());
             deviceCache.put(device.getId(), device);
             logger.info("update device status before {} update value {}", oldStatus, status);
         } else {
             logger.info("{} the status {} is not changed", device.getId(), status);
         }
+        return device;
+    }
+
+    public Device updateDevice(Device device) {
+        Device device2 = deviceCache.get(device.getId());
+        //缓存不存在此设备
+        if (device2 == null) {
+            Optional<Device> device1 = deviceTable.select(device.getId());
+            if (device1 == null || !device1.isPresent()) {
+                throw ServerException.conflict("Cannot update Device for not exist.");
+            }
+        }
+//        int oldStatus = device.getStatus();
+//        if (oldStatus != status) {
+//            device.setStatus(status);
+            deviceTable.update(device, device.getId());
+            deviceCache.put(device.getId(), device);
+//            logger.info("update device status before {} update value {}", oldStatus, status);
+//        } else {
+//            logger.info("{} the status {} is not changed", device.getId(), status);
+//        }
 //        if (device.getSimCard() != device2.getSimCard()) {
 //            logger.info("device.getSimCard() = " + device.getSimCard() + " device2.getSimCard() = " + device2.getSimCard());
 //            if (deviceSimCache.get(device2.getSimCard()) != null) {

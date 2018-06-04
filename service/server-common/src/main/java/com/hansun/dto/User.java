@@ -18,7 +18,7 @@ public class User implements UserDetails {
     private String name;
     private int userType;
     private String password;
-    private String addtionInfo;
+    private UserAddtionInfo addtionInfo;
     private String role;
     private boolean locked;
 
@@ -102,11 +102,11 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public String getAddtionInfo() {
+    public UserAddtionInfo getAddtionInfo() {
         return addtionInfo;
     }
 
-    public void setAddtionInfo(String addtionInfo) {
+    public void setAddtionInfo(UserAddtionInfo addtionInfo) {
         this.addtionInfo = addtionInfo;
     }
 

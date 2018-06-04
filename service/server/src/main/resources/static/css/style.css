@@ -175,8 +175,8 @@ p{
     z-index: 1;
 }
 .contact-text{
-	padding-top:10px;
-	padding-bottom:20px;
+	padding-top:1px;
+	padding-bottom:0px;
 }
 .contact-text1{
 	padding-top:20px;
@@ -194,8 +194,10 @@ p{
     padding-top: 22px;
 }
 .features {
+ margin:auto;
  padding-top:5px;
  padding-bottom:5px;
+ width: 100%;
 }
 .features h3 {
     color: #fff;
@@ -206,6 +208,20 @@ p{
     color: #fff;
 	font-size:15px;
 	font-family: 'Roboto', sans-serif;
+	text-align:center;
+}
+
+.features-bottom {
+ margin-bottom:10px;
+ padding-top:20px;
+ padding-bottom:5px;
+}
+.features-bottom p {
+    margin-bottom:10px;
+    color: #fff;
+	font-size:15px;
+	font-family: 'Roboto', sans-serif;
+	text-align:center;
 }
 .read-more {
     padding: 70px 0;

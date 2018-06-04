@@ -158,10 +158,12 @@ public class DemoController {
             List<Consume> consumes = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()));
             if (!openid.equals('0')) {
                 model.addAttribute("consumes", consumes);
+                model.addAttribute("store", d.getAddtionInfo());
                 return "device_index";
             } else {
                 consumes.removeIf(k -> k.getPrice() <= 0);
                 model.addAttribute("consumes", consumes);
+                model.addAttribute("store", d.getAddtionInfo());
                 return "device_index";
             }
         } else {

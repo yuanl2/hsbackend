@@ -1,8 +1,11 @@
 package com.hansun.server.db;
 
 import com.hansun.dto.User;
+import com.hansun.dto.UserAddtionInfo;
 import com.hansun.server.common.ServerException;
+import com.hansun.utils.JsonConvert;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -28,9 +31,11 @@ public class UserTable {
     private PreparedStatement deleteStatement;
     private PreparedStatement insertStatement;
     private PreparedStatement updateStatement;
+    private JsonConvert<UserAddtionInfo> jsonConvert;
 
     public UserTable(ConnectionPoolManager connectionPoolManager) {
         this.connectionPoolManager = connectionPoolManager;
+        this.jsonConvert = new JsonConvert<UserAddtionInfo>();
     }
 
     public void insert(User user) {
@@ -41,7 +46,7 @@ public class UserTable {
             insertStatement.setInt(1, user.getUserType());
             insertStatement.setString(2, user.getName());
             insertStatement.setString(3, user.getPassword());
-            insertStatement.setString(4, user.getAddtionInfo());
+            insertStatement.setString(4, jsonConvert.objectToJson(user.getAddtionInfo()));
             if (user.getExpiredTime() != null) {
                 insertStatement.setTimestamp(5, Timestamp.from(user.getExpiredTime()));
             } else {
@@ -84,7 +89,7 @@ public class UserTable {
             updateStatement.setInt(1, user.getUserType());
             updateStatement.setString(2, user.getName());
             updateStatement.setString(3, user.getPassword());
-            updateStatement.setString(4, user.getAddtionInfo());
+            updateStatement.setString(4, jsonConvert.objectToJson(user.getAddtionInfo()));
             if (user.getExpiredTime() != null) {
                 updateStatement.setTimestamp(5, Timestamp.from(user.getExpiredTime()));
             } else {
@@ -160,7 +165,7 @@ public class UserTable {
                                 user.setName(resultSet.getString("userName"));
                                 user.setUserType(resultSet.getInt("userType"));
                                 user.setPassword(resultSet.getString("password"));
-                                user.setAddtionInfo(resultSet.getString("addtionInfo"));
+                                user.setAddtionInfo(jsonConvert.jsonToObject(resultSet.getString("addtionInfo"), UserAddtionInfo.class));
                                 Timestamp expiredTime = resultSet.getTimestamp("expired");
                                 if (expiredTime != null) {
                                     user.setExpiredTime(expiredTime.toInstant());
@@ -174,6 +179,8 @@ public class UserTable {
                                 return user;
                             }
                             return null;
+                        } catch (IOException e) {
+                            throw new ServerException(e);
                         } catch (SQLException e) {
                             throw new ServerException(e);
                         } finally {
@@ -219,7 +226,7 @@ public class UserTable {
                                 user.setName(resultSet.getString("userName"));
                                 user.setUserType(resultSet.getInt("userType"));
                                 user.setPassword(resultSet.getString("password"));
-                                user.setAddtionInfo(resultSet.getString("addtionInfo"));
+                                user.setAddtionInfo(jsonConvert.jsonToObject(resultSet.getString("addtionInfo"), UserAddtionInfo.class));
                                 Timestamp expiredTime = resultSet.getTimestamp("expired");
                                 if (expiredTime != null) {
                                     user.setExpiredTime(expiredTime.toInstant());
@@ -233,6 +240,8 @@ public class UserTable {
                                 return user;
                             }
                             return null;
+                        } catch (IOException e) {
+                            throw new ServerException(e);
                         } catch (SQLException e) {
                             throw new ServerException(e);
                         } finally {
@@ -278,7 +287,7 @@ public class UserTable {
                                 user.setName(resultSet.getString("userName"));
                                 user.setUserType(resultSet.getInt("userType"));
                                 user.setPassword(resultSet.getString("password"));
-                                user.setAddtionInfo(resultSet.getString("addtionInfo"));
+                                user.setAddtionInfo(jsonConvert.jsonToObject(resultSet.getString("addtionInfo"), UserAddtionInfo.class));
                                 Timestamp expiredTime = resultSet.getTimestamp("expired");
                                 if (expiredTime != null) {
                                     user.setExpiredTime(expiredTime.toInstant());
@@ -292,6 +301,8 @@ public class UserTable {
                                 list.add(user);
                             }
                             return list;
+                        } catch (IOException e) {
+                            throw new ServerException(e);
                         } catch (SQLException e) {
                             throw new ServerException(e);
                         } finally {

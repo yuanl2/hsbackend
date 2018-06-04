@@ -7,10 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>爱摩客-Knocknock</title>
     <link rel="stylesheet" href="css/bootstrap.min.css" />
-    <link rel="stylesheet" href="css/font-awesome.min.css" />
     <link rel="stylesheet" href="css/animate.min.css" />
-    <link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300,100' rel='stylesheet' type='text/css'>
-    <link href='https://fonts.googleapis.com/css?family=Roboto:400,500,700,300,100' rel='stylesheet' type='text/css'>
+    <link href='css/fonts.css' rel='stylesheet' >
     <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -40,13 +38,19 @@
 			<% } %>
 		</div>
 	</div>
+				<div class="container">
+                        <div class="features-bottom">
+                                    <p></p>
+                        </div>
+            	</div>
 		<div class="container">
-    			<div class="row text-center">
-        					<p>爱生活 爱摩客</p>
+                <div class="features-bottom">
+                            <p>专卖店:上海市宝山区万达广场3楼A5-101</p>
+                </div>
+                <div class="features-bottom">
+        					<p>爱摩客服务协议</p>
+        					<p>联系方式 Tel:400-821-0741 </p>
         		</div>
-    		<div class="row text-center">
-    					<p>联系方式 Tel: 400-821-0741 </p>
-    		</div>
     	</div>
 </section>
 <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
