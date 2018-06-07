@@ -267,11 +267,11 @@ public class DemoController {
                 (o.getOrderStatus() == OrderStatus.SERVICE) && (Instant.now().isBefore(o.getCreateTime().plus(Duration.ofMinutes(o.getDuration())))
                 || Instant.now().isBefore(o.getStartTime().plus(Duration.ofMinutes(o.getDuration()))))) {
             model.addAttribute("device_id", device_id);
-            model.addAttribute("duration", consume.getDuration() * 60);
-            model.addAttribute("startTime", o.getCreateTime().toEpochMilli());
+//            model.addAttribute("duration", consume.getDuration() * 60);
+//            model.addAttribute("startTime", o.getCreateTime().toEpochMilli());
             model.addAttribute("orderId", o.getId());
             logger.info(" device {} orderId {} now forward device_running again", device_id, orderId);
-            return "device_running";
+            return "device_finish";
         }
 
         if (orderId.equals('0')) {
@@ -332,13 +332,13 @@ public class DemoController {
 
         if (count > 0) {
             model.addAttribute("device_id", device_id);
-            model.addAttribute("duration", consume.getDuration() * 60);
-            model.addAttribute("startTime", order1.getStartTime().toEpochMilli());
+//            model.addAttribute("duration", consume.getDuration() * 60);
+//            model.addAttribute("startTime", order1.getStartTime().toEpochMilli());
             model.addAttribute("orderId", orderId);
             order1.setOrderStatus(OrderStatus.SERVICE);
             orderService.updateOrder(order1);
             logger.info(" device {} now forward device_running", device_id);
-            return "device_running";
+            return "device_finish";
         } else {
             model.addAttribute("device_id", device_id);
             model.addAttribute("duration", consume.getDuration() * 60);

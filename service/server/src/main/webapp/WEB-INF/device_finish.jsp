@@ -26,16 +26,16 @@
                     <p class="span1">设备${device_id}运行结束</p>
                     <p class="span2">订单号 ${orderId}</p>
                 </div>
-                <div class="contact-text1 ">
-                     <p>爱生活，爱摩客！欢迎使用爱摩客</p>
-                </div>
 			</div>
 		</div>
 	</div>
 		<div class="container">
-    		<div class="row text-center">
-    					<p>联系方式 Tel: 400-821-0741 </p>
-    		</div>
+                <div class="features-bottom">
+                            <p>专卖店:上海市宝山区万达广场3楼A5-101</p>
+                </div>
+                <div class="features-bottom">
+                            <p>联系方式 Tel:400-821-0741 </p>
+                </div>
     	</div>
 </section>
 <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>

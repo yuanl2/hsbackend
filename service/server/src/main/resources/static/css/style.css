@@ -239,6 +239,81 @@ p{
     color: #fff;
     border: 1px solid transparent;
 }
+
+#styledModal {
+  background: #FFF;
+  width: 80%;
+  text-align: center;
+  padding: 10px;
+  margin: auto;
+  border-radius: 25px;
+}
+
+#mask {
+  position:absolute;
+  left:0;
+  top:0;
+  z-index:9000;
+  background-color:#000;
+  display:none;
+}
+#boxes .window {
+  position:absolute;
+  left:0;
+  top:0;
+  width:100%;
+  height:200px;
+  display:none;
+  z-index:9999;
+  padding:10px;
+  border-radius: 15px;
+  text-align: center;
+}
+ #boxes #dialog {
+   width:80%;
+   height:auto;
+   padding:10px;
+   background-color:#ffffff;
+   font-family: 'Segoe UI Light', sans-serif;
+   font-size: 14pt;
+ }
+
+.example {
+    border: none;
+}
+.example p {
+    font-family: "Segoe UI", sans-serif;
+    text-align: left;
+    color: black;
+    font-size: 14px;
+    line-height: 1.2;
+}
+.button-close {
+    background-color: #0abab5; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border: 2px solid white;
+    border-radius: 25px;
+}
+
+.agree:hover{
+  background-color: #D1D1D1;
+}
+.popupoption:hover{
+	background-color:#D1D1D1;
+	color: green;
+}
+.popupoption2:hover{
+
+	color: red;
+}
 /* NEWS_SECTION
 ====================*/
 
