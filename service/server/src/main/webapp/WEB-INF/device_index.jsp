@@ -45,7 +45,7 @@
         </div>
 		<div class="container">
                 <div class="features-bottom">
-                            <p>专卖店:上海市宝山区万达广场3楼A5-101</p>
+                            <p>专卖店: ${store}</p>
                 </div>
                 <div class="features-bottom">
         					<p id="service_protocol">爱摩客服务协议</p>
