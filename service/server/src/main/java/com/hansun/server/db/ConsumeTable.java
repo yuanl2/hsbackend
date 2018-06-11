@@ -39,7 +39,7 @@ public class ConsumeTable {
             conn = connectionPoolManager.getConnection();
             insertStatement = conn.prepareStatement(INSERT);
             insertStatement.setFloat(1, consume.getPrice());
-            insertStatement.setInt(2, consume.getDuration());
+            insertStatement.setShort(2, consume.getDuration());
             insertStatement.setString(3, consume.getDescription());
             insertStatement.setString(4, consume.getPicpath());
             insertStatement.setString(5,consume.getDeviceType());
@@ -64,14 +64,14 @@ public class ConsumeTable {
         }
     }
 
-    public void update(Consume consume, int id) {
+    public void update(Consume consume, short id) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             updateStatement = conn.prepareStatement(UPDATE);
-            updateStatement.setInt(6, id);
+            updateStatement.setShort(6, id);
             updateStatement.setFloat(1, consume.getPrice());
-            updateStatement.setInt(2, consume.getDuration());
+            updateStatement.setShort(2, consume.getDuration());
             updateStatement.setString(3, consume.getDescription());
             updateStatement.setString(4, consume.getPicpath());
             updateStatement.setString(5,consume.getDeviceType());
@@ -96,12 +96,12 @@ public class ConsumeTable {
         }
     }
 
-    public void delete(int id) {
+    public void delete(short id) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             deleteStatement = conn.prepareStatement(DELETE);
-            deleteStatement.setInt(1, id);
+            deleteStatement.setShort(1, id);
             deleteStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -129,15 +129,15 @@ public class ConsumeTable {
             conn = connectionPoolManager.getConnection();
             selectStatement = conn.prepareStatement(SELECTBYPRICE);
             selectStatement.setFloat(1, c.getPrice());
-            selectStatement.setInt(2, c.getDuration());
+            selectStatement.setShort(2, c.getDuration());
             return Optional.ofNullable(selectStatement.executeQuery())
                     .map(resultSet -> {
                         try {
                             while (resultSet.next()) {
                                 Consume consume = new Consume();
-                                consume.setId(resultSet.getInt("consumeID"));
+                                consume.setId(resultSet.getShort("consumeID"));
                                 consume.setPrice(resultSet.getFloat("price"));
-                                consume.setDuration(resultSet.getInt("duration"));
+                                consume.setDuration(resultSet.getShort("duration"));
                                 consume.setDescription(resultSet.getString("description"));
                                 consume.setPicpath(resultSet.getString("picpath"));
                                 consume.setDeviceType(resultSet.getString("deviceType"));
@@ -175,7 +175,7 @@ public class ConsumeTable {
         }
     }
 
-    public Optional<Consume> select(int id) {
+    public Optional<Consume> select(short id) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
@@ -186,9 +186,9 @@ public class ConsumeTable {
                         try {
                             while (resultSet.next()) {
                                 Consume consume = new Consume();
-                                consume.setId(resultSet.getInt("consumeID"));
+                                consume.setId(resultSet.getShort("consumeID"));
                                 consume.setPrice(resultSet.getFloat("price"));
-                                consume.setDuration(resultSet.getInt("duration"));
+                                consume.setDuration(resultSet.getShort("duration"));
                                 consume.setDescription(resultSet.getString("description"));
                                 consume.setPicpath(resultSet.getString("picpath"));
                                 consume.setDeviceType(resultSet.getString("deviceType"));
@@ -236,9 +236,9 @@ public class ConsumeTable {
                             List<Consume> list = new ArrayList<Consume>();
                             while (resultSet.next()) {
                                 Consume consume = new Consume();
-                                consume.setId(resultSet.getInt("consumeID"));
+                                consume.setId(resultSet.getShort("consumeID"));
                                 consume.setPrice(resultSet.getFloat("price"));
-                                consume.setDuration(resultSet.getInt("duration"));
+                                consume.setDuration(resultSet.getShort("duration"));
                                 consume.setDescription(resultSet.getString("description"));
                                 consume.setPicpath(resultSet.getString("picpath"));
                                 consume.setDeviceType(resultSet.getString("deviceType"));

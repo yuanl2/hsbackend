@@ -163,7 +163,7 @@ public class WXPayController {
         order.setOrderStatus(OrderStatus.CREATED);
         order.setDeviceID(Long.valueOf(device_id));
         order.setPrice(Float.valueOf(price));
-        order.setConsumeType(Integer.valueOf(product_id));
+        order.setConsumeType(Short.valueOf(product_id));
         order.setDuration(consume.getDuration());
         orderService.createOrder(order);
         log.info("create order {}", order);

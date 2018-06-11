@@ -37,7 +37,7 @@ public class ProvinceTable {
         try {
             conn = connectionPoolManager.getConnection();
             insertStatement = conn.prepareStatement(INSERT);
-            insertStatement.setInt(1, province.getId());
+            insertStatement.setShort(1, province.getId());
             insertStatement.setString(2, province.getName());
             insertStatement.executeUpdate();
         } catch (Exception e) {
@@ -61,12 +61,12 @@ public class ProvinceTable {
         }
     }
 
-    public void update(Province province, int id) {
+    public void update(Province province, short id) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             updateStatement = conn.prepareStatement(UPDATE);
-            updateStatement.setInt(2, id);
+            updateStatement.setShort(2, id);
             updateStatement.setString(1, province.getName());
             updateStatement.executeUpdate();
         } catch (Exception e) {
@@ -89,12 +89,12 @@ public class ProvinceTable {
         }
     }
 
-    public void delete(int provinceID) {
+    public void delete(short provinceID) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             deleteStatement = conn.prepareStatement(DELETE);
-            deleteStatement.setInt(1, provinceID);
+            deleteStatement.setShort(1, provinceID);
             deleteStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -127,7 +127,7 @@ public class ProvinceTable {
                         try {
                             while (resultSet.next()) {
                                 Province province = new Province();
-                                province.setId(resultSet.getInt("provinceID"));
+                                province.setId(resultSet.getShort("provinceID"));
                                 province.setName(resultSet.getString("provinceName"));
                                 return province;
                             }
@@ -174,7 +174,7 @@ public class ProvinceTable {
                         try {
                             while (resultSet.next()) {
                                 Province province = new Province();
-                                province.setId(resultSet.getInt("provinceID"));
+                                province.setId(resultSet.getShort("provinceID"));
                                 province.setName(resultSet.getString("provinceName"));
                                 return province;
                             }
@@ -221,7 +221,7 @@ public class ProvinceTable {
                             List<Province> list = new ArrayList<Province>();
                             while (resultSet.next()) {
                                 Province province = new Province();
-                                province.setId(resultSet.getInt("provinceID"));
+                                province.setId(resultSet.getShort("provinceID"));
                                 province.setName(resultSet.getString("provinceName"));
                                 list.add(province);
                             }

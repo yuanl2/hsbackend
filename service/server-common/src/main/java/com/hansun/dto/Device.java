@@ -11,26 +11,26 @@ import java.time.Instant;
  */
 public class Device {
     private long id;
-    private int type;
-    private int port;
+    private short type;
+    private byte port;
     /**
      * 内部的设备名字
      */
     private String name;
-    private int locationID;
+    private short locationID;
     private String province;
     private String city;
     private String areaName;
     private String address;
-    private String addtionInfo;
-    private int ownerID;
+    private String additionInfo;
+    private short ownerID;
     private String owner;
-    private int status;
-    private int signal = -1;
-    private int loginReason = -1;
+    private byte status;
+    private short signal = -1;
+    private short loginReason = -1;
 
     //add last seq number
-    private int seq;
+    private short seq;
 
     @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
     @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
@@ -48,6 +48,14 @@ public class Device {
     @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
     private Instant beginTime;
 
+    private short simCardType;
+
+    private short simCardStatus;
+
+    @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
+    @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
+    private Instant payTime;
+
     public long getId() {
         return id;
     }
@@ -56,11 +64,11 @@ public class Device {
         this.id = id;
     }
 
-    public int getType() {
+    public short getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(short type) {
         this.type = type;
     }
 
@@ -72,11 +80,11 @@ public class Device {
         this.name = name;
     }
 
-    public int getLocationID() {
+    public short getLocationID() {
         return locationID;
     }
 
-    public void setLocationID(int locationID) {
+    public void setLocationID(short locationID) {
         this.locationID = locationID;
     }
 
@@ -112,19 +120,19 @@ public class Device {
         this.address = address;
     }
 
-    public String getAddtionInfo() {
-        return addtionInfo;
+    public String getAdditionInfo() {
+        return additionInfo;
     }
 
-    public void setAddtionInfo(String addtionInfo) {
-        this.addtionInfo = addtionInfo;
+    public void setAdditionInfo(String additionInfo) {
+        this.additionInfo = additionInfo;
     }
 
-    public int getOwnerID() {
+    public short getOwnerID() {
         return ownerID;
     }
 
-    public void setOwnerID(int ownerID) {
+    public void setOwnerID(short ownerID) {
         this.ownerID = ownerID;
     }
 
@@ -136,11 +144,11 @@ public class Device {
         this.owner = owner;
     }
 
-    public int getStatus() {
+    public byte getStatus() {
         return status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(byte status) {
         this.status = status;
     }
 
@@ -160,11 +168,11 @@ public class Device {
         this.simCard = simCard;
     }
 
-    public int getPort() {
+    public byte getPort() {
         return port;
     }
 
-    public void setPort(int port) {
+    public void setPort(byte port) {
         this.port = port;
     }
 
@@ -184,28 +192,52 @@ public class Device {
         this.logoutTime = logoutTime;
     }
 
-    public int getSignal() {
+    public short getSignal() {
         return signal;
     }
 
-    public void setSignal(int signal) {
+    public void setSignal(short signal) {
         this.signal = signal;
     }
 
-    public int getLoginReason() {
+    public short getLoginReason() {
         return loginReason;
     }
 
-    public void setLoginReason(int loginReason) {
+    public void setLoginReason(short loginReason) {
         this.loginReason = loginReason;
     }
 
-    public int getSeq() {
+    public short getSeq() {
         return seq;
     }
 
-    public void setSeq(int seq) {
+    public void setSeq(short seq) {
         this.seq = seq;
+    }
+
+    public short getSimCardType() {
+        return simCardType;
+    }
+
+    public void setSimCardType(short simCardType) {
+        this.simCardType = simCardType;
+    }
+
+    public short getSimCardStatus() {
+        return simCardStatus;
+    }
+
+    public void setSimCardStatus(short simCardStatus) {
+        this.simCardStatus = simCardStatus;
+    }
+
+    public Instant getPayTime() {
+        return payTime;
+    }
+
+    public void setPayTime(Instant payTime) {
+        this.payTime = payTime;
     }
 
     @Override
@@ -219,7 +251,7 @@ public class Device {
                 ", city=" + city +
                 ", areaName=" + areaName +
                 ", address=" + address +
-                ", addtionInfo=" + addtionInfo +
+                ", additionInfo=" + additionInfo +
                 ", owner=" + owner +
                 ", ownerID=" + ownerID +
                 ", status=" + status +
@@ -231,6 +263,9 @@ public class Device {
                 ", loginTime=" + loginTime +
                 ", logoutTime=" + logoutTime +
                 ", seq=" + seq +
+                ", payTime=" + payTime +
+                ", simCardType=" + simCardType +
+                ", simCardStatus=" + simCardStatus +
                 "}";
     }
 

@@ -14,11 +14,11 @@ import java.util.Collection;
  * Created by yuanl2 on 2017/3/29.
  */
 public class User implements UserDetails {
-    private int id;
+    private short id;
     private String name;
-    private int userType;
+    private short userType;
     private String password;
-    private UserAddtionInfo addtionInfo;
+    private UserAdditionInfo additionInfo;
     private String role;
     private boolean locked;
 
@@ -32,11 +32,11 @@ public class User implements UserDetails {
     @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
     private Instant createTime;
 
-    public int getId() {
+    public short getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(short id) {
         this.id = id;
     }
 
@@ -48,11 +48,11 @@ public class User implements UserDetails {
         this.name = name;
     }
 
-    public int getUserType() {
+    public short getUserType() {
         return userType;
     }
 
-    public void setUserType(int userType) {
+    public void setUserType(short userType) {
         this.userType = userType;
     }
 
@@ -102,12 +102,12 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public UserAddtionInfo getAddtionInfo() {
-        return addtionInfo;
+    public UserAdditionInfo getAdditionInfo() {
+        return additionInfo;
     }
 
-    public void setAddtionInfo(UserAddtionInfo addtionInfo) {
-        this.addtionInfo = addtionInfo;
+    public void setAdditionInfo(UserAdditionInfo additionInfo) {
+        this.additionInfo = additionInfo;
     }
 
     public Instant getExpiredTime() {
@@ -140,7 +140,7 @@ public class User implements UserDetails {
                 "id=" + id +
                 ", userType=" + userType +
                 ", name=" + name + "\n" +
-                ", addtionInfo=" + addtionInfo +
+                ", additionInfo=" + additionInfo +
                 ", createTime=" + (createTime == null ? null : createTime.toString()) +
                 ", expiredTime=" + (expiredTime == null ? null : expiredTime.toString()) +
                 ", locked=" + locked +

@@ -51,10 +51,10 @@ public class LocationTable {
         try {
             conn = connectionPoolManager.getConnection();
             insertStatement = conn.prepareStatement(INSERT);
-            insertStatement.setInt(1, Location.getProvinceID());
-            insertStatement.setInt(2, Location.getCityID());
-            insertStatement.setInt(3, Location.getAreaID());
-            insertStatement.setInt(4, Location.getUserID());
+            insertStatement.setShort(1, Location.getProvinceID());
+            insertStatement.setShort(2, Location.getCityID());
+            insertStatement.setShort(3, Location.getAreaID());
+            insertStatement.setShort(4, Location.getUserID());
             insertStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -76,16 +76,16 @@ public class LocationTable {
         }
     }
 
-    public void update(Location Location, int id) {
+    public void update(Location Location, short id) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             updateStatement = conn.prepareStatement(UPDATE);
-            updateStatement.setInt(1, Location.getId());
-            updateStatement.setInt(2, Location.getProvinceID());
-            updateStatement.setInt(3, Location.getCityID());
-            updateStatement.setInt(4, Location.getAreaID());
-            updateStatement.setInt(5, Location.getUserID());
+            updateStatement.setShort(1, Location.getId());
+            updateStatement.setShort(2, Location.getProvinceID());
+            updateStatement.setShort(3, Location.getCityID());
+            updateStatement.setShort(4, Location.getAreaID());
+            updateStatement.setShort(5, Location.getUserID());
             updateStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -107,12 +107,12 @@ public class LocationTable {
         }
     }
 
-    public void deleteByProvinceID(int provinceID) {
+    public void deleteByProvinceID(short provinceID) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             deleteStatement = conn.prepareStatement(DELETE_BY_PROVINCEID);
-            deleteStatement.setInt(1, provinceID);
+            deleteStatement.setShort(1, provinceID);
             deleteStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -134,12 +134,12 @@ public class LocationTable {
         }
     }
 
-    public void deleteByLocationID(int locationID) {
+    public void deleteByLocationID(short locationID) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             deleteStatement = conn.prepareStatement(DELETE_BY_LOCATIONID);
-            deleteStatement.setInt(1, locationID);
+            deleteStatement.setShort(1, locationID);
             deleteStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -161,12 +161,12 @@ public class LocationTable {
         }
     }
 
-    public void deleteByUserID(int userID) {
+    public void deleteByUserID(short userID) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             deleteStatement = conn.prepareStatement(DELETE_BY_USERID);
-            deleteStatement.setInt(1, userID);
+            deleteStatement.setShort(1, userID);
             deleteStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -188,12 +188,12 @@ public class LocationTable {
         }
     }
 
-    public void deleteByAreaID(int areaID) {
+    public void deleteByAreaID(short areaID) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             deleteStatement = conn.prepareStatement(DELETE_BY_AREAID);
-            deleteStatement.setInt(1, areaID);
+            deleteStatement.setShort(1, areaID);
             deleteStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -216,12 +216,12 @@ public class LocationTable {
     }
 
 
-    public void deleteByCityID(int cityID) {
+    public void deleteByCityID(short cityID) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             deleteStatement = conn.prepareStatement(DELETE_BY_CITYID);
-            deleteStatement.setInt(1, cityID);
+            deleteStatement.setShort(1, cityID);
             deleteStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -243,22 +243,22 @@ public class LocationTable {
         }
     }
 
-    public Optional<Location> selectByLocationID(int locationID) {
+    public Optional<Location> selectByLocationID(short locationID) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             selectStatement = conn.prepareStatement(SELECT_BY_LOCATIONID);
-            selectStatement.setInt(1, locationID);
+            selectStatement.setShort(1, locationID);
             return Optional.ofNullable(selectStatement.executeQuery())
                     .map(resultSet -> {
                         try {
                             while (resultSet.next()) {
                                 Location Location = new Location();
-                                Location.setId(resultSet.getInt("locationID"));
-                                Location.setProvinceID(resultSet.getInt("provinceID"));
-                                Location.setCityID(resultSet.getInt("cityID"));
-                                Location.setAreaID(resultSet.getInt("areaID"));
-                                Location.setUserID(resultSet.getInt("userID"));
+                                Location.setId(resultSet.getShort("locationID"));
+                                Location.setProvinceID(resultSet.getShort("provinceID"));
+                                Location.setCityID(resultSet.getShort("cityID"));
+                                Location.setAreaID(resultSet.getShort("areaID"));
+                                Location.setUserID(resultSet.getShort("userID"));
                                 return Location;
                             }
                             return null;
@@ -293,23 +293,23 @@ public class LocationTable {
         }
     }
 
-    public Optional<List<Location>> selectbyUserID(int userID) {
+    public Optional<List<Location>> selectbyUserID(short userID) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             selectStatement = conn.prepareStatement(SELECT_BY_USERID);
-            selectStatement.setInt(1, userID);
+            selectStatement.setShort(1, userID);
             return Optional.ofNullable(selectStatement.executeQuery())
                     .map(resultSet -> {
                         try {
                             List<Location> list = new ArrayList<Location>();
                             while (resultSet.next()) {
                                 Location Location = new Location();
-                                Location.setId(resultSet.getInt("locationID"));
-                                Location.setProvinceID(resultSet.getInt("provinceID"));
-                                Location.setCityID(resultSet.getInt("cityID"));
-                                Location.setAreaID(resultSet.getInt("areaID"));
-                                Location.setUserID(resultSet.getInt("userID"));
+                                Location.setId(resultSet.getShort("locationID"));
+                                Location.setProvinceID(resultSet.getShort("provinceID"));
+                                Location.setCityID(resultSet.getShort("cityID"));
+                                Location.setAreaID(resultSet.getShort("areaID"));
+                                Location.setUserID(resultSet.getShort("userID"));
                                 list.add(Location);
                             }
                             if (list.size() > 0) {
@@ -347,23 +347,23 @@ public class LocationTable {
     }
 
 
-    public Optional<List<Location>> selectbyProvinceID(int provinceID) {
+    public Optional<List<Location>> selectbyProvinceID(short provinceID) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             selectStatement = conn.prepareStatement(SELECT_BY_PROVINCEID);
-            selectStatement.setInt(1, provinceID);
+            selectStatement.setShort(1, provinceID);
             return Optional.ofNullable(selectStatement.executeQuery())
                     .map(resultSet -> {
                         try {
                             List<Location> list = new ArrayList<Location>();
                             while (resultSet.next()) {
                                 Location Location = new Location();
-                                Location.setId(resultSet.getInt("locationID"));
-                                Location.setProvinceID(resultSet.getInt("provinceID"));
-                                Location.setCityID(resultSet.getInt("cityID"));
-                                Location.setAreaID(resultSet.getInt("areaID"));
-                                Location.setUserID(resultSet.getInt("userID"));
+                                Location.setId(resultSet.getShort("locationID"));
+                                Location.setProvinceID(resultSet.getShort("provinceID"));
+                                Location.setCityID(resultSet.getShort("cityID"));
+                                Location.setAreaID(resultSet.getShort("areaID"));
+                                Location.setUserID(resultSet.getShort("userID"));
                                 list.add(Location);
                             }
                             if (list.size() > 0) {
@@ -400,23 +400,23 @@ public class LocationTable {
         }
     }
 
-    public Optional<List<Location>> selectbyCityID(int cityID) {
+    public Optional<List<Location>> selectbyCityID(short cityID) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             selectStatement = conn.prepareStatement(SELECT_BY_CITYID);
-            selectStatement.setInt(1, cityID);
+            selectStatement.setShort(1, cityID);
             return Optional.ofNullable(selectStatement.executeQuery())
                     .map(resultSet -> {
                         try {
                             List<Location> list = new ArrayList<Location>();
                             while (resultSet.next()) {
                                 Location Location = new Location();
-                                Location.setId(resultSet.getInt("locationID"));
-                                Location.setProvinceID(resultSet.getInt("provinceID"));
-                                Location.setCityID(resultSet.getInt("cityID"));
-                                Location.setAreaID(resultSet.getInt("areaID"));
-                                Location.setUserID(resultSet.getInt("userID"));
+                                Location.setId(resultSet.getShort("locationID"));
+                                Location.setProvinceID(resultSet.getShort("provinceID"));
+                                Location.setCityID(resultSet.getShort("cityID"));
+                                Location.setAreaID(resultSet.getShort("areaID"));
+                                Location.setUserID(resultSet.getShort("userID"));
                                 list.add(Location);
                             }
                             if (list.size() > 0) {
@@ -453,23 +453,23 @@ public class LocationTable {
         }
     }
 
-    public Optional<List<Location>> selectbyareaID(int areaID) {
+    public Optional<List<Location>> selectbyareaID(short areaID) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             selectStatement = conn.prepareStatement(SELECT_BY_AREAID);
-            selectStatement.setInt(1, areaID);
+            selectStatement.setShort(1, areaID);
             return Optional.ofNullable(selectStatement.executeQuery())
                     .map(resultSet -> {
                         try {
                             List<Location> list = new ArrayList<Location>();
                             while (resultSet.next()) {
                                 Location Location = new Location();
-                                Location.setId(resultSet.getInt("locationID"));
-                                Location.setProvinceID(resultSet.getInt("provinceID"));
-                                Location.setCityID(resultSet.getInt("cityID"));
-                                Location.setAreaID(resultSet.getInt("areaID"));
-                                Location.setUserID(resultSet.getInt("userID"));
+                                Location.setId(resultSet.getShort("locationID"));
+                                Location.setProvinceID(resultSet.getShort("provinceID"));
+                                Location.setCityID(resultSet.getShort("cityID"));
+                                Location.setAreaID(resultSet.getShort("areaID"));
+                                Location.setUserID(resultSet.getShort("userID"));
                                 list.add(Location);
                             }
                             if (list.size() > 0) {
@@ -517,11 +517,11 @@ public class LocationTable {
                             List<Location> list = new ArrayList<Location>();
                             while (resultSet.next()) {
                                 Location Location = new Location();
-                                Location.setId(resultSet.getInt("locationID"));
-                                Location.setProvinceID(resultSet.getInt("provinceID"));
-                                Location.setCityID(resultSet.getInt("cityID"));
-                                Location.setAreaID(resultSet.getInt("areaID"));
-                                Location.setUserID(resultSet.getInt("userID"));
+                                Location.setId(resultSet.getShort("locationID"));
+                                Location.setProvinceID(resultSet.getShort("provinceID"));
+                                Location.setCityID(resultSet.getShort("cityID"));
+                                Location.setAreaID(resultSet.getShort("areaID"));
+                                Location.setUserID(resultSet.getShort("userID"));
                                 list.add(Location);
                             }
                             return list;

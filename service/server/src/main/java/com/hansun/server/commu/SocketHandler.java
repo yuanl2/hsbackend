@@ -30,7 +30,7 @@ public class SocketHandler extends AbstractHandler implements IHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private Map<Integer, Integer> portStatus = new ConcurrentHashMap<>();
+    private Map<Integer, Byte> portStatus = new ConcurrentHashMap<>();
 
     private String deviceName;
 
@@ -207,7 +207,7 @@ public class SocketHandler extends AbstractHandler implements IHandler {
         this.hasConnected = hasConnected;
     }
 
-    public Map<Integer, Integer> getPortStatus() {
+    public Map<Integer, Byte> getPortStatus() {
         return portStatus;
     }
 

@@ -38,10 +38,10 @@ public class AreaTable {
         try {
             conn = connectionPoolManager.getConnection();
             insertStatement = conn.prepareStatement(INSERT);
-            insertStatement.setInt(1, area.getId());
+            insertStatement.setShort(1, area.getId());
             insertStatement.setString(2, area.getName());
             insertStatement.setString(3, area.getAddress());
-            insertStatement.setInt(4, area.getCityID());
+            insertStatement.setShort(4, area.getCityID());
             insertStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -63,15 +63,15 @@ public class AreaTable {
         }
     }
 
-    public void update(Area area, int id) {
+    public void update(Area area, short id) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             updateStatement = conn.prepareStatement(UPDATE);
-            updateStatement.setInt(4, id);
+            updateStatement.setShort(4, id);
             updateStatement.setString(1, area.getName());
             updateStatement.setString(2, area.getAddress());
-            updateStatement.setInt(3, area.getCityID());
+            updateStatement.setShort(3, area.getCityID());
             updateStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -93,12 +93,12 @@ public class AreaTable {
         }
     }
 
-    public void delete(int id) {
+    public void delete(short id) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             deleteStatement = conn.prepareStatement(DELETE);
-            deleteStatement.setInt(1, id);
+            deleteStatement.setShort(1, id);
             deleteStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -120,7 +120,7 @@ public class AreaTable {
         }
     }
 
-    public Optional<Area> select(int id) {
+    public Optional<Area> select(short id) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
@@ -131,7 +131,7 @@ public class AreaTable {
                         try {
                             while (resultSet.next()) {
                                 Area area = new Area();
-                                area.setId(resultSet.getInt("areaID"));
+                                area.setId(resultSet.getShort("areaID"));
                                 area.setName(resultSet.getString("areaName"));
                                 area.setAddress(resultSet.getString("address"));
                                 return area;
@@ -180,10 +180,10 @@ public class AreaTable {
                         try {
                             while (resultSet.next()) {
                                 Area area = new Area();
-                                area.setId(resultSet.getInt("areaID"));
+                                area.setId(resultSet.getShort("areaID"));
                                 area.setName(resultSet.getString("areaName"));
                                 area.setAddress(resultSet.getString("address"));
-                                area.setCityID(resultSet.getInt("cityID"));
+                                area.setCityID(resultSet.getShort("cityID"));
                                 return area;
                             }
                             return null;
@@ -229,10 +229,10 @@ public class AreaTable {
                             List<Area> list = new ArrayList<Area>();
                             while (resultSet.next()) {
                                 Area area = new Area();
-                                area.setId(resultSet.getInt("areaID"));
+                                area.setId(resultSet.getShort("areaID"));
                                 area.setName(resultSet.getString("areaName"));
                                 area.setAddress(resultSet.getString("address"));
-                                area.setCityID(resultSet.getInt("cityID"));
+                                area.setCityID(resultSet.getShort("cityID"));
                                 list.add(area);
                             }
                             return list;

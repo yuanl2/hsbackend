@@ -5,18 +5,18 @@ package com.hansun.dto;
  */
 public class Consume {
 
-    private int id;
+    private short id;
     private float price;
-    private int duration;
+    private short duration;
     private String description;
     private String picpath;
     private String deviceType;
 
-    public int getId() {
+    public short getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(short id) {
         this.id = id;
     }
 
@@ -28,11 +28,11 @@ public class Consume {
         this.price = price;
     }
 
-    public int getDuration() {
+    public short getDuration() {
         return duration;
     }
 
-    public void setDuration(int duration) {
+    public void setDuration(short duration) {
         this.duration = duration;
     }
 

@@ -24,11 +24,11 @@ public class Order {
     @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
     @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
     private Instant endTime;
-    private int consumeType;
-    private int duration;
+    private short consumeType;
+    private short duration;
     private float price;
     private String payAccount;
-    private int accountType;
+    private short accountType;
     private String orderName;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -42,7 +42,7 @@ public class Order {
      * 4: user not pay
      * 5: unknown
      */
-    private int orderStatus;
+    private short orderStatus;
 
     public long getId() {
         return id;
@@ -76,19 +76,19 @@ public class Order {
         this.endTime = endTime;
     }
 
-    public int getConsumeType() {
+    public short getConsumeType() {
         return consumeType;
     }
 
-    public void setConsumeType(int consumeType) {
+    public void setConsumeType(short consumeType) {
         this.consumeType = consumeType;
     }
 
-    public int getDuration() {
+    public short getDuration() {
         return duration;
     }
 
-    public void setDuration(int duration) {
+    public void setDuration(short duration) {
         this.duration = duration;
     }
 
@@ -108,11 +108,11 @@ public class Order {
         this.payAccount = payAccount;
     }
 
-    public int getAccountType() {
+    public short getAccountType() {
         return accountType;
     }
 
-    public void setAccountType(int accountType) {
+    public void setAccountType(short accountType) {
         this.accountType = accountType;
     }
 
@@ -124,11 +124,11 @@ public class Order {
         this.createTime = createTime;
     }
 
-    public int getOrderStatus() {
+    public short getOrderStatus() {
         return orderStatus;
     }
 
-    public void setOrderStatus(int orderStatus) {
+    public void setOrderStatus(short orderStatus) {
         this.orderStatus = orderStatus;
     }
 

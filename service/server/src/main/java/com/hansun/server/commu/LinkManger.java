@@ -152,7 +152,7 @@ public class LinkManger {
         updateOrderStatus(map, portMap, deviceList, dup, msg);
     }
 
-    public void updateDeviceLoginTime(String deviceName, Map<Integer, Integer> map) {
+    public void updateDeviceLoginTime(String deviceName, Map<Integer, Byte> map) {
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
         if (deviceList != null && deviceList.size() > 0) {
             for (Device device : deviceList) {
@@ -162,7 +162,7 @@ public class LinkManger {
         }
     }
 
-    public void updateDeviceLoginTime(String deviceName, int loginReason, int signal, Map<Integer, Integer> map) {
+    public void updateDeviceLoginTime(String deviceName, short loginReason, short signal, Map<Integer, Byte> map) {
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
         if (deviceList != null && deviceList.size() > 0) {
             for (Device device : deviceList) {
@@ -241,7 +241,7 @@ public class LinkManger {
                         if (device.getStatus() != DeviceStatus.SERVICE) {
 
                             if (msg.getMsgType().equals(DEVICE_START_FINISH_MSG)) {
-                                device.setSeq(Integer.valueOf(msg.getSeq()));
+                                device.setSeq(Short.valueOf(msg.getSeq()));
                                 logger.info("{} set task seq = {}", device.getId(), device.getSeq());
                             }
 

@@ -1,7 +1,7 @@
 package com.hansun.server.db;
 
 import com.hansun.dto.User;
-import com.hansun.dto.UserAddtionInfo;
+import com.hansun.dto.UserAdditionInfo;
 import com.hansun.server.common.ServerException;
 import com.hansun.utils.JsonConvert;
 
@@ -18,12 +18,12 @@ import java.util.Optional;
  * Created by yuanl2 on 2017/3/29.
  */
 public class UserTable {
-    private static final String SELECT = "SELECT userID, userType, userName, password, addtionInfo, expired ,role, islocked, created FROM user WHERE userID = ?";
-    private static final String SELECTBYNAME = "SELECT userID, userType, userName, password, addtionInfo, expired ,role, islocked, created FROM user WHERE userName = ?";
-    private static final String SELECT_ALL = "SELECT userID, userType, userName, password, addtionInfo, expired,role, islocked, created FROM user";
+    private static final String SELECT = "SELECT userID, userType, userName, password, additionInfo, expired ,role, islocked, created FROM user WHERE userID = ?";
+    private static final String SELECTBYNAME = "SELECT userID, userType, userName, password, additionInfo, expired ,role, islocked, created FROM user WHERE userName = ?";
+    private static final String SELECT_ALL = "SELECT userID, userType, userName, password, additionInfo, expired,role, islocked, created FROM user";
     private static final String DELETE = "DELETE FROM user WHERE userID = ?";
-    private static final String INSERT = "INSERT INTO user (userType, userName, password, addtionInfo, expired, role, islocked, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String UPDATE = "UPDATE user SET userType = ? , userName = ? , password = ? , addtionInfo = ? , expired = ? , role = ?, islocked = ? , created = ? WHERE userID = ?";
+    private static final String INSERT = "INSERT INTO user (userType, userName, password, additionInfo, expired, role, islocked, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String UPDATE = "UPDATE user SET userType = ? , userName = ? , password = ? , additionInfo = ? , expired = ? , role = ?, islocked = ? , created = ? WHERE userID = ?";
 
     private ConnectionPoolManager connectionPoolManager;
 
@@ -31,11 +31,11 @@ public class UserTable {
     private PreparedStatement deleteStatement;
     private PreparedStatement insertStatement;
     private PreparedStatement updateStatement;
-    private JsonConvert<UserAddtionInfo> jsonConvert;
+    private JsonConvert<UserAdditionInfo> jsonConvert;
 
     public UserTable(ConnectionPoolManager connectionPoolManager) {
         this.connectionPoolManager = connectionPoolManager;
-        this.jsonConvert = new JsonConvert<UserAddtionInfo>();
+        this.jsonConvert = new JsonConvert<UserAdditionInfo>();
     }
 
     public void insert(User user) {
@@ -43,10 +43,10 @@ public class UserTable {
         try {
             conn = connectionPoolManager.getConnection();
             insertStatement = conn.prepareStatement(INSERT);
-            insertStatement.setInt(1, user.getUserType());
+            insertStatement.setShort(1, user.getUserType());
             insertStatement.setString(2, user.getName());
             insertStatement.setString(3, user.getPassword());
-            insertStatement.setString(4, jsonConvert.objectToJson(user.getAddtionInfo()));
+            insertStatement.setString(4, jsonConvert.objectToJson(user.getAdditionInfo()));
             if (user.getExpiredTime() != null) {
                 insertStatement.setTimestamp(5, Timestamp.from(user.getExpiredTime()));
             } else {
@@ -85,11 +85,11 @@ public class UserTable {
         try {
             conn = connectionPoolManager.getConnection();
             updateStatement = conn.prepareStatement(UPDATE);
-            updateStatement.setInt(8, user.getId());
-            updateStatement.setInt(1, user.getUserType());
+            updateStatement.setShort(8, user.getId());
+            updateStatement.setShort(1, user.getUserType());
             updateStatement.setString(2, user.getName());
             updateStatement.setString(3, user.getPassword());
-            updateStatement.setString(4, jsonConvert.objectToJson(user.getAddtionInfo()));
+            updateStatement.setString(4, jsonConvert.objectToJson(user.getAdditionInfo()));
             if (user.getExpiredTime() != null) {
                 updateStatement.setTimestamp(5, Timestamp.from(user.getExpiredTime()));
             } else {
@@ -161,11 +161,11 @@ public class UserTable {
                         try {
                             while (resultSet.next()) {
                                 User user = new User();
-                                user.setId(resultSet.getInt("userID"));
+                                user.setId(resultSet.getShort("userID"));
                                 user.setName(resultSet.getString("userName"));
-                                user.setUserType(resultSet.getInt("userType"));
+                                user.setUserType(resultSet.getShort("userType"));
                                 user.setPassword(resultSet.getString("password"));
-                                user.setAddtionInfo(jsonConvert.jsonToObject(resultSet.getString("addtionInfo"), UserAddtionInfo.class));
+                                user.setAdditionInfo(jsonConvert.jsonToObject(resultSet.getString("additionInfo"), UserAdditionInfo.class));
                                 Timestamp expiredTime = resultSet.getTimestamp("expired");
                                 if (expiredTime != null) {
                                     user.setExpiredTime(expiredTime.toInstant());
@@ -222,11 +222,11 @@ public class UserTable {
                         try {
                             while (resultSet.next()) {
                                 User user = new User();
-                                user.setId(resultSet.getInt("userID"));
+                                user.setId(resultSet.getShort("userID"));
                                 user.setName(resultSet.getString("userName"));
-                                user.setUserType(resultSet.getInt("userType"));
+                                user.setUserType(resultSet.getShort("userType"));
                                 user.setPassword(resultSet.getString("password"));
-                                user.setAddtionInfo(jsonConvert.jsonToObject(resultSet.getString("addtionInfo"), UserAddtionInfo.class));
+                                user.setAdditionInfo(jsonConvert.jsonToObject(resultSet.getString("additionInfo"), UserAdditionInfo.class));
                                 Timestamp expiredTime = resultSet.getTimestamp("expired");
                                 if (expiredTime != null) {
                                     user.setExpiredTime(expiredTime.toInstant());
@@ -283,11 +283,11 @@ public class UserTable {
                             List<User> list = new ArrayList<User>();
                             while (resultSet.next()) {
                                 User user = new User();
-                                user.setId(resultSet.getInt("userID"));
+                                user.setId(resultSet.getShort("userID"));
                                 user.setName(resultSet.getString("userName"));
-                                user.setUserType(resultSet.getInt("userType"));
+                                user.setUserType(resultSet.getShort("userType"));
                                 user.setPassword(resultSet.getString("password"));
-                                user.setAddtionInfo(jsonConvert.jsonToObject(resultSet.getString("addtionInfo"), UserAddtionInfo.class));
+                                user.setAdditionInfo(jsonConvert.jsonToObject(resultSet.getString("additionInfo"), UserAdditionInfo.class));
                                 Timestamp expiredTime = resultSet.getTimestamp("expired");
                                 if (expiredTime != null) {
                                     user.setExpiredTime(expiredTime.toInstant());

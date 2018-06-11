@@ -142,7 +142,7 @@ public class HeartBeatService {
             } catch (Exception e) {
                 logger.error("disconnect error " + simid, e);
             }
-            Map<Integer,Integer> map = new HashMap<>();
+            Map<Integer,Byte> map = new HashMap<>();
             map.put(1,DeviceStatus.DISCONNECTED);
             map.put(2,DeviceStatus.DISCONNECTED);
             map.put(3,DeviceStatus.DISCONNECTED);

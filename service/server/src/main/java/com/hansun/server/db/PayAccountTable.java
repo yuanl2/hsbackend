@@ -40,9 +40,9 @@ public class PayAccountTable {
             insertStatement = conn.prepareStatement(INSERT);
             insertStatement.setInt(1, account.getId());
             insertStatement.setFloat(2, account.getBalance());
-            insertStatement.setInt(3, account.getType());
+            insertStatement.setShort(3, account.getType());
             insertStatement.setString(4, account.getAccountName());
-            insertStatement.setInt(5, account.getFree());
+            insertStatement.setShort(5, account.getFree());
             insertStatement.setFloat(6, account.getDiscount());
             insertStatement.executeUpdate();
         } catch (Exception e) {
@@ -72,9 +72,9 @@ public class PayAccountTable {
             updateStatement = conn.prepareStatement(UPDATE);
             updateStatement.setInt(6, account.getId());
             updateStatement.setFloat(1, account.getBalance());
-            updateStatement.setInt(2, account.getType());
+            updateStatement.setShort(2, account.getType());
             updateStatement.setString(3, account.getAccountName());
-            updateStatement.setInt(4, account.getFree());
+            updateStatement.setShort(4, account.getFree());
             updateStatement.setFloat(5, account.getDiscount());
             updateStatement.executeUpdate();
         } catch (Exception e) {
@@ -137,9 +137,9 @@ public class PayAccountTable {
                                 PayAccount account = new PayAccount();
                                 account.setId(resultSet.getInt("accountID"));
                                 account.setBalance(resultSet.getFloat("banlance"));
-                                account.setType(resultSet.getInt("type"));
+                                account.setType(resultSet.getShort("type"));
                                 account.setAccountName(resultSet.getString("accountName"));
-                                account.setFree(resultSet.getInt("free"));
+                                account.setFree(resultSet.getShort("free"));
                                 account.setDiscount(resultSet.getFloat("discount"));
                                 return account;
                             }
@@ -188,9 +188,9 @@ public class PayAccountTable {
                                 PayAccount account = new PayAccount();
                                 account.setId(resultSet.getInt("accountID"));
                                 account.setBalance(resultSet.getFloat("banlance"));
-                                account.setType(resultSet.getInt("type"));
+                                account.setType(resultSet.getShort("type"));
                                 account.setAccountName(resultSet.getString("accountName"));
-                                account.setFree(resultSet.getInt("free"));
+                                account.setFree(resultSet.getShort("free"));
                                 account.setDiscount(resultSet.getFloat("discount"));
                                 return account;
                             }
@@ -239,9 +239,9 @@ public class PayAccountTable {
                                 PayAccount account = new PayAccount();
                                 account.setId(resultSet.getInt("accountID"));
                                 account.setBalance(resultSet.getFloat("banlance"));
-                                account.setType(resultSet.getInt("type"));
+                                account.setType(resultSet.getShort("type"));
                                 account.setAccountName(resultSet.getString("accountName"));
-                                account.setFree(resultSet.getInt("free"));
+                                account.setFree(resultSet.getShort("free"));
                                 account.setDiscount(resultSet.getFloat("discount"));
                                 list.add(account);
                             }

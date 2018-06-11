@@ -144,7 +144,7 @@ public class TimerService {
                             order.setOrderStatus(OrderStatus.CREATED);
                             order.setDeviceID(Long.valueOf(deviceID));
                             order.setDeviceName(boxName);
-                            order.setConsumeType(Integer.valueOf(consume.getId()));
+                            order.setConsumeType(Short.valueOf(consume.getId()));
                             orderService.createOrder(order);
                             logger.info("device_id = " + deviceID + " start order " + order);
                             Thread.sleep((random.nextInt(5) + 10) * 1000);

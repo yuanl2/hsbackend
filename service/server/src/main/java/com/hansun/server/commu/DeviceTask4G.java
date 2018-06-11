@@ -202,7 +202,7 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
             if (m.getMsgType().equals(DEVICE_REGISTER_MSG)) {
                 DeviceMsg msgV1 = (DeviceMsg) m;
                 linkManger.updateDeviceLoginTime(m.getDeviceName(),
-                        Integer.valueOf(msgV1.getLogin_reason()), Integer.valueOf(msgV1.getSignal()), m.getMap());
+                        Short.valueOf(msgV1.getLogin_reason()), Short.valueOf(msgV1.getSignal()), m.getMap());
             } else {
                 linkManger.updateDeviceLoginTime(m.getDeviceName(), m.getMap());
             }

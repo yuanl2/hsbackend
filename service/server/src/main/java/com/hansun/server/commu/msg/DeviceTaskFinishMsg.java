@@ -17,13 +17,13 @@ import static com.hansun.server.common.MsgConstant.*;
  * Created by yuanl2 on 2017/5/10.
  */
 public class DeviceTaskFinishMsg extends AbstractMsg {
-    private Map<Integer, Integer> map = new HashMap<>();
+    private Map<Integer, Byte> map = new HashMap<>();
 
-    public Map<Integer, Integer> getMap() {
+    public Map<Integer, Byte> getMap() {
         return map;
     }
 
-    public void setMap(Map<Integer, Integer> map) {
+    public void setMap(Map<Integer, Byte> map) {
         this.map = map;
     }
 

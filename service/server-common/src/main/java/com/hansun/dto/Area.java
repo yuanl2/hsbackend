@@ -4,16 +4,16 @@ package com.hansun.dto;
  * Created by yuanl2 on 2017/3/29.
  */
 public class Area {
-    private int id;
+    private short id;
     private String name;
     private String address;
-    private int cityID;
+    private short cityID;
 
-    public int getId() {
+    public short getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(short id) {
         this.id = id;
     }
 
@@ -33,11 +33,11 @@ public class Area {
         this.address = address;
     }
 
-    public int getCityID() {
+    public short getCityID() {
         return cityID;
     }
 
-    public void setCityID(int cityID) {
+    public void setCityID(short cityID) {
         this.cityID = cityID;
     }
 

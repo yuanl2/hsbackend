@@ -27,13 +27,13 @@ public class OrderDetail extends Order {
     private long id;
     private long deviceID;
     private String deviceName;
-    private int consumeType;
-    private int duration;
+    private short consumeType;
+    private short duration;
     private float price;
     private String payAccount;
-    private int accountType;
+    private short accountType;
     private String orderName;
-    private int orderStatus;
+    private short orderStatus;
 
     public OrderDetail(Order order) {
 
@@ -134,22 +134,22 @@ public class OrderDetail extends Order {
     }
 
     @Override
-    public int getConsumeType() {
+    public short getConsumeType() {
         return consumeType;
     }
 
     @Override
-    public void setConsumeType(int consumeType) {
+    public void setConsumeType(short consumeType) {
         this.consumeType = consumeType;
     }
 
     @Override
-    public int getDuration() {
+    public short getDuration() {
         return duration;
     }
 
     @Override
-    public void setDuration(int duration) {
+    public void setDuration(short duration) {
         this.duration = duration;
     }
 
@@ -174,12 +174,12 @@ public class OrderDetail extends Order {
     }
 
     @Override
-    public int getAccountType() {
+    public short getAccountType() {
         return accountType;
     }
 
     @Override
-    public void setAccountType(int accountType) {
+    public void setAccountType(short accountType) {
         this.accountType = accountType;
     }
 
@@ -194,12 +194,12 @@ public class OrderDetail extends Order {
     }
 
     @Override
-    public int getOrderStatus() {
+    public short getOrderStatus() {
         return orderStatus;
     }
 
     @Override
-    public void setOrderStatus(int orderStatus) {
+    public void setOrderStatus(short orderStatus) {
         this.orderStatus = orderStatus;
     }
 

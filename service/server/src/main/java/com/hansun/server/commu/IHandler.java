@@ -51,7 +51,7 @@ public interface IHandler {
 
     void setNeedSend(boolean needSend);
 
-    Map<Integer, Integer> getPortStatus();
+    Map<Integer, Byte> getPortStatus();
 
     int getSeq();
 

@@ -55,8 +55,8 @@ public class OrderTable {
             } else {
                 insertStatement.setTimestamp(4, Timestamp.from(order.getEndTime()));
             }
-            insertStatement.setInt(5, order.getConsumeType());
-            insertStatement.setInt(6, order.getAccountType());
+            insertStatement.setShort(5, order.getConsumeType());
+            insertStatement.setShort(6, order.getAccountType());
             insertStatement.setString(7, order.getPayAccount());
             insertStatement.setFloat(8, order.getPrice());
             insertStatement.setInt(9, order.getDuration());
@@ -66,7 +66,7 @@ public class OrderTable {
                 insertStatement.setTimestamp(10, null);
             }
             insertStatement.setString(11, order.getOrderName());
-            insertStatement.setInt(12, order.getOrderStatus());
+            insertStatement.setShort(12, order.getOrderStatus());
             insertStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -99,7 +99,7 @@ public class OrderTable {
             } else {
                 updateStatement.setTimestamp(1, null);
             }
-            updateStatement.setInt(2, order.getOrderStatus());
+            updateStatement.setShort(2, order.getOrderStatus());
             updateStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -169,17 +169,17 @@ public class OrderTable {
                                 if (endTime != null) {
                                     order.setEndTime(endTime.toInstant());
                                 }
-                                order.setConsumeType(resultSet.getInt(5));
-                                order.setAccountType(resultSet.getInt(6));
+                                order.setConsumeType(resultSet.getShort(5));
+                                order.setAccountType(resultSet.getShort(6));
                                 order.setPayAccount(resultSet.getString(7));
                                 order.setPrice(resultSet.getFloat(8));
-                                order.setDuration(resultSet.getInt(9));
+                                order.setDuration(resultSet.getShort(9));
                                 Timestamp createTime = resultSet.getTimestamp(10);
                                 if (createTime != null) {
                                     order.setCreateTime(createTime.toInstant());
                                 }
                                 order.setOrderName(resultSet.getString(11));
-                                order.setOrderStatus(resultSet.getInt(12));
+                                order.setOrderStatus(resultSet.getShort(12));
                                 return order;
                             }
                             return null;
@@ -236,17 +236,17 @@ public class OrderTable {
                                 if (endTime != null) {
                                     order.setEndTime(endTime.toInstant());
                                 }
-                                order.setConsumeType(resultSet.getInt(5));
-                                order.setAccountType(resultSet.getInt(6));
+                                order.setConsumeType(resultSet.getShort(5));
+                                order.setAccountType(resultSet.getShort(6));
                                 order.setPayAccount(resultSet.getString(7));
                                 order.setPrice(resultSet.getFloat(8));
-                                order.setDuration(resultSet.getInt(9));
+                                order.setDuration(resultSet.getShort(9));
                                 Timestamp createTime = resultSet.getTimestamp(10);
                                 if (createTime != null) {
                                     order.setCreateTime(createTime.toInstant());
                                 }
                                 order.setOrderName(resultSet.getString(11));
-                                order.setOrderStatus(resultSet.getInt(12));
+                                order.setOrderStatus(resultSet.getShort(12));
                                 orderList.add(order);
                             }
                             return orderList;
@@ -319,17 +319,17 @@ public class OrderTable {
                                 if (endTime != null) {
                                     order.setEndTime(endTime.toInstant());
                                 }
-                                order.setConsumeType(resultSet.getInt(5));
-                                order.setAccountType(resultSet.getInt(6));
+                                order.setConsumeType(resultSet.getShort(5));
+                                order.setAccountType(resultSet.getShort(6));
                                 order.setPayAccount(resultSet.getString(7));
                                 order.setPrice(resultSet.getFloat(8));
-                                order.setDuration(resultSet.getInt(9));
+                                order.setDuration(resultSet.getShort(9));
                                 Timestamp createTime = resultSet.getTimestamp(10);
                                 if (createTime != null) {
                                     order.setCreateTime(createTime.toInstant());
                                 }
                                 order.setOrderName(resultSet.getString(11));
-                                order.setOrderStatus(resultSet.getInt(12));
+                                order.setOrderStatus(resultSet.getShort(12));
                                 orderList.add(order);
                             }
                             return orderList;
@@ -385,17 +385,17 @@ public class OrderTable {
                                 if (endTime != null) {
                                     order.setEndTime(endTime.toInstant());
                                 }
-                                order.setConsumeType(resultSet.getInt(5));
-                                order.setAccountType(resultSet.getInt(6));
+                                order.setConsumeType(resultSet.getShort(5));
+                                order.setAccountType(resultSet.getShort(6));
                                 order.setPayAccount(resultSet.getString(7));
                                 order.setPrice(resultSet.getFloat(8));
-                                order.setDuration(resultSet.getInt(9));
+                                order.setDuration(resultSet.getShort(9));
                                 Timestamp createTime = resultSet.getTimestamp(10);
                                 if (createTime != null) {
                                     order.setCreateTime(createTime.toInstant());
                                 }
                                 order.setOrderName(resultSet.getString(11));
-                                order.setOrderStatus(resultSet.getInt(12));
+                                order.setOrderStatus(resultSet.getShort(12));
                                 return order;
                             }
                             return null;
@@ -451,17 +451,17 @@ public class OrderTable {
                                 if (endTime != null) {
                                     order.setEndTime(endTime.toInstant());
                                 }
-                                order.setConsumeType(resultSet.getInt(5));
-                                order.setAccountType(resultSet.getInt(6));
+                                order.setConsumeType(resultSet.getShort(5));
+                                order.setAccountType(resultSet.getShort(6));
                                 order.setPayAccount(resultSet.getString(7));
                                 order.setPrice(resultSet.getFloat(8));
-                                order.setDuration(resultSet.getInt(9));
+                                order.setDuration(resultSet.getShort(9));
                                 Timestamp createTime = resultSet.getTimestamp(10);
                                 if (createTime != null) {
                                     order.setCreateTime(createTime.toInstant());
                                 }
                                 order.setOrderName(resultSet.getString(11));
-                                order.setOrderStatus(resultSet.getInt(12));
+                                order.setOrderStatus(resultSet.getShort(12));
                                 list.add(order);
                             }
                             return list;

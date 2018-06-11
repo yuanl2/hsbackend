@@ -158,12 +158,12 @@ public class DemoController {
             List<Consume> consumes = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()));
             if (!openid.equals('0')) {
                 model.addAttribute("consumes", consumes);
-                model.addAttribute("store", d.getAddtionInfo());
+                model.addAttribute("store", d.getAdditionInfo());
                 return "device_index";
             } else {
                 consumes.removeIf(k -> k.getPrice() <= 0);
                 model.addAttribute("consumes", consumes);
-                model.addAttribute("store", d.getAddtionInfo());
+                model.addAttribute("store", d.getAdditionInfo());
                 return "device_index";
             }
         } else {
@@ -228,7 +228,7 @@ public class DemoController {
         order.setOrderStatus(OrderStatus.CREATED);
         order.setDeviceID(Long.valueOf(device_id));
         order.setPayAccount("1");
-        order.setConsumeType(Integer.valueOf(product_id));
+        order.setConsumeType(Short.valueOf(product_id));
 
 
         orderService.createOrder(order);

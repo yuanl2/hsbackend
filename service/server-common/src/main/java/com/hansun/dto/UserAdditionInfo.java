@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserAddtionInfo {
+public class UserAdditionInfo {
 
     @JsonProperty
     private List<StoreInfo> stores = new ArrayList<StoreInfo>();
@@ -34,7 +34,7 @@ public class UserAddtionInfo {
 
     public static void main(String[] args){
 
-        UserAddtionInfo userAddtionInfo = new UserAddtionInfo();
+        UserAdditionInfo userAddtionInfo = new UserAdditionInfo();
 
         userAddtionInfo.setUserName("test");
         StoreInfo info  = new StoreInfo();
@@ -54,7 +54,7 @@ public class UserAddtionInfo {
         list.add(info);
         userAddtionInfo.setStores(list);
 
-        JsonConvert<UserAddtionInfo> convert = new JsonConvert<>();
+        JsonConvert<UserAdditionInfo> convert = new JsonConvert<>();
         try {
             System.out.println(convert.objectToJson(userAddtionInfo));
         } catch (JsonProcessingException e) {

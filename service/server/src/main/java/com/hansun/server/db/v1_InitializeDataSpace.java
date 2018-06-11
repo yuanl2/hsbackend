@@ -16,20 +16,23 @@ public class v1_InitializeDataSpace {
         if (!manager.tableExists("device")) {
             manager.createTable("CREATE TABLE device (" +
                     "deviceID bigint(8) NOT NULL," +
-                    "deviceType int(11) NOT NULL," +
+                    "deviceType SMALLINT(6) NOT NULL," +
                     "deviceName varchar(45) DEFAULT NULL," +
-                    "locationID int(11) NOT NULL," +
-                    "owner int(11) DEFAULT NULL," +
-                    "addtionInfo varchar(50) DEFAULT NULL," +
-                    "status int(4) DEFAULT NULL," +
+                    "locationID smallint(6) NULL," +
+                    "owner smallint(6) DEFAULT NULL," +
+                    "additionInfo varchar(50) DEFAULT NULL," +
+                    "status tinyint(4) DEFAULT NULL," +
                     "beginTime DATETIME DEFAULT NULL," +
-                    "simcard  varchar(45) NOT NULL," +
-                    "port INT(4) NOT NULL DEFAULT 1," +
+                    "simCard  varchar(45) NOT NULL," +
+                    "port tinyint(4) NOT NULL DEFAULT 1," +
                     "loginTime DATETIME DEFAULT NULL," +
                     "logoutTime DATETIME DEFAULT NULL," +
-                    "signalValue INT(4) NOT NULL DEFAULT -1," +
-                    "loginReason INT(4) NOT NULL DEFAULT -1," +
-                    "seq int(4) DEFAULT 0," +
+                    "signalValue smallint(6) NOT NULL DEFAULT -1," +
+                    "loginReason smallint(6) NOT NULL DEFAULT -1," +
+                    "seq smallint(6) DEFAULT 0," +
+                    "simCardType smallint(6) DEFAULT NULL," +
+                    "payTime datetime DEFAULT NULL," +
+                    "simCardStatus smallint(6) DEFAULT NULL," +
                     "PRIMARY KEY (deviceID)," +
                     "UNIQUE KEY deviceID_UNIQUE (deviceID))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
@@ -37,11 +40,11 @@ public class v1_InitializeDataSpace {
 
         if (!manager.tableExists("user")) {
             manager.createTable("CREATE TABLE user (" +
-                    "userID int(11) NOT NULL AUTO_INCREMENT," +
-                    "userType int(11) NOT NULL," +
+                    "userID smallint(6) NOT NULL AUTO_INCREMENT," +
+                    "userType smallint(6) NOT NULL," +
                     "userName VARCHAR(45) NOT NULL," +
                     "password VARCHAR(45) NOT NULL," +
-                    "addtionInfo VARCHAR(45) NULL," +
+                    "additionInfo VARCHAR(45) NULL," +
                     "created DATETIME NOT NULL," +
                     "expired DATETIME NOT NULL," +
                     "role VARCHAR(45) NOT NULL," +
@@ -58,7 +61,7 @@ public class v1_InitializeDataSpace {
             c.add(Calendar.YEAR, 10);
             adminUser.setCreateTime(Instant.now());
             adminUser.setRole("admin");
-            adminUser.setUserType(1);
+            adminUser.setUserType((short) 1);
             adminUser.setExpiredTime(c.getTime().toInstant());
             adminUser.setPassword("e10adc3949ba59abbe56e057f20f883e");
             adminUser.setName("admin");
@@ -69,18 +72,18 @@ public class v1_InitializeDataSpace {
 
         if (!manager.tableExists("location")) {
             manager.createTable("CREATE TABLE location (" +
-                    "locationID int(11) NOT NULL AUTO_INCREMENT," +
-                    "provinceID int(11) NOT NULL," +
-                    "cityID int(11) NOT NULL," +
-                    "areaID int(11) NOT NULL," +
-                    "userID int(11) NOT NULL," +
+                    "locationID smallint(6) NOT NULL AUTO_INCREMENT," +
+                    "provinceID smallint(6) NOT NULL," +
+                    "cityID smallint(6) NOT NULL," +
+                    "areaID smallint(6) NOT NULL," +
+                    "userID smallint(6) NOT NULL," +
                     "PRIMARY KEY (locationID)," +
                     "UNIQUE INDEX locationID_UNIQUE (locationID ASC));");
         }
 
         if (!manager.tableExists("province")) {
             manager.createTable("CREATE TABLE province (" +
-                    "provinceID int(11) NOT NULL AUTO_INCREMENT," +
+                    "provinceID smallint(6) NOT NULL AUTO_INCREMENT," +
                     "provinceName VARCHAR(45) NOT NULL," +
                     "PRIMARY KEY (provinceID))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
@@ -88,9 +91,9 @@ public class v1_InitializeDataSpace {
 
         if (!manager.tableExists("consume")) {
             manager.createTable("CREATE TABLE consume (" +
-                    "consumeID int(11) NOT NULL AUTO_INCREMENT," +
+                    "consumeID smallint(6) NOT NULL AUTO_INCREMENT," +
                     "price float NOT NULL," +
-                    "duration int(11) NOT NULL," +
+                    "duration smallint(6) NOT NULL," +
                     "description varchar(45) NOT NULL," +
                     "picpath varchar(45) DEFAULT NULL," +
                     "deviceType VARCHAR(45) NOT NULL," +
@@ -100,20 +103,20 @@ public class v1_InitializeDataSpace {
 
         if (!manager.tableExists("area")) {
             manager.createTable("CREATE TABLE area (" +
-                    "areaID int(11) NOT NULL AUTO_INCREMENT," +
+                    "areaID smallint(6) NOT NULL AUTO_INCREMENT," +
                     "areaName VARCHAR(45) NOT NULL," +
                     "address VARCHAR(45) NOT NULL," +
-                    "cityID int(11) NOT NULL," +
+                    "cityID smallint(6) NOT NULL," +
                     "PRIMARY KEY (areaID))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         }
 
         if (!manager.tableExists("city")) {
             manager.createTable("CREATE TABLE city (" +
-                    "cityID int(11) NOT NULL AUTO_INCREMENT," +
+                    "cityID smallint(6) NOT NULL AUTO_INCREMENT," +
                     "cityName VARCHAR(45) NOT NULL," +
                     "districtName VARCHAR(45) NOT NULL," +
-                    "provinceID INT(11) NOT NULL," +
+                    "provinceID smallint(6) NOT NULL," +
                     "PRIMARY KEY (cityID))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         }
@@ -124,16 +127,16 @@ public class v1_InitializeDataSpace {
                     "deviceID bigint(8) NOT NULL," +
                     "startTime DATETIME NOT NULL," +
                     "endTime DATETIME DEFAULT NULL," +
-                    "consumeType int(3) NOT NULL," +
-                    "accountType int(3) NOT NULL," +
+                    "consumeType smallint(6) NOT NULL," +
+                    "accountType smallint(6) NOT NULL," +
                     "payAccount varchar(45) DEFAULT NULL," +
                     "price float NOT NULL," +
-                    "duration int(11) NOT NULL," +
+                    "duration smallint(6) NOT NULL," +
                     "createTime datetime NOT NULL," +
                     "orderName varchar(45) NOT NULL," +
-                    "orderStatus INT(3) NOT NULL," +
+                    "orderStatus smallint(6) NOT NULL," +
                     "PRIMARY KEY (orderID)," +
-                    "KEY deviceStart (deviceID,startTime))" +
+                    "UNIQUE KEY deviceStart (deviceID,startTime))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         }
 
@@ -141,14 +144,13 @@ public class v1_InitializeDataSpace {
             manager.createTable("CREATE TABLE `payaccount` (" +
                     "accountID int(11) NOT NULL AUTO_INCREMENT," +
                     "banlance float NOT NULL," +
-                    "type int(3) NOT NULL," +
+                    "type smallint(6) NOT NULL," +
                     "accountName varchar(45) NOT NULL," +
-                    "free int(3) NOT NULL DEFAULT '0'," +
+                    "free smallint(6) NOT NULL DEFAULT '0'," +
                     "discount float NOT NULL DEFAULT '1'," +
                     "PRIMARY KEY (accountID)," +
                     "KEY accountName (accountName))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         }
-
     }
 }

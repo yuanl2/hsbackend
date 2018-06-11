@@ -39,10 +39,10 @@ public class CityTable {
         try {
             conn = connectionPoolManager.getConnection();
             insertStatement = conn.prepareStatement(INSERT);
-            insertStatement.setInt(1, city.getId());
+            insertStatement.setShort(1, city.getId());
             insertStatement.setString(2, city.getName());
             insertStatement.setString(3, city.getDistrictName());
-            insertStatement.setInt(4,city.getProvinceID());
+            insertStatement.setShort(4,city.getProvinceID());
             insertStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -64,15 +64,15 @@ public class CityTable {
         }
     }
 
-    public void update(City city, int id) {
+    public void update(City city, short id) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             updateStatement = conn.prepareStatement(UPDATE);
-            updateStatement.setInt(4, id);
+            updateStatement.setShort(4, id);
             updateStatement.setString(1, city.getName());
             updateStatement.setString(2, city.getDistrictName());
-            updateStatement.setInt(3,city.getProvinceID());
+            updateStatement.setShort(3,city.getProvinceID());
             updateStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -94,12 +94,12 @@ public class CityTable {
         }
     }
 
-    public void delete(int id) {
+    public void delete(short id) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             deleteStatement = conn.prepareStatement(DELETE);
-            deleteStatement.setInt(1, id);
+            deleteStatement.setShort(1, id);
             deleteStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -121,7 +121,7 @@ public class CityTable {
         }
     }
 
-    public Optional<City> select(int id) {
+    public Optional<City> select(short id) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
@@ -132,10 +132,10 @@ public class CityTable {
                         try {
                             while (resultSet.next()) {
                                 City city = new City();
-                                city.setId(resultSet.getInt("cityID"));
+                                city.setId(resultSet.getShort("cityID"));
                                 city.setName(resultSet.getString("cityName"));
                                 city.setDistrictName(resultSet.getString("districtName"));
-                                city.setProvinceID(resultSet.getInt("provinceID"));
+                                city.setProvinceID(resultSet.getShort("provinceID"));
                                 return city;
                             }
                             return null;
@@ -182,10 +182,10 @@ public class CityTable {
                         try {
                             while (resultSet.next()) {
                                 City city = new City();
-                                city.setId(resultSet.getInt("cityID"));
+                                city.setId(resultSet.getShort("cityID"));
                                 city.setName(resultSet.getString("cityName"));
                                 city.setDistrictName(resultSet.getString("districtName"));
-                                city.setProvinceID(resultSet.getInt("provinceID"));
+                                city.setProvinceID(resultSet.getShort("provinceID"));
                                 return city;
                             }
                             return null;
@@ -231,10 +231,10 @@ public class CityTable {
                             List<City> list = new ArrayList<City>();
                             while (resultSet.next()) {
                                 City city = new City();
-                                city.setId(resultSet.getInt("cityID"));
+                                city.setId(resultSet.getShort("cityID"));
                                 city.setName(resultSet.getString("cityName"));
                                 city.setDistrictName(resultSet.getString("districtName"));
-                                city.setProvinceID(resultSet.getInt("provinceID"));
+                                city.setProvinceID(resultSet.getShort("provinceID"));
                                 list.add(city);
                             }
                             return list;

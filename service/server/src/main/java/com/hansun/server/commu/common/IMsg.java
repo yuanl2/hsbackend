@@ -40,5 +40,5 @@ public interface IMsg {
 
     String getDup();
 
-    Map<Integer, Integer> getMap();
+    Map<Integer, Byte> getMap();
 }

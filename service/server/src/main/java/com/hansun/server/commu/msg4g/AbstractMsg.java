@@ -26,7 +26,7 @@ public abstract class AbstractMsg implements IMsg4g {
     protected String dup = "00";
     protected String deviceName;
     protected Map<Integer, MsgTime> portMap = new HashMap<>();
-    protected Map<Integer, Integer> map = new HashMap<>();
+    protected Map<Integer, Byte> map = new HashMap<>();
     protected Map<Integer,String> preSeqMap = new HashMap<>();
 
     public String getDeviceName() {
@@ -103,7 +103,7 @@ public abstract class AbstractMsg implements IMsg4g {
         this.dup = dup;
     }
 
-    public Map<Integer, Integer> getMap() {
+    public Map<Integer, Byte> getMap() {
         return map;
     }
 
@@ -111,7 +111,7 @@ public abstract class AbstractMsg implements IMsg4g {
         return portMap;
     }
 
-    public void setMap(Map<Integer, Integer> map) {
+    public void setMap(Map<Integer, Byte> map) {
         this.map = map;
     }
 

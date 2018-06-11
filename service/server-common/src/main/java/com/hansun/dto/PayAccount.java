@@ -7,8 +7,8 @@ public class PayAccount {
     private int id;
     private String accountName;
     private float balance;
-    private int free;
-    private int type;
+    private short free;
+    private short type;
     private float discount;
 
     public int getId() {
@@ -35,19 +35,19 @@ public class PayAccount {
         this.balance = balance;
     }
 
-    public int getFree() {
+    public short getFree() {
         return free;
     }
 
-    public void setFree(int free) {
+    public void setFree(short free) {
         this.free = free;
     }
 
-    public int getType() {
+    public short getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(short type) {
         this.type = type;
     }
 

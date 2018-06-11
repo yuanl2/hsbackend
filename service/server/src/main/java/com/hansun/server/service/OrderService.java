@@ -102,12 +102,12 @@ public class OrderService {
                 else if(deviceType.equals("100")){
                     portNum = 1;
                 }
-                Map<Integer, Integer> map = new HashMap<>();
+                Map<Integer, Byte> map = new HashMap<>();
                 for (int i = 1; i <= portNum; i++) {
                     if (index == i) {
-                        map.put(i, 1);
+                        map.put(i, (byte)1);
                     } else {
-                        map.put(i, 0);
+                        map.put(i, (byte)0);
                     }
                 }
                 msg.setMap(map);
@@ -213,7 +213,7 @@ public class OrderService {
         }
     }
 
-    public void processFinishOrder(String deviceBoxName, Map<Integer, Integer> map) {
+    public void processFinishOrder(String deviceBoxName, Map<Integer, Byte> map) {
         map.forEach((k, v) -> {
             Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, k);
             Order order = orderStore.queryOrder(d.getId());
@@ -417,7 +417,7 @@ public class OrderService {
 
             List<OrderStatisticsForDevice> orderStatisticsForDeviceList = new ArrayList<>();
             List<OrderStatisticsForArea> orderStatisticsForAreaList = new ArrayList<>();
-            Map<Integer, OrderStatisticsForArea> map = new HashMap<>();
+            Map<Short, OrderStatisticsForArea> map = new HashMap<>();
             deviceIDs.forEach(
                     k -> {
                         List<OrderDetail> lists = queryOrderByDevice(k, startTime, endTime);

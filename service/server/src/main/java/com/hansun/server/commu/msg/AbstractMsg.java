@@ -23,7 +23,7 @@ public abstract class AbstractMsg implements IMsg {
     protected String seq;
     protected String dup;
     protected MsgInputStream msgInputStream;
-    protected Map<Integer, Integer> map = new HashMap<>();
+    protected Map<Integer, Byte> map = new HashMap<>();
 
     public void setMsgType(String msgType) {
         MsgType = msgType;
@@ -92,7 +92,7 @@ public abstract class AbstractMsg implements IMsg {
         this.dup = dup;
     }
 
-    public Map<Integer, Integer> getMap() {
+    public Map<Integer, Byte> getMap() {
         return map;
     }
     /**

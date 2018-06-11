@@ -4,29 +4,29 @@ package com.hansun.dto;
  * Created by yuanl2 on 2017/3/29.
  */
 public class Location {
-    private int id;
-    private int provinceID;
+    private short id;
+    private short provinceID;
     private String province;
-    private int cityID;
+    private short cityID;
     private String city;
-    private int areaID;
+    private short areaID;
     private String areaName;
     private String address;
-    private int userID;
+    private short userID;
 
-    public int getId() {
+    public short getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(short id) {
         this.id = id;
     }
 
-    public int getProvinceID() {
+    public short getProvinceID() {
         return provinceID;
     }
 
-    public void setProvinceID(int provinceID) {
+    public void setProvinceID(short provinceID) {
         this.provinceID = provinceID;
     }
 
@@ -38,11 +38,11 @@ public class Location {
         this.province = province;
     }
 
-    public int getCityID() {
+    public short getCityID() {
         return cityID;
     }
 
-    public void setCityID(int cityID) {
+    public void setCityID(short cityID) {
         this.cityID = cityID;
     }
 
@@ -54,11 +54,11 @@ public class Location {
         this.city = city;
     }
 
-    public int getAreaID() {
+    public short getAreaID() {
         return areaID;
     }
 
-    public void setAreaID(int areaID) {
+    public void setAreaID(short areaID) {
         this.areaID = areaID;
     }
 
@@ -78,11 +78,11 @@ public class Location {
         this.address = address;
     }
 
-    public int getUserID() {
+    public short getUserID() {
         return userID;
     }
 
-    public void setUserID(int userID) {
+    public void setUserID(short userID) {
         this.userID = userID;
     }
 

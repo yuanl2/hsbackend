@@ -18,18 +18,18 @@ public class HeartBeatMsg extends AbstractMsg {
     public HeartBeatMsg() {
     }
 
-    private Map<Integer, Integer> map = new HashMap<>();
+    private Map<Integer, Byte> map = new HashMap<>();
 
     @Override
     public ByteBuffer toByteBuffer() {
         return null;
     }
 
-    public Map<Integer, Integer> getMap() {
+    public Map<Integer, Byte> getMap() {
         return map;
     }
 
-    public void setMap(Map<Integer, Integer> map) {
+    public void setMap(Map<Integer, Byte> map) {
         this.map = map;
     }
 
