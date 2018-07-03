@@ -14,6 +14,7 @@ import com.hansun.server.metrics.Metrics;
 import com.hansun.server.service.DeviceListener;
 import com.hansun.server.service.DeviceService;
 import com.hansun.server.service.OrderService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -157,7 +159,7 @@ public class LinkManger {
         if (deviceList != null && deviceList.size() > 0) {
             for (Device device : deviceList) {
                 device.setLoginTime(Instant.now());
-                deviceService.updateDevice(device, map.get(device.getPort()));
+                deviceService.updateDevice(device, map.get((int)device.getPort()));
             }
         }
     }
@@ -169,7 +171,7 @@ public class LinkManger {
                 device.setLoginTime(Instant.now());
                 device.setLoginReason(loginReason);
                 device.setSignal(signal);
-                deviceService.updateDevice(device, map.get(device.getPort()));
+                deviceService.updateDevice(device, map.get((int)device.getPort()));
             }
         }
     }
@@ -189,9 +191,9 @@ public class LinkManger {
         if (deviceList != null) {
             for (Device device : deviceList) {
                 Order order = orderService.getOrder(device.getId());
-                MsgTime msgTime = (MsgTime) portMap.get(device.getPort());
-                int status = (Integer) map.get(device.getPort());
-                int setStatus = device.getStatus();
+                MsgTime msgTime = (MsgTime) portMap.get((int)device.getPort());
+                byte status = (Byte) map.get((int)device.getPort());
+                byte setStatus = device.getStatus();
 
                 logger.info("status {} msgtime {} runtime {} order {} ", status, msgTime.getTime(), msgTime.getRuntime(), order);
 

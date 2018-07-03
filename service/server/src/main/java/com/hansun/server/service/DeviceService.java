@@ -27,7 +27,7 @@ public class DeviceService {
         return device1;
     }
 
-    public Device updateDevice(Device device, int status) {
+    public Device updateDevice(Device device, byte status) {
         return dataStore.updateDevice(device, status);
     }
 

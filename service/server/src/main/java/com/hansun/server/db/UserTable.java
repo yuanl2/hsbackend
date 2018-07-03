@@ -4,6 +4,8 @@ import com.hansun.dto.User;
 import com.hansun.dto.UserAdditionInfo;
 import com.hansun.server.common.ServerException;
 import com.hansun.utils.JsonConvert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -18,6 +20,9 @@ import java.util.Optional;
  * Created by yuanl2 on 2017/3/29.
  */
 public class UserTable {
+
+    private final static Logger logger = LoggerFactory.getLogger(UserTable.class);
+
     private static final String SELECT = "SELECT userID, userType, userName, password, additionInfo, expired ,role, islocked, created FROM user WHERE userID = ?";
     private static final String SELECTBYNAME = "SELECT userID, userType, userName, password, additionInfo, expired ,role, islocked, created FROM user WHERE userName = ?";
     private static final String SELECT_ALL = "SELECT userID, userType, userName, password, additionInfo, expired,role, islocked, created FROM user";
@@ -61,12 +66,14 @@ public class UserTable {
             }
             insertStatement.executeUpdate();
         } catch (Exception e) {
+            logger.error("insert {} error {}", user, e);
             throw new ServerException(e);
         } finally {
             if (insertStatement != null) {
                 try {
                     insertStatement.close();
                 } catch (SQLException e) {
+                    logger.error("insert {} error {}", user, e);
                     throw new ServerException(e);
                 }
             }
@@ -74,6 +81,7 @@ public class UserTable {
                 try {
                     conn.close();
                 } catch (SQLException e) {
+                    logger.error("insert {} error {}", user, e);
                     throw new ServerException(e);
                 }
             }
@@ -104,12 +112,14 @@ public class UserTable {
             }
             updateStatement.executeUpdate();
         } catch (Exception e) {
+            logger.error("update {} error {}", user, e);
             throw new ServerException(e);
         } finally {
             if (updateStatement != null) {
                 try {
                     updateStatement.close();
                 } catch (SQLException e) {
+                    logger.error("update {} error {}", user, e);
                     throw new ServerException(e);
                 }
             }
@@ -117,6 +127,7 @@ public class UserTable {
                 try {
                     conn.close();
                 } catch (SQLException e) {
+                    logger.error("update {} error {}", user, e);
                     throw new ServerException(e);
                 }
             }
@@ -131,12 +142,14 @@ public class UserTable {
             deleteStatement.setInt(1, userID);
             deleteStatement.executeUpdate();
         } catch (Exception e) {
+            logger.error("delete {} error {}", userID, e);
             throw new ServerException(e);
         } finally {
             if (deleteStatement != null) {
                 try {
                     deleteStatement.close();
                 } catch (SQLException e) {
+                    logger.error("delete {} error {}", userID, e);
                     throw new ServerException(e);
                 }
             }
@@ -144,6 +157,7 @@ public class UserTable {
                 try {
                     conn.close();
                 } catch (SQLException e) {
+                    logger.error("delete {} error {}", userID, e);
                     throw new ServerException(e);
                 }
             }
@@ -180,24 +194,29 @@ public class UserTable {
                             }
                             return null;
                         } catch (IOException e) {
+                            logger.error("select {} error {}", name, e);
                             throw new ServerException(e);
                         } catch (SQLException e) {
+                            logger.error("select {} error {}", name, e);
                             throw new ServerException(e);
                         } finally {
                             try {
                                 resultSet.close();
                             } catch (SQLException e) {
+                                logger.error("select {} error {}", name, e);
                                 throw new ServerException(e);
                             }
                         }
                     });
         } catch (Exception e) {
+            logger.error("select {} error {}", name, e);
             return Optional.empty();
         } finally {
             if (selectStatement != null) {
                 try {
                     selectStatement.close();
                 } catch (SQLException e) {
+                    logger.error("select {} error {}", name, e);
                     throw new ServerException(e);
                 }
             }
@@ -205,6 +224,7 @@ public class UserTable {
                 try {
                     conn.close();
                 } catch (SQLException e) {
+                    logger.error("select {} error {}", name, e);
                     throw new ServerException(e);
                 }
             }
@@ -241,24 +261,29 @@ public class UserTable {
                             }
                             return null;
                         } catch (IOException e) {
+                            logger.error("select {} error {}", userID, e);
                             throw new ServerException(e);
                         } catch (SQLException e) {
+                            logger.error("select {} error {}", userID, e);
                             throw new ServerException(e);
                         } finally {
                             try {
                                 resultSet.close();
                             } catch (SQLException e) {
+                                logger.error("select {} error {}", userID, e);
                                 throw new ServerException(e);
                             }
                         }
                     });
         } catch (Exception e) {
+            logger.error("select {} error {}", userID, e);
             return Optional.empty();
         } finally {
             if (selectStatement != null) {
                 try {
                     selectStatement.close();
                 } catch (SQLException e) {
+                    logger.error("select {} error {}", userID, e);
                     throw new ServerException(e);
                 }
             }
@@ -266,6 +291,7 @@ public class UserTable {
                 try {
                     conn.close();
                 } catch (SQLException e) {
+                    logger.error("select {} error {}", userID, e);
                     throw new ServerException(e);
                 }
             }
@@ -302,24 +328,29 @@ public class UserTable {
                             }
                             return list;
                         } catch (IOException e) {
+                            logger.error("selectAll error {}", e);
                             throw new ServerException(e);
                         } catch (SQLException e) {
+                            logger.error("selectAll error {}", e);
                             throw new ServerException(e);
                         } finally {
                             try {
                                 resultSet.close();
                             } catch (SQLException e) {
+                                logger.error("selectAll error {}", e);
                                 throw new ServerException(e);
                             }
                         }
                     });
         } catch (Exception e) {
+            logger.error("selectAll error {}", e);
             return Optional.empty();
         } finally {
             if (selectStatement != null) {
                 try {
                     selectStatement.close();
                 } catch (SQLException e) {
+                    logger.error("selectAll error {}", e);
                     throw new ServerException(e);
                 }
             }
@@ -327,6 +358,7 @@ public class UserTable {
                 try {
                     conn.close();
                 } catch (SQLException e) {
+                    logger.error("selectAll error {}", e);
                     throw new ServerException(e);
                 }
             }

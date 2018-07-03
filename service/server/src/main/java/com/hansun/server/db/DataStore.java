@@ -170,7 +170,7 @@ public class DataStore {
         return device;
     }
 
-    public Device updateDevice(Device device, int status) {
+    public Device updateDevice(Device device, byte status) {
         Device device2 = deviceCache.get(device.getId());
         //缓存不存在此设备
         if (device2 == null) {
@@ -179,10 +179,10 @@ public class DataStore {
                 throw ServerException.conflict("Cannot update Device for not exist.");
             }
         }
-        int oldStatus = device.getStatus();
+        byte oldStatus = device.getStatus();
         if (oldStatus != status) {
-            device.setStatus((byte)status);
-            deviceTable.updateStatus((byte)status, device.getId());
+            device.setStatus(status);
+            deviceTable.updateStatus(status, device.getId());
             deviceCache.put(device.getId(), device);
             logger.info("update device status before {} update value {}", oldStatus, status);
         } else {
@@ -238,7 +238,7 @@ public class DataStore {
                         continue;
                     }
                 } else {
-                    byte status = portMap.get(device2.getPort());
+                    byte status = portMap.get((int)device2.getPort());
                     //如果与当前设备状态不一致才需要更新
 
                     byte oldStatus = device2.getStatus();

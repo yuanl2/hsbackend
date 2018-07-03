@@ -2,6 +2,9 @@ package com.hansun.server.db;
 
 import com.hansun.dto.Device;
 import com.hansun.server.common.ServerException;
+import com.hansun.server.service.TimerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,6 +18,9 @@ import java.util.Optional;
  * Created by yuanl2 on 2017/3/29.
  */
 public class DeviceTable {
+
+    private final static Logger logger = LoggerFactory.getLogger(DeviceTable.class);
+
     private static final String SELECT_BY_DEVICEID = "SELECT deviceID, deviceType, deviceName, locationID, owner, additionInfo, status, beginTime, simCard, port, loginTime, logoutTime,signalValue, loginReason, seq , simCardType, payTime, simCardStatus FROM device WHERE deviceID = ?";
     private static final String SELECT_BY_OWNER = "SELECT deviceID, deviceType, deviceName, locationID, owner, additionInfo, status, beginTime, simCard, port, loginTime, logoutTime, signalValue, loginReason, seq, simCardType, payTime, simCardStatus FROM device WHERE owner = ?";
     private static final String SELECT_BY_LOCATIONID = "SELECT deviceID, deviceType, deviceName, locationID, owner, additionInfo, status ,beginTime, simCard, port, loginTime, logoutTime, signalValue, loginReason, seq , simCardType, payTime, simCardStatus FROM device WHERE locationID = ?";
@@ -70,24 +76,26 @@ public class DeviceTable {
             } else {
                 insertStatement.setTimestamp(12, null);
             }
-            insertStatement.setShort(13,device.getSignal());
-            insertStatement.setShort(14,device.getLoginReason());
-            insertStatement.setShort(15,device.getSeq());
-            insertStatement.setShort(16,device.getSimCardType());
+            insertStatement.setShort(13, device.getSignal());
+            insertStatement.setShort(14, device.getLoginReason());
+            insertStatement.setShort(15, device.getSeq());
+            insertStatement.setShort(16, device.getSimCardType());
             if (device.getPayTime() != null) {
                 insertStatement.setTimestamp(17, Timestamp.from(device.getPayTime()));
             } else {
                 insertStatement.setTimestamp(17, null);
             }
-            insertStatement.setShort(18,device.getSimCardStatus());
+            insertStatement.setShort(18, device.getSimCardStatus());
             insertStatement.executeUpdate();
         } catch (Exception e) {
+            logger.error("insert {} error {}", device, e);
             throw new ServerException(e);
         } finally {
             if (insertStatement != null) {
                 try {
                     insertStatement.close();
                 } catch (SQLException e) {
+                    logger.error("insert {} error {}", device, e);
                     throw new ServerException(e);
                 }
             }
@@ -130,16 +138,16 @@ public class DeviceTable {
             } else {
                 updateStatement.setTimestamp(11, null);
             }
-            updateStatement.setShort(12,device.getSignal());
-            updateStatement.setShort(13,device.getLoginReason());
-            updateStatement.setShort(14,device.getSeq());
-            insertStatement.setShort(15,device.getSimCardType());
+            updateStatement.setShort(12, device.getSignal());
+            updateStatement.setShort(13, device.getLoginReason());
+            updateStatement.setShort(14, device.getSeq());
+            insertStatement.setShort(15, device.getSimCardType());
             if (device.getPayTime() != null) {
                 insertStatement.setTimestamp(16, Timestamp.from(device.getPayTime()));
             } else {
                 insertStatement.setTimestamp(16, null);
             }
-            insertStatement.setShort(17,device.getSimCardStatus());
+            insertStatement.setShort(17, device.getSimCardStatus());
             updateStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -148,6 +156,7 @@ public class DeviceTable {
                 try {
                     updateStatement.close();
                 } catch (SQLException e) {
+                    logger.error("update {} error {}", device, e);
                     throw new ServerException(e);
                 }
             }
@@ -155,6 +164,7 @@ public class DeviceTable {
                 try {
                     conn.close();
                 } catch (SQLException e) {
+                    logger.error("update {} error {}", device, e);
                     throw new ServerException(e);
                 }
             }
@@ -170,12 +180,14 @@ public class DeviceTable {
             updateStatement.setShort(1, status);
             updateStatement.executeUpdate();
         } catch (Exception e) {
+            logger.error("updateStatus {} error {}", id, e);
             throw new ServerException(e);
         } finally {
             if (updateStatement != null) {
                 try {
                     updateStatement.close();
                 } catch (SQLException e) {
+                    logger.error("updateStatus {} error {}", id, e);
                     throw new ServerException(e);
                 }
             }
@@ -183,6 +195,7 @@ public class DeviceTable {
                 try {
                     conn.close();
                 } catch (SQLException e) {
+                    logger.error("updateStatus {} error {}", id, e);
                     throw new ServerException(e);
                 }
             }
@@ -197,12 +210,14 @@ public class DeviceTable {
             deleteStatement.setLong(1, deviceID);
             deleteStatement.executeUpdate();
         } catch (Exception e) {
+            logger.error("delete {} error {}", deviceID, e);
             throw new ServerException(e);
         } finally {
             if (deleteStatement != null) {
                 try {
                     deleteStatement.close();
                 } catch (SQLException e) {
+                    logger.error("delete {} error {}", deviceID, e);
                     throw new ServerException(e);
                 }
             }
@@ -210,6 +225,7 @@ public class DeviceTable {
                 try {
                     conn.close();
                 } catch (SQLException e) {
+                    logger.error("delete {} error {}", deviceID, e);
                     throw new ServerException(e);
                 }
             }
@@ -224,12 +240,14 @@ public class DeviceTable {
             deleteStatement.setShort(1, locationID);
             deleteStatement.executeUpdate();
         } catch (Exception e) {
+            logger.error("deleteByLocationID {} error {}", locationID, e);
             throw new ServerException(e);
         } finally {
             if (deleteStatement != null) {
                 try {
                     deleteStatement.close();
                 } catch (SQLException e) {
+                    logger.error("deleteByLocationID {} error {}", locationID, e);
                     throw new ServerException(e);
                 }
             }
@@ -237,6 +255,7 @@ public class DeviceTable {
                 try {
                     conn.close();
                 } catch (SQLException e) {
+                    logger.error("deleteByLocationID {} error {}", locationID, e);
                     throw new ServerException(e);
                 }
             }
@@ -251,12 +270,14 @@ public class DeviceTable {
             deleteStatement.setShort(1, ownerID);
             deleteStatement.executeUpdate();
         } catch (Exception e) {
+            logger.error("deleteByOwner {} error {}", ownerID, e);
             throw new ServerException(e);
         } finally {
             if (deleteStatement != null) {
                 try {
                     deleteStatement.close();
                 } catch (SQLException e) {
+                    logger.error("deleteByOwner {} error {}", ownerID, e);
                     throw new ServerException(e);
                 }
             }
@@ -264,6 +285,7 @@ public class DeviceTable {
                 try {
                     conn.close();
                 } catch (SQLException e) {
+                    logger.error("deleteByOwner {} error {}", ownerID, e);
                     throw new ServerException(e);
                 }
             }
@@ -305,26 +327,36 @@ public class DeviceTable {
                                 device.setSignal(resultSet.getShort("signalValue"));
                                 device.setLoginReason(resultSet.getShort("loginReason"));
                                 device.setSeq(resultSet.getShort("seq"));
+                                Timestamp payTime = resultSet.getTimestamp("payTime");
+                                if (payTime != null) {
+                                    device.setPayTime(payTime.toInstant());
+                                }
+                                device.setSimCardType(resultSet.getShort("simCardType"));
+                                device.setSimCardStatus(resultSet.getShort("simCardStatus"));
                                 return device;
                             }
                             return null;
                         } catch (SQLException e) {
+                            logger.error("select {} error {}", deviceID, e);
                             throw new ServerException(e);
                         } finally {
                             try {
                                 resultSet.close();
                             } catch (SQLException e) {
+                                logger.error("select {} error {}", deviceID, e);
                                 throw new ServerException(e);
                             }
                         }
                     });
         } catch (Exception e) {
+            logger.error("select {} error {}", deviceID, e);
             return Optional.empty();
         } finally {
             if (selectStatement != null) {
                 try {
                     selectStatement.close();
                 } catch (SQLException e) {
+                    logger.error("select {} error {}", deviceID, e);
                     throw new ServerException(e);
                 }
             }
@@ -332,6 +364,7 @@ public class DeviceTable {
                 try {
                     conn.close();
                 } catch (SQLException e) {
+                    logger.error("select {} error {}", deviceID, e);
                     throw new ServerException(e);
                 }
             }
@@ -375,7 +408,7 @@ public class DeviceTable {
                                 device.setLoginReason(resultSet.getShort("loginReason"));
                                 device.setSeq(resultSet.getShort("seq"));
                                 Timestamp payTime = resultSet.getTimestamp("payTime");
-                                if (logoutTime != null) {
+                                if (payTime != null) {
                                     device.setPayTime(payTime.toInstant());
                                 }
                                 device.setSimCardType(resultSet.getShort("simCardType"));
@@ -384,22 +417,26 @@ public class DeviceTable {
                             }
                             return list;
                         } catch (SQLException e) {
+                            logger.error("selectbyOwner {} error {}", ownerID, e);
                             throw new ServerException(e);
                         } finally {
                             try {
                                 resultSet.close();
                             } catch (SQLException e) {
+                                logger.error("selectbyOwner {} error {}", ownerID, e);
                                 throw new ServerException(e);
                             }
                         }
                     });
         } catch (Exception e) {
+            logger.error("selectbyOwner {} error {}", ownerID, e);
             return Optional.empty();
         } finally {
             if (selectStatement != null) {
                 try {
                     selectStatement.close();
                 } catch (SQLException e) {
+                    logger.error("selectbyOwner {} error {}", ownerID, e);
                     throw new ServerException(e);
                 }
             }
@@ -407,6 +444,7 @@ public class DeviceTable {
                 try {
                     conn.close();
                 } catch (SQLException e) {
+                    logger.error("selectbyOwner {} error {}", ownerID, e);
                     throw new ServerException(e);
                 }
             }
@@ -450,7 +488,7 @@ public class DeviceTable {
                                 device.setLoginReason(resultSet.getShort("loginReason"));
                                 device.setSeq(resultSet.getShort("seq"));
                                 Timestamp payTime = resultSet.getTimestamp("payTime");
-                                if (logoutTime != null) {
+                                if (payTime != null) {
                                     device.setPayTime(payTime.toInstant());
                                 }
                                 device.setSimCardType(resultSet.getShort("simCardType"));
@@ -459,22 +497,26 @@ public class DeviceTable {
                             }
                             return list;
                         } catch (SQLException e) {
+                            logger.error("selectbyLocationID {} error {}", locationID, e);
                             throw new ServerException(e);
                         } finally {
                             try {
                                 resultSet.close();
                             } catch (SQLException e) {
+                                logger.error("selectbyLocationID {} error {}", locationID, e);
                                 throw new ServerException(e);
                             }
                         }
                     });
         } catch (Exception e) {
+            logger.error("selectbyLocationID {} error {}", locationID, e);
             return Optional.empty();
         } finally {
             if (selectStatement != null) {
                 try {
                     selectStatement.close();
                 } catch (SQLException e) {
+                    logger.error("selectbyLocationID {} error {}", locationID, e);
                     throw new ServerException(e);
                 }
             }
@@ -482,6 +524,7 @@ public class DeviceTable {
                 try {
                     conn.close();
                 } catch (SQLException e) {
+                    logger.error("selectbyLocationID {} error {}", locationID, e);
                     throw new ServerException(e);
                 }
             }
@@ -524,7 +567,7 @@ public class DeviceTable {
                                 device.setLoginReason(resultSet.getShort("loginReason"));
                                 device.setSeq(resultSet.getShort("seq"));
                                 Timestamp payTime = resultSet.getTimestamp("payTime");
-                                if (logoutTime != null) {
+                                if (payTime != null) {
                                     device.setPayTime(payTime.toInstant());
                                 }
                                 device.setSimCardType(resultSet.getShort("simCardType"));
@@ -533,22 +576,26 @@ public class DeviceTable {
                             }
                             return list;
                         } catch (SQLException e) {
+                            logger.error("selectAll error {}", e);
                             throw new ServerException(e);
                         } finally {
                             try {
                                 resultSet.close();
                             } catch (SQLException e) {
+                                logger.error("selectAll error {}", e);
                                 throw new ServerException(e);
                             }
                         }
                     });
         } catch (Exception e) {
+            logger.error("selectAll error {}", e);
             return Optional.empty();
         } finally {
             if (selectStatement != null) {
                 try {
                     selectStatement.close();
                 } catch (SQLException e) {
+                    logger.error("selectAll error {}", e);
                     throw new ServerException(e);
                 }
             }
@@ -556,6 +603,7 @@ public class DeviceTable {
                 try {
                     conn.close();
                 } catch (SQLException e) {
+                    logger.error("selectAll error {}", e);
                     throw new ServerException(e);
                 }
             }

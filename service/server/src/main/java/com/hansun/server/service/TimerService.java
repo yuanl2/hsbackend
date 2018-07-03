@@ -7,6 +7,7 @@ import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.HSServiceProperties;
 import com.hansun.server.common.OrderStatus;
 import com.hansun.server.db.DataStore;
+import com.hansun.server.util.TenpayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +16,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -66,8 +64,9 @@ public class TimerService {
 
                     final List<Long> lists = new ArrayList<>();
                     deviceList.forEach(d->{
+
                         Device device = dataStore.queryDeviceByDeviceID(d);
-                        if(device.getSimCard().equalsIgnoreCase(k)){
+                        if(device.getSimCard().equalsIgnoreCase(k) && device.getType() == 100){
                             lists.add(d);
                         }
 
@@ -124,36 +123,46 @@ public class TimerService {
 
                     for (Long deviceID:
                             device_id) {
-                        int type = random.nextInt(4);
+                        int type = random.nextInt(3);
                         Device d = dataStore.queryDeviceByDeviceID(deviceID);
                         List<Consume> consumeList = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()));
                         Consume consume = consumeList.get(type);
 
                         logger.debug("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
 
-                        if (d.getStatus() == DeviceStatus.SERVICE || d.getStatus() == DeviceStatus.DISCONNECTED || d.getStatus() == DeviceStatus.BADNETWORK ||
-                                d.getStatus() == DeviceStatus.INVALID) {
+                        if (d.getStatus() !=  DeviceStatus.IDLE) {
                             Thread.sleep((random.nextInt(5) + 10) * 1000);
                         } else {
                             logger.info("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
                             Order order = new Order();
+                            //---------------生成订单号 开始------------------------
+                            //当前时间 yyyyMMddHHmmss
+                            String currTime = TenpayUtil.getCurrTime();
+                            //四位随机数
+                            String strRandom = TenpayUtil.buildRandom(5) + "";
+                            //10位序列号,可以自行调整。
+                            String strReq = currTime + strRandom;
+                            //订单号，此处用时间加随机数生成，商户根据自己情况调整，只要保持全局唯一就行
+                            String out_trade_no = strReq;
+                            order.setId(Long.valueOf(out_trade_no));
                             order.setOrderName("ordername-" + orderService.getSequenceNumber());
                             order.setStartTime(Instant.now());
                             order.setCreateTime(Instant.now());
                             order.setPayAccount("test-payaccount-" + orderService.getSequenceNumber());
-                            order.setOrderStatus(OrderStatus.CREATED);
+                            order.setOrderStatus(OrderStatus.PAYDONE);
                             order.setDeviceID(Long.valueOf(deviceID));
                             order.setDeviceName(boxName);
                             order.setConsumeType(Short.valueOf(consume.getId()));
-                            orderService.createOrder(order);
-                            logger.info("device_id = " + deviceID + " start order " + order);
-                            Thread.sleep((random.nextInt(5) + 10) * 1000);
+                            Order result = orderService.createOrder(order);
+                            orderService.createStartMsgToDevice(result);
+                            logger.info("device_id = " + deviceID + " start order " + result);
+                            Thread.sleep((random.nextInt(5) + 5) * 30000);
                         }
                     }
                 } catch (Exception e) {
                     logger.error("device_id = " + device_id, e);
                     try {
-                        Thread.sleep(2000);
+                        Thread.sleep(5000);
                     } catch (InterruptedException e1) {
                         e1.printStackTrace();
                     }
