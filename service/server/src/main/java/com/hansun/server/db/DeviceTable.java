@@ -21,21 +21,23 @@ public class DeviceTable {
 
     private final static Logger logger = LoggerFactory.getLogger(DeviceTable.class);
 
-    private static final String SELECT_BY_DEVICEID = "SELECT deviceID, deviceType, deviceName, locationID, owner, additionInfo, status, beginTime, simCard, port, loginTime, logoutTime,signalValue, loginReason, seq , simCardType, payTime, simCardStatus FROM device WHERE deviceID = ?";
-    private static final String SELECT_BY_OWNER = "SELECT deviceID, deviceType, deviceName, locationID, owner, additionInfo, status, beginTime, simCard, port, loginTime, logoutTime, signalValue, loginReason, seq, simCardType, payTime, simCardStatus FROM device WHERE owner = ?";
-    private static final String SELECT_BY_LOCATIONID = "SELECT deviceID, deviceType, deviceName, locationID, owner, additionInfo, status ,beginTime, simCard, port, loginTime, logoutTime, signalValue, loginReason, seq , simCardType, payTime, simCardStatus FROM device WHERE locationID = ?";
-    private static final String SELECT_ALL = "SELECT deviceID, deviceType, deviceName, locationID, owner, additionInfo, status , beginTime, simCard, port, loginTime, logoutTime, signalValue, loginReason, seq , simCardType, payTime, simCardStatus FROM device";
+    private static final String SELECT_BY_DEVICEID = "SELECT deviceID, deviceType, deviceName, locationID, owner, additionInfo, status, beginTime, simCard, port, loginTime, logoutTime,signalValue, loginReason, seq , QRCode, managerStatus FROM device WHERE deviceID = ?";
+    private static final String SELECT_BY_OWNER = "SELECT deviceID, deviceType, deviceName, locationID, owner, additionInfo, status, beginTime, simCard, port, loginTime, logoutTime, signalValue, loginReason, seq, QRCode, managerStatus FROM device WHERE owner = ?";
+    private static final String SELECT_BY_LOCATIONID = "SELECT deviceID, deviceType, deviceName, locationID, owner, additionInfo, status ,beginTime, simCard, port, loginTime, logoutTime, signalValue, loginReason, seq , QRCode, managerStatus FROM device WHERE locationID = ?";
+    private static final String SELECT_ALL = "SELECT deviceID, deviceType, deviceName, locationID, owner, additionInfo, status , beginTime, simCard, port, loginTime, logoutTime, signalValue, loginReason, seq , QRCode, managerStatus FROM device";
 
     private static final String DELETE_BY_DEVICEID = "DELETE FROM device WHERE deviceID = ?";
     private static final String DELETE_BY_OWNER = "DELETE FROM device WHERE owner = ?";
     private static final String DELETE_BY_LOCATIONID = "DELETE FROM device WHERE locationID = ?";
 
     private static final String INSERT =
-            "INSERT INTO device (deviceID, deviceType, deviceName, locationID, owner,additionInfo,status, beginTime, simCard, port, loginTime, logoutTime , signalValue , loginReason, seq, simCardType, payTime, simCardStatus  ) VALUES (?, ?, ? , ?, ?, ?, ?, ?, ?, ? ,? ,?, ? ,?, ?, ? , ? ,?)";
+            "INSERT INTO device (deviceID, deviceType, deviceName, locationID, owner,additionInfo,status, beginTime, simCard, port, loginTime, logoutTime , signalValue , loginReason, seq, QRCode, managerStatus ) VALUES (?, ?, ? , ?, ?, ?, ?, ?, ?, ? ,? ,?, ? ,?, ?, ? ,?)";
     private static final String UPDATE =
-            "UPDATE device SET deviceType = ?, deviceName = ?, locationID = ?,owner = ?, additionInfo = ?, status = ?, beginTime = ?, simCard = ? , port = ? , loginTime = ? , logoutTime =? , signalValue = ? , loginReason = ?, seq = ? ,simCardType = ? , payTime = ?, simCardStatus = ? WHERE deviceID = ?";
+            "UPDATE device SET deviceType = ?, deviceName = ?, locationID = ?,owner = ?, additionInfo = ?, status = ?, beginTime = ?, simCard = ? , port = ? , loginTime = ? , logoutTime =? , signalValue = ? , loginReason = ?, seq = ? ,QRCode = ?, managerStatus = ? WHERE deviceID = ?";
     private static final String UPDATE_STATUS =
             "UPDATE device SET status = ? WHERE deviceID like ?";
+    private static final String UPDATE_MANAGER_STATUS =
+            "UPDATE device SET managerStatus = ? WHERE deviceID like ?";
     private ConnectionPoolManager connectionPoolManager;
 
     private PreparedStatement selectStatement;
@@ -79,13 +81,8 @@ public class DeviceTable {
             insertStatement.setShort(13, device.getSignal());
             insertStatement.setShort(14, device.getLoginReason());
             insertStatement.setShort(15, device.getSeq());
-            insertStatement.setShort(16, device.getSimCardType());
-            if (device.getPayTime() != null) {
-                insertStatement.setTimestamp(17, Timestamp.from(device.getPayTime()));
-            } else {
-                insertStatement.setTimestamp(17, null);
-            }
-            insertStatement.setShort(18, device.getSimCardStatus());
+            insertStatement.setString(16,device.getQRCode());
+            insertStatement.setByte(17,device.getManagerStatus());
             insertStatement.executeUpdate();
         } catch (Exception e) {
             logger.error("insert {} error {}", device, e);
@@ -114,7 +111,7 @@ public class DeviceTable {
         try {
             conn = connectionPoolManager.getConnection();
             updateStatement = conn.prepareStatement(UPDATE);
-            updateStatement.setLong(18, id);
+            updateStatement.setLong(17, id);
             updateStatement.setShort(1, device.getType());
             updateStatement.setString(2, device.getName());
             updateStatement.setShort(3, device.getLocationID());
@@ -141,13 +138,8 @@ public class DeviceTable {
             updateStatement.setShort(12, device.getSignal());
             updateStatement.setShort(13, device.getLoginReason());
             updateStatement.setShort(14, device.getSeq());
-            insertStatement.setShort(15, device.getSimCardType());
-            if (device.getPayTime() != null) {
-                insertStatement.setTimestamp(16, Timestamp.from(device.getPayTime()));
-            } else {
-                insertStatement.setTimestamp(16, null);
-            }
-            insertStatement.setShort(17, device.getSimCardStatus());
+            updateStatement.setString(15,device.getQRCode());
+            updateStatement.setByte(16,device.getManagerStatus());
             updateStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -165,6 +157,37 @@ public class DeviceTable {
                     conn.close();
                 } catch (SQLException e) {
                     logger.error("update {} error {}", device, e);
+                    throw new ServerException(e);
+                }
+            }
+        }
+    }
+
+    public void updateManagerStatus(byte managerStatus, Long id) {
+        Connection conn = null;
+        try {
+            conn = connectionPoolManager.getConnection();
+            updateStatement = conn.prepareStatement(UPDATE_MANAGER_STATUS);
+            updateStatement.setLong(2, id);
+            updateStatement.setShort(1, managerStatus);
+            updateStatement.executeUpdate();
+        } catch (Exception e) {
+            logger.error("updateManagerStatus {} error {}", id, e);
+            throw new ServerException(e);
+        } finally {
+            if (updateStatement != null) {
+                try {
+                    updateStatement.close();
+                } catch (SQLException e) {
+                    logger.error("updateManagerStatus {} error {}", id, e);
+                    throw new ServerException(e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    logger.error("updateManagerStatus {} error {}", id, e);
                     throw new ServerException(e);
                 }
             }
@@ -327,12 +350,8 @@ public class DeviceTable {
                                 device.setSignal(resultSet.getShort("signalValue"));
                                 device.setLoginReason(resultSet.getShort("loginReason"));
                                 device.setSeq(resultSet.getShort("seq"));
-                                Timestamp payTime = resultSet.getTimestamp("payTime");
-                                if (payTime != null) {
-                                    device.setPayTime(payTime.toInstant());
-                                }
-                                device.setSimCardType(resultSet.getShort("simCardType"));
-                                device.setSimCardStatus(resultSet.getShort("simCardStatus"));
+                                device.setQRCode(resultSet.getString("QRCode"));
+                                device.setManagerStatus(resultSet.getByte("managerStatus"));
                                 return device;
                             }
                             return null;
@@ -407,12 +426,8 @@ public class DeviceTable {
                                 device.setSignal(resultSet.getShort("signalValue"));
                                 device.setLoginReason(resultSet.getShort("loginReason"));
                                 device.setSeq(resultSet.getShort("seq"));
-                                Timestamp payTime = resultSet.getTimestamp("payTime");
-                                if (payTime != null) {
-                                    device.setPayTime(payTime.toInstant());
-                                }
-                                device.setSimCardType(resultSet.getShort("simCardType"));
-                                device.setSimCardStatus(resultSet.getShort("simCardStatus"));
+                                device.setQRCode(resultSet.getString("QRCode"));
+                                device.setManagerStatus(resultSet.getByte("managerStatus"));
                                 list.add(device);
                             }
                             return list;
@@ -487,12 +502,8 @@ public class DeviceTable {
                                 device.setSignal(resultSet.getShort("signalValue"));
                                 device.setLoginReason(resultSet.getShort("loginReason"));
                                 device.setSeq(resultSet.getShort("seq"));
-                                Timestamp payTime = resultSet.getTimestamp("payTime");
-                                if (payTime != null) {
-                                    device.setPayTime(payTime.toInstant());
-                                }
-                                device.setSimCardType(resultSet.getShort("simCardType"));
-                                device.setSimCardStatus(resultSet.getShort("simCardStatus"));
+                                device.setQRCode(resultSet.getString("QRCode"));
+                                device.setManagerStatus(resultSet.getByte("managerStatus"));
                                 list.add(device);
                             }
                             return list;
@@ -566,12 +577,8 @@ public class DeviceTable {
                                 device.setSignal(resultSet.getShort("signalValue"));
                                 device.setLoginReason(resultSet.getShort("loginReason"));
                                 device.setSeq(resultSet.getShort("seq"));
-                                Timestamp payTime = resultSet.getTimestamp("payTime");
-                                if (payTime != null) {
-                                    device.setPayTime(payTime.toInstant());
-                                }
-                                device.setSimCardType(resultSet.getShort("simCardType"));
-                                device.setSimCardStatus(resultSet.getShort("simCardStatus"));
+                                device.setQRCode(resultSet.getString("QRCode"));
+                                device.setManagerStatus(resultSet.getByte("managerStatus"));
                                 list.add(device);
                             }
                             return list;

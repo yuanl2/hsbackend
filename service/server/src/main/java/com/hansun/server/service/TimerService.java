@@ -3,6 +3,7 @@ package com.hansun.server.service;
 import com.hansun.dto.Consume;
 import com.hansun.dto.Device;
 import com.hansun.dto.Order;
+import com.hansun.server.common.DeviceManagerStatus;
 import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.HSServiceProperties;
 import com.hansun.server.common.OrderStatus;
@@ -130,34 +131,40 @@ public class TimerService {
 
                         logger.debug("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
 
-                        if (d.getStatus() !=  DeviceStatus.IDLE) {
-                            Thread.sleep((random.nextInt(5) + 10) * 1000);
-                        } else {
-                            logger.info("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
-                            Order order = new Order();
-                            //---------------生成订单号 开始------------------------
-                            //当前时间 yyyyMMddHHmmss
-                            String currTime = TenpayUtil.getCurrTime();
-                            //四位随机数
-                            String strRandom = TenpayUtil.buildRandom(5) + "";
-                            //10位序列号,可以自行调整。
-                            String strReq = currTime + strRandom;
-                            //订单号，此处用时间加随机数生成，商户根据自己情况调整，只要保持全局唯一就行
-                            String out_trade_no = strReq;
-                            order.setId(Long.valueOf(out_trade_no));
-                            order.setOrderName("ordername-" + orderService.getSequenceNumber());
-                            order.setStartTime(Instant.now());
-                            order.setCreateTime(Instant.now());
-                            order.setPayAccount("test-payaccount-" + orderService.getSequenceNumber());
-                            order.setOrderStatus(OrderStatus.PAYDONE);
-                            order.setDeviceID(Long.valueOf(deviceID));
-                            order.setDeviceName(boxName);
-                            order.setConsumeType(Short.valueOf(consume.getId()));
-                            Order result = orderService.createOrder(order);
-                            orderService.createStartMsgToDevice(result);
-                            logger.info("device_id = " + deviceID + " start order " + result);
-                            Thread.sleep((random.nextInt(5) + 5) * 30000);
+                        if(d.getManagerStatus() == DeviceManagerStatus.TEST.getStatus()){
+                            if (d.getStatus() !=  DeviceStatus.IDLE) {
+                                Thread.sleep((random.nextInt(5) + 5) * 60000);
+                            } else {
+                                logger.info("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
+                                Order order = new Order();
+                                //---------------生成订单号 开始------------------------
+                                //当前时间 yyyyMMddHHmmss
+                                String currTime = TenpayUtil.getCurrTime();
+                                //四位随机数
+                                String strRandom = TenpayUtil.buildRandom(5) + "";
+                                //10位序列号,可以自行调整。
+                                String strReq = currTime + strRandom;
+                                //订单号，此处用时间加随机数生成，商户根据自己情况调整，只要保持全局唯一就行
+                                String out_trade_no = strReq;
+                                order.setId(Long.valueOf(out_trade_no));
+                                order.setOrderName("ordername-" + orderService.getSequenceNumber());
+                                order.setStartTime(Instant.now());
+                                order.setCreateTime(Instant.now());
+                                order.setPayAccount("test-payaccount-" + orderService.getSequenceNumber());
+                                order.setOrderStatus(OrderStatus.PAYDONE);
+                                order.setDeviceID(Long.valueOf(deviceID));
+                                order.setDeviceName(boxName);
+                                order.setConsumeType(Short.valueOf(consume.getId()));
+                                Order result = orderService.createOrder(order);
+                                orderService.createStartMsgToDevice(result);
+                                logger.info("device_id = " + deviceID + " start order " + result);
+                                Thread.sleep((random.nextInt(5) + 5) * 30000);
+                            }
                         }
+                        else{
+                            Thread.sleep((random.nextInt(5) + 5) * 60000);
+                        }
+
                     }
                 } catch (Exception e) {
                     logger.error("device_id = " + device_id, e);

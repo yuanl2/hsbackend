@@ -1,8 +1,8 @@
 package com.hansun.server.controller;
 
-import com.hansun.dto.Consume;
 import com.hansun.dto.Device;
 import com.hansun.dto.Order;
+import com.hansun.server.common.DeviceManagerStatus;
 import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.OrderStatus;
 import com.hansun.server.service.DeviceService;
@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -21,8 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,20 +118,26 @@ public class DeviceController {
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
         Device d = deviceService.getDevice(Long.valueOf(device_id));
         Order o = orderService.getOrder(Long.valueOf(device_id));
-        if (d.getStatus() == DeviceStatus.SERVICE) {
-            logger.error("device {} running", device_id);
-            return String.valueOf(DeviceStatus.SERVICE);
-        } else if (d.getStatus() == DeviceStatus.IDLE && o != null && ( o.getOrderStatus() <= OrderStatus.SERVICE)) {
-            logger.info("device {} idle but have order {}",device_id, o);
-            return String.valueOf(DeviceStatus.STARTTASK);
-        }
+        if (d.getManagerStatus() == DeviceManagerStatus.OPERATING.getStatus()) {
+            if (d.getStatus() == DeviceStatus.SERVICE) {
+                logger.error("device {} running", device_id);
+                return String.valueOf(DeviceStatus.SERVICE);
+            } else if (d.getStatus() == DeviceStatus.IDLE && o != null && (o.getOrderStatus() <= OrderStatus.SERVICE)) {
+                logger.info("device {} idle but have order {}", device_id, o);
+                return String.valueOf(DeviceStatus.STARTTASK);
+            }
 
-        if (d != null) {
-            logger.info("device_id = {} device status = {}" , device_id, d.getStatus());
-            return String.valueOf(d.getStatus());
-        } else {
-            logger.error("can't get device for device_id = {}", device_id);
-            return String.valueOf(DeviceStatus.INVALID);
+            if (d != null) {
+                logger.info("device_id = {} device status = {}", device_id, d.getStatus());
+                return String.valueOf(d.getStatus());
+            } else {
+                logger.error("can't get device for device_id = {}", device_id);
+                return String.valueOf(DeviceStatus.INVALID);
+            }
+        }
+        else {
+            logger.info("device_id = {} device managerStatus = {}", device_id, d.getManagerStatus());
+            return  String.valueOf(d.getManagerStatus());
         }
     }
 }

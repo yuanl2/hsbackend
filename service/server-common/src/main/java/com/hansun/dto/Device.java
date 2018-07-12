@@ -48,13 +48,9 @@ public class Device {
     @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
     private Instant beginTime;
 
-    private short simCardType;
+    private String QRCode;
 
-    private short simCardStatus;
-
-    @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
-    @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
-    private Instant payTime;
+    private byte managerStatus;
 
     public long getId() {
         return id;
@@ -216,28 +212,20 @@ public class Device {
         this.seq = seq;
     }
 
-    public short getSimCardType() {
-        return simCardType;
+    public String getQRCode() {
+        return QRCode;
     }
 
-    public void setSimCardType(short simCardType) {
-        this.simCardType = simCardType;
+    public void setQRCode(String QRCode) {
+        this.QRCode = QRCode;
     }
 
-    public short getSimCardStatus() {
-        return simCardStatus;
+    public byte getManagerStatus() {
+        return managerStatus;
     }
 
-    public void setSimCardStatus(short simCardStatus) {
-        this.simCardStatus = simCardStatus;
-    }
-
-    public Instant getPayTime() {
-        return payTime;
-    }
-
-    public void setPayTime(Instant payTime) {
-        this.payTime = payTime;
+    public void setManagerStatus(byte managerStatus) {
+        this.managerStatus = managerStatus;
     }
 
     @Override
@@ -263,9 +251,8 @@ public class Device {
                 ", loginTime=" + loginTime +
                 ", logoutTime=" + logoutTime +
                 ", seq=" + seq +
-                ", payTime=" + payTime +
-                ", simCardType=" + simCardType +
-                ", simCardStatus=" + simCardStatus +
+                ", QRCode=" + QRCode +
+                ", managerStatus=" + managerStatus +
                 "}";
     }
 

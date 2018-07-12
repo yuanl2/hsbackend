@@ -117,6 +117,9 @@ $(function(){
                           else if (device_status == "2") { alert('无此设备'); }
                           else if (device_status == "5") { alert('网络不好'); }
                           else if (device_status == "6") { alert('设备故障'); }
+                          else if (device_status == "10") { alert('设备未激活'); }
+                          else if (device_status == "11") { alert('设备维护中'); }
+                          else if (device_status == "12") { alert('设备测试中'); }
                          }, function () { alert("请求设备状态出错"); })
 
 
