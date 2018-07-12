@@ -2,6 +2,7 @@ package com.hansun.server.controller;
 
 import com.hansun.dto.Device;
 import com.hansun.dto.Order;
+import com.hansun.dto.StatusReqeust;
 import com.hansun.server.common.DeviceManagerStatus;
 import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.OrderStatus;
@@ -92,6 +93,12 @@ public class DeviceController {
     @RequestMapping(value = "devices/id/{id}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateDevice(@PathVariable Long id, @RequestBody Device device, UriComponentsBuilder ucBuilder) {
         Device d = deviceService.updateDevice(device);
+        return new ResponseEntity<Device>(d, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "devices/id/{id}", method = RequestMethod.POST)
+    public ResponseEntity<?> updateDeviceManagerStatus(@PathVariable Long id, @RequestBody StatusReqeust statusReqeust, UriComponentsBuilder ucBuilder) {
+        Device d = deviceService.updateDeviceManagerStatus(id,statusReqeust.getStatus());
         return new ResponseEntity<Device>(d, HttpStatus.OK);
     }
 

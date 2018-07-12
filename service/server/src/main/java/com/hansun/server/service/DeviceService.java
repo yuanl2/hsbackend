@@ -35,6 +35,10 @@ public class DeviceService {
         return dataStore.updateDevice(device);
     }
 
+    public Device updateDeviceManagerStatus(Long id, byte status) {
+        return dataStore.updateManagerStatus(id,status);
+    }
+
     public void deleteDevice(Long deviceID) {
         dataStore.deleteDevice(deviceID);
     }

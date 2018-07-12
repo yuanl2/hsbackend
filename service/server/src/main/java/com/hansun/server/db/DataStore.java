@@ -266,36 +266,26 @@ public class DataStore {
     }
 
 
-    public void updateManagerStatus(String simid, byte managerStatus) {
-        List<Device> devices = deviceSimCache.get(simid);
-
-        if (devices != null) {
-            for (Device s : devices) {
-                Device device2 = deviceCache.get(s.getId());
-                //缓存不存在此设备
-                if (device2 == null) {
-                    Optional<Device> device1 = deviceTable.select(s.getId());
-                    if (device1 == null || !device1.isPresent()) {
-                        logger.error("Cannot update Device updateManagerStatus for not exist.");
-                        continue;
-                    }
-                } else {
-
-                    byte oldStatus = device2.getManagerStatus();
-
-                    if (managerStatus != oldStatus) {
-                        logger.info("deviceBoxName = {} dvice_id = {} update old status = {} new status = {}" ,simid, device2.getId(), device2.getStatus(), managerStatus);
-                        device2.setManagerStatus(managerStatus);
-                        deviceTable.update(device2, device2.getId());
-                        deviceCache.put(s.getId(), device2);
-                    }
-                }
+    public Device updateManagerStatus(Long id, byte managerStatus) {
+        Device device2 = deviceCache.get(id);
+        //缓存不存在此设备
+        if (device2 == null) {
+            Optional<Device> device1 = deviceTable.select(id);
+            if (device1 == null || !device1.isPresent()) {
+                logger.error("Cannot update Device updateManagerStatus for not exist.{}", id);
+                throw ServerException.conflict("Cannot update Device for not exist.");
             }
         } else {
-            logger.error("update device updateManagerStatus failed, not exist {}", simid);
+            byte oldStatus = device2.getManagerStatus();
+            if (managerStatus != oldStatus) {
+                logger.info("deviceBoxName = {} dvice_id = {} update old status = {} new status = {}", device2.getSimCard(), device2.getId(), device2.getStatus(), managerStatus);
+                device2.setManagerStatus(managerStatus);
+                deviceTable.update(device2, device2.getId());
+                deviceCache.put(id, device2);
+            }
         }
+        return device2;
     }
-
     private void autoFillDevice(Device device) {
         Location location = locationCache.get(device.getLocationID());
         if (location != null) {

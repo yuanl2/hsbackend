@@ -3,10 +3,7 @@ package com.hansun.server.service;
 import com.hansun.dto.Consume;
 import com.hansun.dto.Device;
 import com.hansun.dto.Order;
-import com.hansun.server.common.DeviceManagerStatus;
-import com.hansun.server.common.DeviceStatus;
-import com.hansun.server.common.HSServiceProperties;
-import com.hansun.server.common.OrderStatus;
+import com.hansun.server.common.*;
 import com.hansun.server.db.DataStore;
 import com.hansun.server.util.TenpayUtil;
 import org.slf4j.Logger;
@@ -40,46 +37,20 @@ public class TimerService {
     @Autowired
     private DataStore dataStore;
 
-
     private int min;
     private int max;
 
     private volatile boolean flag;
-
     private Object object;
 
     @PostConstruct
     private void init() {
         object = new Object();
-        executor = Executors.newFixedThreadPool(30);
+        executor = Executors.newFixedThreadPool(1);
         min = hsServiceProperties.getOrderIntervalMin();
         max = hsServiceProperties.getOrderIntervalMax();
         flag = hsServiceProperties.getOrderIntervalFlag();
-        Set<String> deviceBoxs = dataStore.getAllDeviceBoxes();
-
-        if(deviceBoxs != null && deviceBoxs.size()> 0){
-            Set<Long> deviceList = dataStore.getAllDevices();
-            if (deviceList != null && deviceList.size() > 0) {
-
-                deviceBoxs.forEach(k->{
-
-                    final List<Long> lists = new ArrayList<>();
-                    deviceList.forEach(d->{
-
-                        Device device = dataStore.queryDeviceByDeviceID(d);
-                        if(device.getSimCard().equalsIgnoreCase(k) && device.getType() == 100){
-                            lists.add(d);
-                        }
-
-                    });
-
-                    executor.submit(new Schedule_Task(lists,k));
-
-                });
-
-            }
-        }
-
+        executor.submit(new Schedule_Task(dataStore));
     }
 
     @PreDestroy
@@ -101,12 +72,10 @@ public class TimerService {
 
     private class Schedule_Task implements Runnable {
 
-        private List<Long> device_id;
-
+        private DataStore dataStore;
         private String boxName;
-        public Schedule_Task(List<Long> device_id, String boxName) {
-            this.device_id = device_id;
-            this.boxName = boxName;
+        public Schedule_Task(DataStore dataStore) {
+            this.dataStore = dataStore;
         }
 
         public void run() {
@@ -122,8 +91,26 @@ public class TimerService {
                         }
                     }
 
+
+                    Set<String> deviceBoxs = dataStore.getAllDeviceBoxes();
+                    final List<Long> deviceLists = new ArrayList<>();
+                    if(deviceBoxs != null && deviceBoxs.size()> 0){
+                        Set<Long> deviceList = dataStore.getAllDevices();
+                        if (deviceList != null && deviceList.size() > 0) {
+                            deviceBoxs.forEach(k->{
+                                deviceList.forEach(d->{
+                                    Device device = dataStore.queryDeviceByDeviceID(d);
+                                    if(device.getSimCard().equalsIgnoreCase(k) && device.getType() == DeviceType.DEVICE_4G.getType()){
+                                        deviceLists.add(d);
+                                    }
+                                });
+                            });
+                        }
+                    }
+
+                    long begin = System.currentTimeMillis();
                     for (Long deviceID:
-                            device_id) {
+                            deviceLists) {
                         int type = random.nextInt(3);
                         Device d = dataStore.queryDeviceByDeviceID(deviceID);
                         List<Consume> consumeList = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()));
@@ -133,7 +120,7 @@ public class TimerService {
 
                         if(d.getManagerStatus() == DeviceManagerStatus.TEST.getStatus()){
                             if (d.getStatus() !=  DeviceStatus.IDLE) {
-                                Thread.sleep((random.nextInt(5) + 5) * 60000);
+                                Thread.sleep(100);
                             } else {
                                 logger.info("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
                                 Order order = new Order();
@@ -158,16 +145,24 @@ public class TimerService {
                                 Order result = orderService.createOrder(order);
                                 orderService.createStartMsgToDevice(result);
                                 logger.info("device_id = " + deviceID + " start order " + result);
-                                Thread.sleep((random.nextInt(5) + 5) * 30000);
                             }
                         }
-                        else{
-                            Thread.sleep((random.nextInt(5) + 5) * 60000);
-                        }
+//                        else{
+//                            Thread.sleep((random.nextInt(5) + 5) * 60000);
+//                        }
 
                     }
+                    long end = System.currentTimeMillis();
+                    //轮询所有设备后，需要sleep的时间
+
+                    long duration = 600000 - (end - begin);
+
+                    if (duration > 0) {
+                        Thread.sleep(duration);
+                    }
+
                 } catch (Exception e) {
-                    logger.error("device_id = " + device_id, e);
+                    logger.error("run task error",e);
                     try {
                         Thread.sleep(5000);
                     } catch (InterruptedException e1) {

@@ -2,6 +2,7 @@ package com.hansun.server.commu;
 
 import com.hansun.dto.Device;
 import com.hansun.dto.Order;
+import com.hansun.server.common.DeviceManagerStatus;
 import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.HSServiceProperties;
 import com.hansun.server.common.OrderStatus;
@@ -205,10 +206,8 @@ public class LinkManger {
                         if (order.getOrderStatus() == OrderStatus.SERVICE) {
                             logger.info("{} update order status from service to {}", order.getId(), OrderStatus.FINISH);
 
-                            HSServiceMetrics.Builder builder = HSServiceMetrics.builder();
-                            builder.measurement(Metrics.ORDER_FINISH).device(String.valueOf(device.getId())).area(device.getAreaName()).user(device.getOwner())
-                                    .count(1).duration(order.getDuration()).price(order.getPrice());
-                            hsServiceMetricsService.sendMetrics(builder.build());
+                            sendMetrics(device, order);
+
                             orderService.deleteOrder(device.getId());
                             setStatus = DeviceStatus.IDLE;
                         } else if (order.getOrderStatus() == OrderStatus.FINISH) {
@@ -270,6 +269,16 @@ public class LinkManger {
             }
         }
 
+    }
+
+    private void sendMetrics(Device device, Order order) {
+        //如果设备的管理状态是测试，则不发送metrics统计信息
+        if (device.getManagerStatus() != DeviceManagerStatus.TEST.getStatus()) {
+            HSServiceMetrics.Builder builder = HSServiceMetrics.builder();
+            builder.measurement(Metrics.ORDER_FINISH).device(String.valueOf(device.getId())).area(device.getAreaName()).user(device.getOwner())
+                    .count(1).duration(order.getDuration()).price(order.getPrice());
+            hsServiceMetricsService.sendMetrics(builder.build());
+        }
     }
 
     public String getResponseDelay() {
