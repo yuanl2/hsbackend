@@ -1,6 +1,6 @@
 package com.hansun.server.db;
 
-import com.hansun.dto.Order;
+import com.hansun.server.dto.Order;
 import com.hansun.server.common.ServerException;
 
 import java.sql.Connection;

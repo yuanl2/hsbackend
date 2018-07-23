@@ -1,17 +1,33 @@
-package com.hansun.dto;
+package com.hansun.server.dto;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 /**
  * Created by yuanl2 on 2017/3/29.
  */
+@Entity
 public class Location {
+    @Id
+    @GeneratedValue
     private short id;
+
+    @Column(name = "provinceID",nullable = false)
     private short provinceID;
     private String province;
+
+    @Column(name = "cityID",nullable = false)
     private short cityID;
     private String city;
+
+    @Column(name = "areaID",nullable = false)
     private short areaID;
     private String areaName;
     private String address;
+
+    @Column(name = "userID",nullable = false)
     private short userID;
 
     public short getId() {

@@ -1,10 +1,20 @@
-package com.hansun.dto;
+package com.hansun.server.dto;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 /**
  * Created by yuanl2 on 2017/3/29.
  */
+@Entity
 public class Province {
+    @Id
+    @GeneratedValue
     private short id;
+
+    @Column(nullable = false)
     private String name;
 
     public short getId() {

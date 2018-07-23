@@ -1,6 +1,6 @@
 package com.hansun.server.controller;
 
-import com.hansun.dto.Order;
+import com.hansun.server.dto.Order;
 import com.hansun.server.common.OrderDetail;
 import com.hansun.server.common.OrderStatisticsForUser;
 import com.hansun.server.service.OrderService;

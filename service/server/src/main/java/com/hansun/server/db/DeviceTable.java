@@ -1,8 +1,7 @@
 package com.hansun.server.db;
 
-import com.hansun.dto.Device;
+import com.hansun.server.dto.Device;
 import com.hansun.server.common.ServerException;
-import com.hansun.server.service.TimerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

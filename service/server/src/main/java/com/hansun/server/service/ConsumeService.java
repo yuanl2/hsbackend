@@ -1,6 +1,6 @@
 package com.hansun.server.service;
 
-import com.hansun.dto.Consume;
+import com.hansun.server.dto.Consume;
 import com.hansun.server.db.DataStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

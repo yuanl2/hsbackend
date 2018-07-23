@@ -1,6 +1,9 @@
 package com.hansun.server.controller;
 
-import com.hansun.dto.*;
+import com.hansun.server.dto.Area;
+import com.hansun.server.dto.City;
+import com.hansun.server.dto.Location;
+import com.hansun.server.dto.Province;
 import com.hansun.server.service.LocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

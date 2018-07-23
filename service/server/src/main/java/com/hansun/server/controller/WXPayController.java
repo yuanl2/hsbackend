@@ -1,9 +1,9 @@
 package com.hansun.server.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.hansun.dto.Consume;
-import com.hansun.dto.Device;
-import com.hansun.dto.Order;
+import com.hansun.server.dto.Consume;
+import com.hansun.server.dto.Device;
+import com.hansun.server.dto.Order;
 import com.hansun.server.common.OrderStatus;
 import com.hansun.server.db.DataStore;
 import com.hansun.server.service.DeviceService;

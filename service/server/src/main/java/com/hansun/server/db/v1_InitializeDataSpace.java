@@ -1,6 +1,6 @@
 package com.hansun.server.db;
 
-import com.hansun.dto.User;
+import com.hansun.server.dto.User;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -85,52 +85,52 @@ public class v1_InitializeDataSpace {
 
         if (!manager.tableExists("location")) {
             manager.createTable("CREATE TABLE location (" +
-                    "locationID smallint(6) NOT NULL AUTO_INCREMENT," +
+                    "id smallint(6) NOT NULL AUTO_INCREMENT," +
                     "provinceID smallint(6) NOT NULL," +
                     "cityID smallint(6) NOT NULL," +
                     "areaID smallint(6) NOT NULL," +
                     "userID smallint(6) NOT NULL," +
-                    "PRIMARY KEY (locationID)," +
-                    "UNIQUE INDEX locationID_UNIQUE (locationID ASC));");
+                    "PRIMARY KEY (id)," +
+                    "UNIQUE INDEX locationID_UNIQUE (id ASC));");
         }
 
         if (!manager.tableExists("province")) {
             manager.createTable("CREATE TABLE province (" +
-                    "provinceID smallint(6) NOT NULL AUTO_INCREMENT," +
+                    "id smallint(6) NOT NULL AUTO_INCREMENT," +
                     "provinceName VARCHAR(45) NOT NULL," +
-                    "PRIMARY KEY (provinceID))" +
+                    "PRIMARY KEY (id))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         }
 
         if (!manager.tableExists("consume")) {
             manager.createTable("CREATE TABLE consume (" +
-                    "consumeID smallint(6) NOT NULL AUTO_INCREMENT," +
+                    "id smallint(6) NOT NULL AUTO_INCREMENT," +
                     "price float NOT NULL," +
                     "duration smallint(6) NOT NULL," +
                     "description varchar(45) NOT NULL," +
                     "picpath varchar(45) DEFAULT NULL," +
                     "deviceType VARCHAR(45) NOT NULL," +
-                    "PRIMARY KEY (consumeID))" +
+                    "PRIMARY KEY (id))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         }
 
         if (!manager.tableExists("area")) {
             manager.createTable("CREATE TABLE area (" +
-                    "areaID smallint(6) NOT NULL AUTO_INCREMENT," +
-                    "areaName VARCHAR(45) NOT NULL," +
+                    "id smallint(6) NOT NULL AUTO_INCREMENT," +
+                    "name VARCHAR(45) NOT NULL," +
                     "address VARCHAR(45) NOT NULL," +
                     "cityID smallint(6) NOT NULL," +
-                    "PRIMARY KEY (areaID))" +
+                    "PRIMARY KEY (id))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         }
 
         if (!manager.tableExists("city")) {
             manager.createTable("CREATE TABLE city (" +
-                    "cityID smallint(6) NOT NULL AUTO_INCREMENT," +
-                    "cityName VARCHAR(45) NOT NULL," +
+                    "id smallint(6) NOT NULL AUTO_INCREMENT," +
+                    "name VARCHAR(45) NOT NULL," +
                     "districtName VARCHAR(45) NOT NULL," +
                     "provinceID smallint(6) NOT NULL," +
-                    "PRIMARY KEY (cityID))" +
+                    "PRIMARY KEY (id))" +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         }
 

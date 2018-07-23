@@ -1,6 +1,6 @@
 package com.hansun.server.controller;
 
-import com.hansun.dto.User;
+import com.hansun.server.dto.User;
 import com.hansun.server.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

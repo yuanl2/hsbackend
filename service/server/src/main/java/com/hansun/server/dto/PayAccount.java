@@ -1,4 +1,4 @@
-package com.hansun.dto;
+package com.hansun.server.dto;
 
 /**
  * Created by yuanl2 on 2017/4/27.

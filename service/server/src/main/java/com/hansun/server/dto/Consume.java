@@ -1,15 +1,33 @@
-package com.hansun.dto;
+package com.hansun.server.dto;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 /**
  * Created by yuanl2 on 2017/4/6.
  */
+@Entity
 public class Consume {
 
+    @Id
+    @GeneratedValue
     private short id;
+
+    @Column(nullable = false)
     private float price;
+
+    @Column(nullable = false)
     private short duration;
+
+    @Column(nullable = false)
     private String description;
+
+    @Column(name = "picpath", nullable = true)
     private String picpath;
+
+    @Column(name = "deviceType", nullable = false)
     private String deviceType;
 
     public short getId() {

@@ -1,6 +1,6 @@
 package com.hansun.server.db;
 
-import com.hansun.dto.PayAccount;
+import com.hansun.server.dto.PayAccount;
 import com.hansun.server.common.ServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

@@ -1,12 +1,11 @@
 package com.hansun.server.service;
 
-import com.hansun.dto.Device;
-import com.hansun.dto.Location;
-import com.hansun.dto.Order;
-import com.hansun.dto.User;
+import com.hansun.server.dto.Device;
+import com.hansun.server.dto.Location;
+import com.hansun.server.dto.Order;
+import com.hansun.server.dto.User;
 import com.hansun.server.common.*;
 import com.hansun.server.commu.*;
-import com.hansun.server.commu.msg.ServerStartDeviceMsg;
 
 import com.hansun.server.db.DataStore;
 import com.hansun.server.db.OrderStore;
@@ -22,13 +21,10 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-
-import static com.hansun.server.common.MsgConstant.DEVICE_START_MSG;
 
 /**
  * Created by yuanl2 on 2017/3/29.

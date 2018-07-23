@@ -1,8 +1,9 @@
 package com.hansun.server.db;
 
-import com.hansun.dto.*;
+import com.hansun.server.dto.*;
 import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.ServerException;
+import com.hansun.server.db.dao.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +37,24 @@ public class DataStore {
 
 
     private DeviceTable deviceTable;
-    private LocationTable locationTable;
-    private CityTable cityTable;
-    private AreaTable areaTable;
     private UserTable userTable;
-    private ProvinceTable provinceTable;
-    private ConsumeTable consumeTable;
     private OrderTable orderTable;
+
+
+    @Autowired
+    private ConsumeDao consumeDao;
+
+    @Autowired
+    private ProvinceDao provinceDao;
+
+    @Autowired
+    private AreaDao areaDao;
+
+    @Autowired
+    private CityDao cityDao;
+
+    @Autowired
+    private LocationDao locationDao;
 
     @Autowired
     private ConnectionPoolManager connectionPoolManager;
@@ -50,12 +62,7 @@ public class DataStore {
     @PostConstruct
     private void init() {
         deviceTable = new DeviceTable(connectionPoolManager);
-        locationTable = new LocationTable(connectionPoolManager);
-        cityTable = new CityTable(connectionPoolManager);
-        areaTable = new AreaTable(connectionPoolManager);
         userTable = new UserTable(connectionPoolManager);
-        provinceTable = new ProvinceTable(connectionPoolManager);
-        consumeTable = new ConsumeTable(connectionPoolManager);
         orderTable = new OrderTable(connectionPoolManager);
 
         initCache();
@@ -75,7 +82,7 @@ public class DataStore {
             deviceSimCache.clear();
             connectionPoolManager.destroy();
         } catch (SQLException e) {
-            logger.error("destroy datastore error",e);
+            logger.error("destroy datastore error", e);
             throw new ServerException(e);
         }
     }
@@ -91,8 +98,9 @@ public class DataStore {
             throw ServerException.conflict("Cannot create duplicate Device.");
         }
 
+
         deviceTable.insert(device);
-        autoFillDevice(device);
+//        autoFillDevice(device);
         deviceCache.put(deviceId, device);
         deviceSimCache.computeIfAbsent(device.getSimCard(), k -> new ArrayList<>()).add(device);
         return device;
@@ -107,7 +115,7 @@ public class DataStore {
     }
 
     public void deleteDeviceByLocationID(int locationID) {
-        deviceTable.deleteByLocationID((short)locationID);
+        deviceTable.deleteByLocationID((short) locationID);
         //update cache
         List<Long> list = new ArrayList<>();
         deviceCache.forEach((k, v) -> {
@@ -120,7 +128,7 @@ public class DataStore {
     }
 
     public void deleteDeviceByOwner(int owner) {
-        deviceTable.deleteByOwner((short)owner);
+        deviceTable.deleteByOwner((short) owner);
         //update cache
         List<Long> list = new ArrayList<>();
         deviceCache.forEach((k, v) -> {
@@ -203,8 +211,9 @@ public class DataStore {
 //        int oldStatus = device.getStatus();
 //        if (oldStatus != status) {
 //            device.setStatus(status);
-            deviceTable.update(device, device.getId());
-            deviceCache.put(device.getId(), device);
+        autoFillDevice(device);
+        deviceTable.update(device, device.getId());
+        deviceCache.put(device.getId(), device);
 //            logger.info("update device status before {} update value {}", oldStatus, status);
 //        } else {
 //            logger.info("{} the status {} is not changed", device.getId(), status);
@@ -238,7 +247,7 @@ public class DataStore {
                         continue;
                     }
                 } else {
-                    byte status = portMap.get((int)device2.getPort());
+                    byte status = portMap.get((int) device2.getPort());
                     //如果与当前设备状态不一致才需要更新
 
                     byte oldStatus = device2.getStatus();
@@ -253,7 +262,7 @@ public class DataStore {
                     //如果上报的是空闲状态，后续更新订单状态时会更新设备的状态的
 
                     if (status != oldStatus) {
-                        logger.info("deviceBoxName = {} device_id = {} update old status = {} new status = {}" ,simid, device2.getId(), device2.getStatus(), status);
+                        logger.info("deviceBoxName = {} device_id = {} update old status = {} new status = {}", simid, device2.getId(), device2.getStatus(), status);
                         device2.setStatus(status);
                         deviceTable.update(device2, device2.getId());
                         deviceCache.put(s.getId(), device2);
@@ -286,6 +295,7 @@ public class DataStore {
         }
         return device2;
     }
+
     private void autoFillDevice(Device device) {
         Location location = locationCache.get(device.getLocationID());
         if (location != null) {
@@ -349,7 +359,7 @@ public class DataStore {
         return deviceSimCache.get(deviceBoxName);
     }
 
-    public List<Device> queryAllDevices(){
+    public List<Device> queryAllDevices() {
         Optional<List<Device>> result = deviceTable.selectAll();
         if (result.isPresent()) {
             List<Device> devices = result.get();
@@ -366,22 +376,21 @@ public class DataStore {
         long begin = System.currentTimeMillis();
         logger.info("begin initCache " + begin);
 
-        Optional<List<City>> cityList = cityTable.selectAll();
-        if (cityList.isPresent()) {
-            cityList.get().forEach(d -> cityCache.put(d.getId(), d));
+        List<City> cityList = cityDao.findAll();
+        if (checkListNotNull(cityList)) {
+            cityList.forEach(d -> cityCache.put(d.getId(), d));
             logger.info("initCache cityList " + cityCache.size());
         }
 
-
-        Optional<List<Area>> areaList = areaTable.selectAll();
-        if (areaList.isPresent()) {
-            areaList.get().forEach(d -> areaCache.put(d.getId(), d));
+        List<Area> areaList = areaDao.findAll();
+        if (checkListNotNull(areaList)) {
+            areaList.forEach(d -> areaCache.put(d.getId(), d));
             logger.info("initCache areaList " + areaCache.size());
         }
 
-        Optional<List<Consume>> consumeList = consumeTable.selectAll();
-        if (consumeList.isPresent()) {
-            consumeList.get().forEach(d -> {
+        List<Consume> consumeList = consumeDao.findAll();
+        if (checkListNotNull(consumeList)) {
+            consumeList.forEach(d -> {
                         consumeCache.put(d.getId(), d);
                         String type = d.getDeviceType();
                         deviceTypeConsumeCache.computeIfAbsent(type, k ->
@@ -398,14 +407,14 @@ public class DataStore {
             userList.get().forEach(d -> userCache.put(d.getId(), d));
             logger.info("initCache userList = {}", userCache.size());
         }
-        Optional<List<Province>> provinceList = provinceTable.selectAll();
-        if (provinceList.isPresent()) {
-            provinceList.get().forEach(d -> provinceCache.put(d.getId(), d));
+        List<Province> provinceList = provinceDao.findAll();
+        if (checkListNotNull(provinceList)) {
+            provinceList.forEach(d -> provinceCache.put(d.getId(), d));
             logger.info("initCache provinceList = {}", provinceCache.size());
         }
-        Optional<List<Location>> locationList = locationTable.selectAll();
-        if (locationList.isPresent()) {
-            locationList.get().forEach(d -> {
+        List<Location> locationList = locationDao.findAll();
+        if (checkListNotNull(locationList)) {
+            locationList.forEach(d -> {
                 autoFillLocaiton(d);
                 locationCache.put(d.getId(), d);
                 logger.info("initCache locationList = {}", locationCache.size());
@@ -440,9 +449,10 @@ public class DataStore {
         return deviceSimCache.keySet();
     }
 
-    public boolean containDeviceBox(String deviceBox){
-       return deviceSimCache.containsKey(deviceBox);
+    public boolean containDeviceBox(String deviceBox) {
+        return deviceSimCache.containsKey(deviceBox);
     }
+
     /*******************************************************************
      * Location
      * *****************************************************************
@@ -454,19 +464,15 @@ public class DataStore {
         if (locationCache.containsValue(location)) {
             throw ServerException.conflict("Cannot create duplicate Location.");
         }
-        Optional<List<Location>> location1 = locationTable.selectbyareaID(location.getAreaID());
-        if (location1.isPresent()) {
-            throw ServerException.conflict("Cannot create duplicate Location.");
-        }
 
-        locationTable.insert(location);
-        Optional<List<Location>> location2 = locationTable.selectbyareaID(location.getAreaID());
-        if (!location2.isPresent()) {
-            throw ServerException.conflict("Create Location failed." + location);
-        }
-        Location l = location2.get().get(0);
-        autoFillLocaiton(l);
-        locationCache.put(l.getId(), l);
+//        Location location1 = locationTable.selectbyareaID(location.getAreaID());
+//        if (location1.isPresent()) {
+//            throw ServerException.conflict("Cannot create duplicate Location.");
+//        }
+
+        Location savedLocation = locationDao.save(location);
+        autoFillLocaiton(savedLocation);
+        locationCache.put(savedLocation.getId(), savedLocation);
         return location;
     }
 
@@ -498,12 +504,13 @@ public class DataStore {
     }
 
     public void deleteLocationByLocationID(int locationID) {
-        locationTable.deleteByLocationID((short)locationID);
+        locationDao.delete((short) locationID);
         locationCache.remove(locationID);
     }
 
     public void deleteLocationByProvinceID(int provinceID) {
-        locationTable.deleteByProvinceID((short)provinceID);
+        List<Location> locationList = locationDao.findByProvinceID((short)provinceID);
+        locationDao.delete(locationList);
         //update cache
         List<Short> list = new ArrayList<>();
         locationCache.forEach((k, v) -> {
@@ -513,7 +520,8 @@ public class DataStore {
     }
 
     public void deleteLocationByUserID(int userID) {
-        locationTable.deleteByUserID((short)userID);
+        List<Location> locationList = locationDao.findByUserID((short)userID);
+        locationDao.delete(locationList);
         //update cache
         List<Short> list = new ArrayList<>();
         locationCache.forEach((k, v) -> {
@@ -523,7 +531,8 @@ public class DataStore {
     }
 
     public void deleteLocationByCityID(int cityID) {
-        locationTable.deleteByCityID((short)cityID);
+        List<Location> locationList = locationDao.findByCityID((short)cityID);
+        locationDao.delete(locationList);
         //update cache
         List<Short> list = new ArrayList<>();
         locationCache.forEach((k, v) -> {
@@ -533,10 +542,10 @@ public class DataStore {
     }
 
     public List<Location> queryLocationByProvinceID(int provinceID) {
-        Optional<List<Location>> result = locationTable.selectbyProvinceID((short)provinceID);
+        List<Location> result = locationDao.findByProvinceID((short) provinceID);
         //fill content about location field
-        if (result.isPresent()) {
-            List<Location> locations = result.get();
+        if (checkListNotNull(result)) {
+            List<Location> locations = result;
             locations.forEach(location -> autoFillLocaiton(location));
             return locations;
         }
@@ -544,10 +553,10 @@ public class DataStore {
     }
 
     public List<Location> queryLocationByCityID(int cityID) {
-        Optional<List<Location>> result = locationTable.selectbyCityID((short)cityID);
+        List<Location> result = locationDao.findByCityID((short) cityID);
         //fill content about location field
-        if (result.isPresent()) {
-            List<Location> locations = result.get();
+        if (checkListNotNull(result)) {
+            List<Location> locations = result;
             locations.forEach(location -> autoFillLocaiton(location));
             return locations;
         }
@@ -555,7 +564,6 @@ public class DataStore {
     }
 
     public List<Location> queryLocationByUserID(int userID) {
-
         List<Location> lists = new ArrayList<>();
         locationCache.values().forEach(v -> {
             if (v.getUserID() == userID) {
@@ -567,10 +575,10 @@ public class DataStore {
             return lists;
         }
 
-        Optional<List<Location>> result = locationTable.selectbyUserID((short)userID);
+        List<Location> result = locationDao.findByUserID((short) userID);
         //fill content about location field
-        if (result.isPresent()) {
-            List<Location> locations = result.get();
+        if (checkListNotNull(result)) {
+            List<Location> locations = result;
             locations.forEach(location -> autoFillLocaiton(location));
             return locations;
         }
@@ -578,10 +586,10 @@ public class DataStore {
     }
 
     public List<Location> queryLocationByAreaID(int areaID) {
-        Optional<List<Location>> result = locationTable.selectbyareaID((short)areaID);
+        List<Location> result = locationDao.findByAreaID((short) areaID);
         //fill content about location field
-        if (result.isPresent()) {
-            List<Location> locations = result.get();
+        if (checkListNotNull(result)) {
+            List<Location> locations = result;
             locations.forEach(location -> autoFillLocaiton(location));
             return locations;
         }
@@ -589,33 +597,25 @@ public class DataStore {
     }
 
     public Location queryLocationByLocationID(int locationID) {
-        return locationCache.computeIfAbsent((short)locationID, k -> {
-            Optional<Location> result = locationTable.selectByLocationID(k);
-            if (result.isPresent()) {
-                return result.get();
-            }
-            return null;
-        });
+        return locationCache.computeIfAbsent((short) locationID, k ->
+            locationDao.findOne(k)
+           );
     }
 
     public List<Location> queryAllLocation() {
-        Optional<List<Location>> result = locationTable.selectAll();
-        if (result.isPresent()) {
-            return result.get();
-        }
-        return null;
+        return locationDao.findAll();
     }
 
     public Location updateLocation(Location location) {
         Location location2 = locationCache.get(location.getId());
         //缓存不存在此设备
         if (location2 == null) {
-            Optional<Location> location1 = locationTable.selectByLocationID(location.getId());
-            if (location1 == null || !location1.isPresent()) {
+            Location location1 = locationDao.findOne(location.getId());
+            if (location1 == null) {
                 throw ServerException.conflict("Cannot update Location for not exist.");
             }
         }
-        locationTable.update(location, location.getId());
+        locationDao.save(location);
         locationCache.put(location.getId(), location);
         return location;
     }
@@ -629,44 +629,36 @@ public class DataStore {
         if (consumeCache.containsValue(consume)) {
             throw ServerException.conflict("Cannot create duplicate Consume.");
         }
-        Optional<Consume> consume1 = consumeTable.select(consume);
-        if (consume1.isPresent()) {
-            throw ServerException.conflict("Cannot create duplicate Consume.");
-        }
-        consumeTable.insert(consume);
-        Optional<Consume> c = consumeTable.select(consume);
-        if (!c.isPresent()) {
+//        Optional<Consume> consume1 = consumeDao.findBookPage()
+//        if (consume1.isPresent()) {
+//            throw ServerException.conflict("Cannot create duplicate Consume.");
+//        }
+        Consume consume1 = consumeDao.save(consume);
+        Consume c = consumeDao.findOne(consume1.getId());
+        if (c != null) {
             throw ServerException.badRequest("Create Consume ." + consume);
         }
-        consumeCache.put(c.get().getId(), c.get());
-        deviceTypeConsumeCache.computeIfAbsent(consume.getDeviceType(),k -> new ArrayList<>()).add(consume);
+        consumeCache.put(c.getId(), c);
+        deviceTypeConsumeCache.computeIfAbsent(consume.getDeviceType(), k -> new ArrayList<>()).add(consume);
         return consume;
     }
 
     public void deleteConsumeByConsumeID(int consumeID) {
         Consume consume = consumeCache.get(consumeID);
         deviceTypeConsumeCache.get(consume.getDeviceType()).remove(consume);
-        consumeTable.delete((short)consumeID);
+        consumeDao.delete((short) consumeID);
         consumeCache.remove(consumeID);
     }
 
     public Consume queryConsume(int consumeID) {
-        return consumeCache.computeIfAbsent((short)consumeID, k -> {
-            Optional<Consume> result = consumeTable.select(k);
-            if (result.isPresent()) {
-                return result.get();
-            }
-            return null;
-        });
+        return consumeCache.computeIfAbsent((short) consumeID, k ->
+                consumeDao.findOne(k));
     }
 
     public List<Consume> queryAllConsume() {
         List<Consume> lists = new ArrayList<>(consumeCache.values());
         if (lists == null || lists.size() == 0) {
-            Optional<List<Consume>> result = consumeTable.selectAll();
-            if (result.isPresent()) {
-                return result.get();
-            }
+            return consumeDao.findAll();
         }
         return lists;
     }
@@ -684,14 +676,14 @@ public class DataStore {
         Consume consume2 = consumeCache.get(consume.getId());
         //缓存不存在此设备
         if (consume2 == null) {
-            Optional<Consume> consume1 = consumeTable.select(consume.getId());
-            if (consume1 == null || !consume1.isPresent()) {
+            Consume consume1 = consumeDao.findOne(consume.getId());
+            if (consume1 == null) {
                 throw ServerException.conflict("Cannot update Consume for not exist.");
             }
         }
         deviceTypeConsumeCache.get(consume.getDeviceType()).remove(consume2);
         deviceTypeConsumeCache.get(consume.getDeviceType()).add(consume);
-        consumeTable.update(consume, consume.getId());
+        consumeDao.save(consume);
         consumeCache.put(consume.getId(), consume);
         return consume;
     }
@@ -724,7 +716,7 @@ public class DataStore {
     }
 
     public User queryUser(int userID) {
-        return userCache.computeIfAbsent((short)userID, k -> {
+        return userCache.computeIfAbsent((short) userID, k -> {
             Optional<User> result = userTable.select(k);
             if (result.isPresent()) {
                 return result.get();
@@ -770,53 +762,45 @@ public class DataStore {
         if (provinceCache.containsValue(province)) {
             throw ServerException.conflict("Cannot create duplicate Province.");
         }
-        Optional<Province> province1 = provinceTable.select(province.getName());
-        if (province1.isPresent()) {
+        Province province1 = provinceDao.findProvince(province.getName());
+        if (province1 != null) {
             throw ServerException.conflict("Cannot create duplicate Province.");
         }
-        provinceTable.insert(province);
-        Optional<Province> p = provinceTable.select(province.getName());
-        if (!p.isPresent()) {
+        provinceDao.save(province);
+        Province p = provinceDao.findProvince(province.getName());
+       if ( p == null) {
             throw ServerException.badRequest("Create Province  " + province);
         }
         //autoFillLocaiton(province);
-        provinceCache.put(p.get().getId(), p.get());
+        provinceCache.put(p.getId(), p);
         return province;
     }
 
     public void deleteProvinceByProvinceID(int provinceID) {
-        provinceTable.delete((short)provinceID);
+        provinceDao.delete((short) provinceID);
         provinceCache.remove(provinceID);
     }
 
     public Province queryProvince(int provinceID) {
-        return provinceCache.computeIfAbsent((short)provinceID, k -> {
-            Optional<Province> result = provinceTable.selectByID(k);
-            if (result.isPresent()) {
-                return result.get();
-            }
-            return null;
-        });
+        return provinceCache.computeIfAbsent((short) provinceID, k ->
+                provinceDao.findOne(k)
+        );
     }
 
     public List<Province> queryAllProvince() {
-        Optional<List<Province>> result = provinceTable.selectAll();
-        if (result.isPresent()) {
-            return result.get();
-        }
-        return null;
+        return provinceDao.findAll();
     }
 
     public Province updateProvince(Province province) {
         Province province2 = provinceCache.get(province.getId());
         //缓存不存在此设备
         if (province2 == null) {
-            Optional<Province> province1 = provinceTable.selectByID(province.getId());
-            if (province1 == null || !province1.isPresent()) {
+            Province province1 = provinceDao.findOne(province.getId());
+            if (province1 == null ) {
                 throw ServerException.conflict("Cannot update province for not exist.");
             }
         }
-        provinceTable.update(province, province.getId());
+        provinceDao.save(province);
         provinceCache.put(province.getId(), province);
         return province;
     }
@@ -829,54 +813,44 @@ public class DataStore {
         if (cityCache.containsValue(city)) {
             throw ServerException.conflict("Cannot create duplicate City.");
         }
-        Optional<City> city1 = cityTable.selectByName(city);
-        if (city1.isPresent()) {
+        City city1 = cityDao.findByNameAndDistrictName(city.getName(),city.getDistrictName());
+        if (city1 != null) {
             throw ServerException.conflict("Cannot create duplicate City.");
         }
 
-        cityTable.insert(city);
-        Optional<City> p = cityTable.selectByName(city);
-        if (!p.isPresent()) {
+        cityDao.save(city);
+        City city2 = cityDao.findByNameAndDistrictName(city.getName(),city.getDistrictName());
+        if (city2 == null) {
             throw ServerException.badRequest("Create City  " + city);
         }
 //        autoFillLocaiton(province);
-        cityCache.put(p.get().getId(), p.get());
+        cityCache.put(city2.getId(), city2);
         return city;
     }
 
     public void deleteCityByCityID(int cityID) {
-        cityTable.delete((short)cityID);
+        cityDao.delete((short) cityID);
         cityCache.remove(cityID);
     }
 
     public City queryCity(int cityID) {
-        return cityCache.computeIfAbsent((short)cityID, k -> {
-            Optional<City> result = cityTable.select(k);
-            if (result.isPresent()) {
-                return result.get();
-            }
-            return null;
-        });
+        return cityCache.computeIfAbsent((short) cityID, k -> cityDao.findOne(k));
     }
 
     public List<City> queryAllCity() {
-        Optional<List<City>> result = cityTable.selectAll();
-        if (result.isPresent()) {
-            return result.get();
-        }
-        return null;
+        return cityDao.findAll();
     }
 
     public City updateCity(City city) {
         City city2 = cityCache.get(city.getId());
         //缓存不存在此设备
         if (city2 == null) {
-            Optional<City> city1 = cityTable.select(city.getId());
-            if (city1 == null || !city1.isPresent()) {
+            City city1 = cityDao.findOne(city.getId());
+            if (city1 == null ) {
                 throw ServerException.conflict("Cannot update city for not exist.");
             }
         }
-        cityTable.update(city, city.getId());
+        cityDao.save(city);
         cityCache.put(city.getId(), city);
         return city;
     }
@@ -889,53 +863,43 @@ public class DataStore {
         if (areaCache.containsValue(area)) {
             throw ServerException.conflict("Cannot create duplicate Area.");
         }
-        Optional<Area> province1 = areaTable.select(area);
-        if (province1.isPresent()) {
+        Area area1 = areaDao.findByNameAndAddress(area.getName(),area.getAddress());
+        if (area1 != null) {
             throw ServerException.conflict("Cannot create duplicate Area.");
         }
-        areaTable.insert(area);
-        Optional<Area> p = areaTable.select(area);
-        if (!p.isPresent()) {
+        Area result = areaDao.save(area);
+        Area p = areaDao.findOne(result.getId());
+        if (p == null) {
             throw ServerException.badRequest("Create Area  " + area);
         }
 //        autoFillLocaiton(province);
-        areaCache.put(p.get().getId(), p.get());
+        areaCache.put(p.getId(), p);
         return area;
     }
 
     public void deleteAreaByAreaID(int areaID) {
-        areaTable.delete((short)areaID);
+        areaDao.delete((short) areaID);
         areaCache.remove(areaID);
     }
 
     public Area queryArea(int areaID) {
-        return areaCache.computeIfAbsent((short)areaID, k -> {
-            Optional<Area> result = areaTable.select(k);
-            if (result.isPresent()) {
-                return result.get();
-            }
-            return null;
-        });
+        return areaCache.computeIfAbsent((short) areaID, k -> areaDao.findOne(k));
     }
 
     public List<Area> queryAllArea() {
-        Optional<List<Area>> result = areaTable.selectAll();
-        if (result.isPresent()) {
-            return result.get();
-        }
-        return null;
+        return areaDao.findAll();
     }
 
     public Area updateArea(Area area) {
         Area area2 = areaCache.get(area.getId());
         //缓存不存在此设备
         if (area2 == null) {
-            Optional<Area> area1 = areaTable.select(area.getId());
-            if (area1 == null || !area1.isPresent()) {
+            Area area1 = areaDao.findOne(area.getId());
+            if (area1 == null) {
                 throw ServerException.conflict("Cannot update area for not exist.");
             }
         }
-        areaTable.update(area, area.getId());
+        areaDao.save(area);
         areaCache.put(area.getId(), area);
         return area;
     }
@@ -950,4 +914,13 @@ public class DataStore {
      * Report
      * *****************************************************************
      */
+
+
+    private <T> boolean checkListNotNull(List<T> lists){
+        if (lists !=null && lists.size()> 0){
+            return true;
+        }
+        return false;
+
+    }
 }

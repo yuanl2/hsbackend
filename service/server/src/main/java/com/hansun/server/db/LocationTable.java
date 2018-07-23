@@ -1,6 +1,6 @@
 package com.hansun.server.db;
 
-import com.hansun.dto.Location;
+import com.hansun.server.dto.Location;
 import com.hansun.server.common.ServerException;
 
 import java.sql.Connection;
@@ -15,15 +15,15 @@ import java.util.Optional;
  */
 public class LocationTable {
 
-    private static final String SELECT_BY_LOCATIONID = "SELECT locationID, provinceID, cityID, areaID, userID FROM location WHERE locationID = ?";
-    private static final String SELECT_BY_PROVINCEID = "SELECT locationID, provinceID, cityID, areaID, userID FROM location WHERE provinceID = ?";
-    private static final String SELECT_BY_CITYID = "SELECT locationID, provinceID, cityID, areaID, userID FROM location WHERE cityID = ?";
-    private static final String SELECT_BY_AREAID = "SELECT locationID, provinceID, cityID, areaID, userID FROM location WHERE areaID = ?";
-    private static final String SELECT_BY_USERID = "SELECT locationID, provinceID, cityID, areaID, userID FROM location WHERE userID = ?";
-    private static final String SELECT_ALL = "SELECT locationID, provinceID, cityID, areaID, userID FROM location";
+    private static final String SELECT_BY_LOCATIONID = "SELECT id, provinceID, cityID, areaID, userID FROM location WHERE id = ?";
+    private static final String SELECT_BY_PROVINCEID = "SELECT id, provinceID, cityID, areaID, userID FROM location WHERE provinceID = ?";
+    private static final String SELECT_BY_CITYID = "SELECT id, provinceID, cityID, areaID, userID FROM location WHERE cityID = ?";
+    private static final String SELECT_BY_AREAID = "SELECT id, provinceID, cityID, areaID, userID FROM location WHERE areaID = ?";
+    private static final String SELECT_BY_USERID = "SELECT id, provinceID, cityID, areaID, userID FROM location WHERE userID = ?";
+    private static final String SELECT_ALL = "SELECT id, provinceID, cityID, areaID, userID FROM location";
 
 
-    private static final String DELETE_BY_LOCATIONID = "DELETE FROM location WHERE locationID = ?";
+    private static final String DELETE_BY_LOCATIONID = "DELETE FROM location WHERE id = ?";
     private static final String DELETE_BY_PROVINCEID = "DELETE FROM location WHERE provinceID = ?";
     private static final String DELETE_BY_CITYID = "DELETE FROM location WHERE cityID = ?";
     private static final String DELETE_BY_AREAID = "DELETE FROM location WHERE areaID = ?";
@@ -32,7 +32,7 @@ public class LocationTable {
     private static final String INSERT =
             "INSERT INTO location (provinceID, cityID, areaID, userID) VALUES (?, ?, ?, ?)";
     private static final String UPDATE =
-            "UPDATE location SET provinceID = ?, cityID = ?, areaID = ?, userID = ? WHERE locationID = ?";
+            "UPDATE location SET provinceID = ?, cityID = ?, areaID = ?, userID = ? WHERE id = ?";
 
     private ConnectionPoolManager connectionPoolManager;
 
@@ -134,12 +134,12 @@ public class LocationTable {
         }
     }
 
-    public void deleteByLocationID(short locationID) {
+    public void deleteByLocationID(short id) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             deleteStatement = conn.prepareStatement(DELETE_BY_LOCATIONID);
-            deleteStatement.setShort(1, locationID);
+            deleteStatement.setShort(1, id);
             deleteStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -243,18 +243,18 @@ public class LocationTable {
         }
     }
 
-    public Optional<Location> selectByLocationID(short locationID) {
+    public Optional<Location> selectByLocationID(short id) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             selectStatement = conn.prepareStatement(SELECT_BY_LOCATIONID);
-            selectStatement.setShort(1, locationID);
+            selectStatement.setShort(1, id);
             return Optional.ofNullable(selectStatement.executeQuery())
                     .map(resultSet -> {
                         try {
                             while (resultSet.next()) {
                                 Location Location = new Location();
-                                Location.setId(resultSet.getShort("locationID"));
+                                Location.setId(resultSet.getShort("id"));
                                 Location.setProvinceID(resultSet.getShort("provinceID"));
                                 Location.setCityID(resultSet.getShort("cityID"));
                                 Location.setAreaID(resultSet.getShort("areaID"));
@@ -305,7 +305,7 @@ public class LocationTable {
                             List<Location> list = new ArrayList<Location>();
                             while (resultSet.next()) {
                                 Location Location = new Location();
-                                Location.setId(resultSet.getShort("locationID"));
+                                Location.setId(resultSet.getShort("id"));
                                 Location.setProvinceID(resultSet.getShort("provinceID"));
                                 Location.setCityID(resultSet.getShort("cityID"));
                                 Location.setAreaID(resultSet.getShort("areaID"));
@@ -359,7 +359,7 @@ public class LocationTable {
                             List<Location> list = new ArrayList<Location>();
                             while (resultSet.next()) {
                                 Location Location = new Location();
-                                Location.setId(resultSet.getShort("locationID"));
+                                Location.setId(resultSet.getShort("id"));
                                 Location.setProvinceID(resultSet.getShort("provinceID"));
                                 Location.setCityID(resultSet.getShort("cityID"));
                                 Location.setAreaID(resultSet.getShort("areaID"));
@@ -412,7 +412,7 @@ public class LocationTable {
                             List<Location> list = new ArrayList<Location>();
                             while (resultSet.next()) {
                                 Location Location = new Location();
-                                Location.setId(resultSet.getShort("locationID"));
+                                Location.setId(resultSet.getShort("id"));
                                 Location.setProvinceID(resultSet.getShort("provinceID"));
                                 Location.setCityID(resultSet.getShort("cityID"));
                                 Location.setAreaID(resultSet.getShort("areaID"));
@@ -465,7 +465,7 @@ public class LocationTable {
                             List<Location> list = new ArrayList<Location>();
                             while (resultSet.next()) {
                                 Location Location = new Location();
-                                Location.setId(resultSet.getShort("locationID"));
+                                Location.setId(resultSet.getShort("id"));
                                 Location.setProvinceID(resultSet.getShort("provinceID"));
                                 Location.setCityID(resultSet.getShort("cityID"));
                                 Location.setAreaID(resultSet.getShort("areaID"));
@@ -517,7 +517,7 @@ public class LocationTable {
                             List<Location> list = new ArrayList<Location>();
                             while (resultSet.next()) {
                                 Location Location = new Location();
-                                Location.setId(resultSet.getShort("locationID"));
+                                Location.setId(resultSet.getShort("id"));
                                 Location.setProvinceID(resultSet.getShort("provinceID"));
                                 Location.setCityID(resultSet.getShort("cityID"));
                                 Location.setAreaID(resultSet.getShort("areaID"));

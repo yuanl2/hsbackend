@@ -1,8 +1,8 @@
 package com.hansun.server.controller;
 
-import com.hansun.dto.Consume;
-import com.hansun.dto.Device;
-import com.hansun.dto.Order;
+import com.hansun.server.dto.Consume;
+import com.hansun.server.dto.Device;
+import com.hansun.server.dto.Order;
 import com.hansun.server.HttpClientUtil;
 import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.OrderStatus;

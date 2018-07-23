@@ -1,4 +1,4 @@
-package com.hansun.dto;
+package com.hansun.server.dto;
 
 public class StatusReqeust {
     private byte status;

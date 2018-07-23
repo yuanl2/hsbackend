@@ -1,7 +1,7 @@
 package com.hansun.server.db;
 
-import com.hansun.dto.User;
-import com.hansun.dto.UserAdditionInfo;
+import com.hansun.server.dto.User;
+import com.hansun.server.dto.UserAdditionInfo;
 import com.hansun.server.common.ServerException;
 import com.hansun.utils.JsonConvert;
 import org.slf4j.Logger;
@@ -93,7 +93,7 @@ public class UserTable {
         try {
             conn = connectionPoolManager.getConnection();
             updateStatement = conn.prepareStatement(UPDATE);
-            updateStatement.setShort(8, user.getId());
+            updateStatement.setShort(9, user.getId());
             updateStatement.setShort(1, user.getUserType());
             updateStatement.setString(2, user.getName());
             updateStatement.setString(3, user.getPassword());
@@ -106,9 +106,9 @@ public class UserTable {
             updateStatement.setString(6, user.getRole());
             updateStatement.setBoolean(7, user.isLocked());
             if (user.getCreateTime() != null) {
-                insertStatement.setTimestamp(8, Timestamp.from(user.getCreateTime()));
+                updateStatement.setTimestamp(8, Timestamp.from(user.getCreateTime()));
             } else {
-                insertStatement.setTimestamp(8, null);
+                updateStatement.setTimestamp(8, null);
             }
             updateStatement.executeUpdate();
         } catch (Exception e) {
