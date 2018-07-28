@@ -182,7 +182,7 @@ public class DemoController {
         model.addAttribute("product_id", product_id);
         model.addAttribute("openid", user_id);
 
-        Consume consume = dataStore.queryConsume(Integer.valueOf(product_id));
+        Consume consume = dataStore.queryConsume(Short.valueOf(product_id));
         model.addAttribute("consume", consume);
         return "device_detail";
     }
@@ -218,7 +218,7 @@ public class DemoController {
                           HttpServletRequest request, HttpServletResponse response) throws IOException {
         logger.info("device_id {}", device_id);
 
-        Consume consume = dataStore.queryConsume(Integer.valueOf(product_id));
+        Consume consume = dataStore.queryConsume(Short.valueOf(product_id));
 
         Order order = new Order();
         order.setOrderName("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
@@ -256,7 +256,7 @@ public class DemoController {
 
         long deviceID = Long.valueOf(device_id);
         Order o = orderService.getOrder(deviceID);
-        Consume consume = dataStore.queryConsume(Integer.valueOf(product_id));
+        Consume consume = dataStore.queryConsume(Short.valueOf(product_id));
 
         //订单在用户点击微信支付的时候就创建了订单，但是如果用户cancel了订单，也会有订单数据，只是状态不一样
         if(o!=null && o.getOrderStatus() == OrderStatus.CREATED){

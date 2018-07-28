@@ -151,7 +151,7 @@ public class WXPayController {
             log.debug(entry.getKey() + " = {} ", entry.getValue());
         }
         String strJson = JSON.toJSONString(resInfo);
-        Consume consume = dataStore.queryConsume(Integer.valueOf(product_id));
+        Consume consume = dataStore.queryConsume(Short.valueOf(product_id));
 
         //在预支付时，就生成订单
         Order order = new Order();

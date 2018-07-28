@@ -1,5 +1,6 @@
 package com.hansun.server.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
@@ -61,14 +62,14 @@ public class Device {
     //add last seq number
     private short seq;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "loginTime")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime loginTime;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "logoutTime")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime logoutTime;
     /**
      * 设备上报的sim卡名字，初始化连接带有sim卡信息
@@ -76,9 +77,9 @@ public class Device {
     @Column(name = "simCard")
     private String simCard;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "beginTime")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime beginTime;
 
     @Column(name = "QRCode", nullable = false)

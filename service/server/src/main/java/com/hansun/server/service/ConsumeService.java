@@ -25,11 +25,11 @@ public class ConsumeService {
         return dataStore.updateConsume(consume);
     }
 
-    public void deleteConsume(int consumeID) {
+    public void deleteConsume(short consumeID) {
         dataStore.deleteConsumeByConsumeID(consumeID);
     }
 
-    public Consume getConsume(int consumeID) {
+    public Consume getConsume(short consumeID) {
         return dataStore.queryConsume(consumeID);
     }
 

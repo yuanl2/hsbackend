@@ -23,12 +23,12 @@ public class UserTable {
 
     private final static Logger logger = LoggerFactory.getLogger(UserTable.class);
 
-    private static final String SELECT = "SELECT userID, userType, userName, password, additionInfo, expired ,role, islocked, created FROM user WHERE userID = ?";
-    private static final String SELECTBYNAME = "SELECT userID, userType, userName, password, additionInfo, expired ,role, islocked, created FROM user WHERE userName = ?";
-    private static final String SELECT_ALL = "SELECT userID, userType, userName, password, additionInfo, expired,role, islocked, created FROM user";
-    private static final String DELETE = "DELETE FROM user WHERE userID = ?";
-    private static final String INSERT = "INSERT INTO user (userType, userName, password, additionInfo, expired, role, islocked, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String UPDATE = "UPDATE user SET userType = ? , userName = ? , password = ? , additionInfo = ? , expired = ? , role = ?, islocked = ? , created = ? WHERE userID = ?";
+    private static final String SELECT = "SELECT id, userType, userName, password, additionInfo, expiredTime ,role, locked, createTime FROM user WHERE id = ?";
+    private static final String SELECTBYNAME = "SELECT id, userType, userName, password, additionInfo, expiredTime ,role, locked, createTime FROM user WHERE userName = ?";
+    private static final String SELECT_ALL = "SELECT id, userType, userName, password, additionInfo, expiredTime,role, locked, createTime FROM user";
+    private static final String DELETE = "DELETE FROM user WHERE id = ?";
+    private static final String INSERT = "INSERT INTO user (userType, userName, password, additionInfo, expiredTime, role, locked, createTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String UPDATE = "UPDATE user SET userType = ? , userName = ? , password = ? , additionInfo = ? , expiredTime = ? , role = ?, locked = ? , createTime = ? WHERE id = ?";
 
     private ConnectionPoolManager connectionPoolManager;
 
@@ -134,22 +134,22 @@ public class UserTable {
         }
     }
 
-    public void delete(int userID) {
+    public void delete(int id) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             deleteStatement = conn.prepareStatement(DELETE);
-            deleteStatement.setInt(1, userID);
+            deleteStatement.setInt(1, id);
             deleteStatement.executeUpdate();
         } catch (Exception e) {
-            logger.error("delete {} error {}", userID, e);
+            logger.error("delete {} error {}", id, e);
             throw new ServerException(e);
         } finally {
             if (deleteStatement != null) {
                 try {
                     deleteStatement.close();
                 } catch (SQLException e) {
-                    logger.error("delete {} error {}", userID, e);
+                    logger.error("delete {} error {}", id, e);
                     throw new ServerException(e);
                 }
             }
@@ -157,7 +157,7 @@ public class UserTable {
                 try {
                     conn.close();
                 } catch (SQLException e) {
-                    logger.error("delete {} error {}", userID, e);
+                    logger.error("delete {} error {}", id, e);
                     throw new ServerException(e);
                 }
             }
@@ -175,18 +175,18 @@ public class UserTable {
                         try {
                             while (resultSet.next()) {
                                 User user = new User();
-                                user.setId(resultSet.getShort("userID"));
+                                user.setId(resultSet.getShort("id"));
                                 user.setName(resultSet.getString("userName"));
                                 user.setUserType(resultSet.getShort("userType"));
                                 user.setPassword(resultSet.getString("password"));
                                 user.setAdditionInfo(jsonConvert.jsonToObject(resultSet.getString("additionInfo"), UserAdditionInfo.class));
-                                Timestamp expiredTime = resultSet.getTimestamp("expired");
+                                Timestamp expiredTime = resultSet.getTimestamp("expiredTime");
                                 if (expiredTime != null) {
                                     user.setExpiredTime(expiredTime.toInstant());
                                 }
                                 user.setRole(resultSet.getString("role"));
-                                user.setLocked(resultSet.getBoolean("islocked"));
-                                Timestamp createdTime = resultSet.getTimestamp("created");
+                                user.setLocked(resultSet.getBoolean("locked"));
+                                Timestamp createdTime = resultSet.getTimestamp("createTime");
                                 if (createdTime != null) {
                                     user.setCreateTime(createdTime.toInstant());
                                 }
@@ -231,29 +231,29 @@ public class UserTable {
         }
     }
 
-    public Optional<User> select(int userID) {
+    public Optional<User> select(int id) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             selectStatement = conn.prepareStatement(SELECT);
-            selectStatement.setInt(1, userID);
+            selectStatement.setInt(1, id);
             return Optional.ofNullable(selectStatement.executeQuery())
                     .map(resultSet -> {
                         try {
                             while (resultSet.next()) {
                                 User user = new User();
-                                user.setId(resultSet.getShort("userID"));
+                                user.setId(resultSet.getShort("id"));
                                 user.setName(resultSet.getString("userName"));
                                 user.setUserType(resultSet.getShort("userType"));
                                 user.setPassword(resultSet.getString("password"));
                                 user.setAdditionInfo(jsonConvert.jsonToObject(resultSet.getString("additionInfo"), UserAdditionInfo.class));
-                                Timestamp expiredTime = resultSet.getTimestamp("expired");
+                                Timestamp expiredTime = resultSet.getTimestamp("expiredTime");
                                 if (expiredTime != null) {
                                     user.setExpiredTime(expiredTime.toInstant());
                                 }
                                 user.setRole(resultSet.getString("role"));
-                                user.setLocked(resultSet.getBoolean("islocked"));
-                                Timestamp createdTime = resultSet.getTimestamp("created");
+                                user.setLocked(resultSet.getBoolean("locked"));
+                                Timestamp createdTime = resultSet.getTimestamp("createTime");
                                 if (createdTime != null) {
                                     user.setCreateTime(createdTime.toInstant());
                                 }
@@ -261,29 +261,29 @@ public class UserTable {
                             }
                             return null;
                         } catch (IOException e) {
-                            logger.error("select {} error {}", userID, e);
+                            logger.error("select {} error {}", id, e);
                             throw new ServerException(e);
                         } catch (SQLException e) {
-                            logger.error("select {} error {}", userID, e);
+                            logger.error("select {} error {}", id, e);
                             throw new ServerException(e);
                         } finally {
                             try {
                                 resultSet.close();
                             } catch (SQLException e) {
-                                logger.error("select {} error {}", userID, e);
+                                logger.error("select {} error {}", id, e);
                                 throw new ServerException(e);
                             }
                         }
                     });
         } catch (Exception e) {
-            logger.error("select {} error {}", userID, e);
+            logger.error("select {} error {}", id, e);
             return Optional.empty();
         } finally {
             if (selectStatement != null) {
                 try {
                     selectStatement.close();
                 } catch (SQLException e) {
-                    logger.error("select {} error {}", userID, e);
+                    logger.error("select {} error {}", id, e);
                     throw new ServerException(e);
                 }
             }
@@ -291,7 +291,7 @@ public class UserTable {
                 try {
                     conn.close();
                 } catch (SQLException e) {
-                    logger.error("select {} error {}", userID, e);
+                    logger.error("select {} error {}", id, e);
                     throw new ServerException(e);
                 }
             }
@@ -309,18 +309,18 @@ public class UserTable {
                             List<User> list = new ArrayList<User>();
                             while (resultSet.next()) {
                                 User user = new User();
-                                user.setId(resultSet.getShort("userID"));
+                                user.setId(resultSet.getShort("id"));
                                 user.setName(resultSet.getString("userName"));
                                 user.setUserType(resultSet.getShort("userType"));
                                 user.setPassword(resultSet.getString("password"));
                                 user.setAdditionInfo(jsonConvert.jsonToObject(resultSet.getString("additionInfo"), UserAdditionInfo.class));
-                                Timestamp expiredTime = resultSet.getTimestamp("expired");
+                                Timestamp expiredTime = resultSet.getTimestamp("expiredTime");
                                 if (expiredTime != null) {
                                     user.setExpiredTime(expiredTime.toInstant());
                                 }
                                 user.setRole(resultSet.getString("role"));
-                                user.setLocked(resultSet.getBoolean("islocked"));
-                                Timestamp createdTime = resultSet.getTimestamp("created");
+                                user.setLocked(resultSet.getBoolean("locked"));
+                                Timestamp createdTime = resultSet.getTimestamp("createTime");
                                 if (createdTime != null) {
                                     user.setCreateTime(createdTime.toInstant());
                                 }

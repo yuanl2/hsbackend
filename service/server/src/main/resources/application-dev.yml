@@ -19,7 +19,7 @@ socket:
   sweepbeatinternal: 1000
 influxDB:
   username: hsuser
-  password: qazwsx123
+  password: qazwssx123
   url: http://localhost:8086
   retentionpolicy: autogen
   name: metrics

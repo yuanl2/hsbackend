@@ -1,11 +1,8 @@
 package com.hansun.server.commu;
 
+import com.hansun.server.common.*;
 import com.hansun.server.dto.Device;
 import com.hansun.server.dto.Order;
-import com.hansun.server.common.DeviceManagerStatus;
-import com.hansun.server.common.DeviceStatus;
-import com.hansun.server.common.HSServiceProperties;
-import com.hansun.server.common.OrderStatus;
 import com.hansun.server.commu.common.IMsg;
 import com.hansun.server.commu.common.MsgTime;
 import com.hansun.server.metrics.HSServiceMetrics;
@@ -122,7 +119,7 @@ public class LinkManger {
                 if (list != null && list.size() > 0) {
                     //对于设备重连的情况，需要先设置设备的logout时间和状态，等连上后再更新
                     list.forEach(k -> {
-                        k.setLogoutTime(time);
+                        k.setLogoutTime(Utils.convertToLocalDateTime(time));
                         deviceService.updateDevice(k, DeviceStatus.DISCONNECTED);
                     });
                 }
@@ -156,7 +153,7 @@ public class LinkManger {
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
         if (deviceList != null && deviceList.size() > 0) {
             for (Device device : deviceList) {
-                device.setLoginTime(Instant.now());
+                device.setLoginTime(Utils.convertToLocalDateTime(Instant.now()));
                 deviceService.updateDevice(device, map.get((int)device.getPort()));
             }
         }
@@ -166,7 +163,7 @@ public class LinkManger {
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
         if (deviceList != null && deviceList.size() > 0) {
             for (Device device : deviceList) {
-                device.setLoginTime(Instant.now());
+                device.setLoginTime(Utils.convertToLocalDateTime(Instant.now()));
                 device.setLoginReason(loginReason);
                 device.setSignal(signal);
                 deviceService.updateDevice(device, map.get((int)device.getPort()));
@@ -178,7 +175,7 @@ public class LinkManger {
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
         if (deviceList != null && deviceList.size() > 0) {
             for (Device device : deviceList) {
-                device.setLogoutTime(Instant.now());
+                device.setLogoutTime(Utils.convertToLocalDateTime(Instant.now()));
                 //如果服务器重启，设备需要设置状态为断链
                 deviceService.updateDevice(device, DeviceStatus.DISCONNECTED);
             }
@@ -257,7 +254,7 @@ public class LinkManger {
                 }
 
                 if (status == DeviceStatus.DISCONNECTED) {
-                    device.setLogoutTime(Instant.now());
+                    device.setLogoutTime(Utils.convertToLocalDateTime(Instant.now()));
                     setStatus = status;
                 } else if (Integer.valueOf(dup) > 1) {
                     setStatus = DeviceStatus.BADNETWORK;
