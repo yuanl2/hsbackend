@@ -188,7 +188,7 @@ public class LinkManger {
     private void updateOrderStatus(Map map, Map portMap, List<Device> deviceList, String dup, IMsg msg) {
         if (deviceList != null) {
             for (Device device : deviceList) {
-                Order order = orderService.getOrder(device.getId());
+                Order order = orderService.getOrder(device.getDeviceID());
                 MsgTime msgTime = (MsgTime) portMap.get((int)device.getPort());
                 byte status = (Byte) map.get((int)device.getPort());
                 byte setStatus = device.getStatus();
@@ -205,23 +205,23 @@ public class LinkManger {
 
                             sendMetrics(device, order);
 
-                            orderService.deleteOrder(device.getId());
+                            orderService.deleteOrder(device.getDeviceID());
                             setStatus = DeviceStatus.IDLE;
                         } else if (order.getOrderStatus() == OrderStatus.FINISH) {
                             logger.error("order = {} has finished! Delete error", order);
-                            orderService.deleteOrder(device.getId());
+                            orderService.deleteOrder(device.getDeviceID());
                         }
                         /**
                          * 如果订单支付后，但是收到的状态空闲，说明下发的订单未执行
                          * 订单状态不需要更新，删除缓存中的订单数据
                          */
                         else if(order.getOrderStatus() == OrderStatus.PAYDONE){
-                            logger.info("{} not running {} status is PAYDONE ", device.getId(), order.getId());
-                            orderService.removeOrder(device.getId());
+                            logger.info("{} not running {} status is PAYDONE ", device.getDeviceID(), order.getId());
+                            orderService.removeOrder(device.getDeviceID());
                         }
                         else {
                             logger.error("{} update order status from start to {}", order.getId(), OrderStatus.FINISH);
-                            orderService.deleteOrder(device.getId());
+                            orderService.deleteOrder(device.getDeviceID());
                             setStatus = DeviceStatus.IDLE;
                         }
                     }else{
@@ -240,7 +240,7 @@ public class LinkManger {
 
                             if (msg.getMsgType().equals(DEVICE_START_FINISH_MSG)) {
                                 device.setSeq(Short.valueOf(msg.getSeq()));
-                                logger.info("{} set task seq = {}", device.getId(), device.getSeq());
+                                logger.info("{} set task seq = {}", device.getDeviceID(), device.getSeq());
                             }
 
                             //不能等心跳消息来了再更新设备的状态，应该根据业务的回应及时更新
@@ -250,7 +250,7 @@ public class LinkManger {
                         logger.error("order = {} status is error. Has finished!", order);
                     }
                 } else {
-                    logger.debug("{} have no order now", device.getId());
+                    logger.debug("{} have no order now", device.getDeviceID());
                     if (status == DeviceStatus.IDLE) {
                         setStatus = status;
                     }
@@ -272,7 +272,7 @@ public class LinkManger {
         //如果设备的管理状态是测试，则不发送metrics统计信息
         if (device.getManagerStatus() != DeviceManagerStatus.TEST.getStatus()) {
             HSServiceMetrics.Builder builder = HSServiceMetrics.builder();
-            builder.measurement(Metrics.ORDER_FINISH).device(String.valueOf(device.getId())).area(device.getAreaName()).user(device.getOwner())
+            builder.measurement(Metrics.ORDER_FINISH).device(String.valueOf(device.getDeviceID())).area(device.getAreaName()).user(device.getOwner())
                     .count(1).duration(order.getDuration()).price(order.getPrice());
             hsServiceMetricsService.sendMetrics(builder.build());
         }
@@ -287,7 +287,7 @@ public class LinkManger {
         if (deviceList != null) {
             deviceList.forEach(device -> {
                 handler.setSeq(device.getSeq());
-                logger.info("initial {} set seq = {}", device.getId(), device.getSeq());
+                logger.info("initial {} set seq = {}", device.getDeviceID(), device.getSeq());
             });
         }
     }

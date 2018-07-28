@@ -64,7 +64,7 @@ public class WXPayController {
         orderService.removeOrder(o.getDeviceID());
         log.info("user cancel order delete from cache {}", o);
         String deviceStatus = String.valueOf(device.getStatus());
-        log.info("device_id {} deviceStatus {}", device.getId() , deviceStatus);
+        log.info("device_id {} deviceStatus {}", device.getDeviceID() , deviceStatus);
         return deviceStatus;
     }
 

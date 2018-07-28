@@ -1,9 +1,6 @@
 package com.hansun.server.dto;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * Created by yuanl2 on 2017/3/29.
@@ -11,20 +8,28 @@ import javax.persistence.Id;
 @Entity
 public class Location {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private short id;
 
     @Column(name = "provinceID",nullable = false)
     private short provinceID;
+
+    @Transient
     private String province;
 
     @Column(name = "cityID",nullable = false)
     private short cityID;
+
+    @Transient
     private String city;
 
     @Column(name = "areaID",nullable = false)
     private short areaID;
+
+    @Transient
     private String areaName;
+
+    @Transient
     private String address;
 
     @Column(name = "userID",nullable = false)

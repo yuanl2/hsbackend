@@ -1,9 +1,6 @@
 package com.hansun.server.dto;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * Created by yuanl2 on 2017/4/6.
@@ -12,7 +9,7 @@ import javax.persistence.Id;
 public class Consume {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private short id;
 
     @Column(nullable = false)

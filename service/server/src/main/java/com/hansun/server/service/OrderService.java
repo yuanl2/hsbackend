@@ -195,7 +195,7 @@ public class OrderService {
 
     public void processStartOrder(String deviceBoxName, int port) {
         Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, port);
-        Order order = orderStore.queryOrder(d.getId());
+        Order order = orderStore.queryOrder(d.getDeviceID());
         if (order != null && order.getOrderStatus() != OrderStatus.SERVICE) {
             logger.info("update order before = " + order);
             order.setOrderStatus(OrderStatus.SERVICE);
@@ -205,14 +205,14 @@ public class OrderService {
             //不能等心跳消息来了再更新设备的状态，应该根据业务的回应及时更新
             dataStore.updateDevice(d,DeviceStatus.SERVICE);
         } else {
-            logger.error(d.getId() + " have no order now");
+            logger.error(d.getDeviceID() + " have no order now");
         }
     }
 
     public void processFinishOrder(String deviceBoxName, Map<Integer, Byte> map) {
         map.forEach((k, v) -> {
             Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, k);
-            Order order = orderStore.queryOrder(d.getId());
+            Order order = orderStore.queryOrder(d.getDeviceID());
 
             if (order != null && v == DeviceStatus.IDLE) {
                 if (Instant.now().isAfter(order.getCreateTime().plus(Duration.ofMinutes(order.getDuration())))
@@ -225,11 +225,11 @@ public class OrderService {
                     dataStore.updateDevice(d,DeviceStatus.IDLE);
 
                     //remove order from cache not table
-                    orderStore.deleteOrder(d.getId());
+                    orderStore.deleteOrder(d.getDeviceID());
                     logger.info("order delete = " + order);
                 }
             } else {
-                logger.error(d.getId() + " have no order now");
+                logger.error(d.getDeviceID() + " have no order now");
             }
 
         });
@@ -320,7 +320,7 @@ public class OrderService {
         List<Long> deviceIDs = new ArrayList<>();
         if (devices != null && devices.size() > 0) {
             devices.forEach(k -> {
-                deviceIDs.add(k.getId());
+                deviceIDs.add(k.getDeviceID());
             });
         }
         List<OrderDetail> orderDetailList = new ArrayList<>();
@@ -367,7 +367,7 @@ public class OrderService {
             List<Device> lists = dataStore.queryDeviceByLocation(k.getId());
             if (lists != null) {
                 lists.forEach(v -> {
-                    deviceIDs.add(v.getId());
+                    deviceIDs.add(v.getDeviceID());
                 });
             }
         });
@@ -392,7 +392,7 @@ public class OrderService {
                 List<Device> lists = dataStore.queryDeviceByLocation(k.getId());
                 if (lists != null) {
                     lists.forEach(v -> {
-                        deviceIDs.add(v.getId());
+                        deviceIDs.add(v.getDeviceID());
                     });
                 }
             });

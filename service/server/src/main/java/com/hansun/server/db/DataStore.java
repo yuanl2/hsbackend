@@ -36,7 +36,7 @@ public class DataStore {
     private Map<String, List<Consume>> deviceTypeConsumeCache = new ConcurrentHashMap<>();
 
 
-    private DeviceTable deviceTable;
+//    private DeviceTable deviceTable;
     private UserTable userTable;
     private OrderTable orderTable;
 
@@ -56,12 +56,16 @@ public class DataStore {
     @Autowired
     private LocationDao locationDao;
 
+
+    @Autowired
+    private DeviceDao deviceDao;
+
+
     @Autowired
     private ConnectionPoolManager connectionPoolManager;
 
     @PostConstruct
     private void init() {
-        deviceTable = new DeviceTable(connectionPoolManager);
         userTable = new UserTable(connectionPoolManager);
         orderTable = new OrderTable(connectionPoolManager);
 
@@ -88,26 +92,26 @@ public class DataStore {
     }
 
     public Device createDevice(Device device) {
-        Long deviceId = device.getId();
+        Long deviceId = device.getDeviceID();
 
         if (deviceCache.containsKey(deviceId)) {
             throw ServerException.conflict("Cannot create duplicate Device.");
         }
-        Optional<Device> device1 = deviceTable.select(deviceId);
-        if (device1.isPresent()) {
+        Device device1 = deviceDao.findByDeviceID(deviceId);
+        if (device1 != null) {
             throw ServerException.conflict("Cannot create duplicate Device.");
         }
 
-
-        deviceTable.insert(device);
+        //need get ID after create device to db
+        Device result = deviceDao.save(device);
 //        autoFillDevice(device);
-        deviceCache.put(deviceId, device);
-        deviceSimCache.computeIfAbsent(device.getSimCard(), k -> new ArrayList<>()).add(device);
+        deviceCache.put(deviceId, result);
+        deviceSimCache.computeIfAbsent(result.getSimCard(), k -> new ArrayList<>()).add(result);
         return device;
     }
 
     public void deleteDevice(Long deviceID) {
-        deviceTable.delete(deviceID);
+        deviceDao.deleteByDeviceID(deviceID);
         Device d = deviceCache.remove(deviceID);
         if (d != null) {
             deviceSimCache.get(d.getSimCard()).remove(d);
@@ -115,7 +119,7 @@ public class DataStore {
     }
 
     public void deleteDeviceByLocationID(int locationID) {
-        deviceTable.deleteByLocationID((short) locationID);
+        deviceDao.deleteByLocationID((short) locationID);
         //update cache
         List<Long> list = new ArrayList<>();
         deviceCache.forEach((k, v) -> {
@@ -128,7 +132,7 @@ public class DataStore {
     }
 
     public void deleteDeviceByOwner(int owner) {
-        deviceTable.deleteByOwner((short) owner);
+        deviceDao.deleteByOwnerID((short) owner);
         //update cache
         List<Long> list = new ArrayList<>();
         deviceCache.forEach((k, v) -> {
@@ -145,9 +149,8 @@ public class DataStore {
     }
 
     public List<Device> queryDeviceByOwner(int owner) {
-        Optional<List<Device>> result = deviceTable.selectbyOwner(owner);
-        if (result.isPresent()) {
-            List<Device> devices = result.get();
+        List<Device> devices = deviceDao.findByOwnerID((short)owner);
+        if (checkListNotNull(devices)) {
             devices.forEach(device -> autoFillDevice(device));
             return devices;
         }
@@ -155,10 +158,9 @@ public class DataStore {
     }
 
     public List<Device> queryDeviceByLocation(int locationID) {
-        Optional<List<Device>> result = deviceTable.selectbyLocationID(locationID);
+        List<Device> devices = deviceDao.findByLocationID((short)locationID);
         //fill content about location field
-        if (result.isPresent()) {
-            List<Device> devices = result.get();
+        if (checkListNotNull(devices)) {
             devices.forEach(device -> autoFillDevice(device));
             return devices;
         }
@@ -167,9 +169,8 @@ public class DataStore {
 
     public Device queryDeviceByDeviceID(Long deviceID) {
         Device device = deviceCache.computeIfAbsent(deviceID, k -> {
-            Optional<Device> result = deviceTable.select(k);
-            if (result.isPresent()) {
-                Device d = result.get();
+            Device d = deviceDao.findByDeviceID(k);
+            if (d != null) {
                 autoFillDevice(d);
                 return d;
             }
@@ -179,32 +180,33 @@ public class DataStore {
     }
 
     public Device updateDevice(Device device, byte status) {
-        Device device2 = deviceCache.get(device.getId());
+        Device device2 = deviceCache.get(device.getDeviceID());
         //缓存不存在此设备
         if (device2 == null) {
-            Optional<Device> device1 = deviceTable.select(device.getId());
-            if (device1 == null || !device1.isPresent()) {
+            Device device1 = deviceDao.findByDeviceID(device.getDeviceID());
+            if (device1 == null) {
                 throw ServerException.conflict("Cannot update Device for not exist.");
             }
         }
         byte oldStatus = device.getStatus();
         if (oldStatus != status) {
             device.setStatus(status);
-            deviceTable.updateStatus(status, device.getId());
-            deviceCache.put(device.getId(), device);
+
+            deviceDao.updateStatus(status,device.getDeviceID());
+            deviceCache.put(device.getDeviceID(), device);
             logger.info("update device status before {} update value {}", oldStatus, status);
         } else {
-            logger.info("{} the status {} is not changed", device.getId(), status);
+            logger.info("{} the status {} is not changed", device.getDeviceID(), status);
         }
         return device;
     }
 
     public Device updateDevice(Device device) {
-        Device device2 = deviceCache.get(device.getId());
+        Device device2 = deviceCache.get(device.getDeviceID());
         //缓存不存在此设备
         if (device2 == null) {
-            Optional<Device> device1 = deviceTable.select(device.getId());
-            if (device1 == null || !device1.isPresent()) {
+            Device device1 = deviceDao.findByDeviceID(device.getDeviceID());
+            if (device1 == null) {
                 throw ServerException.conflict("Cannot update Device for not exist.");
             }
         }
@@ -212,8 +214,8 @@ public class DataStore {
 //        if (oldStatus != status) {
 //            device.setStatus(status);
         autoFillDevice(device);
-        deviceTable.update(device, device.getId());
-        deviceCache.put(device.getId(), device);
+        deviceDao.save(device);
+        deviceCache.put(device.getDeviceID(), device);
 //            logger.info("update device status before {} update value {}", oldStatus, status);
 //        } else {
 //            logger.info("{} the status {} is not changed", device.getId(), status);
@@ -238,11 +240,11 @@ public class DataStore {
 
         if (devices != null) {
             for (Device s : devices) {
-                Device device2 = deviceCache.get(s.getId());
+                Device device2 = deviceCache.get(s.getDeviceID());
                 //缓存不存在此设备
                 if (device2 == null) {
-                    Optional<Device> device1 = deviceTable.select(s.getId());
-                    if (device1 == null || !device1.isPresent()) {
+                    Device device1 = deviceDao.findByDeviceID(s.getDeviceID());
+                    if (device1 == null) {
                         logger.error("Cannot update Device for not exist.");
                         continue;
                     }
@@ -262,10 +264,10 @@ public class DataStore {
                     //如果上报的是空闲状态，后续更新订单状态时会更新设备的状态的
 
                     if (status != oldStatus) {
-                        logger.info("deviceBoxName = {} device_id = {} update old status = {} new status = {}", simid, device2.getId(), device2.getStatus(), status);
+                        logger.info("deviceBoxName = {} device_id = {} update old status = {} new status = {}", simid, device2.getDeviceID(), device2.getStatus(), status);
                         device2.setStatus(status);
-                        deviceTable.update(device2, device2.getId());
-                        deviceCache.put(s.getId(), device2);
+                        deviceDao.save(device2);
+                        deviceCache.put(s.getDeviceID(), device2);
                     }
                 }
             }
@@ -279,17 +281,17 @@ public class DataStore {
         Device device2 = deviceCache.get(id);
         //缓存不存在此设备
         if (device2 == null) {
-            Optional<Device> device1 = deviceTable.select(id);
-            if (device1 == null || !device1.isPresent()) {
+            Device device1 = deviceDao.findByDeviceID(id);
+            if (device1 == null) {
                 logger.error("Cannot update Device updateManagerStatus for not exist.{}", id);
                 throw ServerException.conflict("Cannot update Device for not exist.");
             }
         } else {
             byte oldStatus = device2.getManagerStatus();
             if (managerStatus != oldStatus) {
-                logger.info("deviceBoxName = {} dvice_id = {} update old status = {} new status = {}", device2.getSimCard(), device2.getId(), device2.getStatus(), managerStatus);
+                logger.info("deviceBoxName = {} dvice_id = {} update old status = {} new status = {}", device2.getSimCard(), device2.getDeviceID(), device2.getStatus(), managerStatus);
                 device2.setManagerStatus(managerStatus);
-                deviceTable.update(device2, device2.getId());
+                deviceDao.updateManagerStatus(managerStatus,id);
                 deviceCache.put(id, device2);
             }
         }
@@ -360,9 +362,8 @@ public class DataStore {
     }
 
     public List<Device> queryAllDevices() {
-        Optional<List<Device>> result = deviceTable.selectAll();
-        if (result.isPresent()) {
-            List<Device> devices = result.get();
+        List<Device> devices = deviceDao.findAll();
+        if (checkListNotNull(devices)) {
             devices.forEach(device -> autoFillDevice(device));
             return devices;
         }
@@ -420,11 +421,11 @@ public class DataStore {
                 logger.info("initCache locationList = {}", locationCache.size());
             });
         }
-        Optional<List<Device>> deviceList = deviceTable.selectAll();
-        if (deviceList.isPresent()) {
-            deviceList.get().forEach(d -> {
+        List<Device> deviceList = deviceDao.findAll();
+        if (checkListNotNull(deviceList)) {
+            deviceList.forEach(d -> {
                         autoFillDevice(d);
-                        deviceCache.put(d.getId(), d);
+                        deviceCache.put(d.getDeviceID(), d);
 
                         String sim = d.getSimCard();
 

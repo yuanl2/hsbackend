@@ -116,13 +116,13 @@ public class TimerService {
                         List<Consume> consumeList = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()));
                         Consume consume = consumeList.get(type);
 
-                        logger.debug("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
+                        logger.debug("queryDeviceByDeviceID = " + d.getDeviceID() + " status " + d.getStatus());
 
                         if(d.getManagerStatus() == DeviceManagerStatus.TEST.getStatus()){
                             if (d.getStatus() !=  DeviceStatus.IDLE) {
                                 Thread.sleep(100);
                             } else {
-                                logger.info("queryDeviceByDeviceID = " + d.getId() + " status " + d.getStatus());
+                                logger.info("queryDeviceByDeviceID = " + d.getDeviceID() + " status " + d.getStatus());
                                 Order order = new Order();
                                 //---------------生成订单号 开始------------------------
                                 //当前时间 yyyyMMddHHmmss
