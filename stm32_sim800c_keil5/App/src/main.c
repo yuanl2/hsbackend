@@ -295,7 +295,7 @@ int main(void)
 								{
 									dev.msg_seq_s = seq;
 									
-									char *interfaces, *periods, *extra_sec;
+									char *interfaces, *periods, *extra_secs;
 									bool interface_on[DEVICEn]={FALSE};
 									int period_on[DEVICEn]={0};
 									int extra_sec[DEVICEn]={0};
@@ -336,14 +336,14 @@ int main(void)
 										break;
 									}
 
-									extra_sec = strtok(NULL, ",");
-									if(extra_sec)
+									extra_secs = strtok(NULL, ",");
+									if(extra_secs)
 									{						
-										//BSP_Printf("extra_sec: %s\n", extra_sec);
+										//BSP_Printf("extra_secs: %s\n", extra_secs);
 #if TEST
-										sscanf(periods, "%02d,", &extra_sec[DEVICE_01]);
+										sscanf(extra_secs, "%02d,", &extra_sec[DEVICE_01]);
 #else
-										sscanf(extra_sec, "%02d%02d%02d%02d,", &extra_sec[DEVICE_01], 
+										sscanf(extra_secs, "%02d%02d%02d%02d,", &extra_sec[DEVICE_01], 
 											&extra_sec[DEVICE_02], &extra_sec[DEVICE_03], &extra_sec[DEVICE_04]);
 #endif											
 									} else {
