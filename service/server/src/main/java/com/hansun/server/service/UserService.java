@@ -39,11 +39,11 @@ public class UserService implements UserDetailsService {
         return dataStore.updateUser(user);
     }
 
-    public void deleteUser(int userID) {
+    public void deleteUser(short userID) {
         dataStore.deleteUserByuserID(userID);
     }
 
-    public User queryUser(int userID) {
+    public User queryUser(short userID) {
         return dataStore.queryUser(userID);
     }
 
@@ -71,7 +71,7 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = null;
         for (User u : getAllUser()) {
-            if (u.getName().equals(username)) {
+            if (u.getUserName().equals(username)) {
                 user = u;
                 break;
             }
@@ -86,6 +86,6 @@ public class UserService implements UserDetailsService {
                 role.split(",")) {
             authorities.add(new SimpleGrantedAuthority(r));
         }
-        return new org.springframework.security.core.userdetails.User(user.getName(), user.getPassword(), user.isEnabled(), user.isAccountNonExpired(), user.isCredentialsNonExpired(), user.isAccountNonLocked(), authorities);
+        return new org.springframework.security.core.userdetails.User(user.getUserName(), user.getPassword(), user.isEnabled(), user.isAccountNonExpired(), user.isCredentialsNonExpired(), user.isAccountNonLocked(), authorities);
     }
 }

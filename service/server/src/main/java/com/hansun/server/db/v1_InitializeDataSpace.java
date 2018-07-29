@@ -1,5 +1,6 @@
 package com.hansun.server.db;
 
+import com.hansun.server.common.Utils;
 import com.hansun.server.dto.User;
 
 import java.sql.SQLException;
@@ -74,12 +75,12 @@ public class v1_InitializeDataSpace {
             Calendar c = Calendar.getInstance();
             c.setTime(date);
             c.add(Calendar.YEAR, 10);
-            adminUser.setCreateTime(Instant.now());
+            adminUser.setCreateTime(Utils.convertToLocalDateTime(Instant.now()));
             adminUser.setRole("admin");
             adminUser.setUserType((short) 1);
-            adminUser.setExpiredTime(c.getTime().toInstant());
+            adminUser.setExpiredTime(Utils.convertToLocalDateTime(c.getTime().toInstant()));
             adminUser.setPassword("e10adc3949ba59abbe56e057f20f883e");
-            adminUser.setName("admin");
+            adminUser.setUserName("admin");
             adminUser.setLocked(false);
 //            adminUser.setAddtionInfo("this is admin user");
             new UserTable(manager).insert(adminUser);

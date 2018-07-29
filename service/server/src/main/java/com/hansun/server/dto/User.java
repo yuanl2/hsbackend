@@ -1,36 +1,55 @@
 package com.hansun.server.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.hansun.server.common.InstantSerialization;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.hansun.server.common.UserAdditionInfoConvert;
+import com.hansun.server.common.Utils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.persistence.*;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 /**
  * Created by yuanl2 on 2017/3/29.
  */
+@Entity
 public class User implements UserDetails {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private short id;
-    private String name;
+
+    @Column(name = "userName",nullable = false)
+    private String userName;
+
+    @Column(name = "userType",nullable = false)
     private short userType;
+
+    @Column(name = "password",nullable = false)
     private String password;
+
+    @Column(name = "additionInfo")
+    @Convert(converter = UserAdditionInfoConvert.class)
     private UserAdditionInfo additionInfo;
+
+    @Column(name = "role",nullable = false)
     private String role;
+
+    @Column(name = "locked")
     private boolean locked;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
-    @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
-    private Instant expiredTime;
+    @Column(name = "expiredTime")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime expiredTime;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
-    @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
-    private Instant createTime;
+    @Column(name = "createTime")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime createTime;
 
     public short getId() {
         return id;
@@ -40,13 +59,14 @@ public class User implements UserDetails {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
+
 
     public short getUserType() {
         return userType;
@@ -75,12 +95,12 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return name;
+        return userName;
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return expiredTime.compareTo(Instant.now()) > 0;
+        return Utils.convertToInstant(expiredTime).compareTo(Instant.now()) > 0;
     }
 
     @Override
@@ -110,11 +130,11 @@ public class User implements UserDetails {
         this.additionInfo = additionInfo;
     }
 
-    public Instant getExpiredTime() {
+    public LocalDateTime getExpiredTime() {
         return expiredTime;
     }
 
-    public void setExpiredTime(Instant expiredTime) {
+    public void setExpiredTime(LocalDateTime expiredTime) {
         this.expiredTime = expiredTime;
     }
 
@@ -126,20 +146,20 @@ public class User implements UserDetails {
         this.locked = locked;
     }
 
-    public Instant getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Instant createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
     @Override
     public String toString() {
-        return "user{" +
+        return "user {" +
                 "id=" + id +
                 ", userType=" + userType +
-                ", name=" + name + "\n" +
+                ", userName=" + userName + "\n" +
                 ", additionInfo=" + additionInfo +
                 ", createTime=" + (createTime == null ? null : createTime.toString()) +
                 ", expiredTime=" + (expiredTime == null ? null : expiredTime.toString()) +
@@ -150,7 +170,7 @@ public class User implements UserDetails {
 
     @Override
     public int hashCode() {
-        return this.name.hashCode() * 31 + this.password.hashCode();
+        return this.userName.hashCode() * 31 + this.password.hashCode();
     }
 
     @Override
@@ -158,7 +178,7 @@ public class User implements UserDetails {
         if (this == obj) {
             return true;
         } else {
-            return obj instanceof User && this.getName().equals(((User) obj).getName())
+            return obj instanceof User && this.getUserName().equals(((User) obj).getUserName())
                     && this.getPassword().equals(((User) obj).getPassword());
         }
     }

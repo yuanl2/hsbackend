@@ -21,4 +21,9 @@ public class Utils {
         return LocalDateTime.ofInstant(instant,ZoneId.of("GMT+8"));
     }
 
+    public static Instant convertToInstant(LocalDateTime time){
+        return time.toInstant(ZoneOffset.of("+8"));
+    }
+
+
 }

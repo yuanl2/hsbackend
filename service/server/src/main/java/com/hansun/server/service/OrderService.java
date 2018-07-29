@@ -301,7 +301,7 @@ public class OrderService {
                         orderDetail.setAreaName(location.getAreaName());
                         orderDetail.setAddress(location.getAddress());
                         orderDetail.setDeviceName(device.getName());
-                        orderDetail.setUser(dataStore.queryUser(device.getOwnerID()).getName());
+                        orderDetail.setUser(dataStore.queryUser(device.getOwnerID()).getUserName());
                         orderDetail.setCity(location.getCity());
                         orderDetail.setProvince(location.getProvince());
                         orderDetailList.add(orderDetail);
@@ -335,7 +335,7 @@ public class OrderService {
         if (!Utils.isNumeric(user)) {
             for (User u : dataStore.queryAllUser()
                     ) {
-                if (u.getName().equals(user)) {
+                if (u.getUserName().equals(user)) {
                     id = u.getId();
                 }
             }
@@ -350,12 +350,12 @@ public class OrderService {
         if (!Utils.isNumeric(user)) {
             for (User u : dataStore.queryAllUser()
                     ) {
-                if (u.getName().equals(user)) {
+                if (u.getUserName().equals(user)) {
                     return u;
                 }
             }
         } else {
-            return dataStore.queryUser(Integer.valueOf(user));
+            return dataStore.queryUser(Short.valueOf(user));
         }
         return null;
     }
@@ -381,7 +381,7 @@ public class OrderService {
     public OrderStatisticsForUser queryOrderStatisticsByUser(String user, Instant endTime) {
         int id = getUserId(user);
         User u = getUser(id + "");
-        return queryOrderStatisticsByUser(u, u.getCreateTime(), endTime);
+        return queryOrderStatisticsByUser(u, Utils.convertToInstant(u.getCreateTime()), endTime);
     }
 
     public OrderStatisticsForUser queryOrderStatisticsByUser(User user, Instant startTime, Instant endTime) {
@@ -399,7 +399,7 @@ public class OrderService {
         }
 
         OrderStatisticsForUser orderStatisticsForUser = new OrderStatisticsForUser();
-        orderStatisticsForUser.setUser(user.getName());
+        orderStatisticsForUser.setUser(user.getUserName());
         orderStatisticsForUser.setUserId(user.getId());
 
         try {

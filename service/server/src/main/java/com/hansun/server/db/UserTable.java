@@ -1,5 +1,6 @@
 package com.hansun.server.db;
 
+import com.hansun.server.common.Utils;
 import com.hansun.server.dto.User;
 import com.hansun.server.dto.UserAdditionInfo;
 import com.hansun.server.common.ServerException;
@@ -49,18 +50,18 @@ public class UserTable {
             conn = connectionPoolManager.getConnection();
             insertStatement = conn.prepareStatement(INSERT);
             insertStatement.setShort(1, user.getUserType());
-            insertStatement.setString(2, user.getName());
+            insertStatement.setString(2, user.getUserName());
             insertStatement.setString(3, user.getPassword());
             insertStatement.setString(4, jsonConvert.objectToJson(user.getAdditionInfo()));
             if (user.getExpiredTime() != null) {
-                insertStatement.setTimestamp(5, Timestamp.from(user.getExpiredTime()));
+                insertStatement.setTimestamp(5, Timestamp.from(Utils.convertToInstant(user.getExpiredTime())));
             } else {
                 insertStatement.setTimestamp(5, null);
             }
             insertStatement.setString(6, user.getRole());
             insertStatement.setBoolean(7, user.isLocked());
             if (user.getCreateTime() != null) {
-                insertStatement.setTimestamp(8, Timestamp.from(user.getCreateTime()));
+                insertStatement.setTimestamp(8, Timestamp.from(Utils.convertToInstant(user.getCreateTime())));
             } else {
                 insertStatement.setTimestamp(8, null);
             }
@@ -95,18 +96,18 @@ public class UserTable {
             updateStatement = conn.prepareStatement(UPDATE);
             updateStatement.setShort(9, user.getId());
             updateStatement.setShort(1, user.getUserType());
-            updateStatement.setString(2, user.getName());
+            updateStatement.setString(2, user.getUserName());
             updateStatement.setString(3, user.getPassword());
             updateStatement.setString(4, jsonConvert.objectToJson(user.getAdditionInfo()));
             if (user.getExpiredTime() != null) {
-                updateStatement.setTimestamp(5, Timestamp.from(user.getExpiredTime()));
+                updateStatement.setTimestamp(5, Timestamp.from(Utils.convertToInstant(user.getExpiredTime())));
             } else {
                 updateStatement.setTimestamp(5, null);
             }
             updateStatement.setString(6, user.getRole());
             updateStatement.setBoolean(7, user.isLocked());
             if (user.getCreateTime() != null) {
-                updateStatement.setTimestamp(8, Timestamp.from(user.getCreateTime()));
+                updateStatement.setTimestamp(8, Timestamp.from(Utils.convertToInstant(user.getCreateTime())));
             } else {
                 updateStatement.setTimestamp(8, null);
             }
@@ -176,19 +177,19 @@ public class UserTable {
                             while (resultSet.next()) {
                                 User user = new User();
                                 user.setId(resultSet.getShort("id"));
-                                user.setName(resultSet.getString("userName"));
+                                user.setUserName(resultSet.getString("userName"));
                                 user.setUserType(resultSet.getShort("userType"));
                                 user.setPassword(resultSet.getString("password"));
                                 user.setAdditionInfo(jsonConvert.jsonToObject(resultSet.getString("additionInfo"), UserAdditionInfo.class));
                                 Timestamp expiredTime = resultSet.getTimestamp("expiredTime");
                                 if (expiredTime != null) {
-                                    user.setExpiredTime(expiredTime.toInstant());
+                                    user.setExpiredTime(Utils.convertToLocalDateTime(expiredTime.toInstant()));
                                 }
                                 user.setRole(resultSet.getString("role"));
                                 user.setLocked(resultSet.getBoolean("locked"));
                                 Timestamp createdTime = resultSet.getTimestamp("createTime");
                                 if (createdTime != null) {
-                                    user.setCreateTime(createdTime.toInstant());
+                                    user.setCreateTime(Utils.convertToLocalDateTime(createdTime.toInstant()));
                                 }
                                 return user;
                             }
@@ -243,19 +244,19 @@ public class UserTable {
                             while (resultSet.next()) {
                                 User user = new User();
                                 user.setId(resultSet.getShort("id"));
-                                user.setName(resultSet.getString("userName"));
+                                user.setUserName(resultSet.getString("userName"));
                                 user.setUserType(resultSet.getShort("userType"));
                                 user.setPassword(resultSet.getString("password"));
                                 user.setAdditionInfo(jsonConvert.jsonToObject(resultSet.getString("additionInfo"), UserAdditionInfo.class));
                                 Timestamp expiredTime = resultSet.getTimestamp("expiredTime");
                                 if (expiredTime != null) {
-                                    user.setExpiredTime(expiredTime.toInstant());
+                                    user.setExpiredTime(Utils.convertToLocalDateTime(expiredTime.toInstant()));
                                 }
                                 user.setRole(resultSet.getString("role"));
                                 user.setLocked(resultSet.getBoolean("locked"));
                                 Timestamp createdTime = resultSet.getTimestamp("createTime");
                                 if (createdTime != null) {
-                                    user.setCreateTime(createdTime.toInstant());
+                                    user.setCreateTime(Utils.convertToLocalDateTime(createdTime.toInstant()));
                                 }
                                 return user;
                             }
@@ -310,19 +311,19 @@ public class UserTable {
                             while (resultSet.next()) {
                                 User user = new User();
                                 user.setId(resultSet.getShort("id"));
-                                user.setName(resultSet.getString("userName"));
+                                user.setUserName(resultSet.getString("userName"));
                                 user.setUserType(resultSet.getShort("userType"));
                                 user.setPassword(resultSet.getString("password"));
                                 user.setAdditionInfo(jsonConvert.jsonToObject(resultSet.getString("additionInfo"), UserAdditionInfo.class));
                                 Timestamp expiredTime = resultSet.getTimestamp("expiredTime");
                                 if (expiredTime != null) {
-                                    user.setExpiredTime(expiredTime.toInstant());
+                                    user.setExpiredTime(Utils.convertToLocalDateTime(expiredTime.toInstant()));
                                 }
                                 user.setRole(resultSet.getString("role"));
                                 user.setLocked(resultSet.getBoolean("locked"));
                                 Timestamp createdTime = resultSet.getTimestamp("createTime");
                                 if (createdTime != null) {
-                                    user.setCreateTime(createdTime.toInstant());
+                                    user.setCreateTime(Utils.convertToLocalDateTime(createdTime.toInstant()));
                                 }
                                 list.add(user);
                             }

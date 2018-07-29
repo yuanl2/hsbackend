@@ -38,7 +38,6 @@ public class DataStore {
 
 
     //    private DeviceTable deviceTable;
-    private UserTable userTable;
     private OrderTable orderTable;
 
 
@@ -61,13 +60,16 @@ public class DataStore {
     @Autowired
     private DeviceDao deviceDao;
 
+    @Autowired
+    private UserDao userDao;
+
 
     @Autowired
     private ConnectionPoolManager connectionPoolManager;
 
     @PostConstruct
     private void init() {
-        userTable = new UserTable(connectionPoolManager);
+//        userTable = new UserTable(connectionPoolManager);
         orderTable = new OrderTable(connectionPoolManager);
 
         initCache();
@@ -338,7 +340,7 @@ public class DataStore {
             if (owner == null) {
                 User u = userCache.get(device.getOwnerID());
                 if (u != null) {
-                    device.setOwner(u.getName());
+                    device.setOwner(u.getUserName());
                 }
             }
         }
@@ -404,9 +406,9 @@ public class DataStore {
             logger.info("initCache deviceSimCache = {} ", deviceTypeConsumeCache.size());
         }
 
-        Optional<List<User>> userList = userTable.selectAll();
-        if (userList.isPresent()) {
-            userList.get().forEach(d -> userCache.put(d.getId(), d));
+        List<User> userList = userDao.findAll();
+        if (checkListNotNull(userList)) {
+            userList.forEach(d -> userCache.put(d.getId(), d));
             logger.info("initCache userList = {}", userCache.size());
         }
         List<Province> provinceList = provinceDao.findAll();
@@ -699,44 +701,33 @@ public class DataStore {
             throw ServerException.conflict("Cannot create duplicate User.");
         }
 
-        Optional<User> user1 = userTable.select(user.getName());
-        if (user1.isPresent()) {
+        User user1 = userDao.findByUserName(user.getUserName());
+        if (user1 != null) {
             throw ServerException.conflict("Cannot create duplicate User.");
         }
-        userTable.insert(user);
-        Optional<User> p = userTable.select(user.getName());
-        if (!p.isPresent()) {
+        userDao.save(user);
+        User p = userDao.findByUserName(user.getUserName());
+        if (p == null) {
             throw ServerException.badRequest("Create user  " + user);
         }
-        userCache.put(p.get().getId(), p.get());
+        userCache.put(p.getId(), p);
         return user;
     }
 
-    public void deleteUserByuserID(int userID) {
-        userTable.delete(userID);
+    public void deleteUserByuserID(short userID) {
+        userDao.delete(userID);
         userCache.remove(userID);
     }
 
-    public User queryUser(int userID) {
-        return userCache.computeIfAbsent((short) userID, k -> {
-            Optional<User> result = userTable.select(k);
-            if (result.isPresent()) {
-                return result.get();
-            }
-            return null;
-        });
+    public User queryUser(short userID) {
+        return userCache.computeIfAbsent( userID, k -> userDao.findOne(k));
     }
 
     public List<User> queryAllUser() {
 
         List<User> users = new ArrayList<User>(userCache.values());
         if (users == null || users.size() == 0) {
-
-            Optional<List<User>> result = userTable.selectAll();
-            if (result.isPresent()) {
-                return result.get();
-            }
-            return null;
+            return userDao.findAll();
         }
         return users;
     }
@@ -745,12 +736,12 @@ public class DataStore {
         User user2 = userCache.get(user.getId());
         //缓存不存在此设备
         if (user2 == null) {
-            Optional<User> user1 = userTable.select(user.getId());
-            if (user1 == null || !user1.isPresent()) {
+            User user1 = userDao.findOne(user.getId());
+            if (user1 == null) {
                 throw ServerException.conflict("Cannot update user for not exist.");
             }
         }
-        userTable.update(user, user.getId());
+        userDao.save(user);
         userCache.put(user.getId(), user);
         return user;
     }
