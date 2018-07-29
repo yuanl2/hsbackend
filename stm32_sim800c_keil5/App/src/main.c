@@ -64,7 +64,7 @@ void Reset_Device_Status(void)
 int main(void)
 {
 	u8 i;
-	char recv[300];
+	char recv[MAXSIZE+1]={0};
 	char *uart_data_left;
 	char *p, *p1;	
 	u16 length = 0; 
@@ -295,9 +295,10 @@ int main(void)
 								{
 									dev.msg_seq_s = seq;
 									
-									char *interfaces, *periods;
+									char *interfaces, *periods, *extra_sec;
 									bool interface_on[DEVICEn]={FALSE};
 									int period_on[DEVICEn]={0};
+									int extra_sec[DEVICEn]={0};
 									bool alreadySet = FALSE;
 									//���ݵ�ǰ�豸״̬���п���(GPIO)���Ѿ����˵ľͲ�������
 									//�����豸�����ؼ�ʱ
@@ -325,13 +326,30 @@ int main(void)
 									if(periods)
 									{						
 										//BSP_Printf("periods: %s\n", periods);	
-									}
 #if TEST
-									sscanf(periods, "%02d,", &period_on[DEVICE_01]);
+										sscanf(periods, "%02d,", &period_on[DEVICE_01]);
 #else
-									sscanf(periods, "%02d%02d%02d%02d,", &period_on[DEVICE_01], 
-										&period_on[DEVICE_02], &period_on[DEVICE_03], &period_on[DEVICE_04]);
-#endif
+										sscanf(periods, "%02d%02d%02d%02d,", &period_on[DEVICE_01], 
+											&period_on[DEVICE_02], &period_on[DEVICE_03], &period_on[DEVICE_04]);
+#endif										
+									} else {
+										break;
+									}
+
+									extra_sec = strtok(NULL, ",");
+									if(extra_sec)
+									{						
+										//BSP_Printf("extra_sec: %s\n", extra_sec);
+#if TEST
+										sscanf(periods, "%02d,", &extra_sec[DEVICE_01]);
+#else
+										sscanf(extra_sec, "%02d%02d%02d%02d,", &extra_sec[DEVICE_01], 
+											&extra_sec[DEVICE_02], &extra_sec[DEVICE_03], &extra_sec[DEVICE_04]);
+#endif											
+									} else {
+										break;
+									}
+
 									for(i=DEVICE_01; i<DEVICEn; i++)
 									{
 										if(interface_on[i]){
@@ -345,7 +363,7 @@ int main(void)
 #endif												
 												if(g_device_status[i].power == OFF)
 												{
-													g_device_status[i].total = period_on[i] * NUMBER_TIMER_1_MINUTE;
+													g_device_status[i].total = period_on[i] * NUMBER_TIMER_1_MINUTE + extra_sec[i];
 													g_device_status[i].passed = 0;
 													g_device_status[i].power = ON;		
 													g_device_status[i].seq = seq;											

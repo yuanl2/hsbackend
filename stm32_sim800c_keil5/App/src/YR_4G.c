@@ -310,7 +310,7 @@ char *DumpQueue(char * recv)
 	return p;
 }
 
-//waittime:µÈ´ýÊ±¼ä(µ¥Î»:10ms)
+//waittime:ï¿½È´ï¿½Ê±ï¿½ï¿½(ï¿½ï¿½Î»:10ms)
 bool YR4G_Send_Cmd(char *cmd,char *ack,char *recv,u16 waittime)
 {
 	bool ret = FALSE; 
@@ -320,11 +320,11 @@ bool YR4G_Send_Cmd(char *cmd,char *ack,char *recv,u16 waittime)
 		return ret;
 		
 	sprintf(cmd_str, "%s%s%s", password, "AT", cmd);
-	u3_printf("%s\r\n",cmd_str);//·¢ËÍÃüÁî
+	u3_printf("%s\r\n",cmd_str);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-	if(ack&&waittime)		//ÐèÒªµÈ´ýÓ¦´ð
+	if(ack&&waittime)		//ï¿½ï¿½Òªï¿½È´ï¿½Ó¦ï¿½ï¿½
 	{
-		while(waittime!=0)	//µÈ´ýµ¹¼ÆÊ±
+		while(waittime!=0)	//ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½Ê±
 		{ 
 			delay_ms(10);
 			if(DumpQueue(recv) != NULL)
@@ -924,7 +924,7 @@ void YR4G_Reset(void)
 
 void YR4G_ResetRestart(void)
 {
-	char recv[100];	
+	char recv[MAXSIZE+1]={0};	
 	BSP_Printf("Reset Restart\r\n");
 	YR4G_Reset();
 	while(1)
@@ -1114,10 +1114,10 @@ u8 GetUploadStr(u8 msg_str_id, char *msg_str)
   	sprintf(msg->length,"%03d",strlen(msg_str)-sizeof(msg->header)-sizeof(msg->id)-sizeof(msg->length)+5);
 	msg->length[MSG_STR_LEN_OF_LENGTH] = delim;	
 	
-	//Ìí¼ÓÐ£ÑéºÍ
+	//ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½
 	Result_Validation = CheckSum(msg_str, strlen(msg_str));
 	
-	//Ð£ÑéÖµ×ª»¯Îª×Ö·û´®
+	//Ð£ï¿½ï¿½Öµ×ªï¿½ï¿½Îªï¿½Ö·ï¿½ï¿½ï¿½
   	sprintf(p_left,"%03d",Result_Validation);
 	p_left += 3;
 	*p_left++ = delim;
@@ -1130,7 +1130,7 @@ u8 GetUploadStr(u8 msg_str_id, char *msg_str)
 	return strlen(msg_str);
 }
 
-//·¢ËÍµÇÂ½ÐÅÏ¢¸ø·þÎñÆ÷
+//ï¿½ï¿½ï¿½Íµï¿½Â½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void SendLogin(void)
 {
 	char Loginbuf[150]={0};
@@ -1143,7 +1143,7 @@ void SendLogin(void)
 	dev.reply_timer = 0;
 }
 
-//·¢ËÍÐÄÌø°ü¸ø·þÎñÆ÷
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void SendHeart(void)
 {
 	char HBbuf[150]={0};
@@ -1155,7 +1155,7 @@ void SendHeart(void)
 	}
 }
 
-//·¢ËÍ½ÓÊÕÒµÎñÖ¸ÁîÍê³É»ØÎÄ¸ø·þÎñÆ÷
+//ï¿½ï¿½ï¿½Í½ï¿½ï¿½ï¿½Òµï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½É»ï¿½ï¿½Ä¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void SendStartAck(void)
 {
 	char StartAck[150]={0};
@@ -1167,7 +1167,7 @@ void SendStartAck(void)
 	}
 }
 
-//·¢ËÍÒµÎñÖ´ÐÐÍê³ÉÖ¸Áî¸ø·þÎñÆ÷
+//ï¿½ï¿½ï¿½ï¿½Òµï¿½ï¿½Ö´ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void SendFinish(void)
 {
 	char FinishBuf[150]={0};
@@ -1181,7 +1181,7 @@ void SendFinish(void)
 	dev.reply_timer = 0;
 }
 
-//////////////Òì»òÐ£ÑéºÍº¯Êý///////
+//////////////ï¿½ï¿½ï¿½Ð£ï¿½ï¿½Íºï¿½ï¿½ï¿½///////
 u8 CheckSum(char* pBuf, u16 len)
 {
 	u8 Sum = 0;
