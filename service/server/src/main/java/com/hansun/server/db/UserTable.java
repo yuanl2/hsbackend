@@ -50,7 +50,7 @@ public class UserTable {
             conn = connectionPoolManager.getConnection();
             insertStatement = conn.prepareStatement(INSERT);
             insertStatement.setShort(1, user.getUserType());
-            insertStatement.setString(2, user.getUserName());
+            insertStatement.setString(2, user.getUsername());
             insertStatement.setString(3, user.getPassword());
             insertStatement.setString(4, jsonConvert.objectToJson(user.getAdditionInfo()));
             if (user.getExpiredTime() != null) {
@@ -96,7 +96,7 @@ public class UserTable {
             updateStatement = conn.prepareStatement(UPDATE);
             updateStatement.setShort(9, user.getId());
             updateStatement.setShort(1, user.getUserType());
-            updateStatement.setString(2, user.getUserName());
+            updateStatement.setString(2, user.getUsername());
             updateStatement.setString(3, user.getPassword());
             updateStatement.setString(4, jsonConvert.objectToJson(user.getAdditionInfo()));
             if (user.getExpiredTime() != null) {
@@ -177,7 +177,7 @@ public class UserTable {
                             while (resultSet.next()) {
                                 User user = new User();
                                 user.setId(resultSet.getShort("id"));
-                                user.setUserName(resultSet.getString("userName"));
+                                user.setUsername(resultSet.getString("userName"));
                                 user.setUserType(resultSet.getShort("userType"));
                                 user.setPassword(resultSet.getString("password"));
                                 user.setAdditionInfo(jsonConvert.jsonToObject(resultSet.getString("additionInfo"), UserAdditionInfo.class));
@@ -244,7 +244,7 @@ public class UserTable {
                             while (resultSet.next()) {
                                 User user = new User();
                                 user.setId(resultSet.getShort("id"));
-                                user.setUserName(resultSet.getString("userName"));
+                                user.setUsername(resultSet.getString("userName"));
                                 user.setUserType(resultSet.getShort("userType"));
                                 user.setPassword(resultSet.getString("password"));
                                 user.setAdditionInfo(jsonConvert.jsonToObject(resultSet.getString("additionInfo"), UserAdditionInfo.class));
@@ -311,7 +311,7 @@ public class UserTable {
                             while (resultSet.next()) {
                                 User user = new User();
                                 user.setId(resultSet.getShort("id"));
-                                user.setUserName(resultSet.getString("userName"));
+                                user.setUsername(resultSet.getString("userName"));
                                 user.setUserType(resultSet.getShort("userType"));
                                 user.setPassword(resultSet.getString("password"));
                                 user.setAdditionInfo(jsonConvert.jsonToObject(resultSet.getString("additionInfo"), UserAdditionInfo.class));

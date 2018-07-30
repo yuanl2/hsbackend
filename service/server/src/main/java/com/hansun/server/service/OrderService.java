@@ -301,7 +301,7 @@ public class OrderService {
                         orderDetail.setAreaName(location.getAreaName());
                         orderDetail.setAddress(location.getAddress());
                         orderDetail.setDeviceName(device.getName());
-                        orderDetail.setUser(dataStore.queryUser(device.getOwnerID()).getUserName());
+                        orderDetail.setUser(dataStore.queryUser(device.getOwnerID()).getUsername());
                         orderDetail.setCity(location.getCity());
                         orderDetail.setProvince(location.getProvince());
                         orderDetailList.add(orderDetail);
@@ -335,7 +335,7 @@ public class OrderService {
         if (!Utils.isNumeric(user)) {
             for (User u : dataStore.queryAllUser()
                     ) {
-                if (u.getUserName().equals(user)) {
+                if (u.getUsername().equals(user)) {
                     id = u.getId();
                 }
             }
@@ -350,7 +350,7 @@ public class OrderService {
         if (!Utils.isNumeric(user)) {
             for (User u : dataStore.queryAllUser()
                     ) {
-                if (u.getUserName().equals(user)) {
+                if (u.getUsername().equals(user)) {
                     return u;
                 }
             }
@@ -399,7 +399,7 @@ public class OrderService {
         }
 
         OrderStatisticsForUser orderStatisticsForUser = new OrderStatisticsForUser();
-        orderStatisticsForUser.setUser(user.getUserName());
+        orderStatisticsForUser.setUser(user.getUsername());
         orderStatisticsForUser.setUserId(user.getId());
 
         try {

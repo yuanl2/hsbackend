@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class UserAdditionInfo {
 
     @JsonProperty
@@ -31,5 +32,7 @@ public class UserAdditionInfo {
     public void setUserName(String userName) {
         this.userName = userName;
     }
+
+
 
 }

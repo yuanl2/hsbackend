@@ -24,7 +24,7 @@ public class v1_InitializeDataSpace {
                     "simCardStatus smallint(6) DEFAULT NULL," +
                     "PRIMARY KEY (id)," +
                     "UNIQUE KEY scimCard_UNIQUE (id)" +
-                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
         }
 
 
@@ -51,14 +51,14 @@ public class v1_InitializeDataSpace {
                     "PRIMARY KEY (id)," +
                     "UNIQUE KEY deviceID_UNIQUE (deviceID)," +
                     "UNIQUE KEY id_UNIQUE (id)" +
-                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
         }
 
         if (!manager.tableExists("user")) {
             manager.createTable("CREATE TABLE user (" +
                     "id smallint(6) NOT NULL AUTO_INCREMENT," +
                     "userType smallint(6) NOT NULL," +
-                    "userName VARCHAR(45) NOT NULL," +
+                    "username VARCHAR(45) NOT NULL," +
                     "password VARCHAR(45) NOT NULL," +
                     "additionInfo VARCHAR(500) NULL," +
                     "created DATETIME NOT NULL," +
@@ -67,7 +67,7 @@ public class v1_InitializeDataSpace {
                     "locked tinyint(4) DEFAULT NULL," +
                     "PRIMARY KEY (id)," +
                     "UNIQUE KEY userID_UNIQUE (id) " +
-                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
             User adminUser = new User();
             Date date = new Date();
@@ -80,7 +80,7 @@ public class v1_InitializeDataSpace {
             adminUser.setUserType((short) 1);
             adminUser.setExpiredTime(Utils.convertToLocalDateTime(c.getTime().toInstant()));
             adminUser.setPassword("e10adc3949ba59abbe56e057f20f883e");
-            adminUser.setUserName("admin");
+            adminUser.setUsername("admin");
             adminUser.setLocked(false);
 //            adminUser.setAddtionInfo("this is admin user");
             new UserTable(manager).insert(adminUser);
@@ -95,7 +95,7 @@ public class v1_InitializeDataSpace {
                     "userID smallint(6) NOT NULL," +
                     "PRIMARY KEY (id)," +
                     "UNIQUE INDEX locationID_UNIQUE (id ASC)" +
-                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
         }
 
         if (!manager.tableExists("province")) {
@@ -103,7 +103,7 @@ public class v1_InitializeDataSpace {
                     "id smallint(6) NOT NULL AUTO_INCREMENT," +
                     "provinceName VARCHAR(45) NOT NULL," +
                     "PRIMARY KEY (id)" +
-                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
         }
 
         if (!manager.tableExists("consume")) {
@@ -115,7 +115,7 @@ public class v1_InitializeDataSpace {
                     "picpath varchar(45) DEFAULT NULL," +
                     "deviceType VARCHAR(45) NOT NULL," +
                     "PRIMARY KEY (id)" +
-                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
         }
 
         if (!manager.tableExists("area")) {
@@ -125,7 +125,7 @@ public class v1_InitializeDataSpace {
                     "address VARCHAR(45) NOT NULL," +
                     "cityID smallint(6) NOT NULL," +
                     "PRIMARY KEY (id)" +
-                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
         }
 
         if (!manager.tableExists("city")) {
@@ -135,7 +135,7 @@ public class v1_InitializeDataSpace {
                     "districtName VARCHAR(45) NOT NULL," +
                     "provinceID smallint(6) NOT NULL," +
                     "PRIMARY KEY (id)" +
-                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
         }
 
         if (!manager.tableExists("consumeorder")) {
@@ -157,7 +157,7 @@ public class v1_InitializeDataSpace {
                     "UNIQUE KEY id_UNIQUE (id)," +
                     "UNIQUE KEY orderID_UNIQUE (orderID)," +
                     "UNIQUE KEY deviceStart (deviceID,startTime)" +
-                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
         }
 
         if (!manager.tableExists("payaccount")) {
@@ -170,7 +170,7 @@ public class v1_InitializeDataSpace {
                     "discount float NOT NULL DEFAULT '1'," +
                     "PRIMARY KEY (accountID)," +
                     "KEY accountName (accountName)" +
-                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
         }
     }
 }

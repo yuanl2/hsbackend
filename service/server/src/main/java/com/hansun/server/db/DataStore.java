@@ -340,7 +340,7 @@ public class DataStore {
             if (owner == null) {
                 User u = userCache.get(device.getOwnerID());
                 if (u != null) {
-                    device.setOwner(u.getUserName());
+                    device.setOwner(u.getUsername());
                 }
             }
         }
@@ -701,14 +701,13 @@ public class DataStore {
             throw ServerException.conflict("Cannot create duplicate User.");
         }
 
-        User user1 = userDao.findByUserName(user.getUserName());
+        User user1 = userDao.findByUsername(user.getUsername());
         if (user1 != null) {
             throw ServerException.conflict("Cannot create duplicate User.");
         }
-        userDao.save(user);
-        User p = userDao.findByUserName(user.getUserName());
+        User p = userDao.save(user);
         if (p == null) {
-            throw ServerException.badRequest("Create user  " + user);
+            throw ServerException.badRequest("Create user  " + user.getUsername());
         }
         userCache.put(p.getId(), p);
         return user;
@@ -741,8 +740,11 @@ public class DataStore {
                 throw ServerException.conflict("Cannot update user for not exist.");
             }
         }
-        userDao.save(user);
-        userCache.put(user.getId(), user);
+        User p = userDao.save(user);
+        if (p == null) {
+            throw ServerException.badRequest("Update user  " + user.getUsername());
+        }
+        userCache.put(p.getId(), p);
         return user;
     }
 

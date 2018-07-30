@@ -1,6 +1,7 @@
 package com.hansun.server.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.hansun.server.common.UserAdditionInfoConvert;
@@ -22,8 +23,8 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private short id;
 
-    @Column(name = "userName",nullable = false)
-    private String userName;
+    @Column(name = "username",nullable = false)
+    private String username;
 
     @Column(name = "userType",nullable = false)
     private short userType;
@@ -59,12 +60,9 @@ public class User implements UserDetails {
         this.id = id;
     }
 
-    public String getUserName() {
-        return userName;
-    }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
 
@@ -95,25 +93,29 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userName;
+        return username;
     }
 
     @Override
+//    @JsonIgnore
     public boolean isAccountNonExpired() {
         return Utils.convertToInstant(expiredTime).compareTo(Instant.now()) > 0;
     }
 
     @Override
+//    @JsonIgnore
     public boolean isAccountNonLocked() {
         return !isLocked();
     }
 
     @Override
+//    @JsonIgnore
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
     @Override
+//    @JsonIgnore
     public boolean isEnabled() {
         return true;
     }
@@ -159,7 +161,7 @@ public class User implements UserDetails {
         return "user {" +
                 "id=" + id +
                 ", userType=" + userType +
-                ", userName=" + userName + "\n" +
+                ", username=" + username + "\n" +
                 ", additionInfo=" + additionInfo +
                 ", createTime=" + (createTime == null ? null : createTime.toString()) +
                 ", expiredTime=" + (expiredTime == null ? null : expiredTime.toString()) +
@@ -170,7 +172,7 @@ public class User implements UserDetails {
 
     @Override
     public int hashCode() {
-        return this.userName.hashCode() * 31 + this.password.hashCode();
+        return this.username.hashCode() * 31 + this.password.hashCode();
     }
 
     @Override
@@ -178,7 +180,7 @@ public class User implements UserDetails {
         if (this == obj) {
             return true;
         } else {
-            return obj instanceof User && this.getUserName().equals(((User) obj).getUserName())
+            return obj instanceof User && this.getUsername().equals(((User) obj).getUsername())
                     && this.getPassword().equals(((User) obj).getPassword());
         }
     }
