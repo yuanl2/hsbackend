@@ -48,7 +48,7 @@ public class OrderDetail extends Order {
         this.accountType = order.getAccountType();
 
         try {
-            Instant createTime = order.getCreateTime();
+            Instant createTime = Utils.convertToInstant(order.getCreateTime());
             Date date = Date.from(createTime);
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
@@ -57,12 +57,12 @@ public class OrderDetail extends Order {
             createDate = new SimpleDateFormat("yyyy-MM-dd").format(date);
             cTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
 
-            createTime = order.getStartTime();
+            createTime = Utils.convertToInstant(order.getStartTime());
             date = Date.from(createTime);
             calendar.setTime(date);
             sTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
 
-            createTime = order.getEndTime();
+            createTime = Utils.convertToInstant(order.getEndTime());
             date = Date.from(createTime);
             calendar.setTime(date);
             eTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);

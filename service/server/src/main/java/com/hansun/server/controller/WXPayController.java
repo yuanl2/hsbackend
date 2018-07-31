@@ -1,6 +1,7 @@
 package com.hansun.server.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.hansun.server.common.Utils;
 import com.hansun.server.dto.Consume;
 import com.hansun.server.dto.Device;
 import com.hansun.server.dto.Order;
@@ -157,7 +158,7 @@ public class WXPayController {
         Order order = new Order();
         order.setId(Long.valueOf(out_trade_no));
         order.setOrderName(out_trade_no);
-        order.setCreateTime(Instant.now());
+        order.setCreateTime(Utils.getNowTime());
 //        order.setStartTime(Instant.now());
         order.setPayAccount(userId);
         order.setOrderStatus(OrderStatus.CREATED);

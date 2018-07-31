@@ -135,8 +135,8 @@ public class TimerService {
                                 String out_trade_no = strReq;
                                 order.setId(Long.valueOf(out_trade_no));
                                 order.setOrderName("ordername-" + orderService.getSequenceNumber());
-                                order.setStartTime(Instant.now());
-                                order.setCreateTime(Instant.now());
+                                order.setStartTime(Utils.getNowTime());
+                                order.setCreateTime(Utils.getNowTime());
                                 order.setPayAccount("test-payaccount-" + orderService.getSequenceNumber());
                                 order.setOrderStatus(OrderStatus.PAYDONE);
                                 order.setDeviceID(Long.valueOf(deviceID));

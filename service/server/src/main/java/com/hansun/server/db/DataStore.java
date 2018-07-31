@@ -257,7 +257,7 @@ public class DataStore {
 
                     byte oldStatus = device2.getStatus();
                     if (status == DeviceStatus.DISCONNECTED) {
-                        device2.setLogoutTime(Utils.convertToLocalDateTime(Instant.now()));
+                        device2.setLogoutTime(Utils.getNowTime());
                         device2.setStatus(status);
                     }
                     if (Integer.valueOf(dup) > 1) {

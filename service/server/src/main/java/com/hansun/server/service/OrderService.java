@@ -88,7 +88,7 @@ public class OrderService {
                 com.hansun.server.commu.msg4g.ServerStartDeviceMsg msg = new com.hansun.server.commu.msg4g.ServerStartDeviceMsg(MsgConstant4g.DEVICE_START_MSG);
                 msg.setDeviceType(deviceType);
 
-                order.setStartTime(Instant.now());
+                order.setStartTime(Utils.getNowTime());
                 order.setPrice(dataStore.queryConsume(order.getConsumeType()).getPrice());
                 order.setDuration(dataStore.queryConsume(order.getConsumeType()).getDuration());
 
@@ -199,7 +199,7 @@ public class OrderService {
         if (order != null && order.getOrderStatus() != OrderStatus.SERVICE) {
             logger.info("update order before = " + order);
             order.setOrderStatus(OrderStatus.SERVICE);
-            order.setStartTime(Instant.now());
+            order.setStartTime(Utils.getNowTime());
             orderStore.updateOrder(order);
 
             //不能等心跳消息来了再更新设备的状态，应该根据业务的回应及时更新
@@ -215,11 +215,10 @@ public class OrderService {
             Order order = orderStore.queryOrder(d.getDeviceID());
 
             if (order != null && v == DeviceStatus.IDLE) {
-                if (Instant.now().isAfter(order.getCreateTime().plus(Duration.ofMinutes(order.getDuration())))
-                        || Instant.now().isAfter(order.getStartTime().plus(Duration.ofMinutes(order.getDuration())))) {
+                if (Utils.isOrderFinshed(order)) {
                     logger.info("update order before = " + order);
                     order.setOrderStatus(OrderStatus.FINISH);
-                    order.setEndTime(Instant.now());
+                    order.setEndTime(Utils.getNowTime());
                     orderStore.updateOrder(order);
 
                     dataStore.updateDevice(d,DeviceStatus.IDLE);
@@ -236,6 +235,8 @@ public class OrderService {
 
         dataStore.updateDeviceStatus(deviceBoxName, map, "0");
     }
+
+
 
 //    public void OrderNotFinish(String name, int orderStatus) {
 //        Order order = orderCache.get(name);
@@ -269,7 +270,7 @@ public class OrderService {
     public void deleteOrder(Long deviceID) {
         Order order = orderStore.queryOrder(deviceID);
         if (order != null) {
-            order.setEndTime(Instant.now());
+            order.setEndTime(Utils.getNowTime());
             order.setOrderStatus(OrderStatus.FINISH);
             orderStore.updateOrder(order);
             logger.info("Before delete order {} " , order);

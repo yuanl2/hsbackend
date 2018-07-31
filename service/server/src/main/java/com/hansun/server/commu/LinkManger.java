@@ -153,7 +153,7 @@ public class LinkManger {
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
         if (deviceList != null && deviceList.size() > 0) {
             for (Device device : deviceList) {
-                device.setLoginTime(Utils.convertToLocalDateTime(Instant.now()));
+                device.setLoginTime(Utils.getNowTime());
                 deviceService.updateDevice(device, map.get((int)device.getPort()));
             }
         }
@@ -163,7 +163,7 @@ public class LinkManger {
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
         if (deviceList != null && deviceList.size() > 0) {
             for (Device device : deviceList) {
-                device.setLoginTime(Utils.convertToLocalDateTime(Instant.now()));
+                device.setLoginTime(Utils.getNowTime());
                 device.setLoginReason(loginReason);
                 device.setSignal(signal);
                 deviceService.updateDevice(device, map.get((int)device.getPort()));
@@ -175,7 +175,7 @@ public class LinkManger {
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
         if (deviceList != null && deviceList.size() > 0) {
             for (Device device : deviceList) {
-                device.setLogoutTime(Utils.convertToLocalDateTime(Instant.now()));
+                device.setLogoutTime(Utils.getNowTime());
                 //如果服务器重启，设备需要设置状态为断链
                 deviceService.updateDevice(device, DeviceStatus.DISCONNECTED);
             }
@@ -194,8 +194,7 @@ public class LinkManger {
 
                 if (order != null && (msgTime.getTime() == 0 || status == DeviceStatus.IDLE)) {
                     //如果订单还在缓存中，但是结束时在当前时间之前，则需要从缓存中删除该订单
-                    if (Instant.now().isAfter(order.getCreateTime().plus(Duration.ofMinutes(order.getDuration())))
-                            || Instant.now().isAfter(order.getStartTime().plus(Duration.ofMinutes(order.getDuration())))) {
+                    if (Utils.isOrderFinshed(order)) {
                         //设备没有收到后续结束报文，所以收到心跳消息，判断当前设备是否还在运行，如果指示时间为0，而订单是运行中，则更新订单为finish
                         if (order.getOrderStatus() == OrderStatus.SERVICE) {
                             logger.info("{} update order status from service to {}", order.getId(), OrderStatus.FINISH);
@@ -229,7 +228,7 @@ public class LinkManger {
                         logger.info("update order before = {}", order);
                         order.setOrderStatus(OrderStatus.SERVICE);
                         if(order.getStartTime() == null) {
-                            order.setStartTime(Instant.now());
+                            order.setStartTime(Utils.getNowTime());
                         }
                         orderService.updateOrder(order);
 
@@ -254,7 +253,7 @@ public class LinkManger {
                 }
 
                 if (status == DeviceStatus.DISCONNECTED) {
-                    device.setLogoutTime(Utils.convertToLocalDateTime(Instant.now()));
+                    device.setLogoutTime(Utils.getNowTime());
                     setStatus = status;
                 } else if (Integer.valueOf(dup) > 1) {
                     setStatus = DeviceStatus.BADNETWORK;

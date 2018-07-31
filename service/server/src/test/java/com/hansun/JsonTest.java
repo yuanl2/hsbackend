@@ -27,7 +27,7 @@
 //        StoreInfo storeInfo = new StoreInfo();
 //        storeInfo.setAddress("上海市宜山路900号");
 //        storeInfo.setName("Proxy 1");
-//        storeInfo.setPromoDate(Utils.convertToLocalDateTime(Instant.now()));
+//        storeInfo.setPromoDate(Utils.getNowTime());
 //        storeInfo.setUserName("user1");
 //        storeInfoList.add(storeInfo);
 //        info.setStores(storeInfoList);
@@ -96,7 +96,7 @@ public class JsonTest {
         StoreInfo storeInfo = new StoreInfo();
         storeInfo.setAddress("上海市宜山路900号");
         storeInfo.setName("Proxy 1");
-        storeInfo.setPromoDate(Utils.convertToLocalDateTime(Instant.now()));
+        storeInfo.setPromoDate(Utils.getNowTime());
         storeInfo.setUserName("user1");
         storeInfoList.add(storeInfo);
         info.setStores(storeInfoList);

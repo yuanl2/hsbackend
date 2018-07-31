@@ -1,9 +1,8 @@
 package com.hansun.server.common;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
+import com.hansun.server.dto.Order;
+
+import java.time.*;
 
 /**
  * Created by yuanl2 on 2017/7/7.
@@ -25,5 +24,13 @@ public class Utils {
         return time.toInstant(ZoneOffset.of("+8"));
     }
 
+    public static LocalDateTime getNowTime(){
+        return convertToLocalDateTime(Instant.now());
+    }
+
+    public static boolean isOrderFinshed(Order order) {
+        return Instant.now().isAfter(Utils.convertToInstant(order.getCreateTime()).plus(Duration.ofMinutes(order.getDuration())))
+                || Instant.now().isAfter(Utils.convertToInstant(order.getStartTime()).plus(Duration.ofMinutes(order.getDuration())));
+    }
 
 }

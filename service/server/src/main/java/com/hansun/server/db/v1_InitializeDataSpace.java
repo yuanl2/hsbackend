@@ -75,7 +75,7 @@ public class v1_InitializeDataSpace {
             Calendar c = Calendar.getInstance();
             c.setTime(date);
             c.add(Calendar.YEAR, 10);
-            adminUser.setCreateTime(Utils.convertToLocalDateTime(Instant.now()));
+            adminUser.setCreateTime(Utils.getNowTime());
             adminUser.setRole("admin");
             adminUser.setUserType((short) 1);
             adminUser.setExpiredTime(Utils.convertToLocalDateTime(c.getTime().toInstant()));

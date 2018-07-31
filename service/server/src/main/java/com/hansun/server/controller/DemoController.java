@@ -1,5 +1,6 @@
 package com.hansun.server.controller;
 
+import com.hansun.server.common.Utils;
 import com.hansun.server.dto.Consume;
 import com.hansun.server.dto.Device;
 import com.hansun.server.dto.Order;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 
@@ -222,8 +224,8 @@ public class DemoController {
 
         Order order = new Order();
         order.setOrderName("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-        order.setStartTime(Instant.now());
-        order.setCreateTime(Instant.now());
+        order.setStartTime(Utils.getNowTime());
+        order.setCreateTime(Utils.getNowTime());
         order.setPayAccount("test-payaccount");
         order.setOrderStatus(OrderStatus.CREATED);
         order.setDeviceID(Long.valueOf(device_id));
@@ -264,8 +266,8 @@ public class DemoController {
         }
         //deny access multi times
         if (o != null && o.getPayAccount().equals(userId) &&
-                (o.getOrderStatus() == OrderStatus.SERVICE) && (Instant.now().isBefore(o.getCreateTime().plus(Duration.ofMinutes(o.getDuration())))
-                || Instant.now().isBefore(o.getStartTime().plus(Duration.ofMinutes(o.getDuration()))))) {
+                (o.getOrderStatus() == OrderStatus.SERVICE) && (Instant.now().isBefore(Utils.convertToInstant(o.getCreateTime()).plus(Duration.ofMinutes(o.getDuration())))
+                || Instant.now().isBefore(Utils.convertToInstant(o.getStartTime()).plus(Duration.ofMinutes(o.getDuration()))))) {
             model.addAttribute("device_id", device_id);
 //            model.addAttribute("duration", consume.getDuration() * 60);
 //            model.addAttribute("startTime", o.getCreateTime().toEpochMilli());
@@ -287,7 +289,7 @@ public class DemoController {
                 //重复收到了调用，直接返回
                 model.addAttribute("device_id", device_id);
                 model.addAttribute("duration", consume.getDuration() * 60);
-                model.addAttribute("startTime", order1.getCreateTime().toEpochMilli());
+                model.addAttribute("startTime", order1.getCreateTime().toString());
                 model.addAttribute("orderId", orderId);
                 logger.info(" device {} orderId {} now forward device_run_error", device_id, orderId);
                 return "device_run_error";
@@ -304,11 +306,11 @@ public class DemoController {
         if (count > 0) {
             orderService.createStartMsgToDevice(order1);
             //update order start time
-            order1.setStartTime(Instant.now());
+            order1.setStartTime(Utils.getNowTime());
         } else {
             model.addAttribute("device_id", device_id);
             model.addAttribute("duration", consume.getDuration() * 60);
-            model.addAttribute("startTime", order1.getCreateTime().toEpochMilli());
+            model.addAttribute("startTime", order1.getCreateTime().toEpochSecond(ZoneOffset.of("+8")));
             model.addAttribute("orderId", orderId);
             order1.setOrderStatus(OrderStatus.USER_NOT_PAY);
             orderService.updateOrder(order1);
@@ -342,7 +344,7 @@ public class DemoController {
         } else {
             model.addAttribute("device_id", device_id);
             model.addAttribute("duration", consume.getDuration() * 60);
-            model.addAttribute("startTime", order1.getCreateTime().toEpochMilli());
+            model.addAttribute("startTime", order1.getCreateTime().toEpochSecond(ZoneOffset.of("+8")));
             model.addAttribute("orderId", orderId);
             order1.setOrderStatus(OrderStatus.DEVICE_ERROR);
             orderService.updateOrder(order1);
