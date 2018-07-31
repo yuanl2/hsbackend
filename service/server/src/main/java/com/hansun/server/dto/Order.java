@@ -1,40 +1,71 @@
 package com.hansun.server.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.hansun.server.common.InstantSerialization;
 
+import javax.persistence.*;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 /**
  * Created by yuanl2 on 2017/3/29.
  */
+@Entity
 public class Order {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @Column(name = "orderID", nullable = false)
+    private long orderID;
+
+    @Column(name = "deviceID", nullable = false)
     private long deviceID;
+
+    @Column(name = "deviceName", nullable = false)
     private String deviceName;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
-    @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
-    private Instant startTime;
+    @Column(name = "startTime", nullable = false)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime startTime;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
-    @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
-    private Instant endTime;
+    @Column(name = "endTime")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime endTime;
+
+    @Column(name = "consumeType", nullable = false)
     private short consumeType;
+
+    @Column(name = "duration", nullable = false)
     private short duration;
+
+    @Column(name = "price", nullable = false)
     private float price;
+
+    @Column(name = "payAccount")
     private String payAccount;
+
+    @Column(name = "accountType", nullable = false)
     private short accountType;
+
+    @Column(name = "orderName", nullable = false)
     private String orderName;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
-    @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
-    private Instant createTime;
+
+    @Column(name = "createTime", nullable = false)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime createTime;
     /**
      * 1: start
      * 2: successful end
@@ -42,6 +73,7 @@ public class Order {
      * 4: user not pay
      * 5: unknown
      */
+    @Column(name = "orderStatus", nullable = false)
     private short orderStatus;
 
     public long getId() {
@@ -60,19 +92,19 @@ public class Order {
         this.deviceID = deviceID;
     }
 
-    public Instant getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Instant startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public Instant getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Instant endTime) {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
 
@@ -116,11 +148,11 @@ public class Order {
         this.accountType = accountType;
     }
 
-    public Instant getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Instant createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
