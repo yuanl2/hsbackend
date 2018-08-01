@@ -49,19 +49,42 @@ public class DeviceController {
         return "get ping.";
     }
 
+    /**
+     * create one device object
+     *
+     * @param device
+     * @param ucBuilder
+     * @return
+     */
     @RequestMapping(value = "device", method = RequestMethod.POST)
     public ResponseEntity<?> createDevice(@RequestBody Device device, UriComponentsBuilder ucBuilder) {
         Device d = deviceService.createDevice(device);
-        return new ResponseEntity<Device>(d, HttpStatus.OK);
+        return new ResponseEntity<>(d, HttpStatus.OK);
     }
 
+    /**
+     * create devices in list
+     *
+     * @param devices
+     * @param ucBuilder
+     * @return
+     */
     @RequestMapping(value = "devices", method = RequestMethod.POST)
-    public ResponseEntity<?> createDevices(@RequestBody List<Device> device, UriComponentsBuilder ucBuilder) {
+    public ResponseEntity<?> createDevices(@RequestBody List<Device> devices, UriComponentsBuilder ucBuilder) {
         List<Device> list = new ArrayList<>();
-        device.forEach(d -> list.add(deviceService.createDevice(d)));
-        return new ResponseEntity<List<Device>>(list, HttpStatus.CREATED);
+        devices.forEach(d -> list.add(deviceService.createDevice(d)));
+        return new ResponseEntity<>(list, HttpStatus.CREATED);
     }
 
+    /**
+     * query all devices belongs to this user with userID
+     *
+     * @param userID
+     * @param locationID
+     * @param request
+     * @param response
+     * @return
+     */
     @RequestMapping(value = "devices/{userID}", method = RequestMethod.GET)
     public ResponseEntity<?> getDeviceByUserID(@PathVariable int userID,
                                                @RequestParam(value = "locationID", required = false, defaultValue = "1") int locationID,
@@ -70,36 +93,43 @@ public class DeviceController {
         String auth = request.getHeader("Authorization");
         String decode = null;
         try {
-            decode = new String(java.util.Base64.getDecoder().decode(auth.substring(6,auth.length())),"utf-8");
+            decode = new String(java.util.Base64.getDecoder().decode(auth.substring(6, auth.length())), "utf-8");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            logger.error("parse auth info failed {}", e);
+            return new ResponseEntity<>("Auth info error", HttpStatus.OK);
         }
 
         String user = decode.split(":")[0];
         if (locationID > 1) {
             List<Device> list = deviceService.getDevicesByLocationID(locationID);
-            return new ResponseEntity<List<Device>>(list, HttpStatus.OK);
+            return new ResponseEntity<>(list, HttpStatus.OK);
 
         }
         List<Device> list = deviceService.getDevicesByOwner(userID);
-        return new ResponseEntity<List<Device>>(list, HttpStatus.OK);
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "devices/id/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "device/id/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> getDevice(@PathVariable Long id, UriComponentsBuilder ucBuilder) {
-        return new ResponseEntity<Device>(deviceService.getDevice(id), HttpStatus.OK);
+        return new ResponseEntity<>(deviceService.getDevice(id), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "devices/id/{id}", method = RequestMethod.PUT)
+    @RequestMapping(value = "device/id/{id}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateDevice(@PathVariable Long id, @RequestBody Device device, UriComponentsBuilder ucBuilder) {
         Device d = deviceService.updateDevice(device);
-        return new ResponseEntity<Device>(d, HttpStatus.OK);
+        return new ResponseEntity<>(d, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "devices/id/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "device/id/{id}", method = RequestMethod.POST)
     public ResponseEntity<?> updateDeviceManagerStatus(@PathVariable Long id, @RequestBody StatusReqeust statusReqeust, UriComponentsBuilder ucBuilder) {
-        Device d = deviceService.updateDeviceManagerStatus(id,statusReqeust.getStatus());
-        return new ResponseEntity<Device>(d, HttpStatus.OK);
+        Device d = deviceService.updateDeviceManagerStatus(id, statusReqeust.getStatus());
+        return new ResponseEntity<>(d, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "device/status", method = RequestMethod.POST)
+    public ResponseEntity<?> updateDeviceListManagerStatus(@RequestBody StatusReqeust statusReqeust, UriComponentsBuilder ucBuilder) {
+        List<Device> d = deviceService.updateDeviceListManagerStatus(statusReqeust.getLists(), statusReqeust.getStatus());
+        return new ResponseEntity<>(d, HttpStatus.OK);
     }
 
     @RequestMapping(value = "devices/id/{id}", method = RequestMethod.DELETE)
@@ -109,14 +139,14 @@ public class DeviceController {
                                           UriComponentsBuilder ucBuilder) {
         if (locationID > 1) {
             deviceService.deleteDeviceByLocationID(locationID);
-            return new ResponseEntity<Device>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         if (owner > 1) {
             deviceService.deleteDeviceByOwner(owner);
-            return new ResponseEntity<Device>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         deviceService.deleteDevice(id);
-        return new ResponseEntity<Device>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping("/deviceStatus")
@@ -141,10 +171,9 @@ public class DeviceController {
                 logger.error("can't get device for device_id = {}", device_id);
                 return String.valueOf(DeviceStatus.INVALID);
             }
-        }
-        else {
+        } else {
             logger.info("device_id = {} device managerStatus = {}", device_id, d.getManagerStatus());
-            return  String.valueOf(d.getManagerStatus());
+            return String.valueOf(d.getManagerStatus());
         }
     }
 }

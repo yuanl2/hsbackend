@@ -280,6 +280,22 @@ public class DataStore {
     }
 
 
+    public List<Device> updateManagerStatus(List<Long>ids, byte managerStatus) {
+        List<Device> lists = new ArrayList<>();
+        ids.forEach(id->{
+
+            try{
+                lists.add(updateManagerStatus(id,managerStatus));
+
+            }
+            catch(Exception e){
+                logger.error("updateManagerStatus {} error {}",id,e);
+            }
+
+        });
+        return lists;
+    }
+
     public Device updateManagerStatus(Long id, byte managerStatus) {
         Device device2 = deviceCache.get(id);
         //缓存不存在此设备

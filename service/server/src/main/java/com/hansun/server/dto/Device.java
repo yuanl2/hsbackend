@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.hansun.server.common.DeviceManagerStatus;
+import com.hansun.server.common.DeviceStatus;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -51,8 +53,8 @@ public class Device {
     @Transient
     private String owner;
 
-    @Column
-    private byte status;
+    @Column(name = "status")
+    private byte status = DeviceStatus.DISCONNECTED;
 
     @Column(name = "signalValue",nullable = false)
     private short signal = -1;
@@ -60,7 +62,7 @@ public class Device {
     @Column(name = "loginReason",nullable = false)
     private short loginReason = -1;
 
-    @Column
+    @Column(name = "seq")
     //add last seq number
     private short seq;
 
@@ -91,7 +93,7 @@ public class Device {
     private String QRCode;
 
     @Column(name = "managerStatus")
-    private byte managerStatus;
+    private byte managerStatus = DeviceManagerStatus.INACTIVATED.getStatus();
 
     public long getId() {
         return id;

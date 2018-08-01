@@ -27,7 +27,7 @@ public class Order {
     @Column(name = "deviceID", nullable = false)
     private long deviceID;
 
-    @Column(name = "deviceName", nullable = false)
+    @Transient
     private String deviceName;
 
     @Column(name = "startTime", nullable = false)
@@ -180,10 +180,19 @@ public class Order {
         this.deviceName = deviceName;
     }
 
+    public long getOrderID() {
+        return orderID;
+    }
+
+    public void setOrderID(long orderID) {
+        this.orderID = orderID;
+    }
+
     @Override
     public String toString() {
         return "order{" +
                 "id=" + id +
+                ", orderID=" + orderID +
                 ", deviceID=" + deviceID +
                 ", deviceName=" + deviceName +
                 ", consumeType=" + consumeType + "\n" +
