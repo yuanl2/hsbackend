@@ -45,6 +45,9 @@ public class Order {
     @Column(name = "consumeType", nullable = false)
     private short consumeType;
 
+    /**
+     * unit seconds
+     */
     @Column(name = "duration", nullable = false)
     private short duration;
 

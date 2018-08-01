@@ -3,6 +3,7 @@ package com.hansun.server.dto;
 import javax.persistence.*;
 
 /**
+ * duration support seconds unit
  * Created by yuanl2 on 2017/4/6.
  */
 @Entity

@@ -110,14 +110,24 @@ public class OrderService {
                 Map<Integer, String> times = new HashMap<>();
                 for (int i = 1; i <= portNum; i++) {
                     if (index == i) {
-                        int duration = order.getDuration();
-                        if (duration < 10) {
-                            times.put(i, "0" + order.getDuration());
+                        int durationMinute = order.getDuration() / 60;
+                        int durationSecond = order.getDuration() % 60;
+                        StringBuilder stringBuilder = new StringBuilder();
+                        if (durationMinute < 10) {
+                            stringBuilder.append("0").append(durationMinute);
                         } else {
-                            times.put(i, order.getDuration() + "");
+                            stringBuilder.append(durationMinute);
                         }
+                        stringBuilder.append(",");
+                        if (durationSecond < 10) {
+                            stringBuilder.append("0").append(durationSecond);
+                        } else {
+                            stringBuilder.append(durationSecond);
+                        }
+                        stringBuilder.append(",");
+                        times.put(i, stringBuilder.toString());
                     } else {
-                        times.put(i, "00");
+                        times.put(i, "00,00");
                     }
                 }
                 msg.setStartMap(times);

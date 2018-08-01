@@ -126,7 +126,7 @@ public class DeviceController {
         return new ResponseEntity<>(d, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "device/status", method = RequestMethod.POST)
+    @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity<?> updateDeviceListManagerStatus(@RequestBody StatusReqeust statusReqeust, UriComponentsBuilder ucBuilder) {
         List<Device> d = deviceService.updateDeviceListManagerStatus(statusReqeust.getLists(), statusReqeust.getStatus());
         return new ResponseEntity<>(d, HttpStatus.OK);

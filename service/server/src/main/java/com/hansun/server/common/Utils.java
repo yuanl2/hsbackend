@@ -29,8 +29,8 @@ public class Utils {
     }
 
     public static boolean isOrderFinshed(Order order) {
-        return Instant.now().isAfter(Utils.convertToInstant(order.getCreateTime()).plus(Duration.ofMinutes(order.getDuration())))
-                || Instant.now().isAfter(Utils.convertToInstant(order.getStartTime()).plus(Duration.ofMinutes(order.getDuration())));
+        return Instant.now().isAfter(Utils.convertToInstant(order.getCreateTime()).plus(Duration.ofSeconds(order.getDuration())))
+                || Instant.now().isAfter(Utils.convertToInstant(order.getStartTime()).plus(Duration.ofSeconds(order.getDuration())));
     }
 
 }

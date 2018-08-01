@@ -266,8 +266,8 @@ public class DemoController {
         }
         //deny access multi times
         if (o != null && o.getPayAccount().equals(userId) &&
-                (o.getOrderStatus() == OrderStatus.SERVICE) && (Instant.now().isBefore(Utils.convertToInstant(o.getCreateTime()).plus(Duration.ofMinutes(o.getDuration())))
-                || Instant.now().isBefore(Utils.convertToInstant(o.getStartTime()).plus(Duration.ofMinutes(o.getDuration()))))) {
+                (o.getOrderStatus() == OrderStatus.SERVICE) && (Instant.now().isBefore(Utils.convertToInstant(o.getCreateTime()).plus(Duration.ofSeconds(o.getDuration())))
+                || Instant.now().isBefore(Utils.convertToInstant(o.getStartTime()).plus(Duration.ofSeconds(o.getDuration()))))) {
             model.addAttribute("device_id", device_id);
 //            model.addAttribute("duration", consume.getDuration() * 60);
 //            model.addAttribute("startTime", o.getCreateTime().toEpochMilli());
@@ -288,7 +288,7 @@ public class DemoController {
             if(order1!=null && order1.getOrderStatus() == OrderStatus.FINISH){
                 //重复收到了调用，直接返回
                 model.addAttribute("device_id", device_id);
-                model.addAttribute("duration", consume.getDuration() * 60);
+                model.addAttribute("duration", consume.getDuration());
                 model.addAttribute("startTime", order1.getCreateTime().toString());
                 model.addAttribute("orderId", orderId);
                 logger.info(" device {} orderId {} now forward device_run_error", device_id, orderId);
@@ -309,7 +309,7 @@ public class DemoController {
             order1.setStartTime(Utils.getNowTime());
         } else {
             model.addAttribute("device_id", device_id);
-            model.addAttribute("duration", consume.getDuration() * 60);
+            model.addAttribute("duration", consume.getDuration());
             model.addAttribute("startTime", order1.getCreateTime().toEpochSecond(ZoneOffset.of("+8")));
             model.addAttribute("orderId", orderId);
             order1.setOrderStatus(OrderStatus.USER_NOT_PAY);
@@ -343,7 +343,7 @@ public class DemoController {
             return "device_finish";
         } else {
             model.addAttribute("device_id", device_id);
-            model.addAttribute("duration", consume.getDuration() * 60);
+            model.addAttribute("duration", consume.getDuration() );
             model.addAttribute("startTime", order1.getCreateTime().toEpochSecond(ZoneOffset.of("+8")));
             model.addAttribute("orderId", orderId);
             order1.setOrderStatus(OrderStatus.DEVICE_ERROR);
