@@ -51,21 +51,18 @@ public class WXPayController {
 
 
     @RequestMapping(value = "/paycancel", method = RequestMethod.POST)
-    public String paycancel(@RequestParam(value = "orderId", required = true, defaultValue = "0") String orderId,
+    public String paycancel(@RequestParam(value = "orderId", required = true, defaultValue = "0") long orderId,
                             HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        log.info("paysuccess  orderId = {} ",orderId);
-
+        log.info("paysuccess  orderId = {} ", orderId);
         Order o = orderService.getOrderByOrderID(orderId);
-
         o.setOrderStatus(OrderStatus.USER_NOT_PAY);
-
 
         Device device = deviceService.getDevice(o.getDeviceID());
         orderService.removeOrder(o.getDeviceID());
         log.info("user cancel order delete from cache {}", o);
         String deviceStatus = String.valueOf(device.getStatus());
-        log.info("device_id {} deviceStatus {}", device.getDeviceID() , deviceStatus);
+        log.info("device_id {} deviceStatus {}", device.getDeviceID(), deviceStatus);
         return deviceStatus;
     }
 
@@ -216,7 +213,7 @@ public class WXPayController {
 
 
                     // 处理业务 -修改订单支付状态
-                    Order order = orderService.getOrderByOrderID(out_trade_no);
+                    Order order = orderService.getOrderByOrderID(Long.valueOf(out_trade_no));
                     if (order != null) {
                         log.info("wechat pay callback : modify order = {} status to PAYDONE ", out_trade_no);
                         order.setOrderStatus(OrderStatus.PAYDONE);

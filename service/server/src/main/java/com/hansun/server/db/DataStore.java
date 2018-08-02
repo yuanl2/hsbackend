@@ -36,11 +36,6 @@ public class DataStore {
     private Map<Short, Consume> consumeCache = new ConcurrentHashMap<>();
     private Map<String, List<Consume>> deviceTypeConsumeCache = new ConcurrentHashMap<>();
 
-
-    //    private DeviceTable deviceTable;
-    private OrderTable orderTable;
-
-
     @Autowired
     private ConsumeDao consumeDao;
 
@@ -56,22 +51,20 @@ public class DataStore {
     @Autowired
     private LocationDao locationDao;
 
-
     @Autowired
     private DeviceDao deviceDao;
 
     @Autowired
     private UserDao userDao;
 
+//    @Autowired
+//    private OrderDao orderDao;
 
     @Autowired
     private ConnectionPoolManager connectionPoolManager;
 
     @PostConstruct
     private void init() {
-//        userTable = new UserTable(connectionPoolManager);
-        orderTable = new OrderTable(connectionPoolManager);
-
         initCache();
     }
 

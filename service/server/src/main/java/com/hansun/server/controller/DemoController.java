@@ -250,7 +250,7 @@ public class DemoController {
     @RequestMapping(value = "/paysuccess")
     public String doWeinXinPay(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "0") String device_id,
                                @RequestParam(value = "product_id", required = true, defaultValue = "0") String product_id,
-                               @RequestParam(value = "orderId", required = true, defaultValue = "0") String orderId,
+                               @RequestParam(value = "orderId", required = true, defaultValue = "0") long orderId,
                                @RequestParam(value = "userId", required = true, defaultValue = "0") String userId,
                                HttpServletRequest request, HttpServletResponse response) throws Exception {
 
@@ -276,7 +276,7 @@ public class DemoController {
             return "device_finish";
         }
 
-        if (orderId.equals('0')) {
+        if (orderId == 0) {
             orderId = orderService.getOrderName();
         }
 
