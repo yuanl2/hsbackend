@@ -60,8 +60,8 @@ public class DataStore {
 //    @Autowired
 //    private OrderDao orderDao;
 
-    @Autowired
-    private ConnectionPoolManager connectionPoolManager;
+//    @Autowired
+//    private ConnectionPoolManager connectionPoolManager;
 
     @PostConstruct
     private void init() {
@@ -80,8 +80,8 @@ public class DataStore {
             consumeCache.clear();
             deviceTypeConsumeCache.clear();
             deviceSimCache.clear();
-            connectionPoolManager.destroy();
-        } catch (SQLException e) {
+//            connectionPoolManager.destroy();
+        } catch (Exception e) {
             logger.error("destroy datastore error", e);
             throw new ServerException(e);
         }

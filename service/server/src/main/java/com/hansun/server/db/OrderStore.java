@@ -74,7 +74,7 @@ public class OrderStore {
     }
 
     public List<Order> queryNotFinish(short status) {
-        return orderDao.queryNotFinish(status);
+        return orderDao.queryOrderStatusNot(status);
     }
 
     public Order insertOrder(Order order) {

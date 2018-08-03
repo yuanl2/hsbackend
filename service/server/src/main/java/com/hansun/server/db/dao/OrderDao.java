@@ -21,14 +21,19 @@ public interface OrderDao extends JpaRepository<Order, Long> {
      */
     Order findByOrderID(long orderID);
 
+    @Transactional
+    @Query("from Order b where b.orderStatus != :orderStatus")
+    List<Order> queryOrderStatusNot(@Param("orderStatus") short orderStatus);
+
+
     @Modifying
     @Transactional
-    @Query("UPDATE Order order set order.endTime = :endTime, order.orderStatus = :orderStatus WHERE order.orderID = :orderID")
+    @Query("UPDATE Order o set o.orderStatus = :orderStatus, o.endTime = :endTime WHERE o.orderID = :orderID")
     Order updateOrderStatus(@Param("orderStatus") short orderStatus, @Param("endTime") LocalDateTime endTime, @Param("orderID") long orderID);
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM Order order WHERE order.orderID = :orderID")
+    @Query("DELETE FROM Order o WHERE o.orderID = :orderID")
     void deleteByOrderID(@Param("orderID") long orderID);
 
     @Transactional
@@ -36,7 +41,4 @@ public interface OrderDao extends JpaRepository<Order, Long> {
     List<Order> queryByTime(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("deviceIDs") List<Long> deviceIDs);
 
 
-    @Transactional
-    @Query("from Order b where b.orderStatus != orderStatus")
-    List<Order> queryNotFinish(@Param("orderStatus") short orderStatus);
 }

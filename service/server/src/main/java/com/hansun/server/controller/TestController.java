@@ -66,4 +66,14 @@ public class TestController {
         return new ResponseEntity<MyTest>(testDao.findOne(id), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "mytest/search/{name}", method = RequestMethod.GET)
+    public ResponseEntity<?> getCity(@PathVariable String name, HttpServletRequest request) {
+        return new ResponseEntity<>(testDao.queryLikeName(name), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "mytest/search", method = RequestMethod.POST)
+    public ResponseEntity<?> getCity(@RequestBody MyTest city, HttpServletRequest request) {
+        return new ResponseEntity<>(testDao.queryFilterTime(city.getTime()), HttpStatus.OK);
+    }
+
 }
