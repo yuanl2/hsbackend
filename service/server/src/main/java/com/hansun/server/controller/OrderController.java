@@ -1,7 +1,7 @@
 package com.hansun.server.controller;
 
 import com.hansun.server.common.Utils;
-import com.hansun.server.dto.Order;
+import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.common.OrderDetail;
 import com.hansun.server.common.OrderStatisticsForUser;
 import com.hansun.server.service.OrderService;
@@ -39,10 +39,10 @@ public class OrderController {
     }
 
     @RequestMapping(value = "order", method = RequestMethod.POST)
-    public ResponseEntity<?> createOrder(@RequestBody Order order, UriComponentsBuilder ucBuilder) {
+    public ResponseEntity<?> createOrder(@RequestBody OrderInfo order, UriComponentsBuilder ucBuilder) {
         logger.debug("create order ", order);
-        Order u = orderService.createOrder(order);
-        return new ResponseEntity<Order>(u, HttpStatus.CREATED);
+        OrderInfo u = orderService.createOrder(order);
+        return new ResponseEntity<OrderInfo>(u, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "order/device/{id}", method = RequestMethod.GET)

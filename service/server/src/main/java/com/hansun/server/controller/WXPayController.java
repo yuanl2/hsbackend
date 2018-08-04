@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.hansun.server.common.Utils;
 import com.hansun.server.dto.Consume;
 import com.hansun.server.dto.Device;
-import com.hansun.server.dto.Order;
+import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.common.OrderStatus;
 import com.hansun.server.db.DataStore;
 import com.hansun.server.service.DeviceService;
@@ -26,7 +26,6 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.time.Instant;
 import java.util.*;
 
 /**
@@ -55,7 +54,7 @@ public class WXPayController {
                             HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         log.info("paysuccess  orderId = {} ", orderId);
-        Order o = orderService.getOrderByOrderID(orderId);
+        OrderInfo o = orderService.getOrderByOrderID(orderId);
         o.setOrderStatus(OrderStatus.USER_NOT_PAY);
 
         Device device = deviceService.getDevice(o.getDeviceID());
@@ -152,7 +151,7 @@ public class WXPayController {
         Consume consume = dataStore.queryConsume(Short.valueOf(product_id));
 
         //在预支付时，就生成订单
-        Order order = new Order();
+        OrderInfo order = new OrderInfo();
         order.setId(Long.valueOf(out_trade_no));
         order.setOrderName(out_trade_no);
         order.setCreateTime(Utils.getNowTime());
@@ -213,7 +212,7 @@ public class WXPayController {
 
 
                     // 处理业务 -修改订单支付状态
-                    Order order = orderService.getOrderByOrderID(Long.valueOf(out_trade_no));
+                    OrderInfo order = orderService.getOrderByOrderID(Long.valueOf(out_trade_no));
                     if (order != null) {
                         log.info("wechat pay callback : modify order = {} status to PAYDONE ", out_trade_no);
                         order.setOrderStatus(OrderStatus.PAYDONE);

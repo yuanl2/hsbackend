@@ -1,22 +1,19 @@
 package com.hansun.server.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import com.hansun.server.common.InstantSerialization;
 
 import javax.persistence.*;
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 /**
  * Created by yuanl2 on 2017/3/29.
  */
 @Entity
-public class Order {
+public class OrderInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -221,11 +218,11 @@ public class Order {
         if (this == obj) {
             return true;
         } else {
-            return obj instanceof Order && this.getId() == ((Order) obj).getId()
-                    && this.getDeviceID() == (((Order) obj).getDeviceID())
-                    && this.getDeviceName() == (((Order) obj).getDeviceName())
-                    && this.getStartTime().equals(((Order) obj).getStartTime())
-                    && this.getPayAccount().equals(((Order) obj).getPayAccount());
+            return obj instanceof OrderInfo && this.getId() == ((OrderInfo) obj).getId()
+                    && this.getDeviceID() == (((OrderInfo) obj).getDeviceID())
+                    && this.getDeviceName() == (((OrderInfo) obj).getDeviceName())
+                    && this.getStartTime().equals(((OrderInfo) obj).getStartTime())
+                    && this.getPayAccount().equals(((OrderInfo) obj).getPayAccount());
         }
     }
 }

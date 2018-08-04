@@ -21,25 +21,22 @@ public class PayAcountStore {
 
     private Map<String, PayAccount> payAccountCache = new ConcurrentHashMap<>();
 
-    @Autowired
-    private ConnectionPoolManager connectionPoolManager;
-
     private PayAccountTable payAccountTable;
 
     @PostConstruct
     private void init() {
-        payAccountTable = new PayAccountTable(connectionPoolManager);
-        initCache();
+//        payAccountTable = new PayAccountTable(connectionPoolManager);
+//        initCache();
     }
 
     @PreDestroy
     public void destroy() {
-        try {
+//        try {
             payAccountCache.clear();
-            connectionPoolManager.destroy();
-        } catch (SQLException e) {
-            throw new ServerException(e);
-        }
+//            connectionPoolManager.destroy();
+//        } catch (SQLException e) {
+//            throw new ServerException(e);
+//        }
     }
 
     private void initCache() {

@@ -1,7 +1,7 @@
 package com.hansun.server.common;
 
 
-import com.hansun.server.dto.Order;
+import com.hansun.server.dto.OrderInfo;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -36,7 +36,7 @@ public class OrderDetail{
     private String orderName;
     private short orderStatus;
 
-    public OrderDetail(Order order) {
+    public OrderDetail(OrderInfo order) {
 
         this.duration = order.getDuration();
         this.price = order.getPrice();

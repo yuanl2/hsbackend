@@ -138,8 +138,8 @@ public class v1_InitializeDataSpace {
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
         }
 
-        if (!manager.tableExists("consumeorder")) {
-            manager.createTable("CREATE TABLE consumeorder (" +
+        if (!manager.tableExists("orderinfo")) {
+            manager.createTable("CREATE TABLE orderinfo (" +
                     "id bigint(8) NOT NULL AUTO_INCREMENT," +
                     "orderID bigint(8) NOT NULL," +
                     "deviceID bigint(8) NOT NULL," +

@@ -21,10 +21,10 @@ public class Device {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "deviceID",nullable = false, unique = true)
+    @Column(name = "deviceID", nullable = false, unique = true)
     private long deviceID;
 
-    @Column(name = "deviceType",nullable = false)
+    @Column(name = "deviceType", nullable = false)
     private short type;
 
     @Column(nullable = false)
@@ -56,10 +56,10 @@ public class Device {
     @Column(name = "status")
     private byte status = DeviceStatus.DISCONNECTED;
 
-    @Column(name = "signalValue",nullable = false)
+    @Column(name = "signalValue", nullable = false)
     private short signal = -1;
 
-    @Column(name = "loginReason",nullable = false)
+    @Column(name = "loginReason", nullable = false)
     private short loginReason = -1;
 
     @Column(name = "seq")
@@ -89,8 +89,8 @@ public class Device {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime beginTime;
 
-    @Column(name = "QRCode", nullable = false)
-    private String QRCode;
+    @Column(name = "qrcode", nullable = false)
+    private String qrcode;
 
     @Column(name = "managerStatus")
     private byte managerStatus = DeviceManagerStatus.INACTIVATED.getStatus();
@@ -231,12 +231,12 @@ public class Device {
         this.seq = seq;
     }
 
-    public String getQRCode() {
-        return QRCode;
+    public String getQrcode() {
+        return qrcode;
     }
 
-    public void setQRCode(String QRCode) {
-        this.QRCode = QRCode;
+    public void setQrcode(String qrcode) {
+        this.qrcode = qrcode;
     }
 
     public byte getManagerStatus() {
@@ -303,7 +303,7 @@ public class Device {
                 ", loginTime=" + loginTime +
                 ", logoutTime=" + logoutTime +
                 ", seq=" + seq +
-                ", QRCode=" + QRCode +
+                ", qrcode=" + qrcode +
                 ", managerStatus=" + managerStatus +
                 "}";
     }

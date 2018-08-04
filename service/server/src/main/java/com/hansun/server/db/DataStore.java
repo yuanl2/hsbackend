@@ -412,7 +412,7 @@ public class DataStore {
                     }
             );
             logger.info("initCache consumeList = {} ", consumeCache.size());
-            logger.info("initCache deviceSimCache = {} ", deviceTypeConsumeCache.size());
+            logger.info("initCache deviceTypeConsumeCache = {} ", deviceTypeConsumeCache.size());
         }
 
         List<User> userList = userDao.findAll();

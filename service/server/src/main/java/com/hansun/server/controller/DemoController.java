@@ -3,7 +3,7 @@ package com.hansun.server.controller;
 import com.hansun.server.common.Utils;
 import com.hansun.server.dto.Consume;
 import com.hansun.server.dto.Device;
-import com.hansun.server.dto.Order;
+import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.HttpClientUtil;
 import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.OrderStatus;
@@ -13,6 +13,7 @@ import com.hansun.server.service.DeviceService;
 import com.hansun.server.service.OrderService;
 import com.hansun.server.util.ConstantUtil;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,25 +148,29 @@ public class DemoController {
     }
 
     @RequestMapping("/index")
-    public String page(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "000000") String name,
+    public String page(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "000000") String device_id,
                        @RequestParam(value = "openid", required = false, defaultValue = "0") String openid,
                        HttpServletRequest request, HttpServletResponse response) throws IOException {
-        logger.info("openid {} device_id {} ", openid, name);
-        model.addAttribute("device_id", name);
+        logger.info("openid {} device_id {} ", openid, device_id);
+        model.addAttribute("device_id", device_id);
         model.addAttribute("openid", openid);
 
-        Device d = dataStore.queryDeviceByDeviceID(Long.valueOf(name));
+        Device d = dataStore.queryDeviceByDeviceID(Long.valueOf(device_id));
 
         if (d != null) {
+            String store = d.getAdditionInfo();
+            if(store == null){
+                store = "";
+            }
             List<Consume> consumes = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()));
             if (!openid.equals('0')) {
                 model.addAttribute("consumes", consumes);
-                model.addAttribute("store", d.getAdditionInfo());
+                model.addAttribute("store", store);
                 return "device_index";
             } else {
                 consumes.removeIf(k -> k.getPrice() <= 0);
                 model.addAttribute("consumes", consumes);
-                model.addAttribute("store", d.getAdditionInfo());
+                model.addAttribute("store", store);
                 return "device_index";
             }
         } else {
@@ -222,7 +227,7 @@ public class DemoController {
 
         Consume consume = dataStore.queryConsume(Short.valueOf(product_id));
 
-        Order order = new Order();
+        OrderInfo order = new OrderInfo();
         order.setOrderName("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
         order.setStartTime(Utils.getNowTime());
         order.setCreateTime(Utils.getNowTime());
@@ -257,7 +262,7 @@ public class DemoController {
         logger.info("paysuccess  userId = {} orderId = {} device_id = {}", userId, orderId, device_id);
 
         long deviceID = Long.valueOf(device_id);
-        Order o = orderService.getOrder(deviceID);
+        OrderInfo o = orderService.getOrder(deviceID);
         Consume consume = dataStore.queryConsume(Short.valueOf(product_id));
 
         //订单在用户点击微信支付的时候就创建了订单，但是如果用户cancel了订单，也会有订单数据，只是状态不一样
@@ -281,7 +286,7 @@ public class DemoController {
         }
 
         int count = 20;
-        Order order1 = null;
+        OrderInfo order1 = null;
         while (count > 0) {
             count--;
             order1 = orderService.getOrderByOrderID(orderId);

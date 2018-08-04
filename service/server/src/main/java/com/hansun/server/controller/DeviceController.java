@@ -1,7 +1,7 @@
 package com.hansun.server.controller;
 
 import com.hansun.server.dto.Device;
-import com.hansun.server.dto.Order;
+import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.dto.StatusReqeust;
 import com.hansun.server.common.DeviceManagerStatus;
 import com.hansun.server.common.DeviceStatus;
@@ -154,7 +154,7 @@ public class DeviceController {
                                @RequestParam(value = "pay_method", required = true, defaultValue = "wx") String pay_method,
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
         Device d = deviceService.getDevice(Long.valueOf(device_id));
-        Order o = orderService.getOrder(Long.valueOf(device_id));
+        OrderInfo o = orderService.getOrder(Long.valueOf(device_id));
         if (d.getManagerStatus() == DeviceManagerStatus.OPERATING.getStatus()) {
             if (d.getStatus() == DeviceStatus.SERVICE) {
                 logger.error("device {} running", device_id);

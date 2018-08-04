@@ -48,7 +48,7 @@ public class ServerStartDeviceMsg extends AbstractMsg {
             portNum = 1;
         }
 
-        ByteBuffer sendBuffer = ByteBuffer.allocate(32 + 3 * portNum);
+        ByteBuffer sendBuffer = ByteBuffer.allocate(31 + 7 * portNum);
         StringBuilder headBuilder = new StringBuilder();
         headBuilder.append(getTitle()).append(DEVICE_SEPARATOR_FIELD).append(getMsgType()).append(DEVICE_SEPARATOR_FIELD);
         //5+1+2+1 = 9
@@ -62,7 +62,7 @@ public class ServerStartDeviceMsg extends AbstractMsg {
         map.forEach((k, v) -> builder1.writeString(v+""));
         builder1.writeString(DEVICE_SEPARATOR_FIELD);//2 bytes
         startMap.forEach((k, v) -> builder1.writeString(v));
-        builder1.writeString(DEVICE_SEPARATOR_FIELD);//6 bytes
+//        builder1.writeString(DEVICE_SEPARATOR_FIELD);//6 bytes
 
         byte[] body = builder1.toBytes();//16 byte
         int bodySize = body.length + 5;

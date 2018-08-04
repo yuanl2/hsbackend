@@ -2,7 +2,7 @@ package com.hansun.server.service;
 
 import com.hansun.server.dto.Device;
 import com.hansun.server.dto.Location;
-import com.hansun.server.dto.Order;
+import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.dto.User;
 import com.hansun.server.common.*;
 import com.hansun.server.commu.*;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -64,14 +63,14 @@ public class OrderService {
     public void destroy() {
     }
 
-    public void sendMetrics(Order order) {
+    public void sendMetrics(OrderInfo order) {
         metricsService.sendMetrics(HSServiceMetrics
                 .builder()
                 .measurement("")
                 .build());
     }
 
-    public void createStartMsgToDevice(Order order) {
+    public void createStartMsgToDevice(OrderInfo order) {
         try {
 //            order.setId(Long.valueOf(getSequenceNumber()));
             Device device = dataStore.queryDeviceByDeviceID(order.getDeviceID());
@@ -127,8 +126,9 @@ public class OrderService {
                         stringBuilder.append(",");
                         times.put(i, stringBuilder.toString());
                     } else {
-                        times.put(i, "00,00");
+                        times.put(i, "00,00,");
                     }
+
                 }
                 msg.setStartMap(times);
 
@@ -195,17 +195,17 @@ public class OrderService {
         }
     }
 
-    public Order createOrder(Order order) {
+    public OrderInfo createOrder(OrderInfo order) {
 //        Device device = dataStore.queryDeviceByDeviceID(order.getDeviceID());
 //        device.setStatus(DeviceStatus.STARTTASK);
 //        dataStore.updateDevice(device);
-        Order result = orderStore.insertOrder(order);
+        OrderInfo result = orderStore.insertOrder(order);
         return result;
     }
 
     public void processStartOrder(String deviceBoxName, int port) {
         Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, port);
-        Order order = orderStore.queryOrderByDeviceID(d.getDeviceID());
+        OrderInfo order = orderStore.queryOrderByDeviceID(d.getDeviceID());
         if (order != null && order.getOrderStatus() != OrderStatus.SERVICE) {
             logger.info("update order before = " + order);
             order.setOrderStatus(OrderStatus.SERVICE);
@@ -222,7 +222,7 @@ public class OrderService {
     public void processFinishOrder(String deviceBoxName, Map<Integer, Byte> map) {
         map.forEach((k, v) -> {
             Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, k);
-            Order order = orderStore.queryOrderByDeviceID(d.getDeviceID());
+            OrderInfo order = orderStore.queryOrderByDeviceID(d.getDeviceID());
 
             if (order != null && v == DeviceStatus.IDLE) {
                 if (Utils.isOrderFinshed(order)) {
@@ -260,15 +260,15 @@ public class OrderService {
 //        logger.error(name + " have no order now");
 //    }
 
-    public void updateOrder(Order order) {
+    public void updateOrder(OrderInfo order) {
         orderStore.updateOrder(order);
     }
 
-    public Order getOrder(Long deviceID) {
+    public OrderInfo getOrder(Long deviceID) {
         return orderStore.queryOrderByDeviceID(deviceID);
     }
 
-    public Order getOrderByOrderID(long orderID) {
+    public OrderInfo getOrderByOrderID(long orderID) {
         return orderStore.queryOrderByOrderID(orderID);
     }
 
@@ -278,7 +278,7 @@ public class OrderService {
      * @param deviceID
      */
     public void deleteOrder(Long deviceID) {
-        Order order = orderStore.queryOrderByDeviceID(deviceID);
+        OrderInfo order = orderStore.queryOrderByDeviceID(deviceID);
         if (order != null) {
             order.setEndTime(Utils.getNowTime());
             order.setOrderStatus(OrderStatus.FINISH);
@@ -301,7 +301,7 @@ public class OrderService {
     public List<OrderDetail> queryOrderByDevice(Long id, LocalDateTime startTime, LocalDateTime endTime) {
         List<Long> deviceIDs = new ArrayList<>();
         deviceIDs.add(id);
-        List<Order> orderList = orderStore.queryByDevice(deviceIDs, startTime, endTime);
+        List<OrderInfo> orderList = orderStore.queryByDevice(deviceIDs, startTime, endTime);
         List<OrderDetail> orderDetailList = new ArrayList<>();
 
         orderList.forEach(

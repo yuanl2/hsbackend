@@ -2,7 +2,7 @@ package com.hansun.server.commu;
 
 import com.hansun.server.common.*;
 import com.hansun.server.dto.Device;
-import com.hansun.server.dto.Order;
+import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.commu.common.IMsg;
 import com.hansun.server.commu.common.MsgTime;
 import com.hansun.server.metrics.HSServiceMetrics;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -185,7 +184,7 @@ public class LinkManger {
     private void updateOrderStatus(Map map, Map portMap, List<Device> deviceList, String dup, IMsg msg) {
         if (deviceList != null) {
             for (Device device : deviceList) {
-                Order order = orderService.getOrder(device.getDeviceID());
+                OrderInfo order = orderService.getOrder(device.getDeviceID());
                 MsgTime msgTime = (MsgTime) portMap.get((int)device.getPort());
                 byte status = (Byte) map.get((int)device.getPort());
                 byte setStatus = device.getStatus();
@@ -264,7 +263,7 @@ public class LinkManger {
 
     }
 
-    private void sendMetrics(Device device, Order order) {
+    private void sendMetrics(Device device, OrderInfo order) {
         //如果设备的管理状态是测试，则不发送metrics统计信息
         if (device.getManagerStatus() != DeviceManagerStatus.TEST.getStatus()) {
             HSServiceMetrics.Builder builder = HSServiceMetrics.builder();

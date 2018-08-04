@@ -40,11 +40,6 @@ public class HSServiceConfig {
     }
 
     @Bean
-    public ConnectionPoolManager connectionPoolManager() {
-        return new ConnectionPoolManager(hsServiceProperties());
-    }
-
-    @Bean
     public DataStore dataStore() {
         return new DataStore();
     }

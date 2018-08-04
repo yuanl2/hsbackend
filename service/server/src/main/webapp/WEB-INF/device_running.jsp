@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=utf-8"%>
-<%@ page language="java" import="com.hansun.dto.Consume" pageEncoding="UTF-8"%>
+<%@ page language="java" import="com.hansun.server.dto.Consume" pageEncoding="UTF-8"%>
 <html xmlns="http://www.w3.org/1999/xhtml" lang = "zh-CN">
 <head>
 	<meta charset="UTF-8">

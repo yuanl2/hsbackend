@@ -1,6 +1,6 @@
 package com.hansun.server.common;
 
-import com.hansun.server.dto.Order;
+import com.hansun.server.dto.OrderInfo;
 
 import java.time.*;
 
@@ -28,7 +28,7 @@ public class Utils {
         return convertToLocalDateTime(Instant.now());
     }
 
-    public static boolean isOrderFinshed(Order order) {
+    public static boolean isOrderFinshed(OrderInfo order) {
         return Instant.now().isAfter(Utils.convertToInstant(order.getCreateTime()).plus(Duration.ofSeconds(order.getDuration())))
                 || Instant.now().isAfter(Utils.convertToInstant(order.getStartTime()).plus(Duration.ofSeconds(order.getDuration())));
     }

@@ -2,7 +2,7 @@ package com.hansun.server.service;
 
 import com.hansun.server.dto.Consume;
 import com.hansun.server.dto.Device;
-import com.hansun.server.dto.Order;
+import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.common.*;
 import com.hansun.server.db.DataStore;
 import com.hansun.server.util.TenpayUtil;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -73,7 +72,6 @@ public class TimerService {
     private class Schedule_Task implements Runnable {
 
         private DataStore dataStore;
-        private String boxName;
         public Schedule_Task(DataStore dataStore) {
             this.dataStore = dataStore;
         }
@@ -85,9 +83,9 @@ public class TimerService {
                 try {
                     synchronized (object) {
                         if (!isFlag()) {
-                            logger.info("boxName = " + boxName + " start wait for false");
+                            logger.info("start wait for false");
                             object.wait();
-                            logger.info("boxName = " + boxName + " continue run for true");
+                            logger.info("continue run for true");
                         }
                     }
 
@@ -95,6 +93,7 @@ public class TimerService {
                     Set<String> deviceBoxs = dataStore.getAllDeviceBoxes();
                     final List<Long> deviceLists = new ArrayList<>();
                     if(deviceBoxs != null && deviceBoxs.size()> 0){
+
                         Set<Long> deviceList = dataStore.getAllDevices();
                         if (deviceList != null && deviceList.size() > 0) {
                             deviceBoxs.forEach(k->{
@@ -116,14 +115,14 @@ public class TimerService {
                         List<Consume> consumeList = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()));
                         Consume consume = consumeList.get(type);
 
-                        logger.debug("queryDeviceByDeviceID = " + d.getDeviceID() + " status " + d.getStatus());
+                        logger.debug("queryDeviceByDeviceID  = {} , status = {}, managerStatus = {}",d.getDeviceID(),d.getStatus(),d.getManagerStatus());
 
                         if(d.getManagerStatus() == DeviceManagerStatus.TEST.getStatus()){
                             if (d.getStatus() !=  DeviceStatus.IDLE) {
-                                Thread.sleep(100);
+                                Thread.sleep(5000);
                             } else {
                                 logger.info("queryDeviceByDeviceID = " + d.getDeviceID() + " status " + d.getStatus());
-                                Order order = new Order();
+                                OrderInfo order = new OrderInfo();
                                 //---------------生成订单号 开始------------------------
                                 //当前时间 yyyyMMddHHmmss
                                 String currTime = TenpayUtil.getCurrTime();
@@ -133,16 +132,16 @@ public class TimerService {
                                 String strReq = currTime + strRandom;
                                 //订单号，此处用时间加随机数生成，商户根据自己情况调整，只要保持全局唯一就行
                                 String out_trade_no = strReq;
-                                order.setId(Long.valueOf(out_trade_no));
+                                order.setOrderID(Long.valueOf(out_trade_no));
                                 order.setOrderName("ordername-" + orderService.getSequenceNumber());
                                 order.setStartTime(Utils.getNowTime());
                                 order.setCreateTime(Utils.getNowTime());
                                 order.setPayAccount("test-payaccount-" + orderService.getSequenceNumber());
                                 order.setOrderStatus(OrderStatus.PAYDONE);
                                 order.setDeviceID(Long.valueOf(deviceID));
-                                order.setDeviceName(boxName);
+                                order.setDeviceName(d.getName());
                                 order.setConsumeType(Short.valueOf(consume.getId()));
-                                Order result = orderService.createOrder(order);
+                                OrderInfo result = orderService.createOrder(order);
                                 orderService.createStartMsgToDevice(result);
                                 logger.info("device_id = " + deviceID + " start order " + result);
                             }

@@ -8,12 +8,12 @@ import org.springframework.stereotype.Component;
 
 import java.sql.*;
 
-@Component
+//@Component
 public class ConnectionPoolManager {
     private BasicDataSource dataSource;
 
     private HSServiceProperties hsServiceProperties;
-    @Autowired
+//    @Autowired
     public ConnectionPoolManager(HSServiceProperties hsServiceProperties) {
         initialize(hsServiceProperties);
     }
