@@ -1,17 +1,16 @@
 package com.hansun.server.controller;
 
-import com.hansun.server.common.Utils;
+import com.hansun.server.common.*;
 import com.hansun.server.dto.Consume;
 import com.hansun.server.dto.Device;
 import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.HttpClientUtil;
-import com.hansun.server.common.DeviceStatus;
-import com.hansun.server.common.OrderStatus;
 import com.hansun.server.db.DataStore;
 import com.hansun.server.metrics.HSServiceMetricsService;
 import com.hansun.server.service.DeviceService;
 import com.hansun.server.service.OrderService;
 import com.hansun.server.util.ConstantUtil;
+import com.hansun.server.util.TenpayUtil;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -31,6 +30,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 
 /**
@@ -54,6 +54,7 @@ public class DemoController {
 
     /**
      * 页面访问入口，调用微信的authorize接口，获取用户在该公众号下的openid
+     *
      * @param model
      * @param device_id
      * @param request
@@ -90,7 +91,7 @@ public class DemoController {
 //                        + (payForm.getFrom() == null ? ":ZC" : ":JF");
             }
         } catch (Exception e) {
-            logger.error("get user openid error",e);
+            logger.error("get user openid error", e);
         }
         return "redirect:" + url;
     }
@@ -159,10 +160,10 @@ public class DemoController {
 
         if (d != null) {
             String store = d.getAdditionInfo();
-            if(store == null){
+            if (store == null) {
                 store = "";
             }
-            List<Consume> consumes = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()));
+            List<Consume> consumes = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()), ConsumeType.NORMAL.getValue());
             if (!openid.equals('0')) {
                 model.addAttribute("consumes", consumes);
                 model.addAttribute("store", store);
@@ -252,6 +253,85 @@ public class DemoController {
         return "device_running";
     }
 
+
+    @RequestMapping("/testdevice")
+    public String testdevice(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "World") String device_id,
+                             HttpServletRequest request, HttpServletResponse response) throws IOException {
+        logger.info("device_id {}", device_id);
+
+        long deviceID = Long.valueOf(device_id);
+
+        Device d = dataStore.queryDeviceByDeviceID(deviceID);
+        model.addAttribute("device_id", device_id);
+        if (d != null) {
+
+            if (d.getManagerStatus() != DeviceManagerStatus.TEST.getStatus()) {
+
+                model.addAttribute("error", "设备管理状态不是测试状态");
+                return "device_test_error";
+            }
+            if (d.getStatus() == DeviceStatus.FAULT || d.getStatus() == DeviceStatus.INVALID) {
+                model.addAttribute("error", "设备故障");
+                return "device_test_error";
+            }
+
+            if (d.getStatus() == DeviceStatus.SERVICE) {
+                model.addAttribute("error", "设备运行中");
+                return "device_test_error";
+            }
+
+            if (d.getStatus() == DeviceStatus.DISCONNECTED) {
+                model.addAttribute("error", "设备离线");
+                return "device_test_error";
+            }
+            if (d.getStatus() == DeviceStatus.BADNETWORK) {
+                model.addAttribute("error", "设备网络故障");
+                return "device_test_error";
+            }
+
+            String store = d.getAdditionInfo();
+            if (store == null) {
+                store = "";
+            }
+            Random random = new Random();
+            List<Consume> consumeList = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()), ConsumeType.TEST.getValue());
+            int type = random.nextInt(consumeList.size());
+            Consume consume = consumeList.get(type);
+
+            OrderInfo order = new OrderInfo();
+            //---------------生成订单号 开始------------------------
+            //当前时间 yyyyMMddHHmmss
+            String currTime = TenpayUtil.getCurrTime();
+            //四位随机数
+            String strRandom = TenpayUtil.buildRandom(5) + "";
+            //10位序列号,可以自行调整。
+            String strReq = currTime + strRandom;
+            //订单号，此处用时间加随机数生成，商户根据自己情况调整，只要保持全局唯一就行
+            String out_trade_no = strReq;
+            order.setOrderID(Long.valueOf(out_trade_no));
+            order.setOrderName("ordername-" + orderService.getSequenceNumber());
+            order.setStartTime(Utils.getNowTime());
+            order.setCreateTime(Utils.getNowTime());
+            order.setPayAccount("test-payaccount-" + orderService.getSequenceNumber());
+            order.setOrderStatus(OrderStatus.PAYDONE);
+            order.setDeviceID(deviceID);
+            order.setDeviceName(d.getName());
+            order.setConsumeType(Short.valueOf(consume.getId()));
+            OrderInfo result = orderService.createOrder(order);
+            orderService.createStartMsgToDevice(result);
+            logger.info("device_id = " + deviceID + " start order " + result);
+
+            model.addAttribute("duration", consume.getDuration());
+            model.addAttribute("store", store);
+            model.addAttribute("orderId", out_trade_no);
+            return "device_testdevice";
+        }
+
+        model.addAttribute("error", "设备不存在");
+        return "device_test_error";
+    }
+
+
     @RequestMapping(value = "/paysuccess")
     public String doWeinXinPay(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "0") String device_id,
                                @RequestParam(value = "product_id", required = true, defaultValue = "0") String product_id,
@@ -266,7 +346,7 @@ public class DemoController {
         Consume consume = dataStore.queryConsume(Short.valueOf(product_id));
 
         //订单在用户点击微信支付的时候就创建了订单，但是如果用户cancel了订单，也会有订单数据，只是状态不一样
-        if(o!=null && o.getOrderStatus() == OrderStatus.CREATED){
+        if (o != null && o.getOrderStatus() == OrderStatus.CREATED) {
             o.setOrderStatus(OrderStatus.NOTSTART);
         }
         //deny access multi times
@@ -290,7 +370,7 @@ public class DemoController {
         while (count > 0) {
             count--;
             order1 = orderService.getOrderByOrderID(orderId);
-            if(order1!=null && order1.getOrderStatus() == OrderStatus.FINISH){
+            if (order1 != null && order1.getOrderStatus() == OrderStatus.FINISH) {
                 //重复收到了调用，直接返回
                 model.addAttribute("device_id", device_id);
                 model.addAttribute("duration", consume.getDuration());
@@ -328,7 +408,7 @@ public class DemoController {
             count--;
             int status = deviceService.getDevice(deviceID).getStatus();
             logger.info("device status {} ", status);
-            if ( status != DeviceStatus.SERVICE) {
+            if (status != DeviceStatus.SERVICE) {
                 logger.info(" device {} not running count = {}", device_id, count);
                 Thread.sleep(500);
             } else {
@@ -348,7 +428,7 @@ public class DemoController {
             return "device_finish";
         } else {
             model.addAttribute("device_id", device_id);
-            model.addAttribute("duration", consume.getDuration() );
+            model.addAttribute("duration", consume.getDuration());
             model.addAttribute("startTime", order1.getCreateTime().toEpochSecond(ZoneOffset.of("+8")));
             model.addAttribute("orderId", orderId);
             order1.setOrderStatus(OrderStatus.DEVICE_ERROR);

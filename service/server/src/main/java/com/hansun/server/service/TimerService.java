@@ -112,7 +112,7 @@ public class TimerService {
                             deviceLists) {
                         int type = random.nextInt(3);
                         Device d = dataStore.queryDeviceByDeviceID(deviceID);
-                        List<Consume> consumeList = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()));
+                        List<Consume> consumeList = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()),ConsumeType.TEST.getValue());
                         Consume consume = consumeList.get(type);
 
                         logger.debug("queryDeviceByDeviceID  = {} , status = {}, managerStatus = {}",d.getDeviceID(),d.getStatus(),d.getManagerStatus());

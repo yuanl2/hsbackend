@@ -1,12 +1,12 @@
 .span1{
   padding: 5px;
   text-align: center;
-  color: lightblue;
+  color: #fff;
 }
 .span2{
   padding: 5px;
   text-align: center;
-  color: lightblue;
+  color: #fff;
   margin-bottom: 5px;
 }
 .span3{
@@ -14,7 +14,7 @@
   padding: 5px;
   margin: 1px;
   text-align: center;
-  color: lightblue;
+  color: #fff;
   font-size: 16px;
 }
 .test-contact-text1{

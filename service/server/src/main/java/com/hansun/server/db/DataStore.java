@@ -1,5 +1,6 @@
 package com.hansun.server.db;
 
+import com.hansun.server.common.ConsumeType;
 import com.hansun.server.common.Utils;
 import com.hansun.server.dto.*;
 import com.hansun.server.common.DeviceStatus;
@@ -16,6 +17,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -676,8 +678,11 @@ public class DataStore {
         return lists;
     }
 
-    public List<Consume> queryAllConsumeByDeviceType(String deviceType) {
+    public List<Consume> queryAllConsumeByDeviceType(String deviceType, int type) {
         List<Consume> result = deviceTypeConsumeCache.get(deviceType);
+        if(result!=null) {
+            return result.stream().filter(k -> k.getType() == type).collect(Collectors.toList());
+        }
 //        Optional<List<Consume>> result = consumeTable.selectAll();
 //        if (result.isPresent()) {
 //            return result.get();
