@@ -95,6 +95,9 @@ public class Device {
     @Column(name = "managerStatus")
     private byte managerStatus;
 
+    @Column(name = "consumeType")
+    private byte consumeType;
+
     public long getId() {
         return id;
     }
@@ -279,6 +282,14 @@ public class Device {
         this.beginTime = beginTime;
     }
 
+    public byte getConsumeType() {
+        return consumeType;
+    }
+
+    public void setConsumeType(byte consumeType) {
+        this.consumeType = consumeType;
+    }
+
     @Override
     public String toString() {
         return "device{" +
@@ -305,6 +316,7 @@ public class Device {
                 ", seq=" + seq +
                 ", qrcode=" + qrcode +
                 ", managerStatus=" + managerStatus +
+                ", consumeType=" + consumeType +
                 "}";
     }
 

@@ -3,6 +3,7 @@ package com.hansun.server.controller;
 import com.hansun.server.common.*;
 import com.hansun.server.dto.Consume;
 import com.hansun.server.dto.Device;
+import com.hansun.server.dto.Location;
 import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.HttpClientUtil;
 import com.hansun.server.db.DataStore;
@@ -12,7 +13,6 @@ import com.hansun.server.service.OrderService;
 import com.hansun.server.util.ConstantUtil;
 import com.hansun.server.util.TenpayUtil;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +31,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 
 /**
@@ -66,11 +67,83 @@ public class DemoController {
                            HttpServletRequest request, HttpServletResponse response) {
         String useragent = request.getHeader("User-Agent");
         logger.info("request from {}", useragent);
-
-        Device device = deviceService.getDevice(Long.valueOf(device_id));
+        long deviceID = Long.valueOf(device_id);
+        Device device = deviceService.getDevice(deviceID);
         if (device == null) {
             logger.error("device {} not exists", device_id);
             return "device_not_exist";
+        }
+
+        //判断设备是测试状态，则跳过微信支付
+        if (device.getManagerStatus() == DeviceManagerStatus.TEST.getStatus()) {
+            if (device.getStatus() == DeviceStatus.FAULT || device.getStatus() == DeviceStatus.INVALID) {
+                model.addAttribute("error", "设备故障");
+                return "device_test_error";
+            }
+
+            if (device.getStatus() == DeviceStatus.SERVICE) {
+                model.addAttribute("error", "设备运行中");
+                return "device_test_error";
+            }
+
+            if (device.getStatus() == DeviceStatus.DISCONNECTED) {
+                model.addAttribute("error", "设备离线");
+                return "device_test_error";
+            }
+            if (device.getStatus() == DeviceStatus.BADNETWORK) {
+                model.addAttribute("error", "设备网络故障");
+                return "device_test_error";
+            }
+
+            String store = device.getAdditionInfo();
+            if (store == null) {
+                store = "";
+            }
+            Random random = new Random();
+            List<Consume> consumeList = getConsumes(device);
+            if (consumeList == null || consumeList.size() == 0) {
+                model.addAttribute("error", "设备没有对应的消费类型");
+                return "device_test_error";
+            }
+
+            int type = random.nextInt(consumeList.size());
+            Consume consume = consumeList.get(type);
+
+            OrderInfo order = new OrderInfo();
+            //---------------生成订单号 开始------------------------
+            //当前时间 yyyyMMddHHmmss
+            String currTime = TenpayUtil.getCurrTime();
+            //四位随机数
+            String strRandom = TenpayUtil.buildRandom(5) + "";
+            //10位序列号,可以自行调整。
+            String strReq = currTime + strRandom;
+            //订单号，此处用时间加随机数生成，商户根据自己情况调整，只要保持全局唯一就行
+            String out_trade_no = strReq;
+            order.setOrderID(Long.valueOf(out_trade_no));
+            order.setOrderName("ordername-" + orderService.getSequenceNumber());
+            order.setStartTime(Utils.getNowTime());
+            order.setCreateTime(Utils.getNowTime());
+            order.setPayAccount("test-payaccount-" + orderService.getSequenceNumber());
+            order.setOrderStatus(OrderStatus.PAYDONE);
+            order.setDeviceID(deviceID);
+            order.setDeviceName(device.getName());
+            order.setConsumeType(Short.valueOf(consume.getId()));
+            OrderInfo result = orderService.createOrder(order);
+            orderService.createStartMsgToDevice(result);
+            logger.info("device_id = " + deviceID + " start order " + result);
+
+            model.addAttribute("duration", consume.getDuration());
+            model.addAttribute("store", store);
+            model.addAttribute("orderId", out_trade_no);
+            return "device_testdevice";
+        }
+        else if(device.getManagerStatus() == DeviceManagerStatus.INACTIVATED.getStatus()){
+            model.addAttribute("error", "设备还未激活，不可使用");
+            return "device_test_error";
+        }
+        else if(device.getManagerStatus() == DeviceManagerStatus.MAINTENANCE.getStatus()){
+            model.addAttribute("error", "设备目前处于维护中，请稍后再试");
+            return "device_test_error";
         }
 
         String url = "index?device_id=" + device_id;
@@ -163,20 +236,63 @@ public class DemoController {
             if (store == null) {
                 store = "";
             }
-            List<Consume> consumes = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()), ConsumeType.NORMAL.getValue());
+
+            List<Consume> consumeList = getConsumes(d);
+            if (consumeList == null || consumeList.size() == 0) {
+                model.addAttribute("error", "设备没有对应的消费类型");
+                return "device_test_error";
+            }
+
             if (!openid.equals('0')) {
-                model.addAttribute("consumes", consumes);
+                model.addAttribute("consumes", consumeList);
                 model.addAttribute("store", store);
                 return "device_index";
             } else {
-                consumes.removeIf(k -> k.getPrice() <= 0);
-                model.addAttribute("consumes", consumes);
+                consumeList.removeIf(k -> k.getPrice() <= 0);
+                model.addAttribute("consumes", consumeList);
                 model.addAttribute("store", store);
                 return "device_index";
             }
         } else {
             return "error";
         }
+    }
+
+    private List<Consume> getConsumes(Device d) {
+        byte consumeType = d.getConsumeType();
+
+        /**
+         * 增加了过滤
+         */
+        List<Consume> consumes = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()), consumeType);
+
+        Location location = dataStore.queryLocationByLocationID(d.getLocationID());
+
+        if(location == null){
+            return null;
+        }
+        /**
+         * 根据Device配置的ConsumType，过滤得到匹配的Consume List
+         *
+         */
+        consumes = consumes.stream().filter(consume -> {
+            if (consume.getType() == ConsumeType.NORMAL.getValue()) {
+                return true;
+            } else if (consume.getType() == ConsumeType.USER.getValue()) {
+                return consume.getValue().contains(d.getOwnerID() + "");
+            } else if (consume.getType() == ConsumeType.LOCATION.getValue()) {
+                return consume.getValue().contains(location.getId() + "");
+            } else if (consume.getType() == ConsumeType.AREA.getValue()) {
+                return consume.getValue().contains(location.getAreaID() + "");
+            } else if (consume.getType() == ConsumeType.CITY.getValue()) {
+                return consume.getValue().contains(location.getCityID() + "");
+            } else if (consume.getType() == ConsumeType.DEVICE.getValue()) {
+                return consume.getValue().contains(d.getDeviceID() + "");
+            }
+            return true;
+
+        }).collect(Collectors.toList());
+        return consumes;
     }
 
 
@@ -294,7 +410,11 @@ public class DemoController {
                 store = "";
             }
             Random random = new Random();
-            List<Consume> consumeList = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()), ConsumeType.TEST.getValue());
+            List<Consume> consumeList = getConsumes(d);
+            if (consumeList == null || consumeList.size() == 0) {
+                model.addAttribute("error", "设备没有对应的消费类型");
+                return "device_test_error";
+            }
             int type = random.nextInt(consumeList.size());
             Consume consume = consumeList.get(type);
 

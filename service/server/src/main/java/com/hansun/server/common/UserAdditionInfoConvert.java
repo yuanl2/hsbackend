@@ -22,11 +22,7 @@ public class UserAdditionInfoConvert implements AttributeConverter<UserAdditionI
     public String convertToDatabaseColumn(UserAdditionInfo userAdditionInfo) {
         try {
             String result = objectMapper.writeValueAsString(userAdditionInfo);
-
-
             JSONObject jsonObject = new JSONObject(result);
-
-
             return jsonObject.toString();
         } catch (JsonProcessingException ex) {
             logger.error("Unexpected IOEx decoding json from database: " + ex);
@@ -42,7 +38,6 @@ public class UserAdditionInfoConvert implements AttributeConverter<UserAdditionI
     @Override
     public UserAdditionInfo convertToEntityAttribute(String s) {
         try {
-
             return objectMapper.readValue(s, UserAdditionInfo.class);
         } catch (IOException ex) {
              logger.error("Unexpected IOEx decoding json from database: " + s);

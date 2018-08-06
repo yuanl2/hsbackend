@@ -27,10 +27,17 @@
         <spring-boot.version>1.4.3.RELEASE</spring-boot.version>
         <spring.version>4.3.2.RELEASE</spring.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <mysql.connnect.verison>5.1.39</mysql.connnect.verison>
+        <alibaba.fastjson.version>1.2.49</alibaba.fastjson.version>
 
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${alibaba.fastjson.version}</version>
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -49,7 +56,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.39</version>
+            <version>${mysql.connnect.verison}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -9,6 +9,7 @@ public enum ConsumeType {
     CITY("city", 3),
     AREA("are", 4),
     LOCATION("location", 5),
+    DEVICE("device",6),
     NORMAL("normal", 0);
 
     private String type;
