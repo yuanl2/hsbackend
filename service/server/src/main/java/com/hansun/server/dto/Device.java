@@ -93,7 +93,7 @@ public class Device {
     private String qrcode;
 
     @Column(name = "managerStatus")
-    private byte managerStatus = DeviceManagerStatus.INACTIVATED.getStatus();
+    private byte managerStatus;
 
     public long getId() {
         return id;
