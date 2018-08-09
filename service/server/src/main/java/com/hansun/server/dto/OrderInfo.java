@@ -27,7 +27,7 @@ public class OrderInfo {
     @Transient
     private String deviceName;
 
-    @Column(name = "startTime", nullable = false)
+    @Column(name = "startTime")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
