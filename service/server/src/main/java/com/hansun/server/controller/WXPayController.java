@@ -152,7 +152,7 @@ public class WXPayController {
 
         //在预支付时，就生成订单
         OrderInfo order = new OrderInfo();
-        order.setId(Long.valueOf(out_trade_no));
+        order.setOrderID(Long.valueOf(out_trade_no));
         order.setOrderName(out_trade_no);
         order.setCreateTime(Utils.getNowTime());
 //        order.setStartTime(Instant.now());

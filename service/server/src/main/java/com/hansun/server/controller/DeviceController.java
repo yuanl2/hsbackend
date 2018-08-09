@@ -158,7 +158,7 @@ public class DeviceController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = "/deviceStatus", method = RequestMethod.GET)
+    @RequestMapping(value = "/deviceStatus")
     public String deviceStatus(@RequestParam(value = "device_id", required = true, defaultValue = "0000000") String device_id,
                                @RequestParam(value = "pay_method", required = true, defaultValue = "wx") String pay_method,
                                HttpServletRequest request, HttpServletResponse response) throws IOException {

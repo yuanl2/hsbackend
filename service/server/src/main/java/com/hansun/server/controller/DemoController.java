@@ -459,12 +459,16 @@ public class DemoController {
                                @RequestParam(value = "userId", required = true, defaultValue = "0") String userId,
                                HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        logger.info("paysuccess  userId = {} orderId = {} device_id = {}", userId, orderId, device_id);
+        logger.debug("paysuccess  userId = {} orderId = {} device_id = {}", userId, orderId, device_id);
 
         long deviceID = Long.valueOf(device_id);
+        Device d = dataStore.queryDeviceByDeviceID(deviceID);
         OrderInfo o = orderService.getOrder(deviceID);
         Consume consume = dataStore.queryConsume(Short.valueOf(product_id));
-
+        String store = d.getAdditionInfo();
+        if (store == null) {
+            store = "";
+        }
         //订单在用户点击微信支付的时候就创建了订单，但是如果用户cancel了订单，也会有订单数据，只是状态不一样
         if (o != null && o.getOrderStatus() == OrderStatus.CREATED) {
             o.setOrderStatus(OrderStatus.NOTSTART);
@@ -477,7 +481,7 @@ public class DemoController {
 //            model.addAttribute("duration", consume.getDuration() * 60);
 //            model.addAttribute("startTime", o.getCreateTime().toEpochMilli());
             model.addAttribute("orderId", o.getId());
-            logger.info(" device {} orderId {} now forward device_running again", device_id, orderId);
+            logger.debug(" device {} orderId {} now forward device_running again", device_id, orderId);
             return "device_finish";
         }
 
@@ -485,7 +489,7 @@ public class DemoController {
             orderId = orderService.getOrderName();
         }
 
-        int count = 20;
+        int count = 30;
         OrderInfo order1 = null;
         while (count > 0) {
             count--;
@@ -496,11 +500,11 @@ public class DemoController {
                 model.addAttribute("duration", consume.getDuration());
                 model.addAttribute("startTime", order1.getCreateTime().toString());
                 model.addAttribute("orderId", orderId);
-                logger.info(" device {} orderId {} now forward device_run_error", device_id, orderId);
+                logger.debug(" device {} orderId {} now forward device_run_error", device_id, orderId);
                 return "device_run_error";
             }
             if (order1 == null || order1.getOrderStatus() != OrderStatus.PAYDONE) {
-                logger.info(" device {} not receive pay success notify count = {}", device_id, count);
+                logger.debug(" device {} not receive pay success notify count = {}", device_id, count);
                 Thread.sleep(500);
             } else {
                 logger.info(" device {} receive pay success notify count = {}", device_id, count);
@@ -519,7 +523,7 @@ public class DemoController {
             model.addAttribute("orderId", orderId);
             order1.setOrderStatus(OrderStatus.USER_NOT_PAY);
             orderService.updateOrder(order1);
-            logger.info(" device {} orderId {} now forward device_run_error", device_id, orderId);
+            logger.debug(" device {} orderId {} now forward device_run_error", device_id, orderId);
             return "device_run_error";
         }
 
@@ -529,7 +533,7 @@ public class DemoController {
             int status = deviceService.getDevice(deviceID).getStatus();
             logger.info("device status {} ", status);
             if (status != DeviceStatus.SERVICE) {
-                logger.info(" device {} not running count = {}", device_id, count);
+                logger.debug(" device {} not running count = {}", device_id, count);
                 Thread.sleep(500);
             } else {
                 logger.info(" device {} is running count = {}", device_id, count);
@@ -541,10 +545,11 @@ public class DemoController {
             model.addAttribute("device_id", device_id);
 //            model.addAttribute("duration", consume.getDuration() * 60);
 //            model.addAttribute("startTime", order1.getStartTime().toEpochMilli());
+            model.addAttribute("store", store);
             model.addAttribute("orderId", orderId);
             order1.setOrderStatus(OrderStatus.SERVICE);
             orderService.updateOrder(order1);
-            logger.info(" device {} now forward device_running", device_id);
+            logger.debug(" device {} now forward device_running", device_id);
             return "device_finish";
         } else {
             model.addAttribute("device_id", device_id);
@@ -553,7 +558,7 @@ public class DemoController {
             model.addAttribute("orderId", orderId);
             order1.setOrderStatus(OrderStatus.DEVICE_ERROR);
             orderService.updateOrder(order1);
-            logger.info(" device {} orderId {} now forward device_run_error", device_id, orderId);
+            logger.debug(" device {} orderId {} now forward device_run_error", device_id, orderId);
             return "device_run_error";
         }
     }
