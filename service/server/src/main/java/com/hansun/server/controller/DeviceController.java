@@ -132,8 +132,17 @@ public class DeviceController {
         return new ResponseEntity<>(d, HttpStatus.OK);
     }
 
+
+
+    @RequestMapping(value = "device/id/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteByDeviceID(@PathVariable String id, UriComponentsBuilder ucBuilder) {
+        deviceService.deleteDevice(Long.valueOf(id));
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+
     @RequestMapping(value = "devices/id/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteDevice(@PathVariable Long id,
+    public ResponseEntity<?> deleteDevice(@PathVariable long id,
                                           @RequestParam(value = "locationID", required = false, defaultValue = "1") int locationID,
                                           @RequestParam(value = "owner", required = false, defaultValue = "1") int owner,
                                           UriComponentsBuilder ucBuilder) {
@@ -149,7 +158,7 @@ public class DeviceController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping("/deviceStatus")
+    @RequestMapping(value = "/deviceStatus", method = RequestMethod.GET)
     public String deviceStatus(@RequestParam(value = "device_id", required = true, defaultValue = "0000000") String device_id,
                                @RequestParam(value = "pay_method", required = true, defaultValue = "wx") String pay_method,
                                HttpServletRequest request, HttpServletResponse response) throws IOException {

@@ -41,6 +41,7 @@ public interface DeviceDao extends JpaRepository<Device, Long> {
      * @param deviceID
      */
     @Modifying
+    @Transactional
     @Query("DELETE FROM Device device WHERE device.deviceID = :deviceID")
     void deleteByDeviceID(@Param("deviceID") long deviceID);
 

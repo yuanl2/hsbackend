@@ -136,7 +136,7 @@ public class DataStore {
         deviceCache.forEach((k, v) -> {
             if (v.getOwnerID() == owner) list.add(k);
         });
-        Stream.of(list).forEach(k -> {
+        list.stream().forEach(k -> {
             Device d = deviceCache.remove(k);
             deviceSimCache.remove(d.getSimCard());
         });
