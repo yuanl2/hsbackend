@@ -242,11 +242,11 @@ void Device_GPIO_Status(char *buf)
 	//char *p=buf;
 	for(i=DEVICE_01; i<DEVICEn; i++)
 	{
-		//BSP_Printf("Device_Timer_Status Dev[%d].total: %d, passed: %d\n", i, g_device_status[i].total, g_device_status[i].passed);
+		BSP_Printf("Device_Timer_Status Dev[%d].total: %d, passed: %d\n", i, g_device_status[i].total, g_device_status[i].passed);
 		sprintf(buf, "%d%d%d", Device_Power_Status(i), isDevBusy(i)?1:0, isDevWorking(i)?1:0);
 		buf+=GPIOS;
 	}
-	//BSP_Printf("Device Status: %s\n", p);
+	BSP_Printf("Device Status: %s\n", p);
 }
 
 u8 CheckSum(char* pBuf, u16 len);

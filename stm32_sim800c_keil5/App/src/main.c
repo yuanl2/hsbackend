@@ -325,7 +325,7 @@ int main(void)
 									periods = strtok(NULL, ",");
 									if(periods)
 									{						
-										//BSP_Printf("periods: %s\n", periods);	
+										BSP_Printf("periods: %s\n", periods);	
 #if TEST
 										sscanf(periods, "%02d,", &period_on[DEVICE_01]);
 #else
@@ -339,7 +339,7 @@ int main(void)
 									extra_sec = strtok(NULL, ",");
 									if(extra_sec)
 									{						
-										//BSP_Printf("extra_sec: %s\n", extra_sec);
+										BSP_Printf("extra_sec: %s\n", extra_sec);
 #if TEST
 										sscanf(periods, "%02d,", &extra_sec[DEVICE_01]);
 #else

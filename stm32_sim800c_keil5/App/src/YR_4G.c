@@ -288,7 +288,7 @@ void trimStr(char *dst, char *src, u8 ackId)
 bool isWorking(void)
 {
 	//return TRUE;
-    	return (GPIO_ReadInputDataBit(WORK_GPIO_PORT, WORK_PIN)==1?TRUE:FALSE);	
+    return (GPIO_ReadInputDataBit(WORK_GPIO_PORT, WORK_PIN)==1?TRUE:FALSE);	
 }
 
 char *DumpQueue(char * recv)
