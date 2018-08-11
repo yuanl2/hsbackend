@@ -154,7 +154,7 @@ public class TimerService {
                     long end = System.currentTimeMillis();
                     //轮询所有设备后，需要sleep的时间
 
-                    long duration = 600000 - (end - begin);
+                    long duration = 120000 - (end - begin);
 
                     if (duration > 0) {
                         Thread.sleep(duration);
