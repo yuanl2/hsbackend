@@ -158,13 +158,14 @@ public class LinkManger {
         }
     }
 
-    public void updateDeviceLoginTime(String deviceName, short loginReason, short signal, Map<Integer, Byte> map) {
+    public void updateDeviceLoginTime(String deviceName, short loginReason, short signal, Map<Integer, Byte> map, String version) {
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
         if (deviceList != null && deviceList.size() > 0) {
             for (Device device : deviceList) {
                 device.setLoginTime(Utils.getNowTime());
                 device.setLoginReason(loginReason);
                 device.setSignal(signal);
+                device.setVersion(version);
                 deviceService.updateDevice(device, map.get((int)device.getPort()));
             }
         }

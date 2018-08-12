@@ -98,6 +98,9 @@ public class Device {
     @Column(name = "consumeType")
     private byte consumeType;
 
+    @Column(name = "version")
+    private String version;
+
     public long getId() {
         return id;
     }
@@ -290,6 +293,14 @@ public class Device {
         this.consumeType = consumeType;
     }
 
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
     @Override
     public String toString() {
         return "device{" +
@@ -317,6 +328,7 @@ public class Device {
                 ", qrcode=" + qrcode +
                 ", managerStatus=" + managerStatus +
                 ", consumeType=" + consumeType +
+                ", version=" + version +
                 "}";
     }
 

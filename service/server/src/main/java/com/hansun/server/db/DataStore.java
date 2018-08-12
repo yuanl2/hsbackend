@@ -190,6 +190,29 @@ public class DataStore {
         if (oldStatus != status) {
             device.setStatus(status);
 
+//            deviceDao.updateStatus(status, device.getDeviceID());
+            deviceDao.save(device);
+            deviceCache.put(device.getDeviceID(), device);
+            logger.info("update device status before {} update value {}", oldStatus, status);
+        } else {
+            logger.info("{} the status {} is not changed", device.getDeviceID(), status);
+        }
+        return device;
+    }
+
+    public Device updateDeviceStatus(Device device, byte status) {
+        Device device2 = deviceCache.get(device.getDeviceID());
+        //缓存不存在此设备
+        if (device2 == null) {
+            Device device1 = deviceDao.findByDeviceID(device.getDeviceID());
+            if (device1 == null) {
+                throw ServerException.conflict("Cannot update Device for not exist.");
+            }
+        }
+        byte oldStatus = device.getStatus();
+        if (oldStatus != status) {
+            device.setStatus(status);
+
             deviceDao.updateStatus(status, device.getDeviceID());
             deviceCache.put(device.getDeviceID(), device);
             logger.info("update device status before {} update value {}", oldStatus, status);

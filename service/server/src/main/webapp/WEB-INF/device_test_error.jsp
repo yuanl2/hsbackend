@@ -29,7 +29,6 @@
                 <div class="test-contact-text1 ">
                     <p class="span1">设备${device_id}下发失败</p>
                     <p class="span2"> ${error}</p>
-
                 </div>
 			</div>
 		</div>
