@@ -1108,7 +1108,10 @@ u8 GetUploadStr(u8 msg_str_id, char *msg_str)
 		*p_left++ = delim;
 		sprintf(p_left, "%04d", signal);
 		p_left += 4;
-		*p_left++ = delim;		
+		*p_left++ = delim;	
+		sprintf(p_left, "%s", SW_VERSION);
+		p_left += strlen(SW_VERSION);
+		*p_left++ = delim;				
 	}
 
   	sprintf(msg->length,"%03d",strlen(msg_str)-sizeof(msg->header)-sizeof(msg->id)-sizeof(msg->length)+5);
