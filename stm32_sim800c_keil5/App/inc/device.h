@@ -100,8 +100,8 @@ extern Device_Info g_device_status[DEVICEn];
 
 
 void Device_Init(void);
-void Device_ON(u8 Device);
-void Device_OFF(u8 Device);																	 
+bool Device_ON(u8 Device);
+bool Device_OFF(u8 Device);																	 
 Device_Power Device_Power_Status(u8 Device);
 bool Device_Check_Status(void);
 void Device_Timer_Status(char *buf);

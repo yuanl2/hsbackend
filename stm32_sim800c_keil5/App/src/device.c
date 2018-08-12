@@ -109,24 +109,48 @@ void Device_Init(void)
 
 }
 
-void Device_OFF(u8 Device)
+#define DEVICE_OP_RETRY_MAX     5
+bool Device_OFF(u8 Device)
 {
+	int retry = 0;
+	bool ret = FALSE;
 #if TEST
-	GPIO_ResetBits(GPIO_PORT[Device][GPIO_ENABLE], GPIO_PIN[Device][GPIO_ENABLE]);	
+	do {
+		GPIO_ResetBits(GPIO_PORT[Device][GPIO_ENABLE], GPIO_PIN[Device][GPIO_ENABLE]);
+		delay_ms(10);
+		retry++;
+	} while((Device_Power_Status(Device)==ON) && (retry<DEVICE_OP_RETRY_MAX));
+		
 #else
 	GPIO_ResetBits(GPIO_PORT[Device], GPIO_PIN[Device]);						
 #endif
-	Device_InTask_Ind(FALSE);
+	if(Device_Power_Status(Device) == OFF) {
+		Device_InTask_Ind(FALSE);
+		ret = TRUE;
+	}
+
+	return ret;
 }
 
-void Device_ON(u8 Device)
+bool Device_ON(u8 Device)
 {
+	int retry = 0;
+	bool ret = FALSE;
 #if TEST
-	GPIO_SetBits(GPIO_PORT[Device][GPIO_ENABLE], GPIO_PIN[Device][GPIO_ENABLE]);	
+	do {
+		GPIO_SetBits(GPIO_PORT[Device][GPIO_ENABLE], GPIO_PIN[Device][GPIO_ENABLE]);
+		delay_ms(10);
+		retry++;
+	} while((Device_Power_Status(Device)==OFF) && (retry<DEVICE_OP_RETRY_MAX));
 #else
 	GPIO_SetBits(GPIO_PORT[Device], GPIO_PIN[Device]);				
 #endif
-	Device_InTask_Ind(TRUE);
+	if(Device_Power_Status(Device) == ON) {
+		Device_InTask_Ind(TRUE);
+		ret = TRUE;
+	}
+
+	return ret;
 }
 
 void Device_Network_Ind(bool connected, bool enable_flash)
