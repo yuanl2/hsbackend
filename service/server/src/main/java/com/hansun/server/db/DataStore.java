@@ -102,7 +102,7 @@ public class DataStore {
 
         //need get ID after create device to db
         Device result = deviceDao.save(device);
-//        autoFillDevice(device);
+        autoFillDevice(device);
         deviceCache.put(deviceId, result);
         deviceSimCache.computeIfAbsent(result.getSimCard(), k -> new ArrayList<>()).add(result);
         return device;
@@ -298,16 +298,15 @@ public class DataStore {
     }
 
 
-    public List<Device> updateManagerStatus(List<Long>ids, byte managerStatus) {
+    public List<Device> updateManagerStatus(List<Long> ids, byte managerStatus) {
         List<Device> lists = new ArrayList<>();
-        ids.forEach(id->{
+        ids.forEach(id -> {
 
-            try{
-                lists.add(updateManagerStatus(id,managerStatus));
+            try {
+                lists.add(updateManagerStatus(id, managerStatus));
 
-            }
-            catch(Exception e){
-                logger.error("updateManagerStatus {} error {}",id,e);
+            } catch (Exception e) {
+                logger.error("updateManagerStatus {} error {}", id, e);
             }
 
         });
@@ -369,14 +368,11 @@ public class DataStore {
             } else {
                 device.setAddress(location.getAddress());
             }
+        }
 
-            String owner = device.getOwner();
-            if (owner == null) {
-                User u = userCache.get(device.getOwnerID());
-                if (u != null) {
-                    device.setOwner(u.getUsername());
-                }
-            }
+        User u = userCache.get(device.getOwnerID());
+        if (u != null) {
+            device.setOwner(u.getUsername());
         }
     }
 
@@ -703,7 +699,7 @@ public class DataStore {
 
     public List<Consume> queryAllConsumeByDeviceType(String deviceType, int type) {
         List<Consume> result = deviceTypeConsumeCache.get(deviceType);
-        if(result!=null) {
+        if (result != null) {
             return result.stream().filter(k -> k.getType() == type).collect(Collectors.toList());
         }
 //        Optional<List<Consume>> result = consumeTable.selectAll();
@@ -756,7 +752,7 @@ public class DataStore {
     }
 
     public User queryUser(short userID) {
-        return userCache.computeIfAbsent( userID, k -> userDao.findOne(k));
+        return userCache.computeIfAbsent(userID, k -> userDao.findOne(k));
     }
 
     public List<User> queryAllUser() {

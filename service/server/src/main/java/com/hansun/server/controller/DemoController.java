@@ -25,9 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -66,9 +63,10 @@ public class DemoController {
     public String dispatch(Model model, @RequestParam(value = "device_id", required = false, defaultValue = "1") String device_id,
                            HttpServletRequest request, HttpServletResponse response) {
         String useragent = request.getHeader("User-Agent");
-        logger.info("request from {}", useragent);
+        logger.debug("request from {}", useragent);
         long deviceID = Long.valueOf(device_id);
         Device device = deviceService.getDevice(deviceID);
+        model.addAttribute("device_id",device_id);
         if (device == null) {
             logger.error("device {} not exists", device_id);
             return "device_not_exist";
