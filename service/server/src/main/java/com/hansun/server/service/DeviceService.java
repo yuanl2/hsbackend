@@ -1,6 +1,6 @@
 package com.hansun.server.service;
 
-import com.hansun.dto.Device;
+import com.hansun.server.dto.Device;
 import com.hansun.server.db.DataStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +31,10 @@ public class DeviceService {
         return dataStore.updateDevice(device, status);
     }
 
+    public Device updateDeviceStatus(Device device, byte status) {
+        return dataStore.updateDeviceStatus(device, status);
+    }
+
     public Device updateDevice(Device device) {
         return dataStore.updateDevice(device);
     }
@@ -38,6 +42,11 @@ public class DeviceService {
     public Device updateDeviceManagerStatus(Long id, byte status) {
         return dataStore.updateManagerStatus(id,status);
     }
+
+    public List<Device> updateDeviceListManagerStatus(List<Long> ids, byte status) {
+        return dataStore.updateManagerStatus(ids,status);
+    }
+
 
     public void deleteDevice(Long deviceID) {
         dataStore.deleteDevice(deviceID);

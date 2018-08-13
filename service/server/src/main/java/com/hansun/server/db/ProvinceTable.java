@@ -1,6 +1,6 @@
 package com.hansun.server.db;
 
-import com.hansun.dto.Province;
+import com.hansun.server.dto.Province;
 import com.hansun.server.common.ServerException;
 
 import java.sql.Connection;
@@ -14,12 +14,12 @@ import java.util.Optional;
  * Created by yuanl2 on 2017/3/29.
  */
 public class ProvinceTable {
-    private static final String SELECT = "SELECT provinceID, provinceName FROM province WHERE provinceName = ?";
-    private static final String SELECTBYID = "SELECT provinceID, provinceName FROM province WHERE provinceID = ?";
-    private static final String SELECT_ALL = "SELECT provinceID, provinceName FROM province";
-    private static final String DELETE = "DELETE FROM province WHERE provinceID = ?";
-    private static final String INSERT = "INSERT INTO province (provinceID, provinceName) VALUES (?, ?)";
-    private static final String UPDATE = "UPDATE province SET provinceName = ? WHERE provinceID = ?";
+    private static final String SELECT = "SELECT id, provinceName FROM province WHERE provinceName = ?";
+    private static final String SELECTBYID = "SELECT id, provinceName FROM province WHERE id = ?";
+    private static final String SELECT_ALL = "SELECT id, provinceName FROM province";
+    private static final String DELETE = "DELETE FROM province WHERE id = ?";
+    private static final String INSERT = "INSERT INTO province (id, provinceName) VALUES (?, ?)";
+    private static final String UPDATE = "UPDATE province SET provinceName = ? WHERE id = ?";
 
     private ConnectionPoolManager connectionPoolManager;
 
@@ -89,12 +89,12 @@ public class ProvinceTable {
         }
     }
 
-    public void delete(short provinceID) {
+    public void delete(short id) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             deleteStatement = conn.prepareStatement(DELETE);
-            deleteStatement.setShort(1, provinceID);
+            deleteStatement.setShort(1, id);
             deleteStatement.executeUpdate();
         } catch (Exception e) {
             throw new ServerException(e);
@@ -127,7 +127,7 @@ public class ProvinceTable {
                         try {
                             while (resultSet.next()) {
                                 Province province = new Province();
-                                province.setId(resultSet.getShort("provinceID"));
+                                province.setId(resultSet.getShort("id"));
                                 province.setName(resultSet.getString("provinceName"));
                                 return province;
                             }
@@ -174,7 +174,7 @@ public class ProvinceTable {
                         try {
                             while (resultSet.next()) {
                                 Province province = new Province();
-                                province.setId(resultSet.getShort("provinceID"));
+                                province.setId(resultSet.getShort("id"));
                                 province.setName(resultSet.getString("provinceName"));
                                 return province;
                             }
@@ -221,7 +221,7 @@ public class ProvinceTable {
                             List<Province> list = new ArrayList<Province>();
                             while (resultSet.next()) {
                                 Province province = new Province();
-                                province.setId(resultSet.getShort("provinceID"));
+                                province.setId(resultSet.getShort("id"));
                                 province.setName(resultSet.getString("provinceName"));
                                 list.add(province);
                             }

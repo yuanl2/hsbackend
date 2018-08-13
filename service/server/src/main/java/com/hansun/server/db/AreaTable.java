@@ -1,6 +1,6 @@
 package com.hansun.server.db;
 
-import com.hansun.dto.Area;
+import com.hansun.server.dto.Area;
 import com.hansun.server.common.ServerException;
 
 import java.sql.Connection;
@@ -15,12 +15,12 @@ import java.util.Optional;
  */
 public class AreaTable {
 
-    private static final String SELECT = "SELECT areaID, areaName, address, cityID FROM area WHERE areaID = ?";
-    private static final String SELECTBYNAME = "SELECT areaID, areaName, address, cityID FROM area WHERE areaName = ? AND address = ?";
-    private static final String SELECT_ALL = "SELECT areaID, areaName, address, cityID FROM area";
+    private static final String SELECT = "SELECT id, areaName, address, cityID FROM area WHERE id = ?";
+    private static final String SELECTBYNAME = "SELECT id, areaName, address, cityID FROM area WHERE areaName = ? AND address = ?";
+    private static final String SELECT_ALL = "SELECT id, areaName, address, cityID FROM area";
     private static final String DELETE = "DELETE FROM area WHERE cityID = ?";
-    private static final String INSERT = "INSERT INTO area (areaID, areaName, address, cityID) VALUES (?, ?, ?, ?)";
-    private static final String UPDATE = "UPDATE area SET areaName = ? , address = ? WHERE areaID = ?";
+    private static final String INSERT = "INSERT INTO area (id, areaName, address, cityID) VALUES (?, ?, ?, ?)";
+    private static final String UPDATE = "UPDATE area SET areaName = ? , address = ? WHERE id = ?";
 
     private ConnectionPoolManager connectionPoolManager;
 
@@ -131,7 +131,7 @@ public class AreaTable {
                         try {
                             while (resultSet.next()) {
                                 Area area = new Area();
-                                area.setId(resultSet.getShort("areaID"));
+                                area.setId(resultSet.getShort("id"));
                                 area.setName(resultSet.getString("areaName"));
                                 area.setAddress(resultSet.getString("address"));
                                 return area;
@@ -180,7 +180,7 @@ public class AreaTable {
                         try {
                             while (resultSet.next()) {
                                 Area area = new Area();
-                                area.setId(resultSet.getShort("areaID"));
+                                area.setId(resultSet.getShort("id"));
                                 area.setName(resultSet.getString("areaName"));
                                 area.setAddress(resultSet.getString("address"));
                                 area.setCityID(resultSet.getShort("cityID"));
@@ -229,7 +229,7 @@ public class AreaTable {
                             List<Area> list = new ArrayList<Area>();
                             while (resultSet.next()) {
                                 Area area = new Area();
-                                area.setId(resultSet.getShort("areaID"));
+                                area.setId(resultSet.getShort("id"));
                                 area.setName(resultSet.getString("areaName"));
                                 area.setAddress(resultSet.getString("address"));
                                 area.setCityID(resultSet.getShort("cityID"));

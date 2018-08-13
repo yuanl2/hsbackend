@@ -1,12 +1,11 @@
 package com.hansun.server.service;
 
-import com.hansun.dto.Device;
-import com.hansun.dto.Location;
-import com.hansun.dto.Order;
-import com.hansun.dto.User;
+import com.hansun.server.dto.Device;
+import com.hansun.server.dto.Location;
+import com.hansun.server.dto.OrderInfo;
+import com.hansun.server.dto.User;
 import com.hansun.server.common.*;
 import com.hansun.server.commu.*;
-import com.hansun.server.commu.msg.ServerStartDeviceMsg;
 
 import com.hansun.server.db.DataStore;
 import com.hansun.server.db.OrderStore;
@@ -22,13 +21,10 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
-
-import static com.hansun.server.common.MsgConstant.DEVICE_START_MSG;
 
 /**
  * Created by yuanl2 on 2017/3/29.
@@ -67,14 +63,14 @@ public class OrderService {
     public void destroy() {
     }
 
-    public void sendMetrics(Order order) {
+    public void sendMetrics(OrderInfo order) {
         metricsService.sendMetrics(HSServiceMetrics
                 .builder()
                 .measurement("")
                 .build());
     }
 
-    public void createStartMsgToDevice(Order order) {
+    public void createStartMsgToDevice(OrderInfo order) {
         try {
 //            order.setId(Long.valueOf(getSequenceNumber()));
             Device device = dataStore.queryDeviceByDeviceID(order.getDeviceID());
@@ -84,45 +80,55 @@ public class OrderService {
             }
             int index = device.getPort();
 
-            String deviceType = MsgUtil.getMsgBodyLength(device.getType(),3);
+            String deviceType = MsgUtil.getMsgBodyLength(device.getType(), 3);
             //4g device
-            if(device.getSimCard().length() == MsgConstant4g.DEVICE_NAME_FIELD_SIZE){
+            if (device.getSimCard().length() == MsgConstant4g.DEVICE_NAME_FIELD_SIZE) {
 
-                int portNum =1;
+                int portNum = 1;
                 com.hansun.server.commu.msg4g.ServerStartDeviceMsg msg = new com.hansun.server.commu.msg4g.ServerStartDeviceMsg(MsgConstant4g.DEVICE_START_MSG);
                 msg.setDeviceType(deviceType);
 
-                order.setStartTime(Instant.now());
+                order.setStartTime(Utils.getNowTime());
                 order.setPrice(dataStore.queryConsume(order.getConsumeType()).getPrice());
                 order.setDuration(dataStore.queryConsume(order.getConsumeType()).getDuration());
 
-                if(deviceType.equals("000")){
+                if (deviceType.equals("000")) {
                     portNum = 4;
-                }
-                else if(deviceType.equals("100")){
+                } else if (deviceType.equals("100")) {
                     portNum = 1;
                 }
                 Map<Integer, Byte> map = new HashMap<>();
                 for (int i = 1; i <= portNum; i++) {
                     if (index == i) {
-                        map.put(i, (byte)1);
+                        map.put(i, (byte) 1);
                     } else {
-                        map.put(i, (byte)0);
+                        map.put(i, (byte) 0);
                     }
                 }
                 msg.setMap(map);
                 Map<Integer, String> times = new HashMap<>();
                 for (int i = 1; i <= portNum; i++) {
                     if (index == i) {
-                        int duration = order.getDuration();
-                        if (duration < 10) {
-                            times.put(i, "0" + order.getDuration());
+                        int durationMinute = order.getDuration() / 60;
+                        int durationSecond = order.getDuration() % 60;
+                        StringBuilder stringBuilder = new StringBuilder();
+                        if (durationMinute < 10) {
+                            stringBuilder.append("0").append(durationMinute);
                         } else {
-                            times.put(i, order.getDuration() + "");
+                            stringBuilder.append(durationMinute);
                         }
+                        stringBuilder.append(",");
+                        if (durationSecond < 10) {
+                            stringBuilder.append("0").append(durationSecond);
+                        } else {
+                            stringBuilder.append(durationSecond);
+                        }
+                        stringBuilder.append(",");
+                        times.put(i, stringBuilder.toString());
                     } else {
-                        times.put(i, "00");
+                        times.put(i, "00,00,");
                     }
+
                 }
                 msg.setStartMap(times);
 
@@ -189,57 +195,57 @@ public class OrderService {
         }
     }
 
-    public Order createOrder(Order order) {
+    public OrderInfo createOrder(OrderInfo order) {
 //        Device device = dataStore.queryDeviceByDeviceID(order.getDeviceID());
 //        device.setStatus(DeviceStatus.STARTTASK);
 //        dataStore.updateDevice(device);
-        Order result =  orderStore.insertOrder(order);
+        OrderInfo result = orderStore.insertOrder(order);
         return result;
     }
 
     public void processStartOrder(String deviceBoxName, int port) {
         Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, port);
-        Order order = orderStore.queryOrder(d.getId());
+        OrderInfo order = orderStore.queryOrderByDeviceID(d.getDeviceID());
         if (order != null && order.getOrderStatus() != OrderStatus.SERVICE) {
             logger.info("update order before = " + order);
             order.setOrderStatus(OrderStatus.SERVICE);
-            order.setStartTime(Instant.now());
+            order.setStartTime(Utils.getNowTime());
             orderStore.updateOrder(order);
 
             //不能等心跳消息来了再更新设备的状态，应该根据业务的回应及时更新
-            dataStore.updateDevice(d,DeviceStatus.SERVICE);
+            dataStore.updateDevice(d, DeviceStatus.SERVICE);
         } else {
-            logger.error(d.getId() + " have no order now");
+            logger.error(d.getDeviceID() + " have no order now");
         }
     }
 
     public void processFinishOrder(String deviceBoxName, Map<Integer, Byte> map) {
         map.forEach((k, v) -> {
             Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, k);
-            Order order = orderStore.queryOrder(d.getId());
+            OrderInfo order = orderStore.queryOrderByDeviceID(d.getDeviceID());
 
             if (order != null && v == DeviceStatus.IDLE) {
-                if (Instant.now().isAfter(order.getCreateTime().plus(Duration.ofMinutes(order.getDuration())))
-                        || Instant.now().isAfter(order.getStartTime().plus(Duration.ofMinutes(order.getDuration())))) {
+                if (Utils.isOrderFinshed(order)) {
                     logger.info("update order before = " + order);
                     order.setOrderStatus(OrderStatus.FINISH);
-                    order.setEndTime(Instant.now());
+                    order.setEndTime(Utils.getNowTime());
                     orderStore.updateOrder(order);
 
-                    dataStore.updateDevice(d,DeviceStatus.IDLE);
+                    dataStore.updateDevice(d, DeviceStatus.IDLE);
 
                     //remove order from cache not table
-                    orderStore.deleteOrder(d.getId());
+                    orderStore.deleteOrder(d.getDeviceID());
                     logger.info("order delete = " + order);
                 }
             } else {
-                logger.error(d.getId() + " have no order now");
+                logger.error(d.getDeviceID() + " have no order now");
             }
 
         });
 
         dataStore.updateDeviceStatus(deviceBoxName, map, "0");
     }
+
 
 //    public void OrderNotFinish(String name, int orderStatus) {
 //        Order order = orderCache.get(name);
@@ -254,46 +260,48 @@ public class OrderService {
 //        logger.error(name + " have no order now");
 //    }
 
-    public void updateOrder(Order order) {
+    public void updateOrder(OrderInfo order) {
         orderStore.updateOrder(order);
     }
 
-    public Order getOrder(Long deviceID) {
-        return orderStore.queryOrder(deviceID);
+    public OrderInfo getOrder(Long deviceID) {
+        return orderStore.queryOrderByDeviceID(deviceID);
     }
 
-    public Order getOrderByOrderID(String orderID) {
-        return orderStore.queryOrder(orderID);
+    public OrderInfo getOrderByOrderID(long orderID) {
+        return orderStore.queryOrderByOrderID(orderID);
     }
 
     /**
      * 更新订单状态为完成，并且删除缓存中的订单
+     *
      * @param deviceID
      */
     public void deleteOrder(Long deviceID) {
-        Order order = orderStore.queryOrder(deviceID);
+        OrderInfo order = orderStore.queryOrderByDeviceID(deviceID);
         if (order != null) {
-            order.setEndTime(Instant.now());
+            order.setEndTime(Utils.getNowTime());
             order.setOrderStatus(OrderStatus.FINISH);
             orderStore.updateOrder(order);
-            logger.info("Before delete order {} " , order);
+            logger.info("Before delete order {} ", order);
             orderStore.deleteOrder(deviceID);
-            logger.info("After delete order {}", orderStore.queryOrder(deviceID));
+            logger.info("After delete order {}", orderStore.queryOrderByDeviceID(deviceID));
         }
     }
 
     /**
      * 不更新订单状态为完成，并且删除缓存中的订单
+     *
      * @param deviceID
      */
     public void removeOrder(Long deviceID) {
         orderStore.deleteOrder(deviceID);
     }
 
-    public List<OrderDetail> queryOrderByDevice(Long id, Instant startTime, Instant endTime) {
+    public List<OrderDetail> queryOrderByDevice(Long id, LocalDateTime startTime, LocalDateTime endTime) {
         List<Long> deviceIDs = new ArrayList<>();
         deviceIDs.add(id);
-        List<Order> orderList = orderStore.queryByDevice(deviceIDs, startTime, endTime);
+        List<OrderInfo> orderList = orderStore.queryByDevice(deviceIDs, startTime, endTime);
         List<OrderDetail> orderDetailList = new ArrayList<>();
 
         orderList.forEach(
@@ -305,7 +313,7 @@ public class OrderService {
                         orderDetail.setAreaName(location.getAreaName());
                         orderDetail.setAddress(location.getAddress());
                         orderDetail.setDeviceName(device.getName());
-                        orderDetail.setUser(dataStore.queryUser(device.getOwnerID()).getName());
+                        orderDetail.setUser(dataStore.queryUser(device.getOwnerID()).getUsername());
                         orderDetail.setCity(location.getCity());
                         orderDetail.setProvince(location.getProvince());
                         orderDetailList.add(orderDetail);
@@ -317,14 +325,14 @@ public class OrderService {
         return orderDetailList;
     }
 
-    public List<OrderDetail> queryOrderByUser(String user, Instant startTime, Instant endTime) {
+    public List<OrderDetail> queryOrderByUser(String user, LocalDateTime startTime, LocalDateTime endTime) {
         List<Device> devices;
         int id = getUserId(user);
         devices = dataStore.queryDeviceByOwner(id);
         List<Long> deviceIDs = new ArrayList<>();
         if (devices != null && devices.size() > 0) {
             devices.forEach(k -> {
-                deviceIDs.add(k.getId());
+                deviceIDs.add(k.getDeviceID());
             });
         }
         List<OrderDetail> orderDetailList = new ArrayList<>();
@@ -339,7 +347,7 @@ public class OrderService {
         if (!Utils.isNumeric(user)) {
             for (User u : dataStore.queryAllUser()
                     ) {
-                if (u.getName().equals(user)) {
+                if (u.getUsername().equals(user)) {
                     id = u.getId();
                 }
             }
@@ -354,24 +362,24 @@ public class OrderService {
         if (!Utils.isNumeric(user)) {
             for (User u : dataStore.queryAllUser()
                     ) {
-                if (u.getName().equals(user)) {
+                if (u.getUsername().equals(user)) {
                     return u;
                 }
             }
         } else {
-            return dataStore.queryUser(Integer.valueOf(user));
+            return dataStore.queryUser(Short.valueOf(user));
         }
         return null;
     }
 
-    public List<OrderDetail> queryOrderByArea(String id, Instant startTime, Instant endTime) {
+    public List<OrderDetail> queryOrderByArea(String id, LocalDateTime startTime, LocalDateTime endTime) {
         List<Location> locationList = dataStore.queryLocationByAreaID(Integer.valueOf(id));
         List<Long> deviceIDs = new ArrayList<>();
         locationList.forEach(k -> {
             List<Device> lists = dataStore.queryDeviceByLocation(k.getId());
             if (lists != null) {
                 lists.forEach(v -> {
-                    deviceIDs.add(v.getId());
+                    deviceIDs.add(v.getDeviceID());
                 });
             }
         });
@@ -382,13 +390,13 @@ public class OrderService {
         return orderDetailList;
     }
 
-    public OrderStatisticsForUser queryOrderStatisticsByUser(String user, Instant endTime) {
+    public OrderStatisticsForUser queryOrderStatisticsByUser(String user, LocalDateTime endTime) {
         int id = getUserId(user);
         User u = getUser(id + "");
         return queryOrderStatisticsByUser(u, u.getCreateTime(), endTime);
     }
 
-    public OrderStatisticsForUser queryOrderStatisticsByUser(User user, Instant startTime, Instant endTime) {
+    public OrderStatisticsForUser queryOrderStatisticsByUser(User user, LocalDateTime startTime, LocalDateTime endTime) {
         List<Location> locationList = dataStore.queryLocationByUserID(Integer.valueOf(user.getId()));
         List<Long> deviceIDs = new ArrayList<>();
         if (locationList != null && locationList.size() > 0) {
@@ -396,14 +404,14 @@ public class OrderService {
                 List<Device> lists = dataStore.queryDeviceByLocation(k.getId());
                 if (lists != null) {
                     lists.forEach(v -> {
-                        deviceIDs.add(v.getId());
+                        deviceIDs.add(v.getDeviceID());
                     });
                 }
             });
         }
 
         OrderStatisticsForUser orderStatisticsForUser = new OrderStatisticsForUser();
-        orderStatisticsForUser.setUser(user.getName());
+        orderStatisticsForUser.setUser(user.getUsername());
         orderStatisticsForUser.setUserId(user.getId());
 
         try {
@@ -462,11 +470,11 @@ public class OrderService {
 
                         statisticsForArea.addOrderStatisticsForDevices(statisticsForDevice);
 
-                        map.put(location.getAreaID(),statisticsForArea);
+                        map.put(location.getAreaID(), statisticsForArea);
                     }
             );
             //statistics for user
-            map.forEach((k,v) -> {
+            map.forEach((k, v) -> {
                 orderStatisticsForUser.addOrderStatisticsForAreas(v);
                 orderStatisticsForUser.addDeviceTotal(v.getDeviceTotal());
                 orderStatisticsForUser.addOrderTotal(v.getOrderTotal());
@@ -479,7 +487,7 @@ public class OrderService {
             });
 
         } catch (Exception e) {
-            logger.error("queryOrderStatisticsByUser error! " + e.getMessage(),e);
+            logger.error("queryOrderStatisticsByUser error! " + e.getMessage(), e);
         }
         return orderStatisticsForUser;
     }
@@ -493,13 +501,13 @@ public class OrderService {
         return str;
     }
 
-    public static String getOrderName() {
+    public static long getOrderName() {
         Date d = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMddhhmmss"); // 12
         String str = sdf.format(d);
         String haomiao = String.valueOf(System.nanoTime());
         str = str + haomiao.substring(haomiao.length() - 6, haomiao.length());
-        return "Free" + str;
+        return Long.valueOf("00" + str);
     }
 
 }

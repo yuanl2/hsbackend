@@ -1,6 +1,7 @@
 package com.hansun.server.db;
 
-import com.hansun.dto.Order;
+import com.hansun.server.common.Utils;
+import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.common.ServerException;
 
 import java.sql.Connection;
@@ -38,7 +39,7 @@ public class OrderTable {
         this.connectionPoolManager = connectionPoolManager;
     }
 
-    public void insert(Order order) {
+    public void insert(OrderInfo order) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
@@ -48,12 +49,12 @@ public class OrderTable {
             if (order.getStartTime() == null) {
                 insertStatement.setTimestamp(3, null);
             } else {
-                insertStatement.setTimestamp(3, Timestamp.from(order.getStartTime()));
+                insertStatement.setTimestamp(3, Timestamp.from(Utils.convertToInstant(order.getStartTime())));
             }
             if (order.getEndTime() == null) {
                 insertStatement.setTimestamp(4, null);
             } else {
-                insertStatement.setTimestamp(4, Timestamp.from(order.getEndTime()));
+                insertStatement.setTimestamp(4, Timestamp.from(Utils.convertToInstant(order.getEndTime())));
             }
             insertStatement.setShort(5, order.getConsumeType());
             insertStatement.setShort(6, order.getAccountType());
@@ -61,7 +62,7 @@ public class OrderTable {
             insertStatement.setFloat(8, order.getPrice());
             insertStatement.setInt(9, order.getDuration());
             if (order.getCreateTime() != null) {
-                insertStatement.setTimestamp(10, Timestamp.from(order.getCreateTime()));
+                insertStatement.setTimestamp(10, Timestamp.from(Utils.convertToInstant(order.getCreateTime())));
             } else {
                 insertStatement.setTimestamp(10, null);
             }
@@ -88,14 +89,14 @@ public class OrderTable {
         }
     }
 
-    public void update(Order order, Long orderID) {
+    public void update(OrderInfo order, Long orderID) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
             updateStatement = conn.prepareStatement(UPDATE);
             updateStatement.setLong(3, orderID);
             if (order.getEndTime() != null) {
-                updateStatement.setTimestamp(1, Timestamp.from(order.getEndTime()));
+                updateStatement.setTimestamp(1, Timestamp.from(Utils.convertToInstant(order.getEndTime())));
             } else {
                 updateStatement.setTimestamp(1, null);
             }
@@ -148,7 +149,7 @@ public class OrderTable {
         }
     }
 
-    public Optional<Order> select(String name) {
+    public Optional<OrderInfo> select(String name) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
@@ -158,16 +159,16 @@ public class OrderTable {
                     .map(resultSet -> {
                         try {
                             while (resultSet.next()) {
-                                Order order = new Order();
+                                OrderInfo order = new OrderInfo();
                                 order.setId(resultSet.getLong(1));
                                 order.setDeviceID(resultSet.getLong(2));
                                 Timestamp startTime = resultSet.getTimestamp(3);
                                 if (startTime != null) {
-                                    order.setStartTime(startTime.toInstant());
+                                    order.setStartTime(Utils.convertToLocalDateTime(startTime.toInstant()));
                                 }
                                 Timestamp endTime = resultSet.getTimestamp(4);
                                 if (endTime != null) {
-                                    order.setEndTime(endTime.toInstant());
+                                    order.setEndTime(Utils.convertToLocalDateTime(endTime.toInstant()));
                                 }
                                 order.setConsumeType(resultSet.getShort(5));
                                 order.setAccountType(resultSet.getShort(6));
@@ -176,7 +177,7 @@ public class OrderTable {
                                 order.setDuration(resultSet.getShort(9));
                                 Timestamp createTime = resultSet.getTimestamp(10);
                                 if (createTime != null) {
-                                    order.setCreateTime(createTime.toInstant());
+                                    order.setCreateTime(Utils.convertToLocalDateTime(createTime.toInstant()));
                                 }
                                 order.setOrderName(resultSet.getString(11));
                                 order.setOrderStatus(resultSet.getShort(12));
@@ -214,7 +215,7 @@ public class OrderTable {
     }
 
 
-    public Optional<List<Order>> selectNotFinish(int status) {
+    public Optional<List<OrderInfo>> selectNotFinish(int status) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
@@ -223,18 +224,18 @@ public class OrderTable {
             return Optional.ofNullable(selectStatement.executeQuery())
                     .map(resultSet -> {
                         try {
-                            List<Order> orderList = new ArrayList<Order>();
+                            List<OrderInfo> orderList = new ArrayList<OrderInfo>();
                             while (resultSet.next()) {
-                                Order order = new Order();
+                                OrderInfo order = new OrderInfo();
                                 order.setId(resultSet.getLong(1));
                                 order.setDeviceID(resultSet.getLong(2));
                                 Timestamp startTime = resultSet.getTimestamp(3);
                                 if (startTime != null) {
-                                    order.setStartTime(startTime.toInstant());
+                                    order.setStartTime(Utils.convertToLocalDateTime(startTime.toInstant()));
                                 }
                                 Timestamp endTime = resultSet.getTimestamp(4);
                                 if (endTime != null) {
-                                    order.setEndTime(endTime.toInstant());
+                                    order.setEndTime(Utils.convertToLocalDateTime(endTime.toInstant()));
                                 }
                                 order.setConsumeType(resultSet.getShort(5));
                                 order.setAccountType(resultSet.getShort(6));
@@ -243,7 +244,7 @@ public class OrderTable {
                                 order.setDuration(resultSet.getShort(9));
                                 Timestamp createTime = resultSet.getTimestamp(10);
                                 if (createTime != null) {
-                                    order.setCreateTime(createTime.toInstant());
+                                    order.setCreateTime(Utils.convertToLocalDateTime(createTime.toInstant()));
                                 }
                                 order.setOrderName(resultSet.getString(11));
                                 order.setOrderStatus(resultSet.getShort(12));
@@ -281,7 +282,7 @@ public class OrderTable {
     }
 
 
-    public Optional<List<Order>> selectByDevice(List<Long> deviceID, Instant startTime, Instant endTIme) {
+    public Optional<List<OrderInfo>> selectByDevice(List<Long> deviceID, Instant startTime, Instant endTIme) {
         Connection conn = null;
         if (deviceID == null || deviceID.size() <= 0) {
             return Optional.empty();
@@ -306,18 +307,18 @@ public class OrderTable {
             return Optional.ofNullable(selectStatement.executeQuery())
                     .map(resultSet -> {
                         try {
-                            List<Order> orderList = new ArrayList<Order>();
+                            List<OrderInfo> orderList = new ArrayList<OrderInfo>();
                             while (resultSet.next()) {
-                                Order order = new Order();
+                                OrderInfo order = new OrderInfo();
                                 order.setId(resultSet.getLong(1));
                                 order.setDeviceID(resultSet.getLong(2));
                                 Timestamp starttime = resultSet.getTimestamp(3);
                                 if (starttime != null) {
-                                    order.setStartTime(starttime.toInstant());
+                                    order.setStartTime(Utils.convertToLocalDateTime(starttime.toInstant()));
                                 }
                                 Timestamp endTime = resultSet.getTimestamp(4);
                                 if (endTime != null) {
-                                    order.setEndTime(endTime.toInstant());
+                                    order.setEndTime(Utils.convertToLocalDateTime(endTime.toInstant()));
                                 }
                                 order.setConsumeType(resultSet.getShort(5));
                                 order.setAccountType(resultSet.getShort(6));
@@ -326,7 +327,7 @@ public class OrderTable {
                                 order.setDuration(resultSet.getShort(9));
                                 Timestamp createTime = resultSet.getTimestamp(10);
                                 if (createTime != null) {
-                                    order.setCreateTime(createTime.toInstant());
+                                    order.setCreateTime(Utils.convertToLocalDateTime(createTime.toInstant()));
                                 }
                                 order.setOrderName(resultSet.getString(11));
                                 order.setOrderStatus(resultSet.getShort(12));
@@ -364,7 +365,7 @@ public class OrderTable {
         }
     }
 
-    public Optional<Order> select(long orderID) {
+    public Optional<OrderInfo> select(long orderID) {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
@@ -374,16 +375,16 @@ public class OrderTable {
                     .map(resultSet -> {
                         try {
                             while (resultSet.next()) {
-                                Order order = new Order();
+                                OrderInfo order = new OrderInfo();
                                 order.setId(resultSet.getLong(1));
                                 order.setDeviceID(resultSet.getLong(2));
                                 Timestamp startTime = resultSet.getTimestamp(3);
                                 if (startTime != null) {
-                                    order.setStartTime(startTime.toInstant());
+                                    order.setStartTime(Utils.convertToLocalDateTime(startTime.toInstant()));
                                 }
                                 Timestamp endTime = resultSet.getTimestamp(4);
                                 if (endTime != null) {
-                                    order.setEndTime(endTime.toInstant());
+                                    order.setEndTime(Utils.convertToLocalDateTime(endTime.toInstant()));
                                 }
                                 order.setConsumeType(resultSet.getShort(5));
                                 order.setAccountType(resultSet.getShort(6));
@@ -392,7 +393,7 @@ public class OrderTable {
                                 order.setDuration(resultSet.getShort(9));
                                 Timestamp createTime = resultSet.getTimestamp(10);
                                 if (createTime != null) {
-                                    order.setCreateTime(createTime.toInstant());
+                                    order.setCreateTime(Utils.convertToLocalDateTime(createTime.toInstant()));
                                 }
                                 order.setOrderName(resultSet.getString(11));
                                 order.setOrderStatus(resultSet.getShort(12));
@@ -430,7 +431,7 @@ public class OrderTable {
         }
     }
 
-    public Optional<List<Order>> selectAll() {
+    public Optional<List<OrderInfo>> selectAll() {
         Connection conn = null;
         try {
             conn = connectionPoolManager.getConnection();
@@ -438,18 +439,18 @@ public class OrderTable {
             return Optional.ofNullable(selectStatement.executeQuery())
                     .map(resultSet -> {
                         try {
-                            List<Order> list = new ArrayList<Order>();
+                            List<OrderInfo> list = new ArrayList<OrderInfo>();
                             while (resultSet.next()) {
-                                Order order = new Order();
+                                OrderInfo order = new OrderInfo();
                                 order.setId(resultSet.getLong(1));
                                 order.setDeviceID(resultSet.getLong(2));
                                 Timestamp startTime = resultSet.getTimestamp(3);
                                 if (startTime != null) {
-                                    order.setStartTime(startTime.toInstant());
+                                    order.setStartTime(Utils.convertToLocalDateTime(startTime.toInstant()));
                                 }
                                 Timestamp endTime = resultSet.getTimestamp(4);
                                 if (endTime != null) {
-                                    order.setEndTime(endTime.toInstant());
+                                    order.setEndTime(Utils.convertToLocalDateTime(endTime.toInstant()));
                                 }
                                 order.setConsumeType(resultSet.getShort(5));
                                 order.setAccountType(resultSet.getShort(6));
@@ -458,7 +459,7 @@ public class OrderTable {
                                 order.setDuration(resultSet.getShort(9));
                                 Timestamp createTime = resultSet.getTimestamp(10);
                                 if (createTime != null) {
-                                    order.setCreateTime(createTime.toInstant());
+                                    order.setCreateTime(Utils.convertToLocalDateTime(createTime.toInstant()));
                                 }
                                 order.setOrderName(resultSet.getString(11));
                                 order.setOrderStatus(resultSet.getShort(12));

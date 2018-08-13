@@ -1,5 +1,6 @@
 package com.hansun.server.commu;
 
+import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.ErrorCode;
 import com.hansun.server.common.InvalidMsgException;
 import com.hansun.server.commu.common.IMsg;
@@ -103,6 +104,10 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
                 if (needClearOldLink(linkManger, m)) return;
 
 
+                if(m.getMap().get(1) == DeviceStatus.IDLE){
+                    logger.error("############ device {} send task failed" ,handler.getDeviceName());
+                }
+
 //                handler.setNeedSend(false);
                 linkManger.processHeart(handler.getDeviceName(), m.getMap(), m.getPortMap(), m.getDup(), msg);
 
@@ -202,7 +207,7 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
             if (m.getMsgType().equals(DEVICE_REGISTER_MSG)) {
                 DeviceMsg msgV1 = (DeviceMsg) m;
                 linkManger.updateDeviceLoginTime(m.getDeviceName(),
-                        Short.valueOf(msgV1.getLogin_reason()), Short.valueOf(msgV1.getSignal()), m.getMap());
+                        Short.valueOf(msgV1.getLogin_reason()), Short.valueOf(msgV1.getSignal()), m.getMap(), ((DeviceMsg) m).getVersion());
             } else {
                 linkManger.updateDeviceLoginTime(m.getDeviceName(), m.getMap());
             }

@@ -1,56 +1,105 @@
-package com.hansun.dto;
+package com.hansun.server.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.hansun.server.common.InstantSerialization;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.hansun.server.common.DeviceManagerStatus;
+import com.hansun.server.common.DeviceStatus;
 
-import java.time.Instant;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 /**
  * Created by yuanl2 on 2017/3/29.
  */
+@Entity
 public class Device {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @Column(name = "deviceID", nullable = false, unique = true)
+    private long deviceID;
+
+    @Column(name = "deviceType", nullable = false)
     private short type;
+
+    @Column(nullable = false)
     private byte port;
-    /**
-     * 内部的设备名字
-     */
+
+    @Column(name = "deviceName")
     private String name;
+
+    @Column(name = "locationID")
     private short locationID;
+
+    @Transient
     private String province;
+    @Transient
     private String city;
+    @Transient
     private String areaName;
+    @Transient
     private String address;
+
+    @Column(name = "additionInfo")
     private String additionInfo;
+
+    @Column(name = "ownerID")
     private short ownerID;
+    @Transient
     private String owner;
-    private byte status;
+
+    @Column(name = "status")
+    private byte status = DeviceStatus.DISCONNECTED;
+
+    @Column(name = "signalValue", nullable = false)
     private short signal = -1;
+
+    @Column(name = "loginReason", nullable = false)
     private short loginReason = -1;
 
+    @Column(name = "seq")
     //add last seq number
     private short seq;
 
-    @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
-    @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
-    private Instant loginTime;
+    @Column(name = "loginTime")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime loginTime;
 
-    @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
-    @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
-    private Instant logoutTime;
+    @Column(name = "logoutTime")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime logoutTime;
     /**
      * 设备上报的sim卡名字，初始化连接带有sim卡信息
      */
+    @Column(name = "simCard")
     private String simCard;
 
-    @JsonSerialize(using = InstantSerialization.ISOInstantSerializerFasterXML.class)
-    @JsonDeserialize(using = InstantSerialization.ISOInstantDeserializerFasterXML.class)
-    private Instant beginTime;
+    @Column(name = "beginTime")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime beginTime;
 
-    private String QRCode;
+    @Column(name = "qrcode", nullable = false)
+    private String qrcode;
 
+    @Column(name = "managerStatus")
     private byte managerStatus;
+
+    @Column(name = "consumeType")
+    private byte consumeType;
+
+    @Column(name = "version")
+    private String version;
 
     public long getId() {
         return id;
@@ -148,14 +197,6 @@ public class Device {
         this.status = status;
     }
 
-    public Instant getBeginTime() {
-        return beginTime;
-    }
-
-    public void setBeginTime(Instant beginTime) {
-        this.beginTime = beginTime;
-    }
-
     public String getSimCard() {
         return simCard;
     }
@@ -170,22 +211,6 @@ public class Device {
 
     public void setPort(byte port) {
         this.port = port;
-    }
-
-    public Instant getLoginTime() {
-        return loginTime;
-    }
-
-    public void setLoginTime(Instant loginTime) {
-        this.loginTime = loginTime;
-    }
-
-    public Instant getLogoutTime() {
-        return logoutTime;
-    }
-
-    public void setLogoutTime(Instant logoutTime) {
-        this.logoutTime = logoutTime;
     }
 
     public short getSignal() {
@@ -212,12 +237,12 @@ public class Device {
         this.seq = seq;
     }
 
-    public String getQRCode() {
-        return QRCode;
+    public String getQrcode() {
+        return qrcode;
     }
 
-    public void setQRCode(String QRCode) {
-        this.QRCode = QRCode;
+    public void setQrcode(String qrcode) {
+        this.qrcode = qrcode;
     }
 
     public byte getManagerStatus() {
@@ -228,10 +253,59 @@ public class Device {
         this.managerStatus = managerStatus;
     }
 
+    public long getDeviceID() {
+        return deviceID;
+    }
+
+    public void setDeviceID(long deviceID) {
+        this.deviceID = deviceID;
+    }
+
+    public LocalDateTime getLoginTime() {
+        return loginTime;
+    }
+
+    public void setLoginTime(LocalDateTime loginTime) {
+        this.loginTime = loginTime;
+    }
+
+    public LocalDateTime getLogoutTime() {
+        return logoutTime;
+    }
+
+    public void setLogoutTime(LocalDateTime logoutTime) {
+        this.logoutTime = logoutTime;
+    }
+
+    public LocalDateTime getBeginTime() {
+        return beginTime;
+    }
+
+    public void setBeginTime(LocalDateTime beginTime) {
+        this.beginTime = beginTime;
+    }
+
+    public byte getConsumeType() {
+        return consumeType;
+    }
+
+    public void setConsumeType(byte consumeType) {
+        this.consumeType = consumeType;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
     @Override
     public String toString() {
         return "device{" +
                 "id=" + id +
+                "deviceID=" + deviceID +
                 ", type=" + type +
                 ", name=" + name +
                 ", locationID=" + locationID +
@@ -251,8 +325,10 @@ public class Device {
                 ", loginTime=" + loginTime +
                 ", logoutTime=" + logoutTime +
                 ", seq=" + seq +
-                ", QRCode=" + QRCode +
+                ", qrcode=" + qrcode +
                 ", managerStatus=" + managerStatus +
+                ", consumeType=" + consumeType +
+                ", version=" + version +
                 "}";
     }
 

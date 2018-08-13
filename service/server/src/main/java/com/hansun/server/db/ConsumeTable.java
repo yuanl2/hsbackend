@@ -1,6 +1,6 @@
 package com.hansun.server.db;
 
-import com.hansun.dto.Consume;
+import com.hansun.server.dto.Consume;
 import com.hansun.server.common.ServerException;
 
 import java.sql.Connection;
@@ -15,12 +15,12 @@ import java.util.Optional;
  */
 public class ConsumeTable {
 
-    private static final String SELECT = "SELECT consumeID, price, duration, description, picpath, deviceType FROM consume WHERE consumeID = ?";
-    private static final String SELECTBYPRICE = "SELECT consumeID, price, duration, description, picpath, deviceType  FROM consume WHERE price = ? AND duration = ?";
-    private static final String SELECT_ALL = "SELECT consumeID, price, duration, description, picpath, deviceType  FROM consume";
-    private static final String DELETE = "DELETE FROM consume WHERE consumeID = ?";
+    private static final String SELECT = "SELECT id, price, duration, description, picpath, deviceType FROM consume WHERE id = ?";
+    private static final String SELECTBYPRICE = "SELECT id, price, duration, description, picpath, deviceType  FROM consume WHERE price = ? AND duration = ?";
+    private static final String SELECT_ALL = "SELECT id, price, duration, description, picpath, deviceType  FROM consume";
+    private static final String DELETE = "DELETE FROM consume WHERE id = ?";
     private static final String INSERT = "INSERT INTO consume (price, duration, description, picpath, deviceType ) VALUES (?, ?, ? ,?, ?)";
-    private static final String UPDATE = "UPDATE consume SET price = ? , duration = ? , description = ?, picpath = ? , deviceType = ? WHERE consumeID = ?";
+    private static final String UPDATE = "UPDATE consume SET price = ? , duration = ? , description = ?, picpath = ? , deviceType = ? WHERE id = ?";
 
     private ConnectionPoolManager connectionPoolManager;
 
@@ -135,7 +135,7 @@ public class ConsumeTable {
                         try {
                             while (resultSet.next()) {
                                 Consume consume = new Consume();
-                                consume.setId(resultSet.getShort("consumeID"));
+                                consume.setId(resultSet.getShort("id"));
                                 consume.setPrice(resultSet.getFloat("price"));
                                 consume.setDuration(resultSet.getShort("duration"));
                                 consume.setDescription(resultSet.getString("description"));
@@ -186,7 +186,7 @@ public class ConsumeTable {
                         try {
                             while (resultSet.next()) {
                                 Consume consume = new Consume();
-                                consume.setId(resultSet.getShort("consumeID"));
+                                consume.setId(resultSet.getShort("id"));
                                 consume.setPrice(resultSet.getFloat("price"));
                                 consume.setDuration(resultSet.getShort("duration"));
                                 consume.setDescription(resultSet.getString("description"));
@@ -236,7 +236,7 @@ public class ConsumeTable {
                             List<Consume> list = new ArrayList<Consume>();
                             while (resultSet.next()) {
                                 Consume consume = new Consume();
-                                consume.setId(resultSet.getShort("consumeID"));
+                                consume.setId(resultSet.getShort("id"));
                                 consume.setPrice(resultSet.getFloat("price"));
                                 consume.setDuration(resultSet.getShort("duration"));
                                 consume.setDescription(resultSet.getString("description"));

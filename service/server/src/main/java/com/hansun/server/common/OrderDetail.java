@@ -1,6 +1,7 @@
 package com.hansun.server.common;
 
-import com.hansun.dto.Order;
+
+import com.hansun.server.dto.OrderInfo;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -11,8 +12,9 @@ import java.util.Date;
 /**
  * Created by yuanl2 on 2017/4/27.
  */
-public class OrderDetail extends Order {
+public class OrderDetail{
 
+    private long orderID;
     private String province;
     private String city;
     private String areaName;
@@ -24,7 +26,6 @@ public class OrderDetail extends Order {
     private int day;
     private String createDate;
     private String eTime;
-    private long id;
     private long deviceID;
     private String deviceName;
     private short consumeType;
@@ -35,7 +36,7 @@ public class OrderDetail extends Order {
     private String orderName;
     private short orderStatus;
 
-    public OrderDetail(Order order) {
+    public OrderDetail(OrderInfo order) {
 
         this.duration = order.getDuration();
         this.price = order.getPrice();
@@ -45,9 +46,10 @@ public class OrderDetail extends Order {
         this.deviceID = order.getDeviceID();
         this.consumeType = order.getConsumeType();
         this.accountType = order.getAccountType();
+        this.orderID = order.getOrderID();
 
         try {
-            Instant createTime = order.getCreateTime();
+            Instant createTime = Utils.convertToInstant(order.getCreateTime());
             Date date = Date.from(createTime);
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
@@ -56,12 +58,12 @@ public class OrderDetail extends Order {
             createDate = new SimpleDateFormat("yyyy-MM-dd").format(date);
             cTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
 
-            createTime = order.getStartTime();
+            createTime = Utils.convertToInstant(order.getStartTime());
             date = Date.from(createTime);
             calendar.setTime(date);
             sTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
 
-            createTime = order.getEndTime();
+            createTime = Utils.convertToInstant(order.getEndTime());
             date = Date.from(createTime);
             calendar.setTime(date);
             eTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
@@ -103,102 +105,74 @@ public class OrderDetail extends Order {
         this.user = user;
     }
 
-    @Override
-    public long getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    @Override
     public long getDeviceID() {
         return deviceID;
     }
 
-    @Override
     public void setDeviceID(long deviceID) {
         this.deviceID = deviceID;
     }
 
-    @Override
     public String getDeviceName() {
         return deviceName;
     }
 
-    @Override
     public void setDeviceName(String deviceName) {
         this.deviceName = deviceName;
     }
 
-    @Override
     public short getConsumeType() {
         return consumeType;
     }
 
-    @Override
     public void setConsumeType(short consumeType) {
         this.consumeType = consumeType;
     }
 
-    @Override
     public short getDuration() {
         return duration;
     }
 
-    @Override
     public void setDuration(short duration) {
         this.duration = duration;
     }
 
-    @Override
     public float getPrice() {
         return price;
     }
 
-    @Override
     public void setPrice(float price) {
         this.price = price;
     }
 
-    @Override
     public String getPayAccount() {
         return payAccount;
     }
 
-    @Override
     public void setPayAccount(String payAccount) {
         this.payAccount = payAccount;
     }
 
-    @Override
     public short getAccountType() {
         return accountType;
     }
 
-    @Override
     public void setAccountType(short accountType) {
         this.accountType = accountType;
     }
 
-    @Override
     public String getOrderName() {
         return orderName;
     }
 
-    @Override
     public void setOrderName(String orderName) {
         this.orderName = orderName;
     }
 
-    @Override
     public short getOrderStatus() {
         return orderStatus;
     }
 
-    @Override
     public void setOrderStatus(short orderStatus) {
         this.orderStatus = orderStatus;
     }

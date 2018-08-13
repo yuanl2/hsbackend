@@ -8,12 +8,12 @@ import org.springframework.stereotype.Component;
 
 import java.sql.*;
 
-@Component
+//@Component
 public class ConnectionPoolManager {
     private BasicDataSource dataSource;
 
     private HSServiceProperties hsServiceProperties;
-    @Autowired
+//    @Autowired
     public ConnectionPoolManager(HSServiceProperties hsServiceProperties) {
         initialize(hsServiceProperties);
     }
@@ -24,7 +24,7 @@ public class ConnectionPoolManager {
         dataSource.setDriverClassName(hsServiceProperties.getDriverClass());
         dataSource.setUsername(hsServiceProperties.getDatabaseUserName());
         dataSource.setPassword(hsServiceProperties.getDatabaseUserPassword());
-        dataSource.setUrl(hsServiceProperties.getDatabaseUrl() + hsServiceProperties.getDatabaseName() + "?autoReconnect=true&useSSL=false");
+        dataSource.setUrl(hsServiceProperties.getDatabaseUrl() + hsServiceProperties.getDatabaseName() + "?characterEncoding=utf-8&autoReconnect=true&useSSL=false");
         dataSource.setMinIdle(5);
         dataSource.setMaxIdle(20);
         dataSource.setMaxOpenPreparedStatements(180);

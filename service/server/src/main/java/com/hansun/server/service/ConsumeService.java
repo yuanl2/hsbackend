@@ -1,6 +1,6 @@
 package com.hansun.server.service;
 
-import com.hansun.dto.Consume;
+import com.hansun.server.dto.Consume;
 import com.hansun.server.db.DataStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,11 +25,11 @@ public class ConsumeService {
         return dataStore.updateConsume(consume);
     }
 
-    public void deleteConsume(int consumeID) {
+    public void deleteConsume(short consumeID) {
         dataStore.deleteConsumeByConsumeID(consumeID);
     }
 
-    public Consume getConsume(int consumeID) {
+    public Consume getConsume(short consumeID) {
         return dataStore.queryConsume(consumeID);
     }
 

@@ -1,13 +1,9 @@
 package com.hansun.server.commu;
 
-import com.hansun.dto.Device;
-import com.hansun.dto.Order;
-import com.hansun.server.common.DeviceManagerStatus;
-import com.hansun.server.common.DeviceStatus;
-import com.hansun.server.common.HSServiceProperties;
-import com.hansun.server.common.OrderStatus;
+import com.hansun.server.common.*;
+import com.hansun.server.dto.Device;
+import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.commu.common.IMsg;
-import com.hansun.server.commu.common.IMsg4g;
 import com.hansun.server.commu.common.MsgTime;
 import com.hansun.server.metrics.HSServiceMetrics;
 import com.hansun.server.metrics.HSServiceMetricsService;
@@ -15,7 +11,6 @@ import com.hansun.server.metrics.Metrics;
 import com.hansun.server.service.DeviceListener;
 import com.hansun.server.service.DeviceService;
 import com.hansun.server.service.OrderService;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +19,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -125,7 +118,7 @@ public class LinkManger {
                 if (list != null && list.size() > 0) {
                     //对于设备重连的情况，需要先设置设备的logout时间和状态，等连上后再更新
                     list.forEach(k -> {
-                        k.setLogoutTime(time);
+                        k.setLogoutTime(Utils.convertToLocalDateTime(time));
                         deviceService.updateDevice(k, DeviceStatus.DISCONNECTED);
                     });
                 }
@@ -159,19 +152,20 @@ public class LinkManger {
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
         if (deviceList != null && deviceList.size() > 0) {
             for (Device device : deviceList) {
-                device.setLoginTime(Instant.now());
+                device.setLoginTime(Utils.getNowTime());
                 deviceService.updateDevice(device, map.get((int)device.getPort()));
             }
         }
     }
 
-    public void updateDeviceLoginTime(String deviceName, short loginReason, short signal, Map<Integer, Byte> map) {
+    public void updateDeviceLoginTime(String deviceName, short loginReason, short signal, Map<Integer, Byte> map, String version) {
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
         if (deviceList != null && deviceList.size() > 0) {
             for (Device device : deviceList) {
-                device.setLoginTime(Instant.now());
+                device.setLoginTime(Utils.getNowTime());
                 device.setLoginReason(loginReason);
                 device.setSignal(signal);
+                device.setVersion(version);
                 deviceService.updateDevice(device, map.get((int)device.getPort()));
             }
         }
@@ -181,7 +175,7 @@ public class LinkManger {
         List<Device> deviceList = deviceService.getDevicesByDeviceBox(deviceName);
         if (deviceList != null && deviceList.size() > 0) {
             for (Device device : deviceList) {
-                device.setLogoutTime(Instant.now());
+                device.setLogoutTime(Utils.getNowTime());
                 //如果服务器重启，设备需要设置状态为断链
                 deviceService.updateDevice(device, DeviceStatus.DISCONNECTED);
             }
@@ -191,7 +185,7 @@ public class LinkManger {
     private void updateOrderStatus(Map map, Map portMap, List<Device> deviceList, String dup, IMsg msg) {
         if (deviceList != null) {
             for (Device device : deviceList) {
-                Order order = orderService.getOrder(device.getId());
+                OrderInfo order = orderService.getOrder(device.getDeviceID());
                 MsgTime msgTime = (MsgTime) portMap.get((int)device.getPort());
                 byte status = (Byte) map.get((int)device.getPort());
                 byte setStatus = device.getStatus();
@@ -200,31 +194,30 @@ public class LinkManger {
 
                 if (order != null && (msgTime.getTime() == 0 || status == DeviceStatus.IDLE)) {
                     //如果订单还在缓存中，但是结束时在当前时间之前，则需要从缓存中删除该订单
-                    if (Instant.now().isAfter(order.getCreateTime().plus(Duration.ofMinutes(order.getDuration())))
-                            || Instant.now().isAfter(order.getStartTime().plus(Duration.ofMinutes(order.getDuration())))) {
+                    if (Utils.isOrderFinshed(order)) {
                         //设备没有收到后续结束报文，所以收到心跳消息，判断当前设备是否还在运行，如果指示时间为0，而订单是运行中，则更新订单为finish
                         if (order.getOrderStatus() == OrderStatus.SERVICE) {
                             logger.info("{} update order status from service to {}", order.getId(), OrderStatus.FINISH);
 
                             sendMetrics(device, order);
 
-                            orderService.deleteOrder(device.getId());
+                            orderService.deleteOrder(device.getDeviceID());
                             setStatus = DeviceStatus.IDLE;
                         } else if (order.getOrderStatus() == OrderStatus.FINISH) {
                             logger.error("order = {} has finished! Delete error", order);
-                            orderService.deleteOrder(device.getId());
+                            orderService.deleteOrder(device.getDeviceID());
                         }
                         /**
                          * 如果订单支付后，但是收到的状态空闲，说明下发的订单未执行
                          * 订单状态不需要更新，删除缓存中的订单数据
                          */
                         else if(order.getOrderStatus() == OrderStatus.PAYDONE){
-                            logger.info("{} not running {} status is PAYDONE ", device.getId(), order.getId());
-                            orderService.removeOrder(device.getId());
+                            logger.info("{} not running {} status is PAYDONE ", device.getDeviceID(), order.getId());
+                            orderService.removeOrder(device.getDeviceID());
                         }
                         else {
                             logger.error("{} update order status from start to {}", order.getId(), OrderStatus.FINISH);
-                            orderService.deleteOrder(device.getId());
+                            orderService.deleteOrder(device.getDeviceID());
                             setStatus = DeviceStatus.IDLE;
                         }
                     }else{
@@ -235,7 +228,7 @@ public class LinkManger {
                         logger.info("update order before = {}", order);
                         order.setOrderStatus(OrderStatus.SERVICE);
                         if(order.getStartTime() == null) {
-                            order.setStartTime(Instant.now());
+                            order.setStartTime(Utils.getNowTime());
                         }
                         orderService.updateOrder(order);
 
@@ -243,7 +236,7 @@ public class LinkManger {
 
                             if (msg.getMsgType().equals(DEVICE_START_FINISH_MSG)) {
                                 device.setSeq(Short.valueOf(msg.getSeq()));
-                                logger.info("{} set task seq = {}", device.getId(), device.getSeq());
+                                logger.info("{} set task seq = {}", device.getDeviceID(), device.getSeq());
                             }
 
                             //不能等心跳消息来了再更新设备的状态，应该根据业务的回应及时更新
@@ -253,14 +246,14 @@ public class LinkManger {
                         logger.error("order = {} status is error. Has finished!", order);
                     }
                 } else {
-                    logger.debug("{} have no order now", device.getId());
+                    logger.debug("{} have no order now", device.getDeviceID());
                     if (status == DeviceStatus.IDLE) {
                         setStatus = status;
                     }
                 }
 
                 if (status == DeviceStatus.DISCONNECTED) {
-                    device.setLogoutTime(Instant.now());
+                    device.setLogoutTime(Utils.getNowTime());
                     setStatus = status;
                 } else if (Integer.valueOf(dup) > 1) {
                     setStatus = DeviceStatus.BADNETWORK;
@@ -271,11 +264,11 @@ public class LinkManger {
 
     }
 
-    private void sendMetrics(Device device, Order order) {
+    private void sendMetrics(Device device, OrderInfo order) {
         //如果设备的管理状态是测试，则不发送metrics统计信息
         if (device.getManagerStatus() != DeviceManagerStatus.TEST.getStatus()) {
             HSServiceMetrics.Builder builder = HSServiceMetrics.builder();
-            builder.measurement(Metrics.ORDER_FINISH).device(String.valueOf(device.getId())).area(device.getAreaName()).user(device.getOwner())
+            builder.measurement(Metrics.ORDER_FINISH).device(String.valueOf(device.getDeviceID())).area(device.getAreaName()).user(device.getOwner())
                     .count(1).duration(order.getDuration()).price(order.getPrice());
             hsServiceMetricsService.sendMetrics(builder.build());
         }
@@ -290,7 +283,7 @@ public class LinkManger {
         if (deviceList != null) {
             deviceList.forEach(device -> {
                 handler.setSeq(device.getSeq());
-                logger.info("initial {} set seq = {}", device.getId(), device.getSeq());
+                logger.info("initial {} set seq = {}", device.getDeviceID(), device.getSeq());
             });
         }
     }

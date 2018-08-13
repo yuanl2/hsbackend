@@ -1,12 +1,23 @@
-package com.hansun.dto;
+package com.hansun.server.dto;
+
+import javax.persistence.*;
 
 /**
  * Created by yuanl2 on 2017/3/29.
  */
+@Entity
 public class City {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private short id;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(name = "districtName",nullable = false)
     private String districtName;
+
+    @Column(name = "provinceID",nullable = false)
     private short provinceID;
 
     public short getId() {

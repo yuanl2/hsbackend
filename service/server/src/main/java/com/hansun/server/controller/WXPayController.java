@@ -1,9 +1,10 @@
 package com.hansun.server.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.hansun.dto.Consume;
-import com.hansun.dto.Device;
-import com.hansun.dto.Order;
+import com.hansun.server.common.Utils;
+import com.hansun.server.dto.Consume;
+import com.hansun.server.dto.Device;
+import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.common.OrderStatus;
 import com.hansun.server.db.DataStore;
 import com.hansun.server.service.DeviceService;
@@ -25,7 +26,6 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.time.Instant;
 import java.util.*;
 
 /**
@@ -50,21 +50,18 @@ public class WXPayController {
 
 
     @RequestMapping(value = "/paycancel", method = RequestMethod.POST)
-    public String paycancel(@RequestParam(value = "orderId", required = true, defaultValue = "0") String orderId,
+    public String paycancel(@RequestParam(value = "orderId", required = true, defaultValue = "0") long orderId,
                             HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        log.info("paysuccess  orderId = {} ",orderId);
-
-        Order o = orderService.getOrderByOrderID(orderId);
-
+        log.info("paysuccess  orderId = {} ", orderId);
+        OrderInfo o = orderService.getOrderByOrderID(orderId);
         o.setOrderStatus(OrderStatus.USER_NOT_PAY);
-
 
         Device device = deviceService.getDevice(o.getDeviceID());
         orderService.removeOrder(o.getDeviceID());
         log.info("user cancel order delete from cache {}", o);
         String deviceStatus = String.valueOf(device.getStatus());
-        log.info("device_id {} deviceStatus {}", device.getId() , deviceStatus);
+        log.info("device_id {} deviceStatus {}", device.getDeviceID(), deviceStatus);
         return deviceStatus;
     }
 
@@ -151,13 +148,13 @@ public class WXPayController {
             log.debug(entry.getKey() + " = {} ", entry.getValue());
         }
         String strJson = JSON.toJSONString(resInfo);
-        Consume consume = dataStore.queryConsume(Integer.valueOf(product_id));
+        Consume consume = dataStore.queryConsume(Short.valueOf(product_id));
 
         //在预支付时，就生成订单
-        Order order = new Order();
-        order.setId(Long.valueOf(out_trade_no));
+        OrderInfo order = new OrderInfo();
+        order.setOrderID(Long.valueOf(out_trade_no));
         order.setOrderName(out_trade_no);
-        order.setCreateTime(Instant.now());
+        order.setCreateTime(Utils.getNowTime());
 //        order.setStartTime(Instant.now());
         order.setPayAccount(userId);
         order.setOrderStatus(OrderStatus.CREATED);
@@ -215,7 +212,7 @@ public class WXPayController {
 
 
                     // 处理业务 -修改订单支付状态
-                    Order order = orderService.getOrderByOrderID(out_trade_no);
+                    OrderInfo order = orderService.getOrderByOrderID(Long.valueOf(out_trade_no));
                     if (order != null) {
                         log.info("wechat pay callback : modify order = {} status to PAYDONE ", out_trade_no);
                         order.setOrderStatus(OrderStatus.PAYDONE);

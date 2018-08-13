@@ -1,6 +1,7 @@
 package com.hansun.server.controller;
 
-import com.hansun.dto.Order;
+import com.hansun.server.common.Utils;
+import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.common.OrderDetail;
 import com.hansun.server.common.OrderStatisticsForUser;
 import com.hansun.server.service.OrderService;
@@ -17,6 +18,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -37,10 +39,10 @@ public class OrderController {
     }
 
     @RequestMapping(value = "order", method = RequestMethod.POST)
-    public ResponseEntity<?> createOrder(@RequestBody Order order, UriComponentsBuilder ucBuilder) {
+    public ResponseEntity<?> createOrder(@RequestBody OrderInfo order, UriComponentsBuilder ucBuilder) {
         logger.debug("create order ", order);
-        Order u = orderService.createOrder(order);
-        return new ResponseEntity<Order>(u, HttpStatus.CREATED);
+        OrderInfo u = orderService.createOrder(order);
+        return new ResponseEntity<OrderInfo>(u, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "order/device/{id}", method = RequestMethod.GET)
@@ -93,16 +95,16 @@ public class OrderController {
 //    }
 
 
-    private static Instant convertTime(String time) {
+    private static LocalDateTime convertTime(String time) {
         try {
             if(time == null){
 
-                return Instant.now();
+                return Utils.convertToLocalDateTime(Instant.now());
             }
             DateFormat formatter1;
             formatter1 = new SimpleDateFormat("yyyyMMddhhmmss");
-            Date d = (Date) formatter1.parse(time);
-            return d.toInstant();
+            Date d = formatter1.parse(time);
+            return Utils.convertToLocalDateTime(d.toInstant());
         } catch (ParseException e) {
             return null;
         }

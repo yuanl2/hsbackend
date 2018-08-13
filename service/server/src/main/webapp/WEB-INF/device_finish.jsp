@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=utf-8"%>
-<%@ page language="java" import="com.hansun.dto.Consume" pageEncoding="UTF-8"%>
+<%@ page language="java" import="com.hansun.server.dto.Consume" pageEncoding="UTF-8"%>
 <html xmlns="http://www.w3.org/1999/xhtml" lang = "zh-CN">
 <head>
 	<meta charset="UTF-8">
@@ -23,7 +23,7 @@
             </div>
 			<div class="col-md-4">
                 <div class="test-contact-text1 ">
-                    <p class="span1">设备${device_id}运行结束</p>
+                    <p class="span1">设备${device_id}运行开始</p>
                     <p class="span2">订单号 ${orderId}</p>
                 </div>
 			</div>
@@ -31,7 +31,7 @@
 	</div>
 		<div class="container">
                 <div class="features-bottom">
-                            <p>专卖店:上海市宝山区万达广场3楼A5-101</p>
+                            <p>专卖店: ${store}</p>
                 </div>
                 <div class="features-bottom">
                             <p>联系方式 Tel:400-821-0741 </p>

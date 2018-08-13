@@ -1,16 +1,41 @@
-package com.hansun.dto;
+package com.hansun.server.dto;
+
+import javax.persistence.*;
 
 /**
+ * duration support seconds unit
  * Created by yuanl2 on 2017/4/6.
  */
+@Entity
 public class Consume {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private short id;
+
+    @Column(nullable = false)
     private float price;
+
+    @Column(nullable = false)
     private short duration;
+
+    @Column(nullable = false)
     private String description;
+
+    @Column(name = "picpath", nullable = true)
     private String picpath;
+
+    @Column(name = "deviceType", nullable = false)
     private String deviceType;
+
+    /**
+     * consume type
+     */
+    @Column(name = "type", nullable = false)
+    private int type = 0;
+
+    @Column(name = "value")
+    private String value;
 
     public short getId() {
         return id;
@@ -58,6 +83,22 @@ public class Consume {
 
     public void setDeviceType(String deviceType) {
         this.deviceType = deviceType;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 
     @Override

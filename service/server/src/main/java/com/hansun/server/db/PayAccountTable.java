@@ -1,6 +1,6 @@
 package com.hansun.server.db;
 
-import com.hansun.dto.PayAccount;
+import com.hansun.server.dto.PayAccount;
 import com.hansun.server.common.ServerException;
 
 import java.sql.Connection;

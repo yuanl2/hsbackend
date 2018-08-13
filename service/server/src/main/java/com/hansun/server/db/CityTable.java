@@ -1,6 +1,6 @@
 package com.hansun.server.db;
 
-import com.hansun.dto.City;
+import com.hansun.server.dto.City;
 import com.hansun.server.common.ServerException;
 
 import java.sql.Connection;
@@ -15,13 +15,13 @@ import java.util.Optional;
  */
 public class CityTable {
 
-    private static final String SELECT = "SELECT cityID, cityName, districtName, provinceID FROM city WHERE cityID = ?";
-    private static final String SELECTBYNAME = "SELECT cityID, cityName, districtName, provinceID FROM city WHERE cityName = ? AND districtName = ?";
-    private static final String SELECT_ALL = "SELECT cityID, cityName, districtName, provinceID FROM city";
+    private static final String SELECT = "SELECT id, name, districtName, provinceID FROM city WHERE id = ?";
+    private static final String SELECTBYNAME = "SELECT id, name, districtName, provinceID FROM city WHERE name = ? AND districtName = ?";
+    private static final String SELECT_ALL = "SELECT id, name, districtName, provinceID FROM city";
 
-    private static final String DELETE = "DELETE FROM city WHERE cityID = ?";
-    private static final String INSERT = "INSERT INTO city (cityID, cityName, districtName, provinceID) VALUES (?, ?, ?, ?)";
-    private static final String UPDATE = "UPDATE city SET cityName = ? , districtName = ? , provinceID = ? WHERE cityID = ?";
+    private static final String DELETE = "DELETE FROM city WHERE id = ?";
+    private static final String INSERT = "INSERT INTO city (id, name, districtName, provinceID) VALUES (?, ?, ?, ?)";
+    private static final String UPDATE = "UPDATE city SET name = ? , districtName = ? , provinceID = ? WHERE id = ?";
 
     private ConnectionPoolManager connectionPoolManager;
 
@@ -132,8 +132,8 @@ public class CityTable {
                         try {
                             while (resultSet.next()) {
                                 City city = new City();
-                                city.setId(resultSet.getShort("cityID"));
-                                city.setName(resultSet.getString("cityName"));
+                                city.setId(resultSet.getShort("id"));
+                                city.setName(resultSet.getString("name"));
                                 city.setDistrictName(resultSet.getString("districtName"));
                                 city.setProvinceID(resultSet.getShort("provinceID"));
                                 return city;
@@ -182,8 +182,8 @@ public class CityTable {
                         try {
                             while (resultSet.next()) {
                                 City city = new City();
-                                city.setId(resultSet.getShort("cityID"));
-                                city.setName(resultSet.getString("cityName"));
+                                city.setId(resultSet.getShort("id"));
+                                city.setName(resultSet.getString("name"));
                                 city.setDistrictName(resultSet.getString("districtName"));
                                 city.setProvinceID(resultSet.getShort("provinceID"));
                                 return city;
@@ -231,8 +231,8 @@ public class CityTable {
                             List<City> list = new ArrayList<City>();
                             while (resultSet.next()) {
                                 City city = new City();
-                                city.setId(resultSet.getShort("cityID"));
-                                city.setName(resultSet.getString("cityName"));
+                                city.setId(resultSet.getShort("id"));
+                                city.setName(resultSet.getString("name"));
                                 city.setDistrictName(resultSet.getString("districtName"));
                                 city.setProvinceID(resultSet.getShort("provinceID"));
                                 list.add(city);

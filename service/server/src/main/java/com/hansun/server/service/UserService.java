@@ -1,9 +1,8 @@
 package com.hansun.server.service;
 
-import com.hansun.dto.User;
+import com.hansun.server.dto.User;
 import com.hansun.server.db.DataStore;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Role;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,9 +15,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by yuanl2 on 2017/3/29.
@@ -42,11 +39,11 @@ public class UserService implements UserDetailsService {
         return dataStore.updateUser(user);
     }
 
-    public void deleteUser(int userID) {
+    public void deleteUser(short userID) {
         dataStore.deleteUserByuserID(userID);
     }
 
-    public User queryUser(int userID) {
+    public User queryUser(short userID) {
         return dataStore.queryUser(userID);
     }
 
@@ -74,7 +71,7 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = null;
         for (User u : getAllUser()) {
-            if (u.getName().equals(username)) {
+            if (u.getUsername().equals(username)) {
                 user = u;
                 break;
             }
@@ -89,6 +86,6 @@ public class UserService implements UserDetailsService {
                 role.split(",")) {
             authorities.add(new SimpleGrantedAuthority(r));
         }
-        return new org.springframework.security.core.userdetails.User(user.getName(), user.getPassword(), user.isEnabled(), user.isAccountNonExpired(), user.isCredentialsNonExpired(), user.isAccountNonLocked(), authorities);
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.isEnabled(), user.isAccountNonExpired(), user.isCredentialsNonExpired(), user.isAccountNonLocked(), authorities);
     }
 }

@@ -24,6 +24,8 @@ public class DeviceMsg extends AbstractMsg {
 
     private String signal;
 
+    private String version;
+
     private Map<Integer, Byte> map = new HashMap<>();
 
     @Override
@@ -63,6 +65,14 @@ public class DeviceMsg extends AbstractMsg {
 
     public void setSignal(String signal) {
         this.signal = signal;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     @Override
@@ -145,9 +155,19 @@ public class DeviceMsg extends AbstractMsg {
         String signal = content[8];
         setSignal(signal);
 
-        int xor = Integer.valueOf(content[9]);
-        if (xor != checkxor) {
-            throw new InvalidMsgException("message check xor error! checkxor = " + checkxor + " xor = " + xor, ErrorCode.DEVICE_XOR_ERROR.getCode());
+        //不带Version的 body有11部分
+        if (content.length == 11) {
+            int xor = Integer.valueOf(content[9]);
+            if (xor != checkxor) {
+                throw new InvalidMsgException("message check xor error! checkxor = " + checkxor + " xor = " + xor, ErrorCode.DEVICE_XOR_ERROR.getCode());
+            }
+        } else if (content.length == 12) {
+            String version = content[9];
+            setVersion(version);
+            int xor = Integer.valueOf(content[10]);
+            if (xor != checkxor) {
+                throw new InvalidMsgException("message check xor error! checkxor = " + checkxor + " xor = " + xor, ErrorCode.DEVICE_XOR_ERROR.getCode());
+            }
         }
         content = null;
         body = null;
