@@ -28,6 +28,12 @@ public class Utils {
         return convertToLocalDateTime(Instant.now());
     }
 
+    /**
+     * 判断订单状态是否应该结束了，如果订单的创建或者开始时间加上任务执行时间比当前时间还早
+     * 则说明该任务早已结束，返回true，否则返回false
+     * @param order
+     * @return
+     */
     public static boolean isOrderFinshed(OrderInfo order) {
         boolean result = false;
         if (order != null && order.getCreateTime() != null) {
@@ -37,5 +43,14 @@ public class Utils {
             result = Instant.now().isAfter(Utils.convertToInstant(order.getStartTime()).plus(Duration.ofSeconds(order.getDuration())));
         }
         return result;
+    }
+
+    /**
+     * 判断订单状态是否未结束
+     * @param order
+     * @return
+     */
+    public static boolean isOrderNotFinshed(OrderInfo order) {
+        return !isOrderFinshed(order);
     }
 }

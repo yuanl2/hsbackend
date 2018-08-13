@@ -128,6 +128,7 @@ public class DemoController {
             order.setDeviceID(deviceID);
             order.setDeviceName(device.getName());
             order.setConsumeType(Short.valueOf(consume.getId()));
+            order.setOrderType(OrderType.TEST.getType());
             OrderInfo result = orderService.createOrder(order);
             orderService.createStartMsgToDevice(result);
             logger.info("device_id = " + deviceID + " start order " + result);
@@ -353,7 +354,7 @@ public class DemoController {
         order.setDeviceID(Long.valueOf(device_id));
         order.setPayAccount("1");
         order.setConsumeType(Short.valueOf(product_id));
-
+        order.setOrderType(OrderType.TEST.getType());
 
         orderService.createOrder(order);
 
@@ -437,6 +438,7 @@ public class DemoController {
             order.setDeviceID(deviceID);
             order.setDeviceName(d.getName());
             order.setConsumeType(Short.valueOf(consume.getId()));
+            order.setOrderType(OrderType.TEST.getType());
             OrderInfo result = orderService.createOrder(order);
             orderService.createStartMsgToDevice(result);
             logger.info("device_id = " + deviceID + " start order " + result);
@@ -453,7 +455,7 @@ public class DemoController {
 
 
     @RequestMapping(value = "/paysuccess")
-    public String doWeinXinPay(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "0") String device_id,
+    public String paysuccess(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "0") String device_id,
                                @RequestParam(value = "product_id", required = true, defaultValue = "0") String product_id,
                                @RequestParam(value = "orderId", required = true, defaultValue = "0") long orderId,
                                @RequestParam(value = "userId", required = true, defaultValue = "0") String userId,
@@ -475,92 +477,26 @@ public class DemoController {
         }
         //deny access multi times
         if (o != null && o.getPayAccount().equals(userId) &&
-                (o.getOrderStatus() == OrderStatus.SERVICE) && (Instant.now().isBefore(Utils.convertToInstant(o.getCreateTime()).plus(Duration.ofSeconds(o.getDuration())))
-                || Instant.now().isBefore(Utils.convertToInstant(o.getStartTime()).plus(Duration.ofSeconds(o.getDuration()))))) {
+                (o.getOrderStatus() == OrderStatus.SERVICE) && Utils.isOrderNotFinshed(o)) {
             model.addAttribute("device_id", device_id);
-//            model.addAttribute("duration", consume.getDuration() * 60);
+            model.addAttribute("duration", consume.getDuration());
 //            model.addAttribute("startTime", o.getCreateTime().toEpochMilli());
             model.addAttribute("orderId", o.getId());
             logger.debug(" device {} orderId {} now forward device_running again", device_id, orderId);
-            return "device_finish";
+            return "device_start_running";
         }
 
-        if (orderId == 0) {
-            orderId = orderService.getOrderName();
-        }
+        o.setStartTime(Utils.getNowTime());
+        o.setOrderStatus(OrderStatus.PAYDONE);
+        orderService.createStartMsgToDevice(o);
+        orderService.updateOrder(o);
 
-        int count = 30;
-        OrderInfo order1 = null;
-        while (count > 0) {
-            count--;
-            order1 = orderService.getOrderByOrderID(orderId);
-            if (order1 != null && order1.getOrderStatus() == OrderStatus.FINISH) {
-                //重复收到了调用，直接返回
-                model.addAttribute("device_id", device_id);
-                model.addAttribute("duration", consume.getDuration());
-                model.addAttribute("startTime", order1.getCreateTime().toString());
-                model.addAttribute("orderId", orderId);
-                logger.debug(" device {} orderId {} now forward device_run_error", device_id, orderId);
-                return "device_run_error";
-            }
-            if (order1 == null || order1.getOrderStatus() != OrderStatus.PAYDONE) {
-                logger.debug(" device {} not receive pay success notify count = {}", device_id, count);
-                Thread.sleep(500);
-            } else {
-                logger.info(" device {} receive pay success notify count = {}", device_id, count);
-                break;
-            }
-        }
-
-        if (count > 0) {
-            orderService.createStartMsgToDevice(order1);
-            //update order start time
-            order1.setStartTime(Utils.getNowTime());
-        } else {
-            model.addAttribute("device_id", device_id);
-            model.addAttribute("duration", consume.getDuration());
-            model.addAttribute("startTime", order1.getCreateTime().toEpochSecond(ZoneOffset.of("+8")));
-            model.addAttribute("orderId", orderId);
-            order1.setOrderStatus(OrderStatus.USER_NOT_PAY);
-            orderService.updateOrder(order1);
-            logger.debug(" device {} orderId {} now forward device_run_error", device_id, orderId);
-            return "device_run_error";
-        }
-
-        count = 20;
-        while (count > 0) {
-            count--;
-            int status = deviceService.getDevice(deviceID).getStatus();
-            logger.info("device status {} ", status);
-            if (status != DeviceStatus.SERVICE) {
-                logger.debug(" device {} not running count = {}", device_id, count);
-                Thread.sleep(500);
-            } else {
-                logger.info(" device {} is running count = {}", device_id, count);
-                break;
-            }
-        }
-
-        if (count > 0) {
-            model.addAttribute("device_id", device_id);
-//            model.addAttribute("duration", consume.getDuration() * 60);
-//            model.addAttribute("startTime", order1.getStartTime().toEpochMilli());
-            model.addAttribute("store", store);
-            model.addAttribute("orderId", orderId);
-            order1.setOrderStatus(OrderStatus.SERVICE);
-            orderService.updateOrder(order1);
-            logger.debug(" device {} now forward device_running", device_id);
-            return "device_finish";
-        } else {
-            model.addAttribute("device_id", device_id);
-            model.addAttribute("duration", consume.getDuration());
-            model.addAttribute("startTime", order1.getCreateTime().toEpochSecond(ZoneOffset.of("+8")));
-            model.addAttribute("orderId", orderId);
-            order1.setOrderStatus(OrderStatus.DEVICE_ERROR);
-            orderService.updateOrder(order1);
-            logger.debug(" device {} orderId {} now forward device_run_error", device_id, orderId);
-            return "device_run_error";
-        }
+        model.addAttribute("device_id", device_id);
+        model.addAttribute("duration", consume.getDuration());
+        model.addAttribute("store", store);
+        model.addAttribute("orderId", orderId);
+        logger.debug(" device {} now forward device_running", device_id);
+        return "device_start_running";
     }
 
     @RequestMapping("/report")

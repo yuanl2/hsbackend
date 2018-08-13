@@ -193,13 +193,16 @@ public class LinkManger {
                 logger.info("status {} msgtime {} runtime {} order {} ", status, msgTime.getTime(), msgTime.getRuntime(), order);
 
                 if (order != null && (msgTime.getTime() == 0 || status == DeviceStatus.IDLE)) {
-                    //如果订单还在缓存中，但是结束时在当前时间之前，则需要从缓存中删除该订单
                     if (Utils.isOrderFinshed(order)) {
-                        //设备没有收到后续结束报文，所以收到心跳消息，判断当前设备是否还在运行，如果指示时间为0，而订单是运行中，则更新订单为finish
                         if (order.getOrderStatus() == OrderStatus.SERVICE) {
                             logger.info("{} update order status from service to {}", order.getId(), OrderStatus.FINISH);
 
-                            sendMetrics(device, order);
+                            /**
+                             * 测试订单不需要记录
+                             */
+                            if(order.getOrderType() == OrderType.OPERATIONS.getType()) {
+                                sendMetrics(device, order);
+                            }
 
                             orderService.deleteOrder(device.getDeviceID());
                             setStatus = DeviceStatus.IDLE;
@@ -213,7 +216,25 @@ public class LinkManger {
                          */
                         else if(order.getOrderStatus() == OrderStatus.PAYDONE){
                             logger.info("{} not running {} status is PAYDONE ", device.getDeviceID(), order.getId());
+                            order.setEndTime(Utils.getNowTime());
+                            order.setOrderStatus(OrderStatus.NOTSTART);
+                            orderService.updateOrder(order);
                             orderService.removeOrder(device.getDeviceID());
+                            setStatus = DeviceStatus.IDLE;
+                            /**
+                             * 对于支付成功未下发的订单，属于异常，后续做处理
+                             */
+
+                        }
+                        else if(order.getOrderStatus() == OrderStatus.USER_PAY_FAIL){
+                            logger.info("{} not running {} status is USER_PAY_FAIL ", device.getDeviceID(), order.getId());
+                            order.setEndTime(Utils.getNowTime());
+                            orderService.updateOrder(order);
+                            orderService.removeOrder(device.getDeviceID());
+                            setStatus = DeviceStatus.IDLE;
+                            /**
+                             * 对于交易失败，但是下发了，也是异常数据
+                             */
                         }
                         else {
                             logger.error("{} update order status from start to {}", order.getId(), OrderStatus.FINISH);
@@ -221,7 +242,17 @@ public class LinkManger {
                             setStatus = DeviceStatus.IDLE;
                         }
                     }else{
-                        logger.info("order {} setstatus {} status {}", order, setStatus, status);
+                        if(order.getOrderStatus() == OrderStatus.PAYDONE){
+                            logger.info("{} not running {} status is PAYDONE ", device.getDeviceID(), order.getId());
+                            order.setEndTime(Utils.getNowTime());
+                            order.setOrderStatus(OrderStatus.NOTSTART);
+                            orderService.updateOrder(order);
+                            orderService.removeOrder(device.getDeviceID());
+                            setStatus = DeviceStatus.IDLE;
+                            //TODO
+
+                        }
+                        logger.error("order {} setstatus {} status {}", order, setStatus, status);
                     }
                 } else if (order != null && (status == DeviceStatus.SERVICE || msgTime.getTime() != 0)) {
                     if (order.getOrderStatus() == OrderStatus.NOTSTART || order.getOrderStatus() == OrderStatus.PAYDONE) {
@@ -233,7 +264,6 @@ public class LinkManger {
                         orderService.updateOrder(order);
 
                         if (device.getStatus() != DeviceStatus.SERVICE) {
-
                             if (msg.getMsgType().equals(DEVICE_START_FINISH_MSG)) {
                                 device.setSeq(Short.valueOf(msg.getSeq()));
                                 logger.info("{} set task seq = {}", device.getDeviceID(), device.getSeq());
@@ -244,6 +274,8 @@ public class LinkManger {
                         }
                     } else if (order.getOrderStatus() == OrderStatus.FINISH) {
                         logger.error("order = {} status is error. Has finished!", order);
+                    } else if( order.getOrderStatus() == OrderStatus.USER_PAY_FAIL){
+                        logger.error("order = {} status is error. Pay failed", order);
                     }
                 } else {
                     logger.debug("{} have no order now", device.getDeviceID());

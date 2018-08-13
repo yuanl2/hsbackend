@@ -141,6 +141,7 @@ public class TimerService {
                                 order.setDeviceID(Long.valueOf(deviceID));
                                 order.setDeviceName(d.getName());
                                 order.setConsumeType(Short.valueOf(consume.getId()));
+                                order.setOrderType(OrderType.TEST.getType());
                                 OrderInfo result = orderService.createOrder(order);
                                 orderService.createStartMsgToDevice(result);
                                 logger.info("device_id = " + deviceID + " start order " + result);

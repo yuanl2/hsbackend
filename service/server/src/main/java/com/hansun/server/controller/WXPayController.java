@@ -1,6 +1,7 @@
 package com.hansun.server.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.hansun.server.common.OrderType;
 import com.hansun.server.common.Utils;
 import com.hansun.server.dto.Consume;
 import com.hansun.server.dto.Device;
@@ -53,15 +54,16 @@ public class WXPayController {
     public String paycancel(@RequestParam(value = "orderId", required = true, defaultValue = "0") long orderId,
                             HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        log.info("paysuccess  orderId = {} ", orderId);
+        log.debug("paycancel  orderId = {} ", orderId);
         OrderInfo o = orderService.getOrderByOrderID(orderId);
+        o.setEndTime(Utils.getNowTime());
         o.setOrderStatus(OrderStatus.USER_NOT_PAY);
 
         Device device = deviceService.getDevice(o.getDeviceID());
         orderService.removeOrder(o.getDeviceID());
-        log.info("user cancel order delete from cache {}", o);
+        log.debug("user cancel order delete from cache {}", o);
         String deviceStatus = String.valueOf(device.getStatus());
-        log.info("device_id {} deviceStatus {}", device.getDeviceID(), deviceStatus);
+        log.debug("device_id {} deviceStatus {}", device.getDeviceID(), deviceStatus);
         return deviceStatus;
     }
 
@@ -162,6 +164,7 @@ public class WXPayController {
         order.setPrice(Float.valueOf(price));
         order.setConsumeType(Short.valueOf(product_id));
         order.setDuration(consume.getDuration());
+        order.setOrderType(OrderType.OPERATIONS.getType());
         orderService.createOrder(order);
         log.info("create order {}", order);
         return strJson;
@@ -200,7 +203,7 @@ public class WXPayController {
             //验证签名------------------------------------------------
 //            resultMap.remove("sign");
 
-            if (resultMap.get("result_code").toString().equalsIgnoreCase("SUCCESS")) {
+            if (resultMap.get("result_code").equalsIgnoreCase("SUCCESS")) {
                 log.debug("wechat pay return success");
                 if (verifyWeixinNotify(resultMap)) {
                     log.debug("wechat pay verify sign success");
@@ -234,6 +237,20 @@ public class WXPayController {
                 out.write(resXml.getBytes());
                 out.flush();
                 out.close();
+            }
+            else{
+                log.error(" pay return fail {}", resultMap.get("result_code"));
+
+                // 处理业务 -修改订单支付状态 支付失败
+                OrderInfo order = orderService.getOrderByOrderID(Long.valueOf(out_trade_no));
+                if (order != null) {
+                    log.info("wechat pay callback : modify order = {} status to USER_PAY_FAIL ", out_trade_no);
+                    order.setOrderStatus(OrderStatus.USER_PAY_FAIL);
+                    orderService.updateOrder(order);
+                } else {
+                    log.error("no this order {}", out_trade_no);
+                    return;
+                }
             }
         } catch (Exception e) {
             log.error("pay notify exception", e);

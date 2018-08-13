@@ -12,5 +12,6 @@ public class OrderStatus {
     public static final short FINISH = 4;    //已支付已完成
     public static final short DEVICE_ERROR = 5;
     public static final short USER_NOT_PAY = 6;
-    public static final short UNKNOW = 7;
+    public static final short USER_PAY_FAIL = 7;//设备运行成功，但是后台显示支付失败
+    public static final short UNKNOW = 8;
 }
