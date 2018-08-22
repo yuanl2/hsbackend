@@ -203,48 +203,48 @@ public class OrderService {
         return result;
     }
 
-    public void processStartOrder(String deviceBoxName, int port) {
-        Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, port);
-        OrderInfo order = orderStore.queryOrderByDeviceID(d.getDeviceID());
-        if (order != null && order.getOrderStatus() != OrderStatus.SERVICE) {
-            logger.info("update order before = " + order);
-            order.setOrderStatus(OrderStatus.SERVICE);
-            order.setStartTime(Utils.getNowTime());
-            orderStore.updateOrder(order);
-
-            //不能等心跳消息来了再更新设备的状态，应该根据业务的回应及时更新
-            dataStore.updateDevice(d, DeviceStatus.SERVICE);
-        } else {
-            logger.error(d.getDeviceID() + " have no order now");
-        }
-    }
-
-    public void processFinishOrder(String deviceBoxName, Map<Integer, Byte> map) {
-        map.forEach((k, v) -> {
-            Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, k);
-            OrderInfo order = orderStore.queryOrderByDeviceID(d.getDeviceID());
-
-            if (order != null && v == DeviceStatus.IDLE) {
-                if (Utils.isOrderFinshed(order)) {
-                    logger.info("update order before = " + order);
-                    order.setOrderStatus(OrderStatus.FINISH);
-                    order.setEndTime(Utils.getNowTime());
-                    orderStore.updateOrder(order);
-
-                    dataStore.updateDevice(d, DeviceStatus.IDLE);
-
-                    //remove order from cache not table
-                    orderStore.deleteOrder(d.getDeviceID());
-                    logger.info("order delete = " + order);
-                }
-            } else {
-                logger.error(d.getDeviceID() + " have no order now");
-            }
-
-        });
-
-        dataStore.updateDeviceStatus(deviceBoxName, map, "0");
-    }
+//    public void processStartOrder(String deviceBoxName, int port) {
+//        Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, port);
+//        OrderInfo order = orderStore.queryOrderByDeviceID(d.getDeviceID());
+//        if (order != null && order.getOrderStatus() != OrderStatus.SERVICE) {
+//            logger.info("update order before = " + order);
+//            order.setOrderStatus(OrderStatus.SERVICE);
+//            order.setStartTime(Utils.getNowTime());
+//            orderStore.updateOrder(order);
+//
+//            //不能等心跳消息来了再更新设备的状态，应该根据业务的回应及时更新
+//            dataStore.updateDevice(d, DeviceStatus.SERVICE);
+//        } else {
+//            logger.error(d.getDeviceID() + " have no order now");
+//        }
+//    }
+//
+//    public void processFinishOrder(String deviceBoxName, Map<Integer, Byte> map) {
+//        map.forEach((k, v) -> {
+//            Device d = dataStore.queryDeviceByDeviceBoxAndPort(deviceBoxName, k);
+//            OrderInfo order = orderStore.queryOrderByDeviceID(d.getDeviceID());
+//
+//            if (order != null && v == DeviceStatus.IDLE) {
+//                if (Utils.isOrderFinshed(order)) {
+//                    logger.info("update order before = " + order);
+//                    order.setOrderStatus(OrderStatus.FINISH);
+//                    order.setEndTime(Utils.getNowTime());
+//                    orderStore.updateOrder(order);
+//
+//                    dataStore.updateDevice(d, DeviceStatus.IDLE);
+//
+//                    //remove order from cache not table
+//                    orderStore.deleteOrder(d.getDeviceID());
+//                    logger.info("order delete = " + order);
+//                }
+//            } else {
+//                logger.error(d.getDeviceID() + " have no order now");
+//            }
+//
+//        });
+//
+//        dataStore.updateDeviceStatus(deviceBoxName, map, "0");
+//    }
 
 
 //    public void OrderNotFinish(String name, int orderStatus) {

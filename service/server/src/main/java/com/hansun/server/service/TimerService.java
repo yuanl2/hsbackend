@@ -79,7 +79,14 @@ public class TimerService {
         public void run() {
             boolean threadFlag;
             Random random = new Random();
+
+            int loop = 0;
             while (!Thread.currentThread().interrupted()) {
+
+
+                loop++;
+
+
                 try {
                     synchronized (object) {
                         if (!isFlag()) {
@@ -93,7 +100,6 @@ public class TimerService {
                     Set<String> deviceBoxs = dataStore.getAllDeviceBoxes();
                     final List<Long> deviceLists = new ArrayList<>();
                     if(deviceBoxs != null && deviceBoxs.size()> 0){
-
                         Set<Long> deviceList = dataStore.getAllDevices();
                         if (deviceList != null && deviceList.size() > 0) {
                             deviceBoxs.forEach(k->{
@@ -106,21 +112,32 @@ public class TimerService {
                             });
                         }
                     }
+                    logger.info("deviceLists size {}", deviceLists.size());
+
+                    int count = deviceLists.size();
+                    long sleepTime = 50;
+                    if(5000/count > sleepTime){
+                        sleepTime = 5000/count;
+                    }
 
                     long begin = System.currentTimeMillis();
+                    Consume consume = null;
+                    boolean task = false;
                     for (Long deviceID:
                             deviceLists) {
-                        int type = random.nextInt(3);
+
                         Device d = dataStore.queryDeviceByDeviceID(deviceID);
                         List<Consume> consumeList = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()),ConsumeType.TEST.getValue());
-                        Consume consume = consumeList.get(type);
+                        int type = random.nextInt(consumeList.size());
+                        consume = consumeList.get(type);
 
                         logger.debug("queryDeviceByDeviceID  = {} , status = {}, managerStatus = {}",d.getDeviceID(),d.getStatus(),d.getManagerStatus());
 
                         if(d.getManagerStatus() == DeviceManagerStatus.TEST.getStatus()){
                             if (d.getStatus() !=  DeviceStatus.IDLE) {
-                                Thread.sleep(5000);
+                                Thread.sleep(sleepTime);
                             } else {
+                                task = true;
                                 logger.info("queryDeviceByDeviceID = " + d.getDeviceID() + " status " + d.getStatus());
                                 OrderInfo order = new OrderInfo();
                                 //---------------生成订单号 开始------------------------
@@ -141,24 +158,40 @@ public class TimerService {
                                 order.setDeviceID(Long.valueOf(deviceID));
                                 order.setDeviceName(d.getName());
                                 order.setConsumeType(Short.valueOf(consume.getId()));
+                                order.setOrderType(OrderType.TEST.getType());
                                 OrderInfo result = orderService.createOrder(order);
                                 orderService.createStartMsgToDevice(result);
                                 logger.info("device_id = " + deviceID + " start order " + result);
                             }
                         }
-//                        else{
-//                            Thread.sleep((random.nextInt(5) + 5) * 60000);
-//                        }
-
                     }
                     long end = System.currentTimeMillis();
                     //轮询所有设备后，需要sleep的时间
 
-                    long duration = 120000 - (end - begin);
 
-                    if (duration > 0) {
-                        Thread.sleep(duration);
+                    if (task) {
+                        /**
+                         * 每连续下发两次任务之后，再多休息15分钟
+                         */
+                        if (loop % 2 == 0) {
+                            long duration = consume.getDuration() * 1000 + 900000 - (end - begin);
+                            if (duration > 0) {
+                                logger.info("sleep for {}", duration);
+                                Thread.sleep(duration);
+                            }
+                        } else {
+                            long duration = consume.getDuration() * 1000 - (end - begin);
+                            if (duration > 0) {
+                                logger.info("sleep for {}", duration);
+                                Thread.sleep(duration);
+                            }
+                        }
+                        task = false;
                     }
+                    else {
+                        Thread.sleep(10000);
+                    }
+
 
                 } catch (Exception e) {
                     logger.error("run task error",e);

@@ -23,8 +23,9 @@
             </div>
 			<div class="col-md-4">
                 <div class="test-contact-text1 ">
-                    <p class="span1">设备${device_id}运行结束</p>
-                    <p class="span2">订单号 ${orderId}</p>
+                    <p class="span1">设备${device_id}运行中</p>
+                    <p class="span1">订单号 ${orderId}</p>
+                    <p class="span1">运行时间 ${duration} 秒</p>
                 </div>
 			</div>
 		</div>

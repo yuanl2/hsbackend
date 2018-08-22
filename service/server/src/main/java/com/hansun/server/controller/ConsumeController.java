@@ -43,6 +43,12 @@ public class ConsumeController {
         return new ResponseEntity(lists, HttpStatus.CREATED);
     }
 
+    @RequestMapping(value = "consumes", method = RequestMethod.GET)
+    public ResponseEntity<?> getConsumes(UriComponentsBuilder ucBuilder) {
+        List<Consume> consumes = consumeService.getAllConsume();
+        return new ResponseEntity<>(consumes, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "consume/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> getConsume(@PathVariable short id, UriComponentsBuilder ucBuilder) {
         Consume consume = consumeService.getConsume(id);
