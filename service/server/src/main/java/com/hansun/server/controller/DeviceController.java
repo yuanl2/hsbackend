@@ -27,6 +27,7 @@ import java.util.List;
 /**
  * Created by yuanl2 on 2017/3/29.
  */
+@CrossOrigin
 @RestController
 @RequestMapping("/api")
 public class DeviceController {
@@ -85,8 +86,8 @@ public class DeviceController {
      * @param response
      * @return
      */
-    @RequestMapping(value = "devices/{userID}", method = RequestMethod.GET)
-    public ResponseEntity<?> getDeviceByUserID(@PathVariable int userID,
+    @RequestMapping(value = "devices", method = RequestMethod.GET)
+    public ResponseEntity<?> getDeviceByUserID(@RequestParam(value = "userID", required = false, defaultValue = "0") int userID,
                                                @RequestParam(value = "locationID", required = false, defaultValue = "1") int locationID,
                                                HttpServletRequest request, HttpServletResponse response) {
 
