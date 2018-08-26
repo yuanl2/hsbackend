@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 
 /**
@@ -44,8 +45,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable().authorizeRequests().
-                antMatchers("/", "/index", "/index/**", "/device", "/device/**", "/callback","/callback/**","/assets/**",
+        http.authorizeRequests().
+                antMatchers("/api/**","/index", "/index/**", "/device", "/device/**", "/callback","/callback/**","/assets/**",
                         "/callback/**", "/js/**", "/css/**", "/pic/**", "/images/**","/api/deviceStatus", "/api/deviceStatus/**",
                         "/detail", "/detail/**", "/disable", "/disable/**","/testcmd","/testcmd/**","/testdevice","/testdevice/*8",
                         "/finish","/finish/**","/weixin/savepackage","/weixin/savepackage/**","/weixin/payNotify","/paysuccess","/paysuccess/**","/weixin/paycancel", "/weixin/paycancel/**").permitAll()

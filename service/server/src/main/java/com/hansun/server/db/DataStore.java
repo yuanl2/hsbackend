@@ -388,7 +388,7 @@ public class DataStore {
      */
     private void initCache() {
         long begin = System.currentTimeMillis();
-        logger.info("begin initCache " + begin);
+        logger.info("begin initCache {}",begin);
 
         List<City> cityList = cityDao.findAll();
         if (checkListNotNull(cityList)) {
