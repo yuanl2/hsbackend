@@ -7,12 +7,26 @@ public class OrderStatistics {
     protected double incomeTotal;
     protected int orderTotal;
     protected int deviceTotal;
-    protected double incomeTotalOnMonth;
-    protected double incomeTotalOnWeek;
-    protected double incomeTotalOnDay;
-    protected int orderTotalOnMonth;
-    protected int orderTotalOnWeek;
-    protected int orderTotalOnDay;
+    protected int runningDeviceTotal;
+    /**
+     * DAY: 2018-08-23
+     * MONTH: 2018-08
+     * YEAR: 2018
+     * TOTAL: ALL
+     */
+    protected String time;
+
+    /**
+     * 1 DAY
+     * 2 MONTH
+     * 3 YEAR
+     * 4 TOTAL
+     */
+    protected String sumTimeType;
+
+    protected String areaName;
+
+    protected String user;
 
     public double getIncomeTotal() {
         return incomeTotal;
@@ -38,52 +52,69 @@ public class OrderStatistics {
         this.deviceTotal += deviceNum;
     }
 
-    public double getIncomeTotalOnMonth() {
-        return incomeTotalOnMonth;
+    public void setIncomeTotal(double incomeTotal) {
+        this.incomeTotal = incomeTotal;
     }
 
-    public void addIncomeTotalOnMonth(double income) {
-        this.incomeTotalOnMonth += income;
+    public void setOrderTotal(int orderTotal) {
+        this.orderTotal = orderTotal;
     }
 
-    public double getIncomeTotalOnWeek() {
-        return incomeTotalOnWeek;
+    public void setDeviceTotal(int deviceTotal) {
+        this.deviceTotal = deviceTotal;
     }
 
-    public void addIncomeTotalOnWeek(double income) {
-        this.incomeTotalOnWeek += income;
+    public String getTime() {
+        return time;
     }
 
-    public double getIncomeTotalOnDay() {
-        return incomeTotalOnDay;
+    public void setTime(String time) {
+        this.time = time;
     }
 
-    public void addIncomeTotalOnDay(double income) {
-        this.incomeTotalOnDay += income;
+    public String getSumTimeType() {
+        return sumTimeType;
     }
 
-
-    public int getOrderTotalOnMonth() {
-        return orderTotalOnMonth;
+    public void setSumTimeType(String sumTimeType) {
+        this.sumTimeType = sumTimeType;
     }
 
-    public int getOrderTotalOnWeek() {
-        return orderTotalOnWeek;
+    public int getRunningDeviceTotal() {
+        return runningDeviceTotal;
     }
 
-    public int getOrderTotalOnDay() {
-        return orderTotalOnDay;
+    public void setRunningDeviceTotal(int runningDeviceTotal) {
+        this.runningDeviceTotal = runningDeviceTotal;
     }
 
-    public void addOrderTotalOnMonth(int orderNum) {
-        this.orderTotalOnMonth += orderNum;
+    public String getAreaName() {
+        return areaName;
     }
 
-    public void addOrderTotalOnWeek(int orderNum) {
-        this.orderTotalOnWeek += orderNum;
+    public void setAreaName(String areaName) {
+        this.areaName = areaName;
     }
 
-    public void addOrderTotalOnDay(int orderNum) {
-        this.orderTotalOnDay += orderNum;
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("OrderStatistics = ")
+                .append("time = ").append(time)
+                .append(" sumTimeType = ").append(sumTimeType)
+                .append("\nareaName = ").append(areaName)
+                .append("\nuser = ").append(user)
+                .append("\ndeviceTotal = ").append(deviceTotal)
+                .append("\nrunningDeviceTotal = ").append(runningDeviceTotal)
+                .append("\norderTotal = ").append(orderTotal)
+                .append("\nincomeTotal = ").append(incomeTotal).append("\n");
+        return builder.toString();
     }
 }

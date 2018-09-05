@@ -278,7 +278,7 @@ public class DemoController {
             if (consume.getType() == ConsumeType.NORMAL.getValue()) {
                 return true;
             } else if (consume.getType() == ConsumeType.USER.getValue()) {
-                return consume.getValue().contains(d.getOwnerID() + "");
+                return consume.getValue().contains(d.getUserID() + "");
             } else if (consume.getType() == ConsumeType.LOCATION.getValue()) {
                 return consume.getValue().contains(location.getId() + "");
             } else if (consume.getType() == ConsumeType.AREA.getValue()) {
@@ -513,7 +513,7 @@ public class DemoController {
             List<Device> list = deviceService.getAllDevices();
             model.addAttribute("devices", list);
         } else {
-            List<Device> list = deviceService.getDevicesByOwner(userid);
+            List<Device> list = deviceService.getDevicesByUser(userid);
             model.addAttribute("devices", list);
         }
         return "device_monitor";

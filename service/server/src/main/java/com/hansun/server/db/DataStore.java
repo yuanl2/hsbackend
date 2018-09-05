@@ -129,12 +129,12 @@ public class DataStore {
         });
     }
 
-    public void deleteDeviceByOwner(int owner) {
-        deviceDao.deleteByOwnerID((short) owner);
+    public void deleteDeviceByUser(int userID) {
+        deviceDao.deleteByUserID((short) userID);
         //update cache
         List<Long> list = new ArrayList<>();
         deviceCache.forEach((k, v) -> {
-            if (v.getOwnerID() == owner) list.add(k);
+            if (v.getUserID() == userID) list.add(k);
         });
         list.stream().forEach(k -> {
             Device d = deviceCache.remove(k);
@@ -146,8 +146,8 @@ public class DataStore {
         return deviceSimCache.get(deviceBox);
     }
 
-    public List<Device> queryDeviceByOwner(int owner) {
-        List<Device> devices = deviceDao.findByOwnerID((short) owner);
+    public List<Device> queryDeviceByUser(int userID) {
+        List<Device> devices = deviceDao.findByUserID((short) userID);
         if (checkListNotNull(devices)) {
             devices.forEach(device -> autoFillDevice(device));
             return devices;
@@ -355,9 +355,9 @@ public class DataStore {
             }
         }
 
-        User u = userCache.get(device.getOwnerID());
+        User u = userCache.get(device.getUserID());
         if (u != null) {
-            device.setOwner(u.getUsername());
+            device.setUser(u.getUsername());
         }
     }
 

@@ -68,6 +68,13 @@ public class OrderStore {
     public List<OrderInfo> queryByDevice(List<Long> deviceID, LocalDateTime startTime, LocalDateTime endTIme) {
         return orderDao.queryByTime(startTime, endTIme, deviceID);
     }
+    public List<OrderInfo> queryByTimeRangeOrderNotFinish(short userID, LocalDateTime startTime, LocalDateTime endTIme) {
+        return orderDao.queryByTimeRangeForUserNotFinish(userID, startTime, endTIme, OrderStatus.FINISH);
+    }
+
+    public List<OrderInfo> queryByTimeRangeOrderFinish(short userID, LocalDateTime startTime, LocalDateTime endTIme) {
+        return orderDao.queryByTimeRangeForUser(userID, startTime, endTIme, OrderStatus.FINISH);
+    }
 
     public List<OrderInfo> queryNotFinish(short status) {
         return orderDao.queryOrderStatusNot(status);

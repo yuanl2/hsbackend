@@ -53,15 +53,15 @@ public class DeviceService {
     }
 
     public void deleteDeviceByOwner(int owner) {
-        dataStore.deleteDeviceByOwner(owner);
+        dataStore.deleteDeviceByUser(owner);
     }
 
     public void deleteDeviceByLocationID(int locationID) {
         dataStore.deleteDeviceByLocationID(locationID);
     }
 
-    public List<Device> getDevicesByOwner(int useID) {
-        return dataStore.queryDeviceByOwner(useID);
+    public List<Device> getDevicesByUser(int useID) {
+        return dataStore.queryDeviceByUser(useID);
     }
 
     public List<Device> getAllDevices() {

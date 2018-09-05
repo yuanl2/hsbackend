@@ -5,6 +5,7 @@ import com.hansun.server.dto.OrderInfo;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -12,7 +13,7 @@ import java.util.Date;
 /**
  * Created by yuanl2 on 2017/4/27.
  */
-public class OrderDetail{
+public class OrderDetail {
 
     private long orderID;
     private String province;
@@ -24,7 +25,6 @@ public class OrderDetail{
     private String sTime;
     private String month;
     private int day;
-    private String createDate;
     private String eTime;
     private long deviceID;
     private String deviceName;
@@ -35,6 +35,11 @@ public class OrderDetail{
     private short accountType;
     private String orderName;
     private short orderStatus;
+    private String orderStatusDesc;
+    private String sMonth;
+    private short locationID;
+    private String sDay;
+    private LocalDateTime startTime;
 
     public OrderDetail(OrderInfo order) {
 
@@ -47,30 +52,37 @@ public class OrderDetail{
         this.consumeType = order.getConsumeType();
         this.accountType = order.getAccountType();
         this.orderID = order.getOrderID();
-
+        this.startTime = order.getStartTime();
         try {
-            Instant createTime = Utils.convertToInstant(order.getCreateTime());
-            Date date = Date.from(createTime);
+            this.orderStatusDesc = OrderStatus.getOrderStatusDesc(orderStatus);
+
             Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            month = (calendar.get(Calendar.MONTH) + 1) + "月份";
-            day = calendar.get(Calendar.DAY_OF_MONTH);
-            createDate = new SimpleDateFormat("yyyy-MM-dd").format(date);
-            cTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+            if (order.getCreateTime() != null) {
+                Instant createTime = Utils.convertToInstant(order.getCreateTime());
+                Date date = Date.from(createTime);
+                calendar.setTime(date);
+                month = (calendar.get(Calendar.MONTH) + 1) + "月份";
+                day = calendar.get(Calendar.DAY_OF_MONTH);
+                cTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+            }
+            if (order.getStartTime() != null) {
+                Instant createTime = Utils.convertToInstant(order.getStartTime());
+                Date date = Date.from(createTime);
+                calendar.setTime(date);
+                sTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+                sMonth = new SimpleDateFormat("yyyy-MM").format(date);
+                sDay = new SimpleDateFormat("yyyy-MM-dd").format(date);
+            }
 
-            createTime = Utils.convertToInstant(order.getStartTime());
-            date = Date.from(createTime);
-            calendar.setTime(date);
-            sTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
-
-            createTime = Utils.convertToInstant(order.getEndTime());
-            date = Date.from(createTime);
-            calendar.setTime(date);
-            eTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+            if (order.getEndTime() != null) {
+                Instant createTime = Utils.convertToInstant(order.getEndTime());
+                Date date = Date.from(createTime);
+                calendar.setTime(date);
+                eTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+            }
         } catch (Exception e) {
 
         }
-
     }
 
     public void setProvince(String province) {
@@ -125,24 +137,12 @@ public class OrderDetail{
         return consumeType;
     }
 
-    public void setConsumeType(short consumeType) {
-        this.consumeType = consumeType;
-    }
-
     public short getDuration() {
         return duration;
     }
 
-    public void setDuration(short duration) {
-        this.duration = duration;
-    }
-
     public float getPrice() {
         return price;
-    }
-
-    public void setPrice(float price) {
-        this.price = price;
     }
 
     public String getPayAccount() {
@@ -165,16 +165,9 @@ public class OrderDetail{
         return orderName;
     }
 
-    public void setOrderName(String orderName) {
-        this.orderName = orderName;
-    }
 
     public short getOrderStatus() {
         return orderStatus;
-    }
-
-    public void setOrderStatus(short orderStatus) {
-        this.orderStatus = orderStatus;
     }
 
     public String getProvince() {
@@ -205,7 +198,31 @@ public class OrderDetail{
         return eTime;
     }
 
-    public String getCreateDate() {
-        return createDate;
+    public String getsMonth() {
+        return sMonth;
+    }
+
+    public short getLocationID() {
+        return locationID;
+    }
+
+    public void setLocationID(short locationID) {
+        this.locationID = locationID;
+    }
+
+    public long getOrderID() {
+        return orderID;
+    }
+
+    public String getsDay() {
+        return sDay;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public String getOrderStatusDesc() {
+        return orderStatusDesc;
     }
 }

@@ -106,7 +106,7 @@ public class DeviceController {
             return new ResponseEntity<>(list, HttpStatus.OK);
 
         }
-        List<Device> list = deviceService.getDevicesByOwner(userID);
+        List<Device> list = deviceService.getDevicesByUser(userID);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 

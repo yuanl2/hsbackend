@@ -23,10 +23,10 @@ public interface DeviceDao extends JpaRepository<Device, Long> {
 
     /**
      *
-     * @param ownerID
+     * @param userID
      * @return
      */
-    List<Device> findByOwnerID(short ownerID);
+    List<Device> findByUserID(short userID);
 
     /**
      *
@@ -47,12 +47,12 @@ public interface DeviceDao extends JpaRepository<Device, Long> {
 
     /**
      *
-     * @param ownerID
+     * @param userID
      */
     @Modifying
     @Transactional
-    @Query("DELETE FROM Device device WHERE device.ownerID = :ownerID")
-    void deleteByOwnerID(@Param("ownerID") short ownerID);
+    @Query("DELETE FROM Device device WHERE device.userID = :userID")
+    void deleteByUserID(@Param("userID") short userID);
 
     /**
      *

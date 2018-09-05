@@ -25,7 +25,6 @@ public interface OrderInfoDao extends JpaRepository<OrderInfo, Long> {
     @Query("from OrderInfo b where b.orderStatus != :orderStatus")
     List<OrderInfo> queryOrderStatusNot(@Param("orderStatus") short orderStatus);
 
-
     @Modifying
     @Transactional
     @Query("UPDATE OrderInfo o set o.orderStatus = :orderStatus, o.endTime = :endTime WHERE o.orderID = :orderID")
@@ -41,4 +40,15 @@ public interface OrderInfoDao extends JpaRepository<OrderInfo, Long> {
     List<OrderInfo> queryByTime(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("deviceIDs") List<Long> deviceIDs);
 
 
+    @Transactional
+    @Query("from OrderInfo b where b.startTime >= :startTime and b.endTime <= :endTime and b.orderStatus = :orderStatus and b.userID = :userID order by b.startTime desc")
+    List<OrderInfo> queryByTimeRangeForUser(@Param("userID") short userID, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("orderStatus") short orderStatus);
+
+    @Transactional
+    @Query("from OrderInfo b where b.startTime >= :startTime and b.endTime <= :endTime and b.orderStatus != :orderStatus and b.userID = :userID order by b.startTime desc")
+    List<OrderInfo> queryByTimeRangeForUserNotFinish(@Param("userID") short userID, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("orderStatus") short orderStatus);
+
+    @Transactional
+    @Query("from OrderInfo b where b.startTime >= :startTime and b.endTime <= :endTime and b.orderStatus = :orderStatus order by b.startTime desc")
+    List<OrderInfo> queryByTimeRange(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("orderStatus") short orderStatus);
 }

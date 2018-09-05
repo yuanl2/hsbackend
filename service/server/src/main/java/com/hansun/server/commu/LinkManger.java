@@ -300,7 +300,7 @@ public class LinkManger {
         //如果设备的管理状态是测试，则不发送metrics统计信息
         if (device.getManagerStatus() != DeviceManagerStatus.TEST.getStatus()) {
             HSServiceMetrics.Builder builder = HSServiceMetrics.builder();
-            builder.measurement(Metrics.ORDER_FINISH).device(String.valueOf(device.getDeviceID())).area(device.getAreaName()).user(device.getOwner())
+            builder.measurement(Metrics.ORDER_FINISH).device(String.valueOf(device.getDeviceID())).area(device.getAreaName()).user(device.getUser())
                     .count(1).duration(order.getDuration()).price(order.getPrice());
             hsServiceMetricsService.sendMetrics(builder.build());
         }

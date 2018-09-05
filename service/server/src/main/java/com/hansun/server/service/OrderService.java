@@ -26,6 +26,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static java.util.stream.Collectors.*;
+
 /**
  * Created by yuanl2 on 2017/3/29.
  */
@@ -283,9 +285,9 @@ public class OrderService {
             order.setEndTime(Utils.getNowTime());
             order.setOrderStatus(OrderStatus.FINISH);
             orderStore.updateOrder(order);
-            logger.info("Before delete order {} ", order);
+            logger.debug("Before delete order {} ", order);
             orderStore.deleteOrder(deviceID);
-            logger.info("After delete order {}", orderStore.queryOrderByDeviceID(deviceID));
+            logger.debug("After delete order {}", orderStore.queryOrderByDeviceID(deviceID));
         }
     }
 
@@ -298,52 +300,128 @@ public class OrderService {
         orderStore.deleteOrder(deviceID);
     }
 
-    public List<OrderDetail> queryOrderByDevice(Long id, LocalDateTime startTime, LocalDateTime endTime) {
-        List<Long> deviceIDs = new ArrayList<>();
-        deviceIDs.add(id);
-        List<OrderInfo> orderList = orderStore.queryByDevice(deviceIDs, startTime, endTime);
-        List<OrderDetail> orderDetailList = new ArrayList<>();
 
-        orderList.forEach(
-                k -> {
+    public List<OrderDetail> queryOrderByTimeOrderNotFinish(String user, LocalDateTime beginTime) {
+        if (Utils.convertToInstant(beginTime).isAfter(Instant.now())) {
+            return null;
+        }
+
+        short userID = getUserId(user);
+        List<OrderInfo> orderList = orderStore.queryByTimeRangeOrderNotFinish(userID, beginTime, Utils.getNowTime());
+        List<OrderDetail> orderDetailList;
+
+        orderDetailList = orderList.stream().map(
+                orderInfo -> {
+                    OrderDetail orderDetail = new OrderDetail(orderInfo);
                     try {
-                        OrderDetail orderDetail = new OrderDetail(k);
-                        Device device = dataStore.queryDeviceByDeviceID(k.getDeviceID());
-                        Location location = dataStore.queryLocationByLocationID(device.getLocationID());
-                        orderDetail.setAreaName(location.getAreaName());
-                        orderDetail.setAddress(location.getAddress());
-                        orderDetail.setDeviceName(device.getName());
-                        orderDetail.setUser(dataStore.queryUser(device.getOwnerID()).getUsername());
-                        orderDetail.setCity(location.getCity());
-                        orderDetail.setProvince(location.getProvince());
-                        orderDetailList.add(orderDetail);
+                        Device device = dataStore.queryDeviceByDeviceID(orderInfo.getDeviceID());
+                        if (device != null) {
+                            Location location = dataStore.queryLocationByLocationID(device.getLocationID());
+                            orderDetail.setAreaName(location.getAreaName());
+                            orderDetail.setLocationID(location.getId());
+                            orderDetail.setAddress(location.getAddress());
+                            orderDetail.setDeviceName(device.getName());
+                            orderDetail.setUser(dataStore.queryUser(device.getUserID()).getUsername());
+                            orderDetail.setCity(location.getCity());
+                            orderDetail.setProvince(location.getProvince());
+                        } else {
+                            logger.error("order {} has no device", orderDetail.getOrderID());
+                        }
                     } catch (Exception e) {
                         logger.error(e.getMessage(), e);
                     }
+                    return orderDetail;
                 }
-        );
+        ).collect(toList());
+        return orderDetailList;
+
+    }
+
+    /**
+     * get the raw order data with time range
+     *
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    public List<OrderDetail> queryOrderByTimeByUser(short userID, LocalDateTime startTime, LocalDateTime endTime) {
+        List<OrderInfo> orderList = orderStore.queryByTimeRangeOrderFinish(userID, startTime, endTime);
+        List<OrderDetail> orderDetailList;
+
+        orderDetailList = orderList.stream().map(
+                orderInfo -> {
+                    OrderDetail orderDetail = new OrderDetail(orderInfo);
+                    try {
+                        Device device = dataStore.queryDeviceByDeviceID(orderInfo.getDeviceID());
+                        if (device != null) {
+                            Location location = dataStore.queryLocationByLocationID(device.getLocationID());
+                            orderDetail.setAreaName(location.getAreaName());
+                            orderDetail.setLocationID(location.getId());
+                            orderDetail.setAddress(location.getAddress());
+                            orderDetail.setDeviceName(device.getName());
+                            orderDetail.setUser(dataStore.queryUser(device.getUserID()).getUsername());
+                            orderDetail.setCity(location.getCity());
+                            orderDetail.setProvince(location.getProvince());
+                        } else {
+                            logger.error("order {} has no device", orderDetail.getOrderID());
+                        }
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                    return orderDetail;
+                }
+        ).collect(toList());
         return orderDetailList;
     }
 
-    public List<OrderDetail> queryOrderByUser(String user, LocalDateTime startTime, LocalDateTime endTime) {
-        List<Device> devices;
-        int id = getUserId(user);
-        devices = dataStore.queryDeviceByOwner(id);
-        List<Long> deviceIDs = new ArrayList<>();
-        if (devices != null && devices.size() > 0) {
-            devices.forEach(k -> {
-                deviceIDs.add(k.getDeviceID());
-            });
+    /**
+     * get order list with user name
+     *
+     * @param user
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    public List<OrderDetail> queryOrderByUser(short user, LocalDateTime startTime, LocalDateTime endTime) {
+        return queryOrderByTimeByUser(user, startTime, endTime).stream().collect(toList());
+    }
+
+    /**
+     * get order list with location id
+     *
+     * @param id
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    public List<OrderDetail> queryOrderByArea(short id, String user, LocalDateTime startTime, LocalDateTime endTime) {
+        short userID = getUserId(user);
+        return queryOrderByTimeByUser(userID, startTime, endTime).stream().filter(orderDetail ->
+                orderDetail.getLocationID() == id
+        ).collect(toList());
+    }
+
+    /**
+     * get order list with device id
+     *
+     * @param id
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    public List<OrderDetail> queryOrderByDevice(long id, LocalDateTime startTime, LocalDateTime endTime) {
+        Device device = dataStore.queryDeviceByDeviceID(id);
+        if (device != null) {
+            return queryOrderByTimeByUser(device.getUserID(), startTime, endTime).stream().filter(orderDetail ->
+                    orderDetail.getDeviceID() == id
+            ).collect(toList());
         }
-        List<OrderDetail> orderDetailList = new ArrayList<>();
-        deviceIDs.forEach(
-                k -> orderDetailList.addAll(queryOrderByDevice(k, startTime, endTime))
-        );
-        return orderDetailList;
+        return null;
     }
 
-    private int getUserId(String user) {
-        int id = -1;
+
+    private short getUserId(String user) {
+        short id = -1;
         if (!Utils.isNumeric(user)) {
             for (User u : dataStore.queryAllUser()
                     ) {
@@ -353,7 +431,7 @@ public class OrderService {
             }
 
         } else {
-            id = Integer.valueOf(user);
+            id = Short.valueOf(user);
         }
         return id;
     }
@@ -372,124 +450,210 @@ public class OrderService {
         return null;
     }
 
-    public List<OrderDetail> queryOrderByArea(String id, LocalDateTime startTime, LocalDateTime endTime) {
-        List<Location> locationList = dataStore.queryLocationByAreaID(Integer.valueOf(id));
-        List<Long> deviceIDs = new ArrayList<>();
-        locationList.forEach(k -> {
-            List<Device> lists = dataStore.queryDeviceByLocation(k.getId());
-            if (lists != null) {
-                lists.forEach(v -> {
-                    deviceIDs.add(v.getDeviceID());
-                });
-            }
-        });
-        List<OrderDetail> orderDetailList = new ArrayList<>();
-        deviceIDs.forEach(
-                k -> orderDetailList.addAll(queryOrderByDevice(k, startTime, endTime))
-        );
-        return orderDetailList;
-    }
+//    public OrderStatisticsForUser queryOrderStatisticsByUser(String user, LocalDateTime endTime) {
+//        int id = getUserId(user);
+//        User u = getUser(id + "");
+//        return queryOrderStatisticsByUser(u, u.getCreateTime(), endTime);
+//    }
+//
+//
+//    public OrderStatisticsForUser queryOrderStatisticsByUser(String user) {
+//        int id = getUserId(user);
+//        User u = getUser(id + "");
+//        return queryOrderStatisticsByUser(u, u.getCreateTime(), Utils.getNowTime());
+//    }
 
-    public OrderStatisticsForUser queryOrderStatisticsByUser(String user, LocalDateTime endTime) {
-        int id = getUserId(user);
-        User u = getUser(id + "");
-        return queryOrderStatisticsByUser(u, u.getCreateTime(), endTime);
-    }
 
-    public OrderStatisticsForUser queryOrderStatisticsByUser(User user, LocalDateTime startTime, LocalDateTime endTime) {
-        List<Location> locationList = dataStore.queryLocationByUserID(Integer.valueOf(user.getId()));
-        List<Long> deviceIDs = new ArrayList<>();
-        if (locationList != null && locationList.size() > 0) {
-            locationList.forEach(k -> {
-                List<Device> lists = dataStore.queryDeviceByLocation(k.getId());
-                if (lists != null) {
-                    lists.forEach(v -> {
-                        deviceIDs.add(v.getDeviceID());
-                    });
-                }
-            });
+    /**
+     * 时间汇总维度，day，month，year
+     *
+     * @param userName
+     * @param startTime
+     * @param endTime
+     * @param sumType
+     * @return
+     */
+    public OrderStatisticsForUser queryOrderStatisticsByUser(String userName, LocalDateTime startTime, LocalDateTime endTime, int sumType) {
+
+        if (Utils.convertToInstant(startTime).isAfter(Utils.convertToInstant(endTime))) {
+            return null;
         }
+
+        short userID = getUserId(userName);
+        User user = getUser(userID + "");
+        Map<Short, List<Long>> deviceIDMaps = getLocationDeviceMaps(user);
+
+        List<OrderDetail> lists = queryOrderByTimeByUser(userID, startTime, endTime);
 
         OrderStatisticsForUser orderStatisticsForUser = new OrderStatisticsForUser();
         orderStatisticsForUser.setUser(user.getUsername());
         orderStatisticsForUser.setUserId(user.getId());
 
-        try {
-            Instant now = Instant.now();
-            Date date = Date.from(now);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            final String month = (calendar.get(Calendar.MONTH) + 1) + "月份";
-            final int day = calendar.get(Calendar.DAY_OF_MONTH);
+        deviceIDMaps.forEach((locationID, deviceIDLists) -> {
+            OrderStatisticsForArea orderStatisticsForArea = new OrderStatisticsForArea();
+            Location location = dataStore.queryLocationByLocationID(locationID);
+            orderStatisticsForArea.setAreaName(location.getAreaName());
+            orderStatisticsForArea.setAreaId(location.getAreaID());
+            orderStatisticsForArea.setAddress(location.getAddress());
+            orderStatisticsForArea.setCity(location.getCity());
+            orderStatisticsForArea.setProvince(location.getProvince());
 
-
-            List<OrderStatisticsForDevice> orderStatisticsForDeviceList = new ArrayList<>();
-            List<OrderStatisticsForArea> orderStatisticsForAreaList = new ArrayList<>();
-            Map<Short, OrderStatisticsForArea> map = new HashMap<>();
-            deviceIDs.forEach(
-                    k -> {
-                        List<OrderDetail> lists = queryOrderByDevice(k, startTime, endTime);
-
-                        Location location = dataStore.queryLocationByLocationID(dataStore.queryDeviceByDeviceID(k).getLocationID());
-                        OrderStatisticsForArea statisticsForArea = map.get(location.getAreaID());
-                        if (statisticsForArea == null) {
-                            statisticsForArea = new OrderStatisticsForArea();
-                            statisticsForArea.setAreaId(location.getAreaID());
-                            statisticsForArea.setAreaName(location.getAreaName());
+            lists.stream().filter(orderDetail -> orderDetail.getLocationID() == locationID).collect(groupingBy(OrderDetail::getDeviceID))
+                    .forEach((deviceID, orderDetailList) -> {
+                        OrderStatisticsForDevice orderStatisticsForDevice = new OrderStatisticsForDevice();
+                        orderStatisticsForDevice.setDeviceId(deviceID);
+                        if (sumType == OrderStaticsType.DAY.getValue()) {
+                            orderDetailList.stream().sorted(Comparator.comparing(OrderDetail::getStartTime)).collect(groupingBy(OrderDetail::getsDay)).forEach(
+                                    (time, o) -> {
+                                        double income = o.stream().collect(summingDouble(OrderDetail::getPrice));
+                                        int count = o.size();
+                                        OrderStatistics orderStatistics = new OrderStatistics();
+                                        orderStatistics.setOrderTotal(count);
+                                        orderStatistics.setIncomeTotal(income);
+                                        orderStatistics.setTime(time);
+                                        orderStatistics.setSumTimeType(OrderStaticsType.DAY.getDesc());
+                                        orderStatistics.setDeviceTotal(1);
+                                        orderStatistics.setRunningDeviceTotal(1);
+                                        orderStatistics.setUser(userName);
+                                        orderStatistics.setAreaName(location.getAreaName());
+                                        orderStatisticsForDevice.addOrderStatistics(orderStatistics);
+                                    }
+                            );
+                        } else if (sumType == OrderStaticsType.MONTH.getValue()) {
+                            orderDetailList.stream().sorted(Comparator.comparing(OrderDetail::getStartTime)).collect(groupingBy(OrderDetail::getsMonth)).forEach(
+                                    (time, o) -> {
+                                        double income = o.stream().collect(summingDouble(OrderDetail::getPrice));
+                                        int count = o.size();
+                                        OrderStatistics orderStatistics = new OrderStatistics();
+                                        orderStatistics.setOrderTotal(count);
+                                        orderStatistics.setIncomeTotal(income);
+                                        orderStatistics.setTime(time);
+                                        orderStatistics.setSumTimeType(OrderStaticsType.MONTH.getDesc());
+                                        orderStatistics.setDeviceTotal(1);
+                                        orderStatistics.setRunningDeviceTotal(1);
+                                        orderStatistics.setUser(userName);
+                                        orderStatistics.setAreaName(location.getAreaName());
+                                        orderStatisticsForDevice.addOrderStatistics(orderStatistics);
+                                    }
+                            );
+                        } else {
+                            logger.error("Order statics sum type error {}", sumType);
                         }
+                        double incomeTotal = orderStatisticsForDevice.getOrderStatistics().stream().collect(summingDouble(OrderStatistics::getIncomeTotal));
+                        int orderTotal = orderStatisticsForDevice.getOrderStatistics().stream().collect(summingInt(OrderStatistics::getOrderTotal));
+                        orderStatisticsForDevice.setDeviceTotal(1);
+                        orderStatisticsForDevice.setRunningDeviceTotal(1);
+                        orderStatisticsForDevice.setIncomeTotal(incomeTotal);
+                        orderStatisticsForDevice.setOrderTotal(orderTotal);
+                        orderStatisticsForDevice.setSumTimeType("ALL");
+                        orderStatisticsForDevice.setUser(userName);
+                        orderStatisticsForDevice.setAreaName(location.getAreaName());
+                        /**
+                         * 每个List都是具体某天的数据，汇总计算
+                         */
+                        orderStatisticsForArea.addOrderStatisticsForDevices(orderStatisticsForDevice);
 
-                        OrderStatisticsForDevice statisticsForDevice = new OrderStatisticsForDevice();
-                        statisticsForDevice.setDeviceId(k);
-                        statisticsForDevice.setDeviceName(dataStore.queryDeviceByDeviceID(k).getName());
 
-                        //statistics for device
-                        lists.forEach(orderDetail -> {
-                            statisticsForDevice.addIncomeTotal(orderDetail.getPrice());
+                    });
+            /**
+             * 每个List都是具体某个设备的数据，汇总计算
+             */
+            double incomeTotal = orderStatisticsForArea.getOrderStatisticsForDevices().stream().collect(summingDouble(OrderStatisticsForDevice::getIncomeTotal));
+            int orderTotal = orderStatisticsForArea.getOrderStatisticsForDevices().stream().collect(summingInt(OrderStatisticsForDevice::getOrderTotal));
+            int runningDeviceTotal = orderStatisticsForArea.getOrderStatisticsForDevices().stream().collect(summingInt(OrderStatisticsForDevice::getRunningDeviceTotal));
+            orderStatisticsForArea.setRunningDeviceTotal(runningDeviceTotal);
+            orderStatisticsForArea.setDeviceTotal(deviceIDLists.size());
+            orderStatisticsForArea.setIncomeTotal(incomeTotal);
+            orderStatisticsForArea.setOrderTotal(orderTotal);
+            orderStatisticsForArea.setSumTimeType("ALL");
+            orderStatisticsForArea.setUser(userName);
+            orderStatisticsForArea.setAreaName(location.getAreaName());
 
-
-                            if (month.equals(orderDetail.getMonth())) {
-                                statisticsForDevice.addIncomeTotalOnMonth(orderDetail.getPrice());
-                                statisticsForDevice.addOrderTotalOnMonth(1);
-                            }
-                            if (day == orderDetail.getDay()) {
-                                statisticsForDevice.addIncomeTotalOnDay(orderDetail.getPrice());
-                                statisticsForDevice.addOrderTotalOnDay(1);
-                            }
-                        });
-                        statisticsForDevice.addOrderTotal(lists.size());
-                        statisticsForDevice.addDeviceTotal(1);
-
-                        //statistics for area
-                        statisticsForArea.addIncomeTotal(statisticsForDevice.getIncomeTotal());
-                        statisticsForArea.addIncomeTotalOnDay(statisticsForDevice.getIncomeTotalOnDay());
-                        statisticsForArea.addIncomeTotalOnMonth(statisticsForDevice.getIncomeTotalOnMonth());
-                        statisticsForArea.addOrderTotal(statisticsForDevice.getOrderTotal());
-                        statisticsForArea.addOrderTotalOnDay(statisticsForDevice.getOrderTotalOnDay());
-                        statisticsForArea.addOrderTotalOnMonth(statisticsForDevice.getOrderTotalOnMonth());
-                        statisticsForArea.addDeviceTotal(statisticsForDevice.getDeviceTotal());
-
-                        statisticsForArea.addOrderStatisticsForDevices(statisticsForDevice);
-
-                        map.put(location.getAreaID(), statisticsForArea);
-                    }
+            /**
+             * 获取该Area下所有Device的统计信息
+             */
+            List<OrderStatistics> orderStatisticsList = new ArrayList<>();
+            orderStatisticsForArea.getOrderStatisticsForDevices().stream().forEach(
+                    k -> orderStatisticsList.addAll(k.getOrderStatistics())
             );
-            //statistics for user
-            map.forEach((k, v) -> {
-                orderStatisticsForUser.addOrderStatisticsForAreas(v);
-                orderStatisticsForUser.addDeviceTotal(v.getDeviceTotal());
-                orderStatisticsForUser.addOrderTotal(v.getOrderTotal());
-                orderStatisticsForUser.addOrderTotalOnDay(v.getOrderTotalOnDay());
-                orderStatisticsForUser.addOrderTotalOnMonth(v.getOrderTotalOnMonth());
 
-                orderStatisticsForUser.addIncomeTotal(v.getIncomeTotal());
-                orderStatisticsForUser.addIncomeTotalOnDay(v.getIncomeTotalOnDay());
-                orderStatisticsForUser.addIncomeTotalOnMonth(v.getIncomeTotalOnMonth());
+            orderStatisticsList.stream().collect(groupingBy(OrderStatistics::getTime)).forEach((time, statistics) -> {
+                double income = statistics.stream().collect(summingDouble(OrderStatistics::getIncomeTotal));
+                int count = statistics.stream().collect(summingInt(OrderStatistics::getOrderTotal));
+                int deviceSize = statistics.stream().collect(summingInt(OrderStatistics::getDeviceTotal));
+                OrderStatistics orderStatistics = new OrderStatistics();
+                orderStatistics.setOrderTotal(count);
+                orderStatistics.setIncomeTotal(income);
+                orderStatistics.setTime(time);
+                orderStatistics.setSumTimeType(statistics.get(0).getSumTimeType());
+                orderStatistics.setDeviceTotal(orderStatisticsForArea.getDeviceTotal());
+                orderStatistics.setRunningDeviceTotal(deviceSize);
+                orderStatistics.setUser(userName);
+                orderStatistics.setAreaName(location.getAreaName());
+                orderStatisticsForArea.addOrderStatistics(orderStatistics);
             });
 
-        } catch (Exception e) {
-            logger.error("queryOrderStatisticsByUser error! " + e.getMessage(), e);
-        }
+            orderStatisticsForUser.addOrderStatisticsForAreas(orderStatisticsForArea);
+        });
+
+        double incomeTotal = orderStatisticsForUser.getOrderStatisticsForAreas().stream().collect(summingDouble(OrderStatisticsForArea::getIncomeTotal));
+        int orderTotal = orderStatisticsForUser.getOrderStatisticsForAreas().stream().collect(summingInt(OrderStatisticsForArea::getOrderTotal));
+        int deviceTotal = orderStatisticsForUser.getOrderStatisticsForAreas().stream().collect(summingInt(OrderStatisticsForArea::getDeviceTotal));
+        int runningDeviceTotal = orderStatisticsForUser.getOrderStatisticsForAreas().stream().collect(summingInt(OrderStatisticsForArea::getRunningDeviceTotal));
+        orderStatisticsForUser.setDeviceTotal(deviceTotal);
+        orderStatisticsForUser.setRunningDeviceTotal(runningDeviceTotal);
+        orderStatisticsForUser.setIncomeTotal(incomeTotal);
+        orderStatisticsForUser.setOrderTotal(orderTotal);
+        orderStatisticsForUser.setSumTimeType("ALL");
+        orderStatisticsForUser.setUser(userName);
+        /**
+         *
+          */
+        List<OrderStatistics> orderStatisticsList = new ArrayList<>();
+        orderStatisticsForUser.getOrderStatisticsForAreas().stream().forEach(
+                k -> orderStatisticsList.addAll(k.getOrderStatistics())
+        );
+
+        orderStatisticsList.stream().collect(groupingBy(OrderStatistics::getTime)).forEach((time, statistics) -> {
+            double income = statistics.stream().collect(summingDouble(OrderStatistics::getIncomeTotal));
+            int count = statistics.stream().collect(summingInt(OrderStatistics::getOrderTotal));
+            int deviceSize = statistics.stream().collect(summingInt(OrderStatistics::getRunningDeviceTotal));
+            OrderStatistics orderStatistics = new OrderStatistics();
+            orderStatistics.setOrderTotal(count);
+            orderStatistics.setIncomeTotal(income);
+            orderStatistics.setTime(time);
+            orderStatistics.setSumTimeType(statistics.get(0).getSumTimeType());
+            orderStatistics.setDeviceTotal(orderStatisticsForUser.getDeviceTotal());
+            orderStatistics.setRunningDeviceTotal(deviceSize);
+            orderStatistics.setUser(userName);
+            orderStatisticsForUser.addOrderStatistics(orderStatistics);
+        });
+
         return orderStatisticsForUser;
+    }
+
+    /**
+     * get all devices under the user
+     *
+     * @param user
+     * @return
+     */
+    private Map<Short, List<Long>> getLocationDeviceMaps(User user) {
+        List<Location> locationList = dataStore.queryLocationByUserID(Integer.valueOf(user.getId()));
+        /**
+         * Key 是LocationID
+         */
+        Map<Short, List<Long>> deviceIDMaps = new HashMap<>();
+        if (locationList != null && locationList.size() > 0) {
+            locationList.forEach(k -> {
+                List<Device> lists = dataStore.queryDeviceByLocation(k.getId());
+                if (lists != null) {
+                    deviceIDMaps.put(k.getId(), lists.stream().map(Device::getDeviceID).collect(toList()));
+                }
+            });
+        }
+        logger.debug("queryOrderStatisticsByUser deviceIDMaps size {}", deviceIDMaps.size());
+        return deviceIDMaps;
     }
 
     public static String getSequenceNumber() {

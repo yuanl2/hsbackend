@@ -48,10 +48,10 @@ public class Device {
     @Column(name = "additionInfo")
     private String additionInfo;
 
-    @Column(name = "ownerID")
-    private short ownerID;
+    @Column(name = "userID")
+    private short userID;
     @Transient
-    private String owner;
+    private String user;
 
     @Column(name = "status")
     private byte status = DeviceStatus.DISCONNECTED;
@@ -173,20 +173,21 @@ public class Device {
         this.additionInfo = additionInfo;
     }
 
-    public short getOwnerID() {
-        return ownerID;
+
+    public short getUserID() {
+        return userID;
     }
 
-    public void setOwnerID(short ownerID) {
-        this.ownerID = ownerID;
+    public void setUserID(short userID) {
+        this.userID = userID;
     }
 
-    public String getOwner() {
-        return owner;
+    public String getUser() {
+        return user;
     }
 
-    public void setOwner(String owner) {
-        this.owner = owner;
+    public void setUser(String user) {
+        this.user = user;
     }
 
     public byte getStatus() {
@@ -309,7 +310,7 @@ public class Device {
                 ", type=" + type +
                 ", name=" + name +
                 ", locationID=" + locationID +
-                ", ownerID=" + ownerID +
+                ", userID=" + userID +
                 ", status=" + status +
                 ", simCard=" + simCard +
                 ", port=" + port +

@@ -79,6 +79,9 @@ public class OrderInfo {
     @Column(name = "orderType", nullable = false)
     private short orderType;
 
+    @Column(name = "userID")
+    private short userID;
+
     public long getId() {
         return id;
     }
@@ -199,6 +202,14 @@ public class OrderInfo {
         this.orderType = orderType;
     }
 
+    public short getUserID() {
+        return userID;
+    }
+
+    public void setUserID(short userID) {
+        this.userID = userID;
+    }
+
     @Override
     public String toString() {
         return "order{" +
@@ -214,6 +225,7 @@ public class OrderInfo {
                 ", createTime=" + (createTime == null ? null : createTime.toString()) +
                 ", orderStatus=" + orderStatus +
                 ", orderType=" + orderType +
+                ", userID=" + userID +
                 "}";
     }
 
