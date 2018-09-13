@@ -1,22 +1,29 @@
 package com.hansun.server.controller;
 
+import com.hansun.server.common.JWTUtil;
 import com.hansun.server.dto.User;
+import com.hansun.server.dto.UserInfo;
 import com.hansun.server.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by yuanl2 on 2017/3/29.
  */
+@CrossOrigin
 @RestController
 @RequestMapping("/api")
 public class UserController {
@@ -59,4 +66,7 @@ public class UserController {
         userService.deleteUser(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+
+
 }

@@ -92,6 +92,9 @@ public class Device {
     @Column(name = "qrcode", nullable = false)
     private String qrcode;
 
+    @Transient
+    private String statusDesc;
+
     @Column(name = "managerStatus")
     private byte managerStatus;
 
@@ -196,6 +199,7 @@ public class Device {
 
     public void setStatus(byte status) {
         this.status = status;
+        setStatusDesc(DeviceStatus.getStatusDesc(status));
     }
 
     public String getSimCard() {
@@ -300,6 +304,14 @@ public class Device {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public String getStatusDesc() {
+        return statusDesc;
+    }
+
+    public void setStatusDesc(String statusDesc) {
+        this.statusDesc = statusDesc;
     }
 
     @Override

@@ -46,16 +46,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests().
-                antMatchers("/api/**","/index", "/index/**", "/device", "/device/**", "/callback","/callback/**","/assets/**",
+                antMatchers("/ui/**","/api/**","/index", "/index/**", "/device", "/device/**", "/callback","/callback/**","/assets/**",
                         "/callback/**", "/js/**", "/css/**", "/pic/**", "/images/**","/api/deviceStatus", "/api/deviceStatus/**",
-                        "/detail", "/detail/**", "/disable", "/disable/**","/testcmd","/testcmd/**","/testdevice","/testdevice/*8",
+                        "/detail", "/detail/**", "/disable", "/disable/**","/testcmd","/testcmd/**","/testdevice","/testdevice/**",
                         "/finish","/finish/**","/weixin/savepackage","/weixin/savepackage/**","/weixin/payNotify","/paysuccess","/paysuccess/**","/weixin/paycancel", "/weixin/paycancel/**").permitAll()
                 .anyRequest().authenticated()
-                .and().formLogin().loginPage("/login")
-                .permitAll()
-                .and()
-                .logout()
-                .permitAll()
+//                .and().formLogin().loginPage("/")
+//                .permitAll()
+//                .and()
+//                .logout()
+//                .permitAll()
                 .and().httpBasic();
 //        http.csrf().disable();
     }

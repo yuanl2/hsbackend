@@ -1,6 +1,5 @@
 package com.hansun.server.db;
 
-import com.hansun.server.common.ConsumeType;
 import com.hansun.server.common.Utils;
 import com.hansun.server.dto.*;
 import com.hansun.server.common.DeviceStatus;
@@ -13,12 +12,12 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.sql.SQLException;
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.hansun.server.common.Utils.checkListNotNull;
 
 /**
  * 负责数据库数据的缓存生成和更新
@@ -353,6 +352,7 @@ public class DataStore {
             } else {
                 device.setAddress(location.getAddress());
             }
+            device.setStatusDesc(DeviceStatus.getStatusDesc(device.getStatus()));
         }
 
         User u = userCache.get(device.getUserID());
@@ -761,6 +761,10 @@ public class DataStore {
         return user;
     }
 
+    public void updateUserToken(String token, User user){
+        userDao.updateUserToken(user.getId(), token);
+    }
+
     /*******************************************************************
      * Province
      * *****************************************************************
@@ -912,6 +916,8 @@ public class DataStore {
         return area;
     }
 
+
+
     /*******************************************************************
      * Order
      * *****************************************************************
@@ -923,12 +929,4 @@ public class DataStore {
      * *****************************************************************
      */
 
-
-    private <T> boolean checkListNotNull(List<T> lists) {
-        if (lists != null && lists.size() > 0) {
-            return true;
-        }
-        return false;
-
-    }
 }

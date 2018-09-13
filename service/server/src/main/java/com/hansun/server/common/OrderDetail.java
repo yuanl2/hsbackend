@@ -15,7 +15,7 @@ import java.util.Date;
  */
 public class OrderDetail {
 
-    private long orderID;
+    private String orderID;
     private String province;
     private String city;
     private String areaName;
@@ -40,6 +40,7 @@ public class OrderDetail {
     private short locationID;
     private String sDay;
     private LocalDateTime startTime;
+    private int hour;
 
     public OrderDetail(OrderInfo order) {
 
@@ -51,7 +52,7 @@ public class OrderDetail {
         this.deviceID = order.getDeviceID();
         this.consumeType = order.getConsumeType();
         this.accountType = order.getAccountType();
-        this.orderID = order.getOrderID();
+        this.orderID = String.valueOf(order.getOrderID());
         this.startTime = order.getStartTime();
         try {
             this.orderStatusDesc = OrderStatus.getOrderStatusDesc(orderStatus);
@@ -72,6 +73,7 @@ public class OrderDetail {
                 sTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
                 sMonth = new SimpleDateFormat("yyyy-MM").format(date);
                 sDay = new SimpleDateFormat("yyyy-MM-dd").format(date);
+                hour = calendar.get(Calendar.HOUR_OF_DAY);
             }
 
             if (order.getEndTime() != null) {
@@ -210,7 +212,7 @@ public class OrderDetail {
         this.locationID = locationID;
     }
 
-    public long getOrderID() {
+    public String getOrderID() {
         return orderID;
     }
 
@@ -224,5 +226,9 @@ public class OrderDetail {
 
     public String getOrderStatusDesc() {
         return orderStatusDesc;
+    }
+
+    public int getHour() {
+        return hour;
     }
 }

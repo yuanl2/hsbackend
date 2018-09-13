@@ -1,8 +1,13 @@
 package com.hansun.server.db;
 
 import com.hansun.server.db.dao.OrderInfoDao;
+import com.hansun.server.db.dao.OrderStaticsDayDao;
+import com.hansun.server.db.dao.OrderStaticsMonthDao;
+import com.hansun.server.db.dao.OrderStaticsTaskDao;
 import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.common.OrderStatus;
+import com.hansun.server.dto.OrderStaticsDay;
+import com.hansun.server.dto.OrderStaticsMonth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +31,15 @@ public class OrderStore {
     @Autowired
     private OrderInfoDao orderDao;
 
+    @Autowired
+    private OrderStaticsTaskDao orderStaticsTaskDao;
+
+    @Autowired
+    private OrderStaticsDayDao orderStaticsDayDao;
+
+    @Autowired
+    private OrderStaticsMonthDao orderStaticsMonthDao;
+
     private Map<Long, OrderInfo> orderCache = new HashMap<>();
 
     @PostConstruct
@@ -37,6 +51,22 @@ public class OrderStore {
     public void destroy() {
         orderCache.clear();
 
+    }
+
+    public List<OrderStaticsDay> getStaticsForOrderStaticsDayForUser(short userID, LocalDateTime startTime, LocalDateTime endTime){
+        return orderStaticsDayDao.queryByTimeRangeForUser(userID, startTime, endTime);
+    }
+
+    public List<OrderStaticsDay> getStaticsForOrderStaticsDay(LocalDateTime startTime, LocalDateTime endTime){
+        return orderStaticsDayDao.queryByTimeRange(startTime, endTime);
+    }
+
+    public List<OrderStaticsMonth> getStaticsForOrderStaticsMonthForUser(short userID, LocalDateTime month, LocalDateTime endTime){
+        return orderStaticsMonthDao.queryByTimeRangeForUser(userID, month, endTime);
+    }
+
+    public List<OrderStaticsMonth> getStaticsForOrderStaticsMonth(LocalDateTime month, LocalDateTime endTime){
+        return orderStaticsMonthDao.queryByTimeRange(month, endTime);
     }
 
     public OrderInfo queryOrderByDeviceID(Long deviceID) {
@@ -56,7 +86,8 @@ public class OrderStore {
 
     public OrderInfo updateOrderStatus(OrderInfo order) {
         orderCache.put(order.getDeviceID(), order);
-        OrderInfo o = orderDao.updateOrderStatus(order.getOrderStatus(), order.getEndTime(), order.getOrderID());
+        orderDao.updateOrderStatus(order.getOrderStatus(), order.getEndTime(), order.getOrderID());
+        OrderInfo o = orderDao.findByOrderID(order.getOrderID());
         logger.info("update order = " + o);
         return o;
     }
@@ -65,15 +96,19 @@ public class OrderStore {
         orderCache.remove(deviceID);
     }
 
-    public List<OrderInfo> queryByDevice(List<Long> deviceID, LocalDateTime startTime, LocalDateTime endTIme) {
-        return orderDao.queryByTime(startTime, endTIme, deviceID);
+    public List<OrderInfo> queryByDevice(List<Long> deviceID, LocalDateTime startTime, LocalDateTime endTIme, short orderType) {
+        return orderDao.queryByTime(startTime, endTIme, deviceID, orderType);
     }
-    public List<OrderInfo> queryByTimeRangeOrderNotFinish(short userID, LocalDateTime startTime, LocalDateTime endTIme) {
-        return orderDao.queryByTimeRangeForUserNotFinish(userID, startTime, endTIme, OrderStatus.FINISH);
+    public List<OrderInfo> queryByTimeRangeOrderNotFinish(short userID, LocalDateTime startTime, LocalDateTime endTIme, short orderType) {
+        return orderDao.queryByTimeRangeForUserNotFinish(userID, startTime, endTIme, OrderStatus.FINISH, orderType);
     }
 
-    public List<OrderInfo> queryByTimeRangeOrderFinish(short userID, LocalDateTime startTime, LocalDateTime endTIme) {
-        return orderDao.queryByTimeRangeForUser(userID, startTime, endTIme, OrderStatus.FINISH);
+    public List<OrderInfo> queryByTimeRangeOrderFinish(short userID, LocalDateTime startTime, LocalDateTime endTIme, short orderType) {
+        return orderDao.queryByTimeRangeForUser(userID, startTime, endTIme, OrderStatus.FINISH, orderType);
+    }
+
+    public List<OrderInfo> queryByTimeRangeOrderFinishForAll(LocalDateTime startTime, LocalDateTime endTIme, short orderType) {
+        return orderDao.queryByTimeRange(startTime, endTIme, OrderStatus.FINISH, orderType);
     }
 
     public List<OrderInfo> queryNotFinish(short status) {

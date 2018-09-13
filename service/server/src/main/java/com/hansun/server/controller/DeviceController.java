@@ -6,8 +6,10 @@ import com.hansun.server.dto.StatusReqeust;
 import com.hansun.server.common.DeviceManagerStatus;
 import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.common.OrderStatus;
+import com.hansun.server.dto.UserInfo;
 import com.hansun.server.service.DeviceService;
 import com.hansun.server.service.OrderService;
+import com.hansun.server.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,9 @@ public class DeviceController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private UserService userService;
 
     @PostConstruct
     private void init() {
@@ -75,6 +80,20 @@ public class DeviceController {
         List<Device> list = new ArrayList<>();
         devices.forEach(d -> list.add(deviceService.createDevice(d)));
         return new ResponseEntity<>(list, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "devices/fault", method = RequestMethod.GET)
+    public ResponseEntity<?> getFaultDeviceByUserID(@RequestParam(value = "userID", required = false, defaultValue = "0") int userID,
+                                                    HttpServletRequest request, HttpServletResponse response) {
+        String token = request.getHeader("x-access-token");
+        UserInfo userInfo = userService.getUserInfo(token);
+        if (userInfo == null) {
+            return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
+        }
+        logger.info("getFaultDeviceByUserID token {} user {}", token, userInfo.getUserName());
+
+        List<Device> list = deviceService.getFaultDevicesByUser(userInfo.getUserID());
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     /**
@@ -134,7 +153,6 @@ public class DeviceController {
     }
 
 
-
     @RequestMapping(value = "device/id/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteByDeviceID(@PathVariable String id, UriComponentsBuilder ucBuilder) {
         deviceService.deleteDevice(Long.valueOf(id));
@@ -145,16 +163,16 @@ public class DeviceController {
     @RequestMapping(value = "devices/id/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteDevice(@PathVariable long id,
                                           @RequestParam(value = "locationID", required = false, defaultValue = "1") int locationID,
-                                          @RequestParam(value = "owner", required = false, defaultValue = "1") int owner,
+//                                          @RequestParam(value = "owner", required = false, defaultValue = "1") int owner,
                                           UriComponentsBuilder ucBuilder) {
         if (locationID > 1) {
             deviceService.deleteDeviceByLocationID(locationID);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        if (owner > 1) {
-            deviceService.deleteDeviceByOwner(owner);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
+//        if (owner > 1) {
+//            deviceService.deleteDeviceByOwner(owner);
+//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//        }
         deviceService.deleteDevice(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

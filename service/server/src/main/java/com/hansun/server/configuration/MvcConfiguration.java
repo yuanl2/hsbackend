@@ -1,5 +1,7 @@
 package com.hansun.server.configuration;
 
+import com.hansun.server.filter.AuthFilter;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -13,6 +15,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,9 +33,23 @@ public class MvcConfiguration extends WebMvcConfigurerAdapter {
 //        return resolver;
 //    }
 
+    @Bean
+    public FilterRegistrationBean authFilterRegistrationBean() {
+        FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+        registrationBean.setName("authFilter");
+        AuthFilter authFilter = new AuthFilter();
+        registrationBean.setFilter(authFilter);
+        registrationBean.setOrder(1);
+        List<String> urlList = new ArrayList<String>();
+        urlList.add("/*");
+//        urlList.add("/ui/*");
+        registrationBean.setUrlPatterns(urlList);
+        return registrationBean;
+    }
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
+        registry.addMapping("/**")
                 .allowedOrigins("*")
                 .allowedMethods("PUT", "DELETE","GET","POST","OPTIONS")
                 .allowedHeaders("*")

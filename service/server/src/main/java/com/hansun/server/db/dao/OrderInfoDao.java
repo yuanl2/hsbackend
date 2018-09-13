@@ -21,6 +21,7 @@ public interface OrderInfoDao extends JpaRepository<OrderInfo, Long> {
      */
     OrderInfo findByOrderID(long orderID);
 
+
     @Transactional
     @Query("from OrderInfo b where b.orderStatus != :orderStatus")
     List<OrderInfo> queryOrderStatusNot(@Param("orderStatus") short orderStatus);
@@ -28,27 +29,35 @@ public interface OrderInfoDao extends JpaRepository<OrderInfo, Long> {
     @Modifying
     @Transactional
     @Query("UPDATE OrderInfo o set o.orderStatus = :orderStatus, o.endTime = :endTime WHERE o.orderID = :orderID")
-    OrderInfo updateOrderStatus(@Param("orderStatus") short orderStatus, @Param("endTime") LocalDateTime endTime, @Param("orderID") long orderID);
+    void updateOrderStatus(@Param("orderStatus") short orderStatus, @Param("endTime") LocalDateTime endTime, @Param("orderID") long orderID);
 
     @Modifying
     @Transactional
     @Query("DELETE FROM OrderInfo o WHERE o.orderID = :orderID")
     void deleteByOrderID(@Param("orderID") long orderID);
 
+    @Modifying
     @Transactional
-    @Query("from OrderInfo b where b.startTime >= :startTime and b.endTime <= :endTime and b.deviceID in (:deviceIDs)")
-    List<OrderInfo> queryByTime(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("deviceIDs") List<Long> deviceIDs);
-
-
-    @Transactional
-    @Query("from OrderInfo b where b.startTime >= :startTime and b.endTime <= :endTime and b.orderStatus = :orderStatus and b.userID = :userID order by b.startTime desc")
-    List<OrderInfo> queryByTimeRangeForUser(@Param("userID") short userID, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("orderStatus") short orderStatus);
+    @Query("DELETE FROM OrderInfo o WHERE o.orderType = :orderType")
+    void deleteByOrderType(@Param("orderType") long orderType);
 
     @Transactional
-    @Query("from OrderInfo b where b.startTime >= :startTime and b.endTime <= :endTime and b.orderStatus != :orderStatus and b.userID = :userID order by b.startTime desc")
-    List<OrderInfo> queryByTimeRangeForUserNotFinish(@Param("userID") short userID, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("orderStatus") short orderStatus);
+    @Query("from OrderInfo b where b.startTime >= :startTime and b.startTime < :endTime and b.orderType = :orderType and b.deviceID in (:deviceIDs)")
+    List<OrderInfo> queryByTime(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("deviceIDs") List<Long> deviceIDs, @Param("orderType") short orderType);
 
     @Transactional
-    @Query("from OrderInfo b where b.startTime >= :startTime and b.endTime <= :endTime and b.orderStatus = :orderStatus order by b.startTime desc")
-    List<OrderInfo> queryByTimeRange(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("orderStatus") short orderStatus);
+    @Query("from OrderInfo b where b.startTime >= :startTime and b.startTime < :endTime and b.orderStatus = :orderStatus and b.userID = :userID and b.orderType = :orderType order by b.startTime desc")
+    List<OrderInfo> queryByTimeRangeForUser(@Param("userID") short userID, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("orderStatus") short orderStatus, @Param("orderType") short orderType);
+
+    @Transactional
+    @Query("from OrderInfo b where b.startTime >= :startTime and b.startTime < :endTime and b.orderStatus = :orderStatus and b.orderType = :orderType order by b.startTime desc")
+    List<OrderInfo> queryByTimeRang(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("orderStatus") short orderStatus, @Param("orderType") short orderType);
+
+    @Transactional
+    @Query("from OrderInfo b where b.startTime >= :startTime and b.startTime < :endTime and b.orderStatus != :orderStatus and b.userID = :userID and b.orderType = :orderType order by b.startTime desc")
+    List<OrderInfo> queryByTimeRangeForUserNotFinish(@Param("userID") short userID, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("orderStatus") short orderStatus,  @Param("orderType") short orderType);
+
+    @Transactional
+    @Query("from OrderInfo b where b.startTime >= :startTime and b.startTime < :endTime and b.orderStatus = :orderStatus and b.orderType = :orderType order by b.startTime desc")
+    List<OrderInfo> queryByTimeRange(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("orderStatus") short orderStatus, @Param("orderType") short orderType);
 }

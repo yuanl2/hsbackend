@@ -1,11 +1,13 @@
 package com.hansun.server.service;
 
+import com.hansun.server.common.DeviceStatus;
 import com.hansun.server.dto.Device;
 import com.hansun.server.db.DataStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by yuanl2 on 2017/3/29.
@@ -62,6 +64,19 @@ public class DeviceService {
 
     public List<Device> getDevicesByUser(int useID) {
         return dataStore.queryDeviceByUser(useID);
+    }
+
+    /**
+     * get fault device list
+     * normal status : servie idle starttask
+     * fault status:
+     * @param useID
+     * @return
+     */
+    public List<Device> getFaultDevicesByUser(int useID) {
+        return dataStore.queryDeviceByUser(useID).stream().filter(device ->
+            device.getStatus() > DeviceStatus.SERVICE || device.getStatus() == DeviceStatus.DISCONNECTED
+        ).collect(Collectors.toList());
     }
 
     public List<Device> getAllDevices() {

@@ -1,7 +1,10 @@
 package com.hansun.server.service;
 
+import com.hansun.server.common.Utils;
+import com.hansun.server.dto.Device;
 import com.hansun.server.dto.User;
 import com.hansun.server.db.DataStore;
+import com.hansun.server.dto.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,8 +17,9 @@ import org.springframework.stereotype.Service;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Created by yuanl2 on 2017/3/29.
@@ -29,14 +33,21 @@ public class UserService implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    private Map<String, String> userTokenCache = new ConcurrentHashMap<>();
+
     public User createUser(User user) {
-        user.setPassword(passwordEncoder.encodePassword(user.getPassword(), null));
+//        user.setPassword(passwordEncoder.encodePassword(user.getPassword(), null));
         return dataStore.createUser(user);
     }
 
     public User updateUser(User user) {
         user.setPassword(md5(user.getPassword()));
         return dataStore.updateUser(user);
+    }
+
+    public void updateUserToken(String token, User user) {
+        addToken(token, user.getUsername());
+        dataStore.updateUserToken(token, user);
     }
 
     public void deleteUser(short userID) {
@@ -47,8 +58,31 @@ public class UserService implements UserDetailsService {
         return dataStore.queryUser(userID);
     }
 
+    public User getUserByName(String userName){
+        Optional<User> result = getAllUser().stream().filter(u -> u.getUsername().equalsIgnoreCase(userName)).findFirst();
+        if(result.isPresent()){
+            return result.get();
+        }
+        else{
+            return null;
+        }
+    }
+
     public List<User> getAllUser() {
         return dataStore.queryAllUser();
+    }
+
+    public UserInfo getUserInfo(String token){
+        String userName = getUserNameByToken(token);
+        User user = getUserByName(userName);
+        if(user == null){
+            return null;
+        }
+        UserInfo userInfo = new UserInfo();
+        userInfo.setUserID(user.getId());
+        userInfo.setUserName(user.getUsername());
+        userInfo.setAccess(Arrays.stream(user.getRole().split(",")).collect(Collectors.toList()));
+        return userInfo;
     }
 
     public static String md5(String str) {
@@ -87,5 +121,23 @@ public class UserService implements UserDetailsService {
             authorities.add(new SimpleGrantedAuthority(r));
         }
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.isEnabled(), user.isAccountNonExpired(), user.isCredentialsNonExpired(), user.isAccountNonLocked(), authorities);
+    }
+
+    public String getUserNameByToken(String token) {
+        String result = null;
+        List<Map.Entry<String,String>> results = userTokenCache.entrySet().stream().filter(entry->entry.getValue().equalsIgnoreCase(token)).collect(Collectors.toList());
+        if(Utils.checkListNotNull(results)){
+            result = results.get(0).getKey();
+        }
+
+        return result;
+    }
+
+    public void addToken(String token, String userName) {
+        userTokenCache.put(userName, token);
+    }
+
+    public String getToken(String userName) {
+        return userTokenCache.get(userName);
     }
 }
