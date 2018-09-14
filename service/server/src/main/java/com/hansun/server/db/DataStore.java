@@ -761,9 +761,6 @@ public class DataStore {
         return user;
     }
 
-    public void updateUserToken(String token, User user){
-        userDao.updateUserToken(user.getId(), token);
-    }
 
     /*******************************************************************
      * Province

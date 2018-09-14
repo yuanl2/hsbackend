@@ -18,7 +18,7 @@ import java.util.Collection;
  * Created by yuanl2 on 2017/3/29.
  */
 @Entity
-public class User implements UserDetails {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private short id;
@@ -52,8 +52,11 @@ public class User implements UserDetails {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createTime;
 
-    @Column(name = "token")
-    private String token;
+    @Transient
+    private Collection<? extends GrantedAuthority> authorities;
+
+    @Column(name = "avator")
+    private String avator;
 
     public short getId() {
         return id;
@@ -85,39 +88,33 @@ public class User implements UserDetails {
         this.role = role;
     }
 
-    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return authorities;
     }
 
     public String getPassword() {
         return password;
     }
 
-    @Override
     public String getUsername() {
         return username;
     }
 
-    @Override
 //    @JsonIgnore
     public boolean isAccountNonExpired() {
         return Utils.convertToInstant(expiredTime).compareTo(Instant.now()) > 0;
     }
 
-    @Override
 //    @JsonIgnore
     public boolean isAccountNonLocked() {
         return !isLocked();
     }
 
-    @Override
 //    @JsonIgnore
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
-    @Override
 //    @JsonIgnore
     public boolean isEnabled() {
         return true;
@@ -159,12 +156,16 @@ public class User implements UserDetails {
         this.createTime = createTime;
     }
 
-    public String getToken() {
-        return token;
+    public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
+        this.authorities = authorities;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public String getAvator() {
+        return avator;
+    }
+
+    public void setAvator(String avator) {
+        this.avator = avator;
     }
 
     @Override

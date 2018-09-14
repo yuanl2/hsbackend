@@ -40,7 +40,7 @@ public class AuthFilter implements Filter {
 //
 //
 //            if (userName == null) {
-                logger.info("request {}", request);
+//                logger.info("request {}", request);
 //            }
 //        } catch (Exception e) {
 //            logger.error("{}", e);
