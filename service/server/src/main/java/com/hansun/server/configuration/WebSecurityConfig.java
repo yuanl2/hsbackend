@@ -38,7 +38,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         authenticationManagerBuilder
                 // 设置UserDetailsService
                 .userDetailsService(this.userService)
-                // 使用BCrypt进行密码的hash
                 .passwordEncoder(passwordEncoder());
     }
 
@@ -50,7 +49,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http              // 基于token，所以不需要session
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER).and()
                 .authorizeRequests().
                 antMatchers("/ui/**", "/index", "/index/**", "/iview-admin/**","/device", "/device/**", "/callback", "/callback/**", "/assets/**",
                         "/callback/**", "/js/**", "/css/**", "/pic/**", "/images/**", "/api/deviceStatus", "/api/deviceStatus/**",

@@ -29,7 +29,7 @@ import static com.hansun.server.common.Utils.convertTime;
 /**
  * Created by yuanl2 on 2017/3/29.
  */
-@CrossOrigin
+//@CrossOrigin
 @RestController
 @RequestMapping("/api")
 public class OrderController {

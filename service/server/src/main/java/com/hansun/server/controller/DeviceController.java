@@ -13,6 +13,7 @@ import com.hansun.server.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,12 +30,18 @@ import java.util.List;
 /**
  * Created by yuanl2 on 2017/3/29.
  */
-@CrossOrigin
+//@CrossOrigin
 @RestController
 @RequestMapping("/api")
 public class DeviceController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Value("${jwt.header}")
+    private String tokenHeader;
+
+    @Value("${jwt.tokenHead}")
+    private String tokenHead;
 
     @Autowired
     private DeviceService deviceService;
@@ -85,12 +92,25 @@ public class DeviceController {
     @RequestMapping(value = "devices/fault", method = RequestMethod.GET)
     public ResponseEntity<?> getFaultDeviceByUserID(@RequestParam(value = "userID", required = false, defaultValue = "0") int userID,
                                                     HttpServletRequest request, HttpServletResponse response) {
-        String token = request.getHeader("x-access-token");
+        String token = request.getHeader(tokenHeader).substring(tokenHead.length());
         UserInfo userInfo = userService.getUserInfo(token);
         if (userInfo == null) {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
         }
         logger.info("getFaultDeviceByUserID token {} user {}", token, userInfo.getUserName());
+
+        boolean isAdmin = false;
+
+        for (String access : userInfo.getAccess()
+                ) {
+            if (access.equalsIgnoreCase("admin")) {
+                isAdmin = true;
+            }
+        }
+        if (isAdmin) {
+            List<Device> list = deviceService.getFaultDevices();
+            return new ResponseEntity<>(list, HttpStatus.OK);
+        }
 
         List<Device> list = deviceService.getFaultDevicesByUser(userInfo.getUserID());
         return new ResponseEntity<>(list, HttpStatus.OK);
@@ -110,16 +130,25 @@ public class DeviceController {
                                                @RequestParam(value = "locationID", required = false, defaultValue = "1") int locationID,
                                                HttpServletRequest request, HttpServletResponse response) {
 
-        String auth = request.getHeader("Authorization");
-        String decode = null;
-        try {
-            decode = new String(java.util.Base64.getDecoder().decode(auth.substring(6, auth.length())), "utf-8");
-        } catch (UnsupportedEncodingException e) {
-            logger.error("parse auth info failed {}", e);
-            return new ResponseEntity<>("Auth info error", HttpStatus.OK);
+        String token = request.getHeader(tokenHeader).substring(tokenHead.length());
+        UserInfo userInfo = userService.getUserInfo(token);
+        if (userInfo == null) {
+            return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
         }
 
-        String user = decode.split(":")[0];
+        boolean isAdmin = false;
+
+        for (String access : userInfo.getAccess()
+                ) {
+            if (access.equalsIgnoreCase("admin")) {
+                isAdmin = true;
+            }
+        }
+        if (isAdmin) {
+            List<Device> list = deviceService.getFaultDevices();
+            return new ResponseEntity<>(list, HttpStatus.OK);
+        }
+
         if (locationID > 1) {
             List<Device> list = deviceService.getDevicesByLocationID(locationID);
             return new ResponseEntity<>(list, HttpStatus.OK);
@@ -152,13 +181,11 @@ public class DeviceController {
         return new ResponseEntity<>(d, HttpStatus.OK);
     }
 
-
     @RequestMapping(value = "device/id/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteByDeviceID(@PathVariable String id, UriComponentsBuilder ucBuilder) {
         deviceService.deleteDevice(Long.valueOf(id));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
 
     @RequestMapping(value = "devices/id/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteDevice(@PathVariable long id,

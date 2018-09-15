@@ -37,10 +37,11 @@ order:
 jwt:
   header: Authorization
   secret: knocknock
-  expiration: 604800
+  expiration: 86400
   tokenHead: "Bearer "
   route:
     authentication:
-      path: auth
-      refresh: refresh
+      login: "login"
+      userinfo: "userinfo"
+      refresh: "refresh"
       register: "auth/register"

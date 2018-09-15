@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@CrossOrigin
+//@CrossOrigin
 @RestController
 @RequestMapping("/ui")
 public class LoginController {
@@ -53,7 +53,7 @@ public class LoginController {
         }
     }
 
-    @RequestMapping(value = "login", method = RequestMethod.GET)
+    @RequestMapping(value = "${jwt.route.authentication.login}", method = RequestMethod.GET)
     public ResponseEntity<?> loginGet(@RequestParam(value = "username", required = true, defaultValue = "username") String username,
                                       @RequestParam(value = "password", required = true, defaultValue = "password") String password,
                                       HttpServletRequest request, HttpServletResponse response) {
@@ -71,7 +71,7 @@ public class LoginController {
 
     }
 
-    @RequestMapping(value = "get_info", method = RequestMethod.GET)
+    @RequestMapping(value = "${jwt.route.authentication.userinfo}", method = RequestMethod.GET)
     public ResponseEntity<?> getUserInfo(@RequestParam(value = "token", required = true, defaultValue = "null") String token, HttpServletRequest request) {
         token = request.getHeader(tokenHeader).substring(tokenHead.length());
         UserInfo userInfo = userService.getUserInfo(token);

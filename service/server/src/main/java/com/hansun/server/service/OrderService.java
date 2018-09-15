@@ -201,9 +201,10 @@ public class OrderService {
     }
 
     public OrderInfo createOrder(OrderInfo order) {
-//        Device device = dataStore.queryDeviceByDeviceID(order.getDeviceID());
+        Device device = dataStore.queryDeviceByDeviceID(order.getDeviceID());
 //        device.setStatus(DeviceStatus.STARTTASK);
 //        dataStore.updateDevice(device);
+        order.setUserID(device.getUserID());
         OrderInfo result = orderStore.insertOrder(order);
         return result;
     }

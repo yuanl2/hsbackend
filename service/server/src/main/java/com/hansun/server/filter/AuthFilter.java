@@ -10,6 +10,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * @author yuanl2
+ */
 public class AuthFilter implements Filter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

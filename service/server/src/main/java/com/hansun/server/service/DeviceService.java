@@ -79,6 +79,17 @@ public class DeviceService {
         ).collect(Collectors.toList());
     }
 
+    /**
+     *
+     * @return
+     */
+    public List<Device> getFaultDevices() {
+        return dataStore.queryAllDevices().stream().filter(device ->
+                device.getStatus() > DeviceStatus.SERVICE || device.getStatus() == DeviceStatus.DISCONNECTED
+        ).collect(Collectors.toList());
+    }
+
+
     public List<Device> getAllDevices() {
         return dataStore.queryAllDevices();
     }
