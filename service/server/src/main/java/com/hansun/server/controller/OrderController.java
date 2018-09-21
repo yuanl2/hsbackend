@@ -29,7 +29,7 @@ import static com.hansun.server.common.Utils.convertTime;
 /**
  * Created by yuanl2 on 2017/3/29.
  */
-//@CrossOrigin
+@CrossOrigin
 @RestController
 @RequestMapping("/api")
 public class OrderController {
@@ -164,10 +164,12 @@ public class OrderController {
         if (userInfo == null) {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
         }
-        logger.info("queryOrderStatisticsByUser token {} user {}", token, userInfo.getUserName());
-
+        logger.debug("queryOrderStatisticsByUser token {} user {}", token, userInfo.getUserName());
         logger.info("get order Statistics by user ={} type ={} startTime ={} endTime ={}", userInfo.getUserName(), type, startTime, endTime);
-        List<OrderStatistics> statistics = orderService.queryOrderStatisticsByUser(user, convertTime(startTime), convertEndTime(endTime), type);
+        long begin = System.currentTimeMillis();
+        List<OrderStatistics> statistics = orderService.queryOrderStatisticsByUser(userInfo.getUserName(), convertTime(startTime), convertEndTime(endTime), type);
+        long end = System.currentTimeMillis();
+
         return new ResponseEntity<>(statistics, HttpStatus.OK);
     }
 }

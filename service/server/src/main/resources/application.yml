@@ -1,0 +1,70 @@
+#spring
+spring:
+  profiles:
+    active: dev
+  main:
+    banner-mode: off
+  mvc:
+    view:
+      prefix: /WEB-INF/
+      suffix: .jsp
+  jpa:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  datasource:
+    url: jdbc:mysql://localhost:3306/hsdata?autoReconnect=true&useSSL=false&characterEncoding=utf-8
+    username: hsbackend
+    password: GB5vesBts
+    driver-class-name: com.mysql.jdbc.Driver
+server:
+  port: 8080
+  contextPath: /hsservice
+socket:
+  socketport: 8090
+  socketport4g: 8089
+  heartbeatinternal: 10000
+  sweepbeatinternal: 1000
+influxDB:
+  username: hsuser
+  password: qazwssx123
+  url: http://localhost:8086
+  retentionpolicy: autogen
+  name: metrics
+  batchtimeout: 1000
+  batchsize: 1000
+msg:
+  processMsgThreadNum: 20
+  responseDelay: 1000
+order:
+  interval:
+     flag: false
+     min: 2
+     max: 10
+# JWT
+jwt:
+  header: Authorization
+  secret: knocknock
+  expiration: 86400
+  tokenHead: "Bearer "
+  route:
+    authentication:
+      login: "login"
+      userinfo: "userinfo"
+      refresh: "refresh"
+      register: "auth/register"
+
+---
+spring:
+  profiles: dev
+socket:
+  socketaddress: localhost
+---
+spring:
+  profiles: prod
+socket:
+  socketaddress: 172.16.74.156

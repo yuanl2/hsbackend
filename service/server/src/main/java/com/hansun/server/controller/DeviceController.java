@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * Created by yuanl2 on 2017/3/29.
  */
-//@CrossOrigin
+@CrossOrigin
 @RestController
 @RequestMapping("/api")
 public class DeviceController {
@@ -178,6 +178,12 @@ public class DeviceController {
     @RequestMapping(value = "devices/managerstatus", method = RequestMethod.POST)
     public ResponseEntity<?> updateDeviceListManagerStatus(@RequestBody StatusReqeust statusReqeust, UriComponentsBuilder ucBuilder) {
         List<Device> d = deviceService.updateDeviceListManagerStatus(statusReqeust.getLists(), statusReqeust.getStatus());
+        return new ResponseEntity<>(d, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "devices/consumetype", method = RequestMethod.POST)
+    public ResponseEntity<?> updateDeviceListConsumeType(@RequestBody StatusReqeust statusReqeust, UriComponentsBuilder ucBuilder) {
+        List<Device> d = deviceService.updateDeviceListConsumeType(statusReqeust.getLists(), statusReqeust.getStatus());
         return new ResponseEntity<>(d, HttpStatus.OK);
     }
 

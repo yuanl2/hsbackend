@@ -14,16 +14,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author yuanl2
+ */
 public class InfluxDBClient {
-
     private final InfluxDB influxDB;
     private final String influxDBName;
     private final String retentionPolicy;
     private final String influxDBUrl;
     private static final String LOCAL_HOST = "localhost";
     private static final String UNKONOWN = "unknown";
-
-
     private static final Logger log = LoggerFactory.getLogger(InfluxDBClient.class);
 
     public InfluxDBClient(String influxDBUrl, String influxDBUserName, String influxDBPassword, String influxDBName, String retentionPolicy, int batchSize, int maxTimeBeforeBatchFlush) {
@@ -36,7 +36,7 @@ public class InfluxDBClient {
         this.retentionPolicy = retentionPolicy;
         this.influxDBUrl = influxDBUrl;
         influxDB.enableBatch(batchSize, maxTimeBeforeBatchFlush, TimeUnit.MILLISECONDS);
-        System.out.print(ping());
+        log.info("init {}", ping());
     }
 
     /**
@@ -62,7 +62,6 @@ public class InfluxDBClient {
         QueryResult queryResult = influxDB.query(new Query(query, influxDBName));
         return queryResult;
     }
-
 
     /**
      * Method to add single Point to influxDB
@@ -105,7 +104,6 @@ public class InfluxDBClient {
         }
     }
 
-
     /**
      * Method to create BatchPoint
      *
@@ -117,7 +115,6 @@ public class InfluxDBClient {
         pointMap.entrySet().forEach(entry -> influxDBPointSet.add(createPoint(measurement, entry.getKey(), entry.getValue())));
         writeBatchPoints(influxDBPointSet);
     }
-
 
     /**
      * Method to write BatchPoint to influxDB
@@ -135,9 +132,7 @@ public class InfluxDBClient {
         } catch (Exception exception) {
             log.warn("Error in writing batch points to influxDB", exception);
         }
-
     }
-
 
     /**
      * Method to stop executar thread present in Batch processer
@@ -179,9 +174,6 @@ public class InfluxDBClient {
         return pointBuilder.build();
     }
 
-
-    //For test purpose
-
     /**
      * Method to create database
      */
@@ -196,14 +188,12 @@ public class InfluxDBClient {
         return influxDB.describeDatabases();
     }
 
-
     /**
      * Method to delete database
      */
     public void deleteInfluxDatabase(String influxDBName) {
         influxDB.deleteDatabase(influxDBName);
     }
-
 
     private boolean checkIfLocalInfluxDBExist() {
         try {
@@ -217,5 +207,4 @@ public class InfluxDBClient {
         }
         return true;
     }
-
 }

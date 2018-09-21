@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="ConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %d{YYYY-MM:dd HH:mm:ss.SSS} [%t] [%level] [%logger{36}] - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FileAppender" class="ch.qos.logback.core.FileAppender">
+        <file>logs/Service.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>
+                %d{YYYY-MM:dd HH:mm:ss.SSS} [%t] [%level] [%logger{36}] - %msg%n
+            </Pattern>
+        </encoder>
+    </appender>
+
+    <appender name="RollingAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/ServiceRolling.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d{YYYY-MM:dd HH:mm:ss.SSS} [%t] [%level] [%logger{36}] - %msg%n</Pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/ServiceRolling_%d{dd-MM-yyyy}.log</fileNamePattern>
+            <maxHistory>50</maxHistory>
+            <totalSizeCap>1MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- Logging custom package -->
+    <logger name="com.hansun" level="info" additivity="false">
+        <appender-ref ref="ConsoleAppender"></appender-ref>
+        <appender-ref ref="FileAppender"></appender-ref>
+    </logger>
+
+    <!-- Logging spring boot package -->
+    <logger name="org.springframework.boot" level="info" additivity="false">
+        <appender-ref ref="ConsoleAppender"></appender-ref>
+        <appender-ref ref="FileAppender"></appender-ref>
+    </logger>
+
+    <root level="info">
+        <appender-ref ref="ConsoleAppender"></appender-ref>
+    </root>
+</configuration>

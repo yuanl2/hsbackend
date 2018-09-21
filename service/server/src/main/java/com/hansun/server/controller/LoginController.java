@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-//@CrossOrigin
+@CrossOrigin
 @RestController
 @RequestMapping("/ui")
 public class LoginController {

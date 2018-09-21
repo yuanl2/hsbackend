@@ -1,6 +1,13 @@
 package com.hansun.server.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 /**
  * Created by yuanl2 on 2017/3/29.
@@ -11,19 +18,19 @@ public class Location {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private short id;
 
-    @Column(name = "provinceID",nullable = false)
+    @Column(name = "provinceID", nullable = false)
     private short provinceID;
 
     @Transient
     private String province;
 
-    @Column(name = "cityID",nullable = false)
+    @Column(name = "cityID", nullable = false)
     private short cityID;
 
     @Transient
     private String city;
 
-    @Column(name = "areaID",nullable = false)
+    @Column(name = "areaID", nullable = false)
     private short areaID;
 
     @Transient
@@ -32,8 +39,14 @@ public class Location {
     @Transient
     private String address;
 
-    @Column(name = "userID",nullable = false)
+    @Column(name = "userID", nullable = false)
     private short userID;
+
+    @Column(name = "enterTime")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime enterTime;
 
     public short getId() {
         return id;
@@ -107,6 +120,14 @@ public class Location {
         this.userID = userID;
     }
 
+    public LocalDateTime getEnterTime() {
+        return enterTime;
+    }
+
+    public void setEnterTime(LocalDateTime enterTime) {
+        this.enterTime = enterTime;
+    }
+
     @Override
     public String toString() {
         return "location{" +
@@ -117,7 +138,8 @@ public class Location {
                 ", city=" + city +
                 ", areaID=" + areaID +
                 ", areaName=" + areaName +
-                ", address=" + address + "\n" +
+                ", address=" + address +
+                ", enterTime=" + enterTime + "\n" +
                 ", userID=" + userID +
                 "}";
     }

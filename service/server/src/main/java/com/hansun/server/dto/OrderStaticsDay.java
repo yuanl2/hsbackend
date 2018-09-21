@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "OrderStaticsDay",
-        indexes = {@Index(name = "device_time_index",  columnList="deviceID, time", unique = true),
-                @Index(name = "user_index", columnList="userID")})
+        indexes = {@Index(name = "device_time_index", columnList = "deviceID, time", unique = true),
+                @Index(name = "user_index", columnList = "userID")})
 public class OrderStaticsDay {
 
     @Id
@@ -35,7 +35,7 @@ public class OrderStaticsDay {
     private String sMonth;
 
     @Column(name = "orderTotal  ", nullable = false)
-    private short orderTotal ;
+    private short orderTotal;
 
     @Column(name = "incomeTotal ", nullable = false)
     private double incomeTotal;
@@ -49,7 +49,7 @@ public class OrderStaticsDay {
     @Transient
     private String address;
 
-    @Column(name = "userID",nullable = false)
+    @Column(name = "userID", nullable = false)
     private short userID;
 
     @Transient
@@ -141,5 +141,19 @@ public class OrderStaticsDay {
 
     public void setsMonth(String sMonth) {
         this.sMonth = sMonth;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderStaticsDay{" +
+                "id=" + id +
+                "deviceID=" + deviceID +
+                ", sMonth=" + sMonth +
+                ", orderTotal=" + orderTotal +
+                ", locationID=" + locationID +
+                ", userID=" + userID +
+                ", incomeTotal=" + incomeTotal +
+                ", userID=" + userID +
+                "}";
     }
 }

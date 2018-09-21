@@ -297,6 +297,41 @@ public class DataStore {
         return lists;
     }
 
+    public List<Device> updateConsumeType(List<Long> ids, byte consumeType) {
+        List<Device> lists = new ArrayList<>();
+        ids.forEach(id -> {
+
+            try {
+                lists.add(updateConsumeType(id, consumeType));
+
+            } catch (Exception e) {
+                logger.error("updateConsumeType {} error {}", id, e);
+            }
+        });
+        return lists;
+    }
+
+    public Device updateConsumeType(Long id, byte consumeType) {
+        Device device2 = deviceCache.get(id);
+        //缓存不存在此设备
+        if (device2 == null) {
+            Device device1 = deviceDao.findByDeviceID(id);
+            if (device1 == null) {
+                logger.error("Cannot update Device updateConsumeType for not exist.{}", id);
+                throw ServerException.conflict("Cannot update Device for not exist.");
+            }
+        } else {
+            byte oldStatus = device2.getConsumeType();
+            if (consumeType != oldStatus) {
+                logger.info("deviceBoxName = {} device_id = {} update old consumeType = {} new consumeType = {}", device2.getSimCard(), device2.getDeviceID(), oldStatus, consumeType);
+                device2.setConsumeType(consumeType);
+                deviceDao.save(device2);
+                deviceCache.put(id, device2);
+            }
+        }
+        return device2;
+    }
+
     public Device updateManagerStatus(Long id, byte managerStatus) {
         Device device2 = deviceCache.get(id);
         //缓存不存在此设备

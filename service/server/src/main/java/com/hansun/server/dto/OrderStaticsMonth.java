@@ -131,4 +131,18 @@ public class OrderStaticsMonth {
     public void setUserName(String userName) {
         this.userName = userName;
     }
+
+    @Override
+    public String toString() {
+        return "OrderStaticsMonth{" +
+                "id=" + id +
+                "deviceID=" + deviceID +
+                ", time=" + time +
+                ", orderTotal=" + orderTotal +
+                ", locationID=" + locationID +
+                ", userID=" + userID +
+                ", incomeTotal=" + incomeTotal +
+                ", userID=" + userID +
+                "}";
+    }
 }
