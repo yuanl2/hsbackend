@@ -20,8 +20,8 @@ public interface UserDao extends JpaRepository<User,Short> {
      */
     User findByUsername(String username);
 
-    @Modifying
-    @Transactional
-    @Query("UPDATE User o set o.token = :token WHERE o.id = :id")
-    void updateUserToken(@Param("id") short id, @Param("token") String token);
+//    @Modifying
+//    @Transactional
+//    @Query("UPDATE User o set o.token = :token WHERE o.id = :id")
+//    void updateUserToken(@Param("id") short id, @Param("token") String token);
 }

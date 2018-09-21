@@ -1,14 +1,26 @@
 package com.hansun.server.service;
 
 import com.hansun.server.common.Utils;
+import com.hansun.server.db.dao.UserDao;
 import com.hansun.server.dto.Device;
 import com.hansun.server.dto.User;
 import com.hansun.server.db.DataStore;
 import com.hansun.server.dto.UserInfo;
+import com.hansun.server.jwt.JwtUser;
+import com.hansun.server.jwt.JwtUserFactory;
+import com.hansun.server.util.JwtTokenUtil;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,12 +40,13 @@ import java.util.stream.Collectors;
 public class UserService implements UserDetailsService {
 
     @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
     private DataStore dataStore;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    private Map<String, String> userTokenCache = new ConcurrentHashMap<>();
 
     public User createUser(User user) {
 //        user.setPassword(passwordEncoder.encodePassword(user.getPassword(), null));
@@ -43,11 +56,6 @@ public class UserService implements UserDetailsService {
     public User updateUser(User user) {
         user.setPassword(md5(user.getPassword()));
         return dataStore.updateUser(user);
-    }
-
-    public void updateUserToken(String token, User user) {
-        addToken(token, user.getUsername());
-        dataStore.updateUserToken(token, user);
     }
 
     public void deleteUser(short userID) {
@@ -73,7 +81,7 @@ public class UserService implements UserDetailsService {
     }
 
     public UserInfo getUserInfo(String token){
-        String userName = getUserNameByToken(token);
+        String userName =  jwtTokenUtil.getUsernameFromToken(token);
         User user = getUserByName(userName);
         if(user == null){
             return null;
@@ -113,31 +121,6 @@ public class UserService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException(String.format("User with username=%s was not found", username));
         }
-
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        String role = user.getRole();
-        for (String r :
-                role.split(",")) {
-            authorities.add(new SimpleGrantedAuthority(r));
-        }
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.isEnabled(), user.isAccountNonExpired(), user.isCredentialsNonExpired(), user.isAccountNonLocked(), authorities);
-    }
-
-    public String getUserNameByToken(String token) {
-        String result = null;
-        List<Map.Entry<String,String>> results = userTokenCache.entrySet().stream().filter(entry->entry.getValue().equalsIgnoreCase(token)).collect(Collectors.toList());
-        if(Utils.checkListNotNull(results)){
-            result = results.get(0).getKey();
-        }
-
-        return result;
-    }
-
-    public void addToken(String token, String userName) {
-        userTokenCache.put(userName, token);
-    }
-
-    public String getToken(String userName) {
-        return userTokenCache.get(userName);
+        return JwtUserFactory.create(user);
     }
 }

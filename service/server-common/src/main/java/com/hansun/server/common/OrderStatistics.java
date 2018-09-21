@@ -28,6 +28,10 @@ public class OrderStatistics {
 
     protected String user;
 
+    protected String enterTime;
+
+    protected double averageIncome;
+
     public double getIncomeTotal() {
         return incomeTotal;
     }
@@ -104,6 +108,22 @@ public class OrderStatistics {
         this.user = user;
     }
 
+    public String getEnterTime() {
+        return enterTime;
+    }
+
+    public void setEnterTime(String enterTime) {
+        this.enterTime = enterTime;
+    }
+
+    public double getAverageIncome() {
+        return averageIncome;
+    }
+
+    public void setAverageIncome(double averageIncome) {
+        this.averageIncome = averageIncome;
+    }
+
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("OrderStatistics = ")
@@ -111,6 +131,7 @@ public class OrderStatistics {
                 .append(" sumTimeType = ").append(sumTimeType)
                 .append("\nareaName = ").append(areaName)
                 .append("\nuser = ").append(user)
+                .append("\nenterTIme = ").append(enterTime)
                 .append("\ndeviceTotal = ").append(deviceTotal)
                 .append("\nrunningDeviceTotal = ").append(runningDeviceTotal)
                 .append("\norderTotal = ").append(orderTotal)

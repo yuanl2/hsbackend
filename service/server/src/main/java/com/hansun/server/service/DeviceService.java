@@ -49,6 +49,9 @@ public class DeviceService {
         return dataStore.updateManagerStatus(ids,status);
     }
 
+    public List<Device> updateDeviceListConsumeType(List<Long> ids, byte status) {
+        return dataStore.updateConsumeType(ids,status);
+    }
 
     public void deleteDevice(Long deviceID) {
         dataStore.deleteDevice(deviceID);
@@ -78,6 +81,17 @@ public class DeviceService {
             device.getStatus() > DeviceStatus.SERVICE || device.getStatus() == DeviceStatus.DISCONNECTED
         ).collect(Collectors.toList());
     }
+
+    /**
+     *
+     * @return
+     */
+    public List<Device> getFaultDevices() {
+        return dataStore.queryAllDevices().stream().filter(device ->
+                device.getStatus() > DeviceStatus.SERVICE || device.getStatus() == DeviceStatus.DISCONNECTED
+        ).collect(Collectors.toList());
+    }
+
 
     public List<Device> getAllDevices() {
         return dataStore.queryAllDevices();

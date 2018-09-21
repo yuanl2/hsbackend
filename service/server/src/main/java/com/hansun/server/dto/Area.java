@@ -61,7 +61,6 @@ public class Area {
                 "}";
     }
 
-
     @Override
     public int hashCode() {
         return this.address.hashCode() * 31

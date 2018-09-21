@@ -13,6 +13,7 @@ import com.hansun.server.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,8 +33,13 @@ import static com.hansun.server.common.Utils.convertTime;
 @RestController
 @RequestMapping("/api")
 public class OrderController {
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Value("${jwt.header}")
+    private String tokenHeader;
+
+    @Value("${jwt.tokenHead}")
+    private String tokenHead;
 
     @Autowired
     private OrderService orderService;
@@ -69,7 +75,7 @@ public class OrderController {
                                             @RequestParam(value = "endTime", required = false) String endTime,
                                             HttpServletRequest request, HttpServletResponse response) {
         logger.debug("get order by userid ", user);
-        String token = request.getHeader("x-access-token");
+        String token = request.getHeader(tokenHeader).substring(tokenHead.length());
         UserInfo userInfo = userService.getUserInfo(token);
         if (userInfo == null) {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
@@ -84,7 +90,7 @@ public class OrderController {
                                             @RequestBody OrderSearchRequest orderSearchRequest,
                                             HttpServletRequest request, HttpServletResponse response) {
         logger.debug("get order by area ", id);
-        String token = request.getHeader("x-access-token");
+        String token = request.getHeader(tokenHeader).substring(tokenHead.length());
         UserInfo userInfo = userService.getUserInfo(token);
         if (userInfo == null) {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
@@ -98,7 +104,7 @@ public class OrderController {
                                                      @RequestParam(value = "startTime", required = false) String startTime,
                                                      HttpServletRequest request, HttpServletResponse response) {
         logger.debug("get finish order for user ", user);
-        String token = request.getHeader("x-access-token");
+        String token = request.getHeader(tokenHeader).substring(tokenHead.length());
         UserInfo userInfo = userService.getUserInfo(token);
         if (userInfo == null) {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
@@ -112,7 +118,7 @@ public class OrderController {
                                                      @RequestParam(value = "startTime", required = false) String startTime,
                                                      HttpServletRequest request, HttpServletResponse response) {
         logger.debug("get not finish order for user ", user);
-        String token = request.getHeader("x-access-token");
+        String token = request.getHeader(tokenHeader).substring(tokenHead.length());
         UserInfo userInfo = userService.getUserInfo(token);
         if (userInfo == null) {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
@@ -124,7 +130,7 @@ public class OrderController {
     @RequestMapping(value = "order/summary", method = RequestMethod.GET)
     public ResponseEntity<?> getSummaryInfo(@RequestParam(value = "user", required = false) String user,
                                             HttpServletRequest request) {
-        String token = request.getHeader("x-access-token");
+        String token = request.getHeader(tokenHeader).substring(tokenHead.length());
         UserInfo userInfo = userService.getUserInfo(token);
         if (userInfo == null) {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
@@ -137,7 +143,7 @@ public class OrderController {
     @RequestMapping(value = "order/summaryforhour", method = RequestMethod.GET)
     public ResponseEntity<?> getSummaryforhour(@RequestParam(value = "user", required = false) String user,
                                                 HttpServletRequest request) {
-        String token = request.getHeader("x-access-token");
+        String token = request.getHeader(tokenHeader).substring(tokenHead.length());
         UserInfo userInfo = userService.getUserInfo(token);
         if (userInfo == null) {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
@@ -153,15 +159,17 @@ public class OrderController {
                                                         @RequestParam(value = "startTime", required = false) String startTime,
                                                         @RequestParam(value = "endTime", required = false) String endTime,
                                                         HttpServletRequest request, HttpServletResponse response) {
-        String token = request.getHeader("x-access-token");
+        String token = request.getHeader(tokenHeader).substring(tokenHead.length());
         UserInfo userInfo = userService.getUserInfo(token);
         if (userInfo == null) {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
         }
-        logger.info("queryOrderStatisticsByUser token {} user {}", token, userInfo.getUserName());
-
+        logger.debug("queryOrderStatisticsByUser token {} user {}", token, userInfo.getUserName());
         logger.info("get order Statistics by user ={} type ={} startTime ={} endTime ={}", userInfo.getUserName(), type, startTime, endTime);
-        List<OrderStatistics> statistics = orderService.queryOrderStatisticsByUser(user, convertTime(startTime), convertEndTime(endTime), type);
+        long begin = System.currentTimeMillis();
+        List<OrderStatistics> statistics = orderService.queryOrderStatisticsByUser(userInfo.getUserName(), convertTime(startTime), convertEndTime(endTime), type);
+        long end = System.currentTimeMillis();
+
         return new ResponseEntity<>(statistics, HttpStatus.OK);
     }
 }

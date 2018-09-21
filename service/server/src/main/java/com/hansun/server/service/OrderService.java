@@ -201,9 +201,10 @@ public class OrderService {
     }
 
     public OrderInfo createOrder(OrderInfo order) {
-//        Device device = dataStore.queryDeviceByDeviceID(order.getDeviceID());
+        Device device = dataStore.queryDeviceByDeviceID(order.getDeviceID());
 //        device.setStatus(DeviceStatus.STARTTASK);
 //        dataStore.updateDevice(device);
+        order.setUserID(device.getUserID());
         OrderInfo result = orderStore.insertOrder(order);
         return result;
     }
@@ -306,6 +307,7 @@ public class OrderService {
 
     /**
      * get the not finish order list for userID and beginTime
+     *
      * @param userID
      * @param beginTime
      * @return
@@ -314,18 +316,19 @@ public class OrderService {
         if (convertToInstant(beginTime).isAfter(Instant.now())) {
             return null;
         }
-        List<OrderInfo> orderList = orderStore.queryByTimeRangeOrderNotFinish( userID, beginTime, Utils.getNowTime(), OrderType.OPERATIONS.getType());
+        List<OrderInfo> orderList = orderStore.queryByTimeRangeOrderNotFinish(userID, beginTime, Utils.getNowTime(), OrderType.OPERATIONS.getType());
         return getOrderDetails(orderList);
     }
 
     /**
      * 补充订单的信息
+     *
      * @param orderList
      * @return
      */
     private List<OrderDetail> getOrderDetails(List<OrderInfo> orderList) {
         List<OrderDetail> orderDetailList = new ArrayList<>();
-        if(checkListNotNull(orderList)) {
+        if (checkListNotNull(orderList)) {
             orderDetailList = orderList.stream().map(
                     orderInfo -> {
                         OrderDetail orderDetail = new OrderDetail(orderInfo);
@@ -390,7 +393,6 @@ public class OrderService {
     }
 
     /**
-     *
      * @param month
      * @param endTime
      * @return
@@ -400,7 +402,6 @@ public class OrderService {
     }
 
     /**
-     *
      * @param userID
      * @param month
      * @param endTime
@@ -411,7 +412,6 @@ public class OrderService {
     }
 
     /**
-     *
      * @param month
      * @param endTime
      * @return
@@ -431,7 +431,7 @@ public class OrderService {
         List<OrderDetail> orderList = queryOrderByTime(startTime, endTime);
         List<OrderStaticsDay> orderStaticsDayList = new ArrayList<>();
 
-        if(checkListNotNull(orderList)) {
+        if (checkListNotNull(orderList)) {
             orderList.stream().collect(groupingBy(OrderDetail::getDeviceID))
                     .forEach((deviceID, orderDetailList) -> {
                         Device device = dataStore.queryDeviceByDeviceID(deviceID);
@@ -470,9 +470,10 @@ public class OrderService {
      */
     public List<OrderStaticsDay> getStaticsFromOrderInfoForUser(short userID, LocalDateTime startTime, LocalDateTime endTime) {
         List<OrderDetail> orderList = queryOrderByTimeForUser(userID, startTime, endTime);
+        logger.info("getStaticsFromOrderInfoForUser {}", orderList.size());
         List<OrderStaticsDay> orderStaticsDayList = new ArrayList<>();
 
-        if(checkListNotNull(orderList)) {
+        if (checkListNotNull(orderList)) {
             orderList.stream().collect(groupingBy(OrderDetail::getDeviceID))
                     .forEach((deviceID, orderDetailList) -> {
                         Device device = dataStore.queryDeviceByDeviceID(deviceID);
@@ -609,14 +610,25 @@ public class OrderService {
         LocalDateTime currentMonth = Utils.getCurrentMonth();
         LocalDateTime today = Utils.getZeroClock(Utils.getNowTime());
 
-
         //如果时间范围包含了今天，则需要从原始记录表OrderInfo中读取原始记录汇总
         boolean isContainToday = convertToInstant(endTime).isAfter(Instant.now());
+
+        logger.info("isContainToday = {}", isContainToday);
+
         //这个flags只是用来在进行日报表查询时候，判断原始记录是否已经累加到当日记录中
         final List<Boolean> flags = new ArrayList<>();
         List<OrderStatistics> orderStatisticsList = new ArrayList<>();
         //当日数据形成按区域的Map
         final Map<Short, List<OrderStaticsDay>> todayData = getStaticsFromOrderInfoForUser(userID, today, Utils.getNowTime()).stream().collect(groupingBy(OrderStaticsDay::getLocationID));
+
+        logger.info("todayData = {}", todayData.size());
+
+        todayData.forEach((k, v) -> {
+            logger.info("k = {}", k);
+            v.forEach(list -> {
+                logger.info("{}", list);
+            });
+        });
 
         if (sumType == OrderStaticsType.DAY.getValue()) {
             List<OrderStaticsDay> dayDataList = getStaticsForOrderStaticsDayForUser(userID, startTime, endTime);
@@ -639,6 +651,8 @@ public class OrderService {
                             orderStatistics.setRunningDeviceTotal(runningDevices);
                             orderStatistics.setUser(userName);
                             orderStatistics.setAreaName(location.getAreaName());
+                            orderStatistics.setEnterTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dateToLocalDate(location.getEnterTime())));
+                            orderStatistics.setAverageIncome(income / devices);
                             orderStatisticsList.add(orderStatistics);
                         }
                     });
@@ -666,6 +680,8 @@ public class OrderService {
                             orderStatistics.setRunningDeviceTotal(runningDevices);
                             orderStatistics.setUser(userName);
                             orderStatistics.setAreaName(location.getAreaName());
+                            orderStatistics.setEnterTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dateToLocalDate(location.getEnterTime())));
+                            orderStatistics.setAverageIncome(income / devices);
                             orderStatisticsList.add(orderStatistics);
                         }
                     });
@@ -674,7 +690,7 @@ public class OrderService {
         } else if (sumType == OrderStaticsType.MONTH.getValue()) {
             List<OrderStaticsMonth> monthDataList = getStaticsForOrderStaticsMonthForUser(userID, startTime, endTime);
 
-            if(checkListNotNull(monthDataList)) {
+            if (checkListNotNull(monthDataList)) {
                 monthDataList.stream().collect(groupingBy(OrderStaticsMonth::getLocationID)).forEach((locationID, orderStaticsMonthData) -> {
                     Location location = dataStore.queryLocationByLocationID(locationID);
                     int devices = dataStore.queryDeviceByLocation(locationID).size();
@@ -693,6 +709,7 @@ public class OrderService {
                             orderStatistics.setRunningDeviceTotal(runningDevices);
                             orderStatistics.setUser(userName);
                             orderStatistics.setAreaName(location.getAreaName());
+                            orderStatistics.setEnterTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dateToLocalDate(location.getEnterTime())));
                             if (isContainToday && currentMonth.isEqual(time)) {
                                 List<OrderStaticsDay> list = todayData.get(locationID);
                                 if (checkListNotNull(list)) {
@@ -709,17 +726,18 @@ public class OrderService {
                                 //add one boolean value with true
                                 flags.add(true);
                             }
+                            orderStatistics.setAverageIncome(income / devices);
                             orderStatisticsList.add(orderStatistics);
                         }
                     });
                 });
             }
 
-            if (flags.size() > 0 && flags.get(0) && todayData != null && todayData.size() > 0) {
+            if (flags.size() == 0 && todayData != null && todayData.size() > 0) {
                 todayData.forEach((locationID, orderStaticsDayList) -> {
                     Location location = dataStore.queryLocationByLocationID(locationID);
                     int devices = dataStore.queryDeviceByLocation(locationID).size();
-                    if(checkListNotNull(orderStaticsDayList)) {
+                    if (checkListNotNull(orderStaticsDayList)) {
                         orderStaticsDayList.stream().collect(groupingBy(OrderStaticsDay::getTime)).forEach((time, lists) -> {
                             if (checkListNotNull(lists)) {
                                 double income = lists.stream().collect(summingDouble(OrderStaticsDay::getIncomeTotal));
@@ -735,12 +753,13 @@ public class OrderService {
                                 orderStatistics.setRunningDeviceTotal(runningDevices);
                                 orderStatistics.setUser(userName);
                                 orderStatistics.setAreaName(location.getAreaName());
+                                orderStatistics.setEnterTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dateToLocalDate(location.getEnterTime())));
+                                orderStatistics.setAverageIncome(income / devices);
                                 orderStatisticsList.add(orderStatistics);
                             }
                         });
                     }
                 });
-
             }
         }
         return orderStatisticsList;
@@ -790,7 +809,7 @@ public class OrderService {
 
 
     /**
-     * @param user
+     * @param userID
      * @return
      */
     public OrderSummaryData getOrderSummaryData(short userID) {
@@ -939,7 +958,7 @@ public class OrderService {
         long deviceCount = 0;
         long faultDevices = 0;
         List<Device> deviceList = dataStore.queryDeviceByUser(userID);
-        if(checkListNotNull(deviceList)){
+        if (checkListNotNull(deviceList)) {
             deviceCount = deviceList.stream().count();
             faultDevices = deviceList.stream().filter(device ->
                     device.getStatus() > DeviceStatus.SERVICE || device.getStatus() == DeviceStatus.DISCONNECTED
