@@ -1,6 +1,8 @@
 package com.hansun.server.filter;
 
 import com.hansun.server.util.JwtTokenUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,10 +18,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
+
 /**
  * @author yuanl2
  */
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     private UserDetailsService userDetailsService;
 
@@ -31,6 +37,12 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
     @Value("${jwt.tokenHead}")
     private String tokenHead;
+
+    @Value("${security.user.name}")
+    private String admin;
+
+    @Value("${management.context-path}")
+    private String managementPath;
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
@@ -48,6 +60,11 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                             httpServletRequest));
                     logger.debug("authenticated user " + username + ", setting security context");
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+                    logger.info(" path = {}", httpServletRequest.getRequestURI());
+
+                    if (httpServletRequest.getRequestURI().startsWith(managementPath) && !username.equalsIgnoreCase(admin)) {
+                        httpServletResponse.sendError(SC_FORBIDDEN, "No access the url");
+                    }
                 }
             }
         }
