@@ -1,7 +1,7 @@
 #spring
 spring:
   profiles:
-    active: dev
+    active: prod
   main:
     banner-mode: off
   mvc:
@@ -39,29 +39,29 @@ management:
   context-path: /hsservice/monitor #actuator的访问路径
 endpoints:
   enabled: false
-  beans:
-    enabled: true
-  health:
-    enabled: true
-  dump:
-    enabled: true
-  metrics:
-    enabled: true
-  autoconfig:
-    enabled: true
-  configprops:
-    enabled: true
-  env:
-    enabled: true
-info:
-   app:
-      name: spring-boot-actuator
-      version: 1.0.0
+#  beans:
+#    enabled: true
+#  health:
+#    enabled: true
+#  dump:
+#    enabled: true
+#  metrics:
+#    enabled: true
+#  autoconfig:
+#    enabled: true
+#  configprops:
+#    enabled: true
+#  env:
+#    enabled: true
+#info:
+#   app:
+#      name: spring-boot-actuator
+#      version: 1.0.0
 socket:
   socketport: 8090
   socketport4g: 8089
-  heartbeatinternal: 10000
-  sweepbeatinternal: 1000
+  heartbeatinternal: 120000
+  sweepbeatinternal: 10000
 influxDB:
   username: hsuser
   password: qazwssx123
@@ -72,7 +72,7 @@ influxDB:
   batchsize: 1000
 msg:
   processMsgThreadNum: 20
-  responseDelay: 1000
+  responseDelay: 3000
 order:
   interval:
      flag: false

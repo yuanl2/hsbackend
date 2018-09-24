@@ -43,7 +43,7 @@
 <script type="text/javascript" src="js/bootstrap.min.js"></script>
  <script type="text/javascript">
     function getRTime(){
-        location.href = "https://weidian.com/item.html?itemID=2249828861";
+        location.href = "${link}"
     }
     setTimeout(getRTime,3000);
     </script>

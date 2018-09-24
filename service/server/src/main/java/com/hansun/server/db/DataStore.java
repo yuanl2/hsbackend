@@ -36,6 +36,10 @@ public class DataStore {
     private Map<Short, User> userCache = new ConcurrentHashMap<>();
     private Map<Short, Consume> consumeCache = new ConcurrentHashMap<>();
     private Map<String, List<Consume>> deviceTypeConsumeCache = new ConcurrentHashMap<>();
+    private Map<Short, OnlineStore> onlineStoreCache = new ConcurrentHashMap<>();
+
+    @Autowired
+    private OnlineStoreDao onlineStoreDao;
 
     @Autowired
     private ConsumeDao consumeDao;
@@ -81,6 +85,7 @@ public class DataStore {
             consumeCache.clear();
             deviceTypeConsumeCache.clear();
             deviceSimCache.clear();
+            onlineStoreCache.clear();
 //            connectionPoolManager.destroy();
         } catch (Exception e) {
             logger.error("destroy datastore error", e);
@@ -394,6 +399,11 @@ public class DataStore {
         if (u != null) {
             device.setUser(u.getUsername());
         }
+
+        OnlineStore onlineStore = onlineStoreCache.get(device.getStoreID());
+        if(onlineStore!=null){
+            device.setStore(onlineStore.getLink());
+        }
     }
 
     public List<Device> queryDeviceByDeviceBox(String deviceBoxName) {
@@ -423,7 +433,13 @@ public class DataStore {
      */
     private void initCache() {
         long begin = System.currentTimeMillis();
-        logger.info("begin initCache {}",begin);
+        logger.info("begin initCache {}", begin);
+
+        List<OnlineStore> onlineStoreList = onlineStoreDao.findAll();
+
+        if (checkListNotNull(onlineStoreList)) {
+            onlineStoreList.forEach(d -> onlineStoreCache.put(d.getId(), d));
+        }
 
         List<City> cityList = cityDao.findAll();
         if (checkListNotNull(cityList)) {
@@ -947,7 +963,6 @@ public class DataStore {
         areaCache.put(area.getId(), area);
         return area;
     }
-
 
 
     /*******************************************************************

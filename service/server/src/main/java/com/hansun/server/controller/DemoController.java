@@ -245,11 +245,13 @@ public class DemoController {
             if (!openid.equals('0')) {
                 model.addAttribute("consumes", consumeList);
                 model.addAttribute("store", store);
+                model.addAttribute("link",d.getStore());
                 return "device_index";
             } else {
                 consumeList.removeIf(k -> k.getPrice() <= 0);
                 model.addAttribute("consumes", consumeList);
                 model.addAttribute("store", store);
+                model.addAttribute("link",d.getStore());
                 return "device_index";
             }
         } else {
@@ -480,6 +482,7 @@ public class DemoController {
             model.addAttribute("duration", consume.getDuration());
 //            model.addAttribute("startTime", o.getCreateTime().toEpochMilli());
             model.addAttribute("orderId", o.getId());
+            model.addAttribute("link",d.getStore());
             logger.debug(" device {} orderId {} now forward device_running again", device_id, orderId);
             return "device_start_running";
         }
@@ -493,6 +496,7 @@ public class DemoController {
         model.addAttribute("duration", consume.getDuration());
         model.addAttribute("store", store);
         model.addAttribute("orderId", orderId);
+        model.addAttribute("link",d.getStore());
         logger.debug(" device {} now forward device_running", device_id);
         return "device_start_running";
     }

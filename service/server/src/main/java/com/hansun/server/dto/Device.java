@@ -104,6 +104,12 @@ public class Device {
     @Column(name = "version")
     private String version;
 
+    @Column(name = "storeID", nullable = false)
+    private short storeID;
+
+    @Transient
+    private String store;
+
     public long getId() {
         return id;
     }
@@ -314,6 +320,22 @@ public class Device {
         this.statusDesc = statusDesc;
     }
 
+    public short getStoreID() {
+        return storeID;
+    }
+
+    public void setStoreID(short storeID) {
+        this.storeID = storeID;
+    }
+
+    public String getStore() {
+        return store;
+    }
+
+    public void setStore(String store) {
+        this.store = store;
+    }
+
     @Override
     public String toString() {
         return "device{" +
@@ -329,6 +351,7 @@ public class Device {
                 ", managerStatus=" + managerStatus +
                 ", consumeType=" + consumeType +
                 ", version=" + version +
+                ", storeID=" + storeID +
                 "}";
     }
 
