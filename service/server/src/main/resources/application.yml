@@ -24,6 +24,35 @@ spring:
 server:
   port: 8080
   contextPath: /hsservice
+
+security:
+  user:
+    name: admin
+#    password: 123456
+
+#actuator
+management:
+  security:
+    enabled: true
+    roles: admin
+  port: 8084
+  context-path: /hsservice/monitor #actuator的访问路径
+endpoints:
+  enabled: false
+  dump:
+    enabled: true
+  metrics:
+    enabled: true
+  autoconfig:
+    enabled: true
+  configprops:
+    enabled: true
+  env:
+    enabled: true
+info:
+   app:
+      name: spring-boot-actuator
+      version: 1.0.0
 socket:
   socketport: 8090
   socketport4g: 8089

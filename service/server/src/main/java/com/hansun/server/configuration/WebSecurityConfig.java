@@ -55,7 +55,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/callback/**", "/js/**", "/css/**", "/pic/**", "/images/**", "/api/deviceStatus", "/api/deviceStatus/**",
                         "/detail", "/detail/**", "/disable", "/disable/**", "/testcmd", "/testcmd/**", "/testdevice", "/testdevice/**",
                         "/finish", "/finish/**", "/weixin/savepackage", "/weixin/savepackage/**", "/weixin/payNotify", "/paysuccess", "/paysuccess/**", "/weixin/paycancel", "/weixin/paycancel/**").permitAll()
-                .anyRequest().authenticated();
+               .anyRequest().authenticated()
+                .antMatchers("/monitor/**").hasAuthority("admin");
 //                .and().formLogin().loginPage("/")
 //                .permitAll()
 //                .and()
