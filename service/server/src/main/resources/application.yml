@@ -39,6 +39,10 @@ management:
   context-path: /hsservice/monitor #actuator的访问路径
 endpoints:
   enabled: false
+  beans:
+    enabled: true
+  health:
+    enabled: true
   dump:
     enabled: true
   metrics:
