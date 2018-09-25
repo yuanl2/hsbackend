@@ -101,7 +101,7 @@ public class LinkManger {
     public void add(String id, IHandler handler) {
         map.put(id, handler);
         try {
-            logger.info("LinkManger add deviceSimCard = {} address on {}", id, handler.getSocketChannel().getRemoteAddress());
+            logger.debug("LinkManger add deviceSimCard = {} address on {}", id, handler.getSocketChannel().getRemoteAddress());
         } catch (IOException e) {
             logger.error("{} get socketaddress error", id);
         }
@@ -123,7 +123,7 @@ public class LinkManger {
                     });
                 }
                 IHandler handler = map.remove(id);
-                logger.info("LinkManger remove deviceSim {} address on {} ", id, handler.getSocketChannel().getRemoteAddress());
+                logger.debug("LinkManger remove deviceSim {} address on {} ", id, handler.getSocketChannel().getRemoteAddress());
             } else {
                 logger.error("LinkManger not contains deviceSimCard = {}", id);
             }
@@ -256,7 +256,7 @@ public class LinkManger {
                     }
                 } else if (order != null && (status == DeviceStatus.SERVICE || msgTime.getTime() != 0)) {
                     if (order.getOrderStatus() == OrderStatus.NOTSTART || order.getOrderStatus() == OrderStatus.PAYDONE) {
-                        logger.info("update order before = {}", order);
+                        logger.debug("update order before = {}", order);
                         order.setOrderStatus(OrderStatus.SERVICE);
                         if(order.getStartTime() == null) {
                             order.setStartTime(Utils.getNowTime());
@@ -266,7 +266,7 @@ public class LinkManger {
                         if (device.getStatus() != DeviceStatus.SERVICE) {
                             if (msg.getMsgType().equals(DEVICE_START_FINISH_MSG)) {
                                 device.setSeq(Short.valueOf(msg.getSeq()));
-                                logger.info("{} set task seq = {}", device.getDeviceID(), device.getSeq());
+                                logger.debug("{} set task seq = {}", device.getDeviceID(), device.getSeq());
                             }
 
                             //不能等心跳消息来了再更新设备的状态，应该根据业务的回应及时更新
@@ -315,7 +315,7 @@ public class LinkManger {
         if (deviceList != null) {
             deviceList.forEach(device -> {
                 handler.setSeq(device.getSeq());
-                logger.info("initial {} set seq = {}", device.getDeviceID(), device.getSeq());
+                logger.debug("initial {} set seq = {}", device.getDeviceID(), device.getSeq());
             });
         }
     }

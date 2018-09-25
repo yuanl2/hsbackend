@@ -123,7 +123,10 @@ public class OrderController {
         if (userInfo == null) {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
         }
+        long begin = System.currentTimeMillis();
         List<OrderDetail> list = orderService.queryOrderByTimeOrderNotFinish(userInfo.getUserID(), convertTime(startTime));
+        long end = System.currentTimeMillis();
+        logger.info("get not finish order consume time = {} ms", userInfo.getUserName(), (end - begin));
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
@@ -135,8 +138,11 @@ public class OrderController {
         if (userInfo == null) {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
         }
-        logger.info("getSummaryInfo token {} user {}", token, userInfo.getUserName());
+        logger.debug("getSummaryInfo token {} user {}", token, userInfo.getUserName());
+        long begin = System.currentTimeMillis();
         SummaryInfo summaryInfo = orderService.getSummaryInfo(userInfo.getUserID());
+        long end = System.currentTimeMillis();
+        logger.info("get summary info consume time = {} ms", userInfo.getUserName(), (end - begin));
         return new ResponseEntity<>(summaryInfo, HttpStatus.OK);
     }
 
@@ -148,8 +154,12 @@ public class OrderController {
         if (userInfo == null) {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
         }
-        logger.info("getSummaryforhour token {} user {}", token, userInfo.getUserName());
+        logger.debug("getSummaryforhour token {} user {}", token, userInfo.getUserName());
+        long begin = System.currentTimeMillis();
         OrderSummaryData summaryInfo = orderService.getOrderSummaryData(userInfo.getUserID());
+        long end = System.currentTimeMillis();
+        logger.info("get summary info for hour consume time = {} ms", userInfo.getUserName(), (end - begin));
+
         return new ResponseEntity<>(summaryInfo, HttpStatus.OK);
     }
 
@@ -165,11 +175,10 @@ public class OrderController {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
         }
         logger.debug("queryOrderStatisticsByUser token {} user {}", token, userInfo.getUserName());
-        logger.info("get order Statistics by user ={} type ={} startTime ={} endTime ={}", userInfo.getUserName(), type, startTime, endTime);
         long begin = System.currentTimeMillis();
         List<OrderStatistics> statistics = orderService.queryOrderStatisticsByUser(userInfo.getUserName(), convertTime(startTime), convertEndTime(endTime), type);
         long end = System.currentTimeMillis();
-
+        logger.info("get order Statistics by user ={} type ={} startTime ={} endTime ={} consume time = {} ms", userInfo.getUserName(), type, startTime, endTime, (end - begin));
         return new ResponseEntity<>(statistics, HttpStatus.OK);
     }
 }

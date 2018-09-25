@@ -1,7 +1,7 @@
 #spring
 spring:
   profiles:
-    active: prod
+    active: dev
   main:
     banner-mode: off
   mvc:

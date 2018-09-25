@@ -105,7 +105,7 @@ public class DeviceTask4G extends DeviceTask implements Runnable {
 
 
                 if(m.getMap().get(1) == DeviceStatus.IDLE){
-                    logger.error("############ device {} send task failed" ,handler.getDeviceName());
+                    logger.error("device {} send task failed" ,handler.getDeviceName());
                 }
 
 //                handler.setNeedSend(false);
