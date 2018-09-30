@@ -177,9 +177,9 @@ public class DemoController {
      */
     @RequestMapping("/callback")
     public String window(String code, String state, String auth_code, HttpServletRequest request) {
-        logger.info("alicode = {}", auth_code);
-        logger.info("state = {}", state);
-        logger.info("code = {}", code);
+        logger.debug("alicode = {}", auth_code);
+        logger.debug("state = {}", state);
+        logger.debug("code = {}", code);
 
         Map requestParams = request.getParameterMap();
         logger.debug("requestParams.toString()" + requestParams.toString());
@@ -199,7 +199,7 @@ public class DemoController {
                 String doGet = HttpClientUtil.doGet(url, null);
                 Map<Object, Object> jsonToMap = JSONObject.fromObject(doGet);
                 openid = (String) jsonToMap.get("openid");
-                logger.info("WXZF callback openid = {}", openid);
+                logger.debug("WXZF callback openid = {}", openid);
             }
             if ("ZFBZF".equals(split[1])) {
 //                AlipayClient alipayClient = new DefaultAlipayClient(Constant.GET_USERID_URL_ZFB, Constant.APPID_ZFB,
@@ -229,6 +229,7 @@ public class DemoController {
         model.addAttribute("openid", openid);
 
         Device d = dataStore.queryDeviceByDeviceID(Long.valueOf(device_id));
+        boolean first = dataStore.containPayAccount(openid);
 
         if (d != null) {
             String store = d.getAdditionInfo();
@@ -242,7 +243,7 @@ public class DemoController {
                 return "device_test_error";
             }
 
-            if (!openid.equals('0')) {
+            if (first) {
                 model.addAttribute("consumes", consumeList);
                 model.addAttribute("store", store);
                 model.addAttribute("link",d.getStore());

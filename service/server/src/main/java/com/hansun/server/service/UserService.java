@@ -1,26 +1,12 @@
 package com.hansun.server.service;
 
-import com.hansun.server.common.Utils;
-import com.hansun.server.db.dao.UserDao;
-import com.hansun.server.dto.Device;
-import com.hansun.server.dto.User;
 import com.hansun.server.db.DataStore;
+import com.hansun.server.dto.User;
 import com.hansun.server.dto.UserInfo;
-import com.hansun.server.jwt.JwtUser;
 import com.hansun.server.jwt.JwtUserFactory;
 import com.hansun.server.util.JwtTokenUtil;
-import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,8 +15,9 @@ import org.springframework.stereotype.Service;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -49,7 +36,7 @@ public class UserService implements UserDetailsService {
     private PasswordEncoder passwordEncoder;
 
     public User createUser(User user) {
-//        user.setPassword(passwordEncoder.encodePassword(user.getPassword(), null));
+        user.setPassword(md5(user.getPassword()));
         return dataStore.createUser(user);
     }
 

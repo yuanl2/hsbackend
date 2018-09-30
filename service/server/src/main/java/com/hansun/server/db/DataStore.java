@@ -37,6 +37,7 @@ public class DataStore {
     private Map<Short, Consume> consumeCache = new ConcurrentHashMap<>();
     private Map<String, List<Consume>> deviceTypeConsumeCache = new ConcurrentHashMap<>();
     private Map<Short, OnlineStore> onlineStoreCache = new ConcurrentHashMap<>();
+//    private Map<String,PayAccount> payAccountCache = new ConcurrentHashMap<>();
 
     @Autowired
     private OnlineStoreDao onlineStoreDao;
@@ -62,6 +63,9 @@ public class DataStore {
     @Autowired
     private UserDao userDao;
 
+    @Autowired
+    private PayAccountDao payAccountDao;
+
 //    @Autowired
 //    private OrderDao orderDao;
 
@@ -86,6 +90,7 @@ public class DataStore {
             deviceTypeConsumeCache.clear();
             deviceSimCache.clear();
             onlineStoreCache.clear();
+//            payAccountCache.clear();
 //            connectionPoolManager.destroy();
         } catch (Exception e) {
             logger.error("destroy datastore error", e);
@@ -397,7 +402,7 @@ public class DataStore {
 
         User u = userCache.get(device.getUserID());
         if (u != null) {
-            device.setUser(u.getUsername());
+            device.setUser(u.getUsernickname());
         }
 
         OnlineStore onlineStore = onlineStoreCache.get(device.getStoreID());
@@ -434,6 +439,13 @@ public class DataStore {
     private void initCache() {
         long begin = System.currentTimeMillis();
         logger.info("begin initCache {}", begin);
+
+//        List<PayAccount> payAccountList = payAccountDao.findAll();
+//        if(checkListNotNull(payAccountList)){
+//            payAccountList.forEach(payAccount -> {
+//                payAccountCache.put(payAccount.getName(),payAccount);
+//            });
+//        }
 
         List<OnlineStore> onlineStoreList = onlineStoreDao.findAll();
 
@@ -975,5 +987,26 @@ public class DataStore {
      * Report
      * *****************************************************************
      */
+
+    public boolean containPayAccount(String payAccount){
+        PayAccount account = payAccountDao.findByName(payAccount);
+
+        if(account!=null){
+            return true;
+        }
+        return false;
+    }
+
+    public void addPayAccount(String payAccount) {
+        PayAccount account = payAccountDao.findByName(payAccount);
+        if (account != null) {
+            account.setCount((short) (1 + account.getCount()));
+        } else {
+            account = new PayAccount();
+            account.setName(payAccount);
+            account.setCount((short) 1);
+        }
+        payAccountDao.save(account);
+    }
 
 }

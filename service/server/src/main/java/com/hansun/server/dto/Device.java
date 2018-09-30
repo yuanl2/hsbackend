@@ -50,6 +50,7 @@ public class Device {
 
     @Column(name = "userID")
     private short userID;
+
     @Transient
     private String user;
 

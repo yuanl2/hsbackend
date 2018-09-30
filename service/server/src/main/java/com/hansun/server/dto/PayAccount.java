@@ -1,30 +1,46 @@
 package com.hansun.server.dto;
 
+import javax.persistence.*;
+
 /**
  * Created by yuanl2 on 2017/4/27.
  */
+@Entity
 public class PayAccount {
-    private int id;
-    private String accountName;
-    private float balance;
-    private short free;
-    private short type;
-    private float discount;
 
-    public int getId() {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @Column(name = "name", nullable = false, unique = true)
+    private String name;
+
+    @Column(name = "balance")
+    private float balance;
+
+    @Column(name = "free")
+    private short free;
+
+    @Column(name = "type")
+    private short type;
+
+    @Column(name = "count")
+    private short count;
+
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
-    public String getAccountName() {
-        return accountName;
+    public String getName() {
+        return name;
     }
 
-    public void setAccountName(String accountName) {
-        this.accountName = accountName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public float getBalance() {
@@ -51,17 +67,17 @@ public class PayAccount {
         this.type = type;
     }
 
-    public float getDiscount() {
-        return discount;
+    public short getCount() {
+        return count;
     }
 
-    public void setDiscount(float discount) {
-        this.discount = discount;
+    public void setCount(short count) {
+        this.count = count;
     }
 
     @Override
     public int hashCode() {
-        return this.accountName.hashCode();
+        return this.name.hashCode();
     }
 
     @Override
@@ -69,7 +85,7 @@ public class PayAccount {
         if (this == obj) {
             return true;
         } else {
-            return obj instanceof PayAccount && this.getAccountName().equals(((PayAccount) obj).getAccountName());
+            return obj instanceof PayAccount && this.getName().equals(((PayAccount) obj).getName());
 
         }
     }

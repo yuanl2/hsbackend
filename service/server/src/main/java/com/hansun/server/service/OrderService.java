@@ -6,7 +6,6 @@ import com.hansun.server.commu.LinkManger;
 import com.hansun.server.commu.SyncAsynMsgController;
 import com.hansun.server.db.DataStore;
 import com.hansun.server.db.OrderStore;
-import com.hansun.server.db.PayAcountStore;
 import com.hansun.server.dto.*;
 import com.hansun.server.dto.summary.InfoCardData;
 import com.hansun.server.dto.summary.OrderSummaryData;
@@ -47,9 +46,6 @@ public class OrderService {
 
     @Autowired
     private OrderStore orderStore;
-
-    @Autowired
-    private PayAcountStore payAcountStore;
 
     @Autowired
     private SyncAsynMsgController syncAsynMsgController;
@@ -285,10 +281,13 @@ public class OrderService {
      */
     public void deleteOrder(Long deviceID) {
         OrderInfo order = orderStore.queryOrderByDeviceID(deviceID);
-        if (order != null) {
+        if (order != null && order.getOrderStatus()!=OrderStatus.FINISH) {
             order.setEndTime(Utils.getNowTime());
             order.setOrderStatus(OrderStatus.FINISH);
             orderStore.updateOrder(order);
+
+            dataStore.addPayAccount(order.getPayAccount());
+
             logger.debug("Before delete order {} ", order);
             orderStore.deleteOrder(deviceID);
             logger.debug("After delete order {}", orderStore.queryOrderByDeviceID(deviceID));

@@ -145,7 +145,7 @@ public class DeviceController {
             }
         }
         if (isAdmin) {
-            List<Device> list = deviceService.getFaultDevices();
+            List<Device> list = deviceService.getAllDevices();
             return new ResponseEntity<>(list, HttpStatus.OK);
         }
 
@@ -154,7 +154,7 @@ public class DeviceController {
             return new ResponseEntity<>(list, HttpStatus.OK);
 
         }
-        List<Device> list = deviceService.getDevicesByUser(userID);
+        List<Device> list = deviceService.getDevicesByUser(userInfo.getUserID());
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 

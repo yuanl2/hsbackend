@@ -26,6 +26,9 @@ public class User {
     @Column(name = "username",nullable = false)
     private String username;
 
+    @Column(name = "usernickname")
+    private String usernickname;
+
     @Column(name = "userType",nullable = false)
     private short userType;
 
@@ -168,12 +171,21 @@ public class User {
         this.avator = avator;
     }
 
+    public String getUsernickname() {
+        return usernickname;
+    }
+
+    public void setUsernickname(String usernickname) {
+        this.usernickname = usernickname;
+    }
+
     @Override
     public String toString() {
         return "user {" +
                 "id=" + id +
                 ", userType=" + userType +
                 ", username=" + username + "\n" +
+                ", usernickname=" + usernickname+ "\n" +
                 ", additionInfo=" + additionInfo +
                 ", createTime=" + (createTime == null ? null : createTime.toString()) +
                 ", expiredTime=" + (expiredTime == null ? null : expiredTime.toString()) +

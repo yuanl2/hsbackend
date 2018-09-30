@@ -166,7 +166,7 @@ public class LocationController {
     @RequestMapping(value = "areas", method = RequestMethod.POST)
     public ResponseEntity<?> createAreas(@RequestBody List<Area> area, HttpServletRequest request) {
         List<Area> lists = new ArrayList<>();
-        area.forEach(p -> locationService.createArea(p));
+        area.forEach(p -> lists.add(locationService.createArea(p)));
         return new ResponseEntity(lists, HttpStatus.CREATED);
     }
 
