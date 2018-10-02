@@ -229,7 +229,7 @@ public class DemoController {
         model.addAttribute("openid", openid);
 
         Device d = dataStore.queryDeviceByDeviceID(Long.valueOf(device_id));
-        boolean first = dataStore.containPayAccount(openid);
+        boolean containPayAccount = dataStore.containPayAccount(openid);
 
         if (d != null) {
             String store = d.getAdditionInfo();
@@ -243,7 +243,7 @@ public class DemoController {
                 return "device_test_error";
             }
 
-            if (first) {
+            if (!containPayAccount) {
                 model.addAttribute("consumes", consumeList);
                 model.addAttribute("store", store);
                 model.addAttribute("link",d.getStore());

@@ -406,7 +406,7 @@ public class DataStore {
         }
 
         OnlineStore onlineStore = onlineStoreCache.get(device.getStoreID());
-        if(onlineStore!=null){
+        if (onlineStore != null) {
             device.setStore(onlineStore.getLink());
         }
     }
@@ -988,10 +988,10 @@ public class DataStore {
      * *****************************************************************
      */
 
-    public boolean containPayAccount(String payAccount){
+    public boolean containPayAccount(String payAccount) {
         PayAccount account = payAccountDao.findByName(payAccount);
 
-        if(account!=null){
+        if (account != null) {
             return true;
         }
         return false;
