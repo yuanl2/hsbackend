@@ -462,7 +462,7 @@ public class DemoController {
                                @RequestParam(value = "userId", required = true, defaultValue = "0") String userId,
                                HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        logger.debug("paysuccess  userId = {} orderId = {} device_id = {}", userId, orderId, device_id);
+        logger.info("paysuccess  userId = {} orderId = {} device_id = {}", userId, orderId, device_id);
 
         long deviceID = Long.valueOf(device_id);
         Device d = dataStore.queryDeviceByDeviceID(deviceID);

@@ -204,7 +204,7 @@ public class DataStore {
             deviceCache.put(device.getDeviceID(), device);
             logger.info("update device before {} update value {}", oldStatus, device);
         } else {
-            logger.info("{} the status {} is not changed", device.getDeviceID(), status);
+            logger.debug("{} the status {} is not changed", device.getDeviceID(), status);
         }
         return device;
     }
