@@ -30,7 +30,6 @@ import java.util.List;
 /**
  * Created by yuanl2 on 2017/3/29.
  */
-@CrossOrigin
 @RestController
 @RequestMapping("/api")
 public class DeviceController {
@@ -97,7 +96,7 @@ public class DeviceController {
         if (userInfo == null) {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
         }
-        logger.info("getFaultDeviceByUserID token {} user {}", token, userInfo.getUserName());
+        logger.debug("getFaultDeviceByUserID token {} user {}", token, userInfo.getUserName());
 
         boolean isAdmin = false;
 

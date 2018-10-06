@@ -148,7 +148,7 @@ public class OrderStaticsDay {
         return "OrderStaticsDay{" +
                 "id=" + id +
                 "deviceID=" + deviceID +
-                ", sMonth=" + sMonth +
+                ", time=" + time +
                 ", orderTotal=" + orderTotal +
                 ", locationID=" + locationID +
                 ", userID=" + userID +

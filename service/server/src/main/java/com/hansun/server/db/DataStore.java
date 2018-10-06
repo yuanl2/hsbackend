@@ -12,12 +12,14 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.hansun.server.common.Utils.checkListNotNull;
+import static com.hansun.server.common.Utils.dateToLocalDate;
 
 /**
  * 负责数据库数据的缓存生成和更新
@@ -398,6 +400,7 @@ public class DataStore {
                 device.setAddress(location.getAddress());
             }
             device.setStatusDesc(DeviceStatus.getStatusDesc(device.getStatus()));
+            device.setEnterTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dateToLocalDate(location.getEnterTime())));
         }
 
         User u = userCache.get(device.getUserID());
@@ -554,7 +557,6 @@ public class DataStore {
     }
 
     private void autoFillLocaiton(Location location) {
-        Province province = provinceCache.get(location.getProvinceID());
         String provinceName = location.getProvince();
         if (provinceName == null) {
             provinceName = (provinceCache.get(location.getProvinceID())).getName();
@@ -680,7 +682,12 @@ public class DataStore {
     }
 
     public List<Location> queryAllLocation() {
-        return locationDao.findAll();
+        List<Location> lists = locationDao.findAll();
+        if (checkListNotNull(lists)) {
+            lists.stream().forEach(location -> autoFillLocaiton(location));
+            return lists;
+        }
+        return null;
     }
 
     public Location updateLocation(Location location) {

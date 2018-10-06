@@ -29,7 +29,6 @@ import static com.hansun.server.common.Utils.convertTime;
 /**
  * Created by yuanl2 on 2017/3/29.
  */
-@CrossOrigin
 @RestController
 @RequestMapping("/api")
 public class OrderController {
@@ -54,9 +53,16 @@ public class OrderController {
 
     @RequestMapping(value = "order", method = RequestMethod.POST)
     public ResponseEntity<?> createOrder(@RequestBody OrderInfo order, HttpServletRequest request, HttpServletResponse response) {
-        logger.debug("create order ", order);
+        logger.info("create order ", order);
         OrderInfo u = orderService.createOrder(order);
         return new ResponseEntity<>(u, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "order", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateOrder(@RequestBody OrderInfo order, HttpServletRequest request, HttpServletResponse response) {
+        logger.info("update order ", order);
+        orderService.updateOrder(order);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     @RequestMapping(value = "order/device/{id}", method = RequestMethod.GET)
@@ -109,7 +115,7 @@ public class OrderController {
         if (userInfo == null) {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
         }
-        List<OrderDetail> list = orderService.queryOrderByTimeForUser(user, convertTime(startTime), Utils.getNowTime());
+        List<OrderDetail> list = orderService.queryOrderByTimeForUser(userInfo.getUserID(), convertTime(startTime), Utils.getNowTime());
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 

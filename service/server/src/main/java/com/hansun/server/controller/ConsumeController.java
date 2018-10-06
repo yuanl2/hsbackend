@@ -13,6 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by yuanl2 on 2017/3/29.
@@ -46,7 +47,15 @@ public class ConsumeController {
     @RequestMapping(value = "consumes", method = RequestMethod.GET)
     public ResponseEntity<?> getConsumes(UriComponentsBuilder ucBuilder) {
         List<Consume> consumes = consumeService.getAllConsume();
-        return new ResponseEntity<>(consumes, HttpStatus.OK);
+        List<Consume> consumeList = consumes.stream().sorted((a, b) -> {
+            if (a.getPrice() < b.getPrice()) {
+                return -1;
+            } else {
+                return 0;
+            }
+
+        }).collect(Collectors.toList());
+        return new ResponseEntity<>(consumeList, HttpStatus.OK);
     }
 
     @RequestMapping(value = "consume/{id}", method = RequestMethod.GET)

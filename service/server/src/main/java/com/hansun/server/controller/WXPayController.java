@@ -110,7 +110,7 @@ public class WXPayController {
         String xml = ArrayToXml(paraMap, false);
         String xmlStr = HttpKit.post(ConstantUtil.WECHAT_UNIFIEDORDER, xml);
 
-        log.info("xmlStr = {} ", xmlStr);
+        log.debug("xmlStr = {} ", xmlStr);
         // 预付商品id
         String prepay_id = "";
 
@@ -186,7 +186,7 @@ public class WXPayController {
             outSteam.close();
             inStream.close();
             resultStr = new String(outSteam.toByteArray(), "utf-8");
-            log.info("payNotify resultStr = {} ", resultStr);
+            log.debug("payNotify resultStr = {} ", resultStr);
 
             Map<String, String> resultMap = doXMLParse(resultStr);
             System.out.println(resultMap.toString());

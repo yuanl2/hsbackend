@@ -17,11 +17,14 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import static com.hansun.server.common.Utils.checkListNotNull;
+import static com.hansun.server.common.Utils.convertToInstant;
 import static java.util.stream.Collectors.*;
 
 /**
@@ -50,28 +53,42 @@ public class StaticsJob {
      * status: 1 running
      * status: 2 purged
      */
-    @Scheduled(cron = "0 5 22 * * *")
+    @Scheduled(cron = "0 45 22 * * *")
     public void createTask() {
         TimeZone curTimeZone = TimeZone.getTimeZone("GMT+8");
         Calendar calendar = Calendar.getInstance(curTimeZone);
         calendar.setTimeInMillis(Instant.now().toEpochMilli());
 
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
 
-        LocalDateTime date = Utils.convertToLocalDateTime(calendar.toInstant());
+        LocalDateTime beginDay = Utils.convertToLocalDateTime(calendar.toInstant());
+        LocalDateTime endDate = beginDay.plus(1, ChronoUnit.DAYS);
+        List<OrderStaticsTask> orderStaticsTaskList = orderStaticsTaskDao.queryNotFinish();
 
-        calendar.set(Calendar.DAY_OF_MONTH, day + 1);
-        LocalDateTime endDate = Utils.convertToLocalDateTime(calendar.toInstant());
-
-        OrderStaticsTask task = new OrderStaticsTask();
-        task.setBeginTime(date);
-        task.setEndTime(endDate);
-        task.setStatus(OrderStaticsTaskStatus.CREATED.getType());
-        logger.info("createTask {}", orderStaticsTaskDao.save(task).toString());
+        if (checkListNotNull(orderStaticsTaskList)) {
+            beginDay = orderStaticsTaskList.get(0).getEndTime();
+            while (true) {
+                LocalDateTime next = beginDay.plus(1, ChronoUnit.DAYS);
+                OrderStaticsTask task = new OrderStaticsTask();
+                task.setBeginTime(beginDay);
+                task.setEndTime(next);
+                task.setStatus(OrderStaticsTaskStatus.CREATED.getType());
+                logger.info("createTask {}", orderStaticsTaskDao.save(task).toString());
+                beginDay = next;
+                if (next.compareTo(endDate) >= 0) {
+                    break;
+                }
+            }
+        } else {
+            OrderStaticsTask task = new OrderStaticsTask();
+            task.setBeginTime(beginDay);
+            task.setEndTime(endDate);
+            task.setStatus(OrderStaticsTaskStatus.CREATED.getType());
+            logger.info("createTask {}", orderStaticsTaskDao.save(task).toString());
+        }
     }
 
     /**
@@ -89,73 +106,79 @@ public class StaticsJob {
         }
     }
 
+    /**
+     * 进行统计的时候，都是当月的数据
+     * @param task
+     */
     private void processTask(OrderStaticsTask task) {
         try {
             task.setStatus(OrderStaticsTaskStatus.RUNNING.getType());
             long begin = System.currentTimeMillis();
-            logger.info("before executeTask {}", orderStaticsTaskDao.save(task).toString());
+            logger.debug("before executeTask {}", orderStaticsTaskDao.save(task).toString());
 
             LocalDateTime beginTime = task.getBeginTime();
             LocalDateTime endTime = task.getEndTime();
 
+            /**
+             * 查询获取的是某天的数据
+             */
             List<OrderStaticsDay> orderStaticsDayList = orderService.getStaticsFromOrderInfoForOrderStaticsDay(beginTime, endTime);
             if (orderStaticsDayList != null && orderStaticsDayList.size() > 0) {
-                orderStaticsDayList.stream().forEach(k -> logger.info("insert {}", orderStaticsDayDao.save(k).toString()));
                 LocalDateTime currentMonth = Utils.getMonth(beginTime);
                 LocalDateTime nextMonth = Utils.getNextMonth(currentMonth);
-                Map<LocalDateTime, Map<Long, List<OrderStaticsMonth>>> maps = orderService.getStaticsForOrderStaticsMonth(currentMonth, nextMonth).stream()
-                        .collect(groupingBy(OrderStaticsMonth::getTime, groupingBy(OrderStaticsMonth::getDeviceID)));
-                orderStaticsDayList.stream().collect(groupingBy(OrderStaticsDay::getDeviceID))
-                        .forEach((deviceID, orderList) -> {
-                            orderList.stream().collect(groupingBy(OrderStaticsDay::getsMonth)).forEach(
-                                    (month, orders) -> {
-                                        addDataToOrderStaticsMonth(maps, deviceID, month, orders);
-                                    });
-                        });
-            }
+                List<OrderStaticsMonth> orderStaticsMonthList = orderService.getStaticsForOrderStaticsMonth(currentMonth, nextMonth);
+                if (checkListNotNull(orderStaticsMonthList)) {
+                    Map<Long, List<OrderStaticsMonth>> orderStaticsMonthMap = orderStaticsMonthList.stream().collect(groupingBy(OrderStaticsMonth::getDeviceID));
 
+                    orderStaticsDayList.stream().forEach(k -> {
+                        try{
+                            logger.info("insert {}", orderStaticsDayDao.save(k).toString());
+                            List<OrderStaticsMonth> monthList = orderStaticsMonthMap.get(k.getDeviceID());
+                            if (checkListNotNull(monthList)) {
+                                OrderStaticsMonth orderStaticsMonth = monthList.get(0);
+                                orderStaticsMonth.setOrderTotal(orderStaticsMonth.getOrderTotal() + k.getOrderTotal());
+                                orderStaticsMonth.setIncomeTotal(orderStaticsMonth.getIncomeTotal() + k.getIncomeTotal());
+                                logger.info("update {}", orderStaticsMonthDao.save(orderStaticsMonth).toString());
+                            } else {
+                                OrderStaticsMonth orderStaticsMonth = new OrderStaticsMonth();
+                                orderStaticsMonth.setDeviceID(k.getDeviceID());
+                                orderStaticsMonth.setIncomeTotal(k.getIncomeTotal());
+                                orderStaticsMonth.setUserID(k.getUserID());
+                                orderStaticsMonth.setLocationID(k.getLocationID());
+                                orderStaticsMonth.setOrderTotal(k.getOrderTotal());
+                                orderStaticsMonth.setTime(currentMonth);
+                                logger.info("insert {}", orderStaticsMonthDao.save(orderStaticsMonth).toString());
+                            }
+                        }
+                        catch (Exception e){
+                            logger.error("process day data {} error {}",k.getDeviceID(),e);
+                        }
+
+                    });
+                } else {
+                    /**
+                     * 如果还没有月数据，则天数据转换成月数据
+                     */
+                    orderStaticsDayList.stream().forEach(k -> {
+                        logger.info("insert {}", orderStaticsDayDao.save(k).toString());
+                        OrderStaticsMonth orderStaticsMonth = new OrderStaticsMonth();
+                        orderStaticsMonth.setDeviceID(k.getDeviceID());
+                        orderStaticsMonth.setIncomeTotal(k.getIncomeTotal());
+                        orderStaticsMonth.setUserID(k.getUserID());
+                        orderStaticsMonth.setLocationID(k.getLocationID());
+                        orderStaticsMonth.setOrderTotal(k.getOrderTotal());
+                        orderStaticsMonth.setTime(currentMonth);
+                        logger.info("insert {}", orderStaticsMonthDao.save(orderStaticsMonth).toString());
+
+                    });
+                }
+            }
             task.setStatus(OrderStaticsTaskStatus.PURGED.getType());
             long end = System.currentTimeMillis();
-            logger.info(orderStaticsTaskDao.save(task).toString());
+            logger.info("insert {} ",orderStaticsTaskDao.save(task).toString());
             logger.info("after executeTask {} consume time {} ", orderStaticsTaskDao.save(task).toString(), (end - begin));
         } catch (Exception e) {
             logger.error("processTask error {} {}", task, e);
-        }
-    }
-
-    private void addDataToOrderStaticsMonth(Map<LocalDateTime, Map<Long, List<OrderStaticsMonth>>> maps, Long deviceID, String month, List<OrderStaticsDay> orders) {
-        double income = orders.stream().collect(summingDouble(OrderStaticsDay::getIncomeTotal));
-        int count = orders.stream().collect(summingInt(OrderStaticsDay::getOrderTotal));
-        OrderStaticsDay day = orders.get(0);
-        OrderStaticsMonth orderStaticsMonth = new OrderStaticsMonth();
-        orderStaticsMonth.setTime(Utils.parseMonthTime(month));
-        orderStaticsMonth.setLocationID(day.getLocationID());
-        orderStaticsMonth.setDeviceID(deviceID);
-        orderStaticsMonth.setAddress(day.getAddress());
-        orderStaticsMonth.setAreaName(day.getAreaName());
-        orderStaticsMonth.setUserID(day.getUserID());
-        orderStaticsMonth.setUserName(day.getUserName());
-        orderStaticsMonth.setIncomeTotal(income);
-        orderStaticsMonth.setOrderTotal(count);
-
-        if (maps != null && maps.size() > 0) {
-            Map<Long, List<OrderStaticsMonth>> map = maps.get(orderStaticsMonth.getTime());
-            if (map != null && map.size() > 0) {
-                List<OrderStaticsMonth> list = map.get(deviceID);
-                if (list != null && list.size() > 0) {
-                    OrderStaticsMonth oldData = list.get(0);
-                    if (oldData != null) {
-                        orderStaticsMonth.setOrderTotal(orderStaticsMonth.getOrderTotal() + oldData.getOrderTotal());
-                        orderStaticsMonth.setId(oldData.getId());
-                        orderStaticsMonth.setIncomeTotal(orderStaticsMonth.getIncomeTotal() + oldData.getIncomeTotal());
-                        logger.info(" update  {} ", orderStaticsMonthDao.save(orderStaticsMonth).toString());
-                    } else {
-                        logger.info(" insert  {} ", orderStaticsMonthDao.save(orderStaticsMonth).toString());
-                    }
-                } else {
-                    logger.info(" insert  {} ", orderStaticsMonthDao.save(orderStaticsMonth).toString());
-                }
-            }
         }
     }
 

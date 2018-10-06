@@ -66,7 +66,7 @@ public class DemoController {
         logger.debug("request from {}", useragent);
         long deviceID = Long.valueOf(device_id);
         Device device = deviceService.getDevice(deviceID);
-        model.addAttribute("device_id",device_id);
+        model.addAttribute("device_id", device_id);
         if (device == null) {
             logger.error("device {} not exists", device_id);
             return "device_not_exist";
@@ -135,12 +135,10 @@ public class DemoController {
             model.addAttribute("store", store);
             model.addAttribute("orderId", out_trade_no);
             return "device_testdevice";
-        }
-        else if(device.getManagerStatus() == DeviceManagerStatus.INACTIVATED.getStatus()){
+        } else if (device.getManagerStatus() == DeviceManagerStatus.INACTIVATED.getStatus()) {
             model.addAttribute("error", "设备还未激活，不可使用");
             return "device_test_error";
-        }
-        else if(device.getManagerStatus() == DeviceManagerStatus.MAINTENANCE.getStatus()){
+        } else if (device.getManagerStatus() == DeviceManagerStatus.MAINTENANCE.getStatus()) {
             model.addAttribute("error", "设备目前处于维护中，请稍后再试");
             return "device_test_error";
         }
@@ -237,7 +235,13 @@ public class DemoController {
                 store = "";
             }
 
-            List<Consume> consumeList = getConsumes(d);
+            List<Consume> consumeList = getConsumes(d).stream().sorted((a, b) -> {
+                if (a.getPrice() < b.getPrice()) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }).collect(Collectors.toList());
             if (consumeList == null || consumeList.size() == 0) {
                 model.addAttribute("error", "设备没有对应的消费类型");
                 return "device_test_error";
@@ -246,13 +250,13 @@ public class DemoController {
             if (!containPayAccount) {
                 model.addAttribute("consumes", consumeList);
                 model.addAttribute("store", store);
-                model.addAttribute("link",d.getStore());
+                model.addAttribute("link", d.getStore());
                 return "device_index";
             } else {
                 consumeList.removeIf(k -> k.getPrice() <= 0);
                 model.addAttribute("consumes", consumeList);
                 model.addAttribute("store", store);
-                model.addAttribute("link",d.getStore());
+                model.addAttribute("link", d.getStore());
                 return "device_index";
             }
         } else {
@@ -270,7 +274,7 @@ public class DemoController {
 
         Location location = dataStore.queryLocationByLocationID(d.getLocationID());
 
-        if(location == null){
+        if (location == null) {
             return null;
         }
         /**
@@ -457,10 +461,10 @@ public class DemoController {
 
     @RequestMapping(value = "/paysuccess")
     public String paysuccess(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "0") String device_id,
-                               @RequestParam(value = "product_id", required = true, defaultValue = "0") String product_id,
-                               @RequestParam(value = "orderId", required = true, defaultValue = "0") long orderId,
-                               @RequestParam(value = "userId", required = true, defaultValue = "0") String userId,
-                               HttpServletRequest request, HttpServletResponse response) throws Exception {
+                             @RequestParam(value = "product_id", required = true, defaultValue = "0") String product_id,
+                             @RequestParam(value = "orderId", required = true, defaultValue = "0") long orderId,
+                             @RequestParam(value = "userId", required = true, defaultValue = "0") String userId,
+                             HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         logger.info("paysuccess  userId = {} orderId = {} device_id = {}", userId, orderId, device_id);
 
@@ -472,6 +476,42 @@ public class DemoController {
         if (store == null) {
             store = "";
         }
+
+        /**
+         * 如果价格为0，说明没有走微信支付通道，直接下发任务给设备
+         */
+        if (consume.getPrice() <= 0) {
+            OrderInfo order = new OrderInfo();
+            //---------------生成订单号 开始------------------------
+            //当前时间 yyyyMMddHHmmss
+            String currTime = TenpayUtil.getCurrTime();
+            //四位随机数
+            String strRandom = TenpayUtil.buildRandom(5) + "";
+            //10位序列号,可以自行调整。
+            String strReq = currTime + strRandom;
+            //订单号，此处用时间加随机数生成，商户根据自己情况调整，只要保持全局唯一就行
+            String out_trade_no = strReq;
+            order.setOrderID(Long.valueOf(out_trade_no));
+            order.setOrderName("ordername-" + orderService.getSequenceNumber());
+            order.setStartTime(Utils.getNowTime());
+            order.setCreateTime(Utils.getNowTime());
+            order.setPayAccount(userId);
+            order.setOrderStatus(OrderStatus.PAYDONE);
+            order.setDeviceID(deviceID);
+            order.setDeviceName(d.getName());
+            order.setConsumeType(Short.valueOf(consume.getId()));
+            order.setOrderType(OrderType.OPERATIONS.getType());
+            OrderInfo result = orderService.createOrder(order);
+            orderService.createStartMsgToDevice(result);
+            logger.info("device_id = " + deviceID + " start free order " + result);
+            model.addAttribute("device_id", device_id);
+            model.addAttribute("duration", consume.getDuration());
+            model.addAttribute("store", store);
+            model.addAttribute("orderId", orderId);
+            model.addAttribute("link", d.getStore());
+            return "device_start_running";
+        }
+
         //订单在用户点击微信支付的时候就创建了订单，但是如果用户cancel了订单，也会有订单数据，只是状态不一样
         if (o != null && o.getOrderStatus() == OrderStatus.CREATED) {
             o.setOrderStatus(OrderStatus.NOTSTART);
@@ -483,7 +523,7 @@ public class DemoController {
             model.addAttribute("duration", consume.getDuration());
 //            model.addAttribute("startTime", o.getCreateTime().toEpochMilli());
             model.addAttribute("orderId", o.getId());
-            model.addAttribute("link",d.getStore());
+            model.addAttribute("link", d.getStore());
             logger.debug(" device {} orderId {} now forward device_running again", device_id, orderId);
             return "device_start_running";
         }
@@ -497,7 +537,7 @@ public class DemoController {
         model.addAttribute("duration", consume.getDuration());
         model.addAttribute("store", store);
         model.addAttribute("orderId", orderId);
-        model.addAttribute("link",d.getStore());
+        model.addAttribute("link", d.getStore());
         logger.debug(" device {} now forward device_running", device_id);
         return "device_start_running";
     }

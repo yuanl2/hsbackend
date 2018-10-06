@@ -41,7 +41,7 @@ public class PackageRequestHandler extends RequestHandler {
 		//去掉最后一个&
 		String reqPars = sb.substring(0, sb.lastIndexOf("&"));
 		// 设置debug信息
-		this.setDebugInfo("md5 sb:" + getDebugInfo() + "\r\npackage:" + reqPars);
+//		this.setDebugInfo("md5 sb:" + getDebugInfo() + "\r\npackage:" + reqPars);
 		return reqPars;
 		
 	}

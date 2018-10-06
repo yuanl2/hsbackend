@@ -111,6 +111,9 @@ public class Device {
     @Transient
     private String store;
 
+    @Transient
+    private String enterTime;
+
     public long getId() {
         return id;
     }
@@ -335,6 +338,14 @@ public class Device {
 
     public void setStore(String store) {
         this.store = store;
+    }
+
+    public String getEnterTime() {
+        return enterTime;
+    }
+
+    public void setEnterTime(String enterTime) {
+        this.enterTime = enterTime;
     }
 
     @Override

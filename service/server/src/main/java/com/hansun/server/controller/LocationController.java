@@ -1,11 +1,10 @@
 package com.hansun.server.controller;
 
-import com.hansun.server.dto.Area;
-import com.hansun.server.dto.City;
-import com.hansun.server.dto.Location;
-import com.hansun.server.dto.Province;
+import com.hansun.server.dto.*;
 import com.hansun.server.service.LocationService;
+import com.hansun.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,13 +18,21 @@ import java.util.List;
 /**
  * Created by yuanl2 on 2017/3/29.
  */
-@CrossOrigin
 @RestController
 @RequestMapping("/api")
 public class LocationController {
 
+    @Value("${jwt.header}")
+    private String tokenHeader;
+
+    @Value("${jwt.tokenHead}")
+    private String tokenHead;
+
     @Autowired
     private LocationService locationService;
+
+    @Autowired
+    private UserService userService;
 
     @PostConstruct
     private void init() {
@@ -45,10 +52,27 @@ public class LocationController {
         return new ResponseEntity(lists, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "location", method = RequestMethod.GET)
+    @RequestMapping(value = "locations", method = RequestMethod.GET)
     public ResponseEntity<?> getLocationByUserID(@RequestParam(value = "userID", required = false, defaultValue = "1") int userID,
                                                               HttpServletRequest request) {
-        List<Location> list = locationService.getLocationByUserID(userID);
+        String token = request.getHeader(tokenHeader).substring(tokenHead.length());
+        UserInfo userInfo = userService.getUserInfo(token);
+        if (userInfo == null) {
+            return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
+        }
+
+        boolean isAdmin = false;
+        for (String access : userInfo.getAccess()
+                ) {
+            if (access.equalsIgnoreCase("admin")) {
+                isAdmin = true;
+            }
+        }
+        if (isAdmin) {
+            List<Location> list = locationService.getAllLocation();
+            return new ResponseEntity<>(list, HttpStatus.OK);
+        }
+        List<Location> list = locationService.getLocationByUserID(userInfo.getUserID());
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 

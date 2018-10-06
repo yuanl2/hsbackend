@@ -25,4 +25,8 @@ public interface OrderStaticsTaskDao extends JpaRepository<OrderStaticsTask, Lon
     @Transactional
     @Query("delete from OrderStaticsTask b where b.beginTime <= :beginTime and b.status = :status")
     void deletePurgedTask(@Param("beginTime") LocalDateTime beginTime, @Param("status") short status);
+
+    @Transactional
+    @Query("from OrderStaticsTask b order by beginTime desc")
+    List<OrderStaticsTask> queryNotFinish();
 }
