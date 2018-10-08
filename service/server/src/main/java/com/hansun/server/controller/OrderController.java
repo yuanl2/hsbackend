@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static com.hansun.server.common.Utils.convertEndTime;
@@ -29,6 +31,7 @@ import static com.hansun.server.common.Utils.convertTime;
 /**
  * Created by yuanl2 on 2017/3/29.
  */
+//@CrossOrigin
 @RestController
 @RequestMapping("/api")
 public class OrderController {
@@ -115,7 +118,9 @@ public class OrderController {
         if (userInfo == null) {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
         }
-        List<OrderDetail> list = orderService.queryOrderByTimeForUser(userInfo.getUserID(), convertTime(startTime), Utils.getNowTime());
+        LocalDateTime start = convertTime(startTime);
+        LocalDateTime end = start.plus(1,ChronoUnit.DAYS);
+        List<OrderDetail> list = orderService.queryOrderByTimeForUser(userInfo.getUserID(), start, end);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
@@ -148,7 +153,7 @@ public class OrderController {
         long begin = System.currentTimeMillis();
         SummaryInfo summaryInfo = orderService.getSummaryInfo(userInfo.getUserID());
         long end = System.currentTimeMillis();
-        logger.info("get summary info consume time = {} ms", userInfo.getUserName(), (end - begin));
+        logger.info("get summary info {} consume time = {} ms", userInfo.getUserName(), (end - begin));
         return new ResponseEntity<>(summaryInfo, HttpStatus.OK);
     }
 

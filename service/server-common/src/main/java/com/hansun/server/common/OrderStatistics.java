@@ -4,6 +4,7 @@ package com.hansun.server.common;
  * Created by yuanl2 on 2017/7/18.
  */
 public class OrderStatistics {
+    protected String incomeValue;
     protected double incomeTotal;
     protected int orderTotal;
     protected int deviceTotal;
@@ -30,7 +31,7 @@ public class OrderStatistics {
 
     protected String enterTime;
 
-    protected double averageIncome;
+    protected String averageIncome;
 
     public double getIncomeTotal() {
         return incomeTotal;
@@ -116,12 +117,20 @@ public class OrderStatistics {
         this.enterTime = enterTime;
     }
 
-    public double getAverageIncome() {
+    public String getAverageIncome() {
         return averageIncome;
     }
 
-    public void setAverageIncome(double averageIncome) {
+    public void setAverageIncome(String averageIncome) {
         this.averageIncome = averageIncome;
+    }
+
+    public String getIncomeValue() {
+        return incomeValue;
+    }
+
+    public void setIncomeValue(String incomeValue) {
+        this.incomeValue = incomeValue;
     }
 
     public String toString() {
