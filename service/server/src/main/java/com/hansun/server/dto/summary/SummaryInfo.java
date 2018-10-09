@@ -8,13 +8,57 @@ import java.util.List;
  * @author yuanl2
  */
 public class SummaryInfo {
+    /**
+     *
+     */
     private List<InfoCardData> infoCardData = new ArrayList<>();
+
+    /**
+     *
+     */
     private List<PieData> currentMonthPieData = new ArrayList<>();
+
+    /**
+     *
+     */
     private List<PieData> allPieData = new ArrayList<>();
+
+    /**
+     *
+     */
     private List<PieData> currentMonthOrderPieData = new ArrayList<>();
+
+    /**
+     *
+     */
     private List<PieData> allOrderPieData = new ArrayList<>();
+
+    /**
+     *
+     */
     private List<PieData> currentDayPieData = new ArrayList<>();
+
+    /**
+     *
+     */
     private List<PieData> currentDayOrderPieData = new ArrayList<>();
+
+    /**
+     *
+     */
+    private AverageIncomeData todayAverageIncomebarData;
+
+    /**
+     *
+     */
+    private AverageIncomeData monthAverageIncomebarData;
+
+    /**
+     *
+     */
+    private AverageIncomeData allAverageIncomebarData;
+
+
 
     public List<InfoCardData> getInfoCardData() {
         return infoCardData;
@@ -70,5 +114,53 @@ public class SummaryInfo {
 
     public void addCurrentDayOrderPieData(PieData pieData) {
         this.currentDayOrderPieData.add(pieData);
+    }
+
+    public void setCurrentMonthPieData(List<PieData> currentMonthPieData) {
+        this.currentMonthPieData = currentMonthPieData;
+    }
+
+    public void setAllPieData(List<PieData> allPieData) {
+        this.allPieData = allPieData;
+    }
+
+    public void setCurrentMonthOrderPieData(List<PieData> currentMonthOrderPieData) {
+        this.currentMonthOrderPieData = currentMonthOrderPieData;
+    }
+
+    public void setAllOrderPieData(List<PieData> allOrderPieData) {
+        this.allOrderPieData = allOrderPieData;
+    }
+
+    public void setCurrentDayPieData(List<PieData> currentDayPieData) {
+        this.currentDayPieData = currentDayPieData;
+    }
+
+    public void setCurrentDayOrderPieData(List<PieData> currentDayOrderPieData) {
+        this.currentDayOrderPieData = currentDayOrderPieData;
+    }
+
+    public AverageIncomeData getTodayAverageIncomebarData() {
+        return todayAverageIncomebarData;
+    }
+
+    public void setTodayAverageIncomebarData(AverageIncomeData todayAverageIncomebarData) {
+        this.todayAverageIncomebarData = todayAverageIncomebarData;
+    }
+
+    public AverageIncomeData getMonthAverageIncomebarData() {
+        return monthAverageIncomebarData;
+    }
+
+    public void setMonthAverageIncomebarData(AverageIncomeData monthAverageIncomebarData) {
+        this.monthAverageIncomebarData = monthAverageIncomebarData;
+    }
+
+    public AverageIncomeData getAllAverageIncomebarData() {
+        return allAverageIncomebarData;
+    }
+
+    public void setAllAverageIncomebarData(AverageIncomeData allAverageIncomebarData) {
+        this.allAverageIncomebarData = allAverageIncomebarData;
     }
 }

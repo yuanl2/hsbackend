@@ -50,7 +50,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith(tokenHead)) {
             final String authToken = authHeader.substring(tokenHead.length()); // The part after "Bearer "
             String username = jwtTokenUtil.getUsernameFromToken(authToken);
-            logger.info("checking authentication " + username);
+            logger.debug("checking authentication " + username);
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
                 if (jwtTokenUtil.validateToken(authToken, userDetails)) {
@@ -60,7 +60,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                             httpServletRequest));
                     logger.debug("authenticated user " + username + ", setting security context");
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    logger.info(" path = {}", httpServletRequest.getRequestURI());
+                    logger.debug(" path = {}", httpServletRequest.getRequestURI());
 
                     if (httpServletRequest.getRequestURI().startsWith(managementPath) && !username.equalsIgnoreCase(admin)) {
                         httpServletResponse.sendError(SC_FORBIDDEN, "No access the url");

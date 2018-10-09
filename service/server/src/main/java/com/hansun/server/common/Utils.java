@@ -35,7 +35,7 @@ public class Utils {
         return convertToLocalDateTime(Instant.now());
     }
 
-    public static LocalDateTime getCurrentMonth(){
+    public static LocalDateTime getCurrentMonth() {
         return getMonth(getNowTime());
     }
 
@@ -68,7 +68,6 @@ public class Utils {
     }
 
     /**
-     *
      * @param month
      * @return
      */
@@ -84,12 +83,13 @@ public class Utils {
         return null;
     }
 
-    public static LocalDateTime getOldTime(){
+    public static LocalDateTime getOldTime() {
         return parseMonthTime("2010-01-01");
     }
 
     /**
      * get the zero clock
+     *
      * @param time
      * @return
      */
@@ -108,6 +108,7 @@ public class Utils {
 
     /**
      * get the day before {day} days
+     *
      * @param time
      * @param day
      * @return
@@ -118,7 +119,7 @@ public class Utils {
         Calendar calendar = Calendar.getInstance(curTimeZone);
         calendar.setTimeInMillis(createTime.toEpochMilli());
 
-        calendar.set(Calendar.DAY_OF_MONTH,calendar.get(Calendar.DAY_OF_MONTH) -day);
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) - day);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
@@ -146,6 +147,7 @@ public class Utils {
 
     /**
      * get the first day of next month
+     *
      * @param time
      * @return
      */
@@ -164,7 +166,6 @@ public class Utils {
     }
 
     /**
-     *
      * @param lists
      * @param <T>
      * @return
@@ -174,7 +175,6 @@ public class Utils {
     }
 
     /**
-     *
      * @param localDateTime
      * @return
      */
@@ -185,7 +185,6 @@ public class Utils {
     }
 
     /**
-     *
      * @param time
      * @return
      */
@@ -206,6 +205,7 @@ public class Utils {
 
     /**
      * get the next date
+     *
      * @param time
      * @return
      */
@@ -233,5 +233,16 @@ public class Utils {
         } catch (ParseException e) {
             return null;
         }
+    }
+
+    public static String formatDouble(double a, int b) {
+        if (b == 0) {
+            return String.format("%.2f", 0f);
+        }
+        return String.format("%.2f", a / b);
+    }
+
+    public static String formatDouble(double a) {
+         return String.format("%.2f", a);
     }
 }
