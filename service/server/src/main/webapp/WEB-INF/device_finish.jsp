@@ -34,7 +34,7 @@
                             <p>专卖店: ${store}</p>
                 </div>
                 <div class="features-bottom">
-                            <p>联系方式 Tel:400-821-0741 </p>
+                            <p>联系方式 Tel:<a href="tel:4008210741">400-821-0741</a></p>
                 </div>
     	</div>
 </section>
