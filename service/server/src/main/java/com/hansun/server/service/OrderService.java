@@ -855,37 +855,48 @@ public class OrderService {
     /**
      * get all summary info for user
      *
-     * @param userID
+     * @param userInfo
      * @return
      */
-    public SummaryInfo getSummaryInfo(short userID) {
+    public SummaryInfo getSummaryInfo(UserInfo userInfo) {
         SummaryInfo summaryInfo = new SummaryInfo();
+        short userID = userInfo.getUserID();
 
-        //get current month data
         LocalDateTime currentMonth = Utils.getCurrentMonth();
         LocalDateTime today = Utils.getZeroClock(Utils.getNowTime());
 
         /**
          * get today data, current month data, all month data
          */
-        List<OrderStaticsMonth> currentMonthData = getStaticsForOrderStaticsMonthForUser(userID, currentMonth, Utils.getNextMonth(currentMonth));
-        Map<Short, List<OrderStaticsMonth>> currentMonthDataMap = currentMonthData.stream().collect(groupingBy(OrderStaticsMonth::getLocationID));
-        List<OrderStaticsDay> todayDataLists = getStaticsFromOrderInfoForUser(userID, today, Utils.getNowTime());
-        Map<Short, List<OrderStaticsDay>> todayDataMap = todayDataLists.stream().collect(groupingBy(OrderStaticsDay::getLocationID));
-        List<OrderStaticsMonth> allData = getStaticsForOrderStaticsMonthForUser(userID, Utils.getOldTime(), currentMonth);
-        Map<Short, List<OrderStaticsMonth>> allDataMap = allData.stream().collect(groupingBy(OrderStaticsMonth::getLocationID));
+        List<OrderStaticsMonth> currentMonthData;
+        List<OrderStaticsDay> todayDataLists;
+        List<OrderStaticsMonth> allData;
+        List<Location> locationList;
+        List<Device> deviceList;
 
-        List<Location> locationList = dataStore.queryLocationByUserID(userID);
-        List<Device> deviceList = dataStore.queryDeviceByUser(userID);
+        if (isAdminUser(userInfo)) {
+            currentMonthData = getStaticsForOrderStaticsMonth(currentMonth, Utils.getNextMonth(currentMonth));
+            todayDataLists = getStaticsFromOrderInfoForOrderStaticsDay(today, Utils.getNowTime());
+            allData = getStaticsForOrderStaticsMonth(Utils.getOldTime(), currentMonth);
+            locationList = dataStore.queryAllLocation();
+            deviceList = dataStore.queryAllDevices();
+        } else {
+            currentMonthData = getStaticsForOrderStaticsMonthForUser(userID, currentMonth, Utils.getNextMonth(currentMonth));
+            todayDataLists = getStaticsFromOrderInfoForUser(userID, today, Utils.getNowTime());
+            allData = getStaticsForOrderStaticsMonthForUser(userID, Utils.getOldTime(), currentMonth);
+            locationList = dataStore.queryLocationByUserID(userID);
+            deviceList = dataStore.queryDeviceByUser(userID);
+        }
+
+        Map<Short, List<OrderStaticsMonth>> currentMonthDataMap = currentMonthData.stream().collect(groupingBy(OrderStaticsMonth::getLocationID));
+        Map<Short, List<OrderStaticsDay>> todayDataMap = todayDataLists.stream().collect(groupingBy(OrderStaticsDay::getLocationID));
+        Map<Short, List<OrderStaticsMonth>> allDataMap = allData.stream().collect(groupingBy(OrderStaticsMonth::getLocationID));
         Map<Short, List<Device>> deviceMap = deviceList.stream().collect(groupingBy(Device::getLocationID));
 
-
         processAllData(summaryInfo, todayDataMap, currentMonthDataMap, allDataMap, locationList, deviceMap);
-        processSummaryInfo(summaryInfo, userID, todayDataLists);
-
+        processSummaryInfo(summaryInfo, todayDataLists, deviceList, locationList);
         return summaryInfo;
     }
-
 
     /**
      * @param summaryInfo
@@ -956,8 +967,7 @@ public class OrderService {
         }
     }
 
-    private void processSummaryInfo(SummaryInfo summaryInfo, short userID, List<OrderStaticsDay> todayDataLists) {
-
+    private void processSummaryInfo(SummaryInfo summaryInfo, List<OrderStaticsDay> todayDataLists, List<Device> deviceList, List<Location> locationList) {
         List<PieData> pieDataList = summaryInfo.getAllPieData().stream().sorted().collect(toList());
         AverageIncomeData allAverageIncomeData = new AverageIncomeData();
         allAverageIncomeData.setLocations(pieDataList.stream().map(PieData::getName).collect(toList()));
@@ -976,10 +986,10 @@ public class OrderService {
         summaryInfo.setTodayAverageIncomebarData(todayAverageIncomeData);
         summaryInfo.setMonthAverageIncomebarData(currentMonthAverageIncomeData);
         summaryInfo.setAllAverageIncomebarData(allAverageIncomeData);
+
         //get info card data
         long deviceCount = 0;
         long faultDevices = 0;
-        List<Device> deviceList = dataStore.queryDeviceByUser(userID);
         if (checkListNotNull(deviceList)) {
             deviceCount = deviceList.stream().count();
             faultDevices = deviceList.stream().filter(device ->
@@ -987,7 +997,7 @@ public class OrderService {
             ).collect(Collectors.toList()).stream().count();
         }
 
-        long areaCount = dataStore.queryAllLocation().stream().filter(k -> k.getUserID() == userID).count();
+        long areaCount = locationList.size();
 
         InfoCardData deviceInfo = new InfoCardData();
         deviceInfo.setTitle("总设备");
@@ -1058,6 +1068,5 @@ public class OrderService {
         summaryInfo.addInfoCardData(abnormalOrderInfo);
         summaryInfo.addInfoCardData(currentMonthIncomeInfo);
         summaryInfo.addInfoCardData(currentMonthOrderInfo);
-
     }
 }

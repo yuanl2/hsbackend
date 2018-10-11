@@ -1,6 +1,7 @@
 package com.hansun.server.common;
 
 import com.hansun.server.dto.OrderInfo;
+import com.hansun.server.dto.UserInfo;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -244,5 +245,16 @@ public class Utils {
 
     public static String formatDouble(double a) {
          return String.format("%.2f", a);
+    }
+
+    public static boolean isAdminUser(UserInfo userInfo) {
+        boolean isAdmin = false;
+        for (String access : userInfo.getAccess()
+                ) {
+            if (access.equalsIgnoreCase("admin")) {
+                isAdmin = true;
+            }
+        }
+        return isAdmin;
     }
 }

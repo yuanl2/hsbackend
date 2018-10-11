@@ -2,7 +2,6 @@ package com.hansun.server.controller;
 
 import com.hansun.server.common.OrderDetail;
 import com.hansun.server.common.OrderStatistics;
-import com.hansun.server.common.Utils;
 import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.dto.OrderSearchRequest;
 import com.hansun.server.dto.UserInfo;
@@ -151,7 +150,7 @@ public class OrderController {
         }
         logger.debug("getSummaryInfo token {} user {}", token, userInfo.getUserName());
         long begin = System.currentTimeMillis();
-        SummaryInfo summaryInfo = orderService.getSummaryInfo(userInfo.getUserID());
+        SummaryInfo summaryInfo = orderService.getSummaryInfo(userInfo);
         long end = System.currentTimeMillis();
         logger.info("get summary info {} consume time = {} ms", userInfo.getUserName(), (end - begin));
         return new ResponseEntity<>(summaryInfo, HttpStatus.OK);
