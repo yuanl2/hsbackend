@@ -58,8 +58,8 @@ public interface OrderInfoDao extends JpaRepository<OrderInfo, Long> {
     List<OrderInfo> queryByTimeRangeForUserNotFinish(@Param("userID") short userID, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("orderStatus") short orderStatus,  @Param("orderType") short orderType);
 
     @Transactional
-    @Query("from OrderInfo b where b.startTime >= :startTime and b.startTime < :endTime and b.orderStatus != :orderStatus and b.orderType = :orderType order by b.startTime desc")
-    List<OrderInfo> queryByTimeRangeNotFinish(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("orderStatus") short orderStatus,  @Param("orderType") short orderType);
+    @Query("from OrderInfo b where b.createTime >= :createTime and b.createTime < :endTime and b.orderStatus != :orderStatus and b.orderType = :orderType order by b.startTime desc")
+    List<OrderInfo> queryByTimeRangeNotFinish(@Param("createTime") LocalDateTime createTime, @Param("endTime") LocalDateTime endTime, @Param("orderStatus") short orderStatus,  @Param("orderType") short orderType);
 
 
     @Transactional
