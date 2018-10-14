@@ -1,6 +1,7 @@
 package com.hansun.server.controller;
 
 import com.hansun.server.common.*;
+import com.hansun.server.db.dao.SuperAccountDao;
 import com.hansun.server.dto.Consume;
 import com.hansun.server.dto.Device;
 import com.hansun.server.dto.Location;
@@ -30,6 +31,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+import static com.hansun.server.common.Utils.checkListNotNull;
+
 
 /**
  * Created by yuanl2 on 2017/5/1.
@@ -46,6 +49,9 @@ public class DemoController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private SuperAccountDao superAccountDao;
 
     @Autowired
     private HSServiceMetricsService hsServiceMetricsService;
@@ -98,7 +104,7 @@ public class DemoController {
                 store = "";
             }
             Random random = new Random();
-            List<Consume> consumeList = getConsumes(device);
+            List<Consume> consumeList = getConsumesForSuperUser(device, false);
             if (consumeList == null || consumeList.size() == 0) {
                 model.addAttribute("error", "设备没有对应的消费类型");
                 return "device_test_error";
@@ -234,26 +240,28 @@ public class DemoController {
             if (store == null) {
                 store = "";
             }
-
-            List<Consume> consumeList = getConsumes(d).stream().sorted((a, b) -> {
+            boolean isSuperUser = dataStore.containSuperAccount(openid);
+            List<Consume> consumeList = getConsumesForSuperUser(d, isSuperUser).stream().sorted((a, b) -> {
                 if (a.getPrice() < b.getPrice()) {
                     return -1;
                 } else {
                     return 0;
                 }
             }).collect(Collectors.toList());
-            if (consumeList == null || consumeList.size() == 0) {
+            if (!checkListNotNull(consumeList)) {
                 model.addAttribute("error", "设备没有对应的消费类型");
                 return "device_test_error";
             }
 
-            if (!containPayAccount) {
+            if (isSuperUser) {
                 model.addAttribute("consumes", consumeList);
                 model.addAttribute("store", store);
                 model.addAttribute("link", d.getStore());
                 return "device_index";
             } else {
-                consumeList.removeIf(k -> k.getPrice() <= 0);
+                if (containPayAccount) {
+                    consumeList.removeIf(k -> k.getPrice() <= 0);
+                }
                 model.addAttribute("consumes", consumeList);
                 model.addAttribute("store", store);
                 model.addAttribute("link", d.getStore());
@@ -264,43 +272,44 @@ public class DemoController {
         }
     }
 
-    private List<Consume> getConsumes(Device d) {
+    private List<Consume> getConsumesForSuperUser(Device d, boolean isSuperUser) {
         byte consumeType = d.getConsumeType();
-
-        /**
-         * 增加了过滤
-         */
         List<Consume> consumes = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()), consumeType);
-
         Location location = dataStore.queryLocationByLocationID(d.getLocationID());
-
         if (location == null) {
             return null;
         }
-        /**
-         * 根据Device配置的ConsumType，过滤得到匹配的Consume List
-         *
-         */
-        consumes = consumes.stream().filter(consume -> {
-            if (consume.getType() == ConsumeType.NORMAL.getValue()) {
+
+        if (isSuperUser) {
+            consumes = consumes.stream().filter(consume ->
+                    consume.getType() == ConsumeType.SUPERUSER.getValue()
+            ).collect(Collectors.toList());
+            return consumes;
+        } else {
+            /**
+             * 根据Device配置的ConsumType，过滤得到匹配的Consume List
+             *
+             */
+            consumes = consumes.stream().filter(consume -> {
+                if (consume.getType() == ConsumeType.NORMAL.getValue()) {
+                    return true;
+                } else if (consume.getType() == ConsumeType.USER.getValue()) {
+                    return consume.getValue().contains(d.getUserID() + "");
+                } else if (consume.getType() == ConsumeType.LOCATION.getValue()) {
+                    return consume.getValue().contains(location.getId() + "");
+                } else if (consume.getType() == ConsumeType.AREA.getValue()) {
+                    return consume.getValue().contains(location.getAreaID() + "");
+                } else if (consume.getType() == ConsumeType.CITY.getValue()) {
+                    return consume.getValue().contains(location.getCityID() + "");
+                } else if (consume.getType() == ConsumeType.DEVICE.getValue()) {
+                    return consume.getValue().contains(d.getDeviceID() + "");
+                }
                 return true;
-            } else if (consume.getType() == ConsumeType.USER.getValue()) {
-                return consume.getValue().contains(d.getUserID() + "");
-            } else if (consume.getType() == ConsumeType.LOCATION.getValue()) {
-                return consume.getValue().contains(location.getId() + "");
-            } else if (consume.getType() == ConsumeType.AREA.getValue()) {
-                return consume.getValue().contains(location.getAreaID() + "");
-            } else if (consume.getType() == ConsumeType.CITY.getValue()) {
-                return consume.getValue().contains(location.getCityID() + "");
-            } else if (consume.getType() == ConsumeType.DEVICE.getValue()) {
-                return consume.getValue().contains(d.getDeviceID() + "");
-            }
-            return true;
 
-        }).collect(Collectors.toList());
-        return consumes;
+            }).collect(Collectors.toList());
+            return consumes;
+        }
     }
-
 
     @RequestMapping("/detail")
     public String detailpage(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "World") String device_id,
@@ -416,7 +425,7 @@ public class DemoController {
                 store = "";
             }
             Random random = new Random();
-            List<Consume> consumeList = getConsumes(d);
+            List<Consume> consumeList = getConsumesForSuperUser(d, false);
             if (consumeList == null || consumeList.size() == 0) {
                 model.addAttribute("error", "设备没有对应的消费类型");
                 return "device_test_error";
@@ -458,7 +467,6 @@ public class DemoController {
         return "device_test_error";
     }
 
-
     @RequestMapping(value = "/paysuccess")
     public String paysuccess(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "0") String device_id,
                              @RequestParam(value = "product_id", required = true, defaultValue = "0") String product_id,
@@ -466,7 +474,7 @@ public class DemoController {
                              @RequestParam(value = "userId", required = true, defaultValue = "0") String userId,
                              HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        logger.info("paysuccess  userId = {} orderId = {} device_id = {}", userId, orderId, device_id);
+        logger.info("paysuccess  userId = {} orderId = {} device_id = {} product_id = {}", userId, orderId, device_id, product_id);
 
         long deviceID = Long.valueOf(device_id);
         Device d = dataStore.queryDeviceByDeviceID(deviceID);

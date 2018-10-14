@@ -4,13 +4,14 @@ package com.hansun.server.common;
  * @author yuanl2
  */
 public enum ConsumeType {
+    NORMAL("normal", 0),
     TEST("test", 1),
     USER("user", 2),
     CITY("city", 3),
     AREA("are", 4),
     LOCATION("location", 5),
     DEVICE("device",6),
-    NORMAL("normal", 0);
+    SUPERUSER("superUser",7);
 
     private String type;
 

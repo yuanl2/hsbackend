@@ -51,7 +51,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http              // 基于token，所以不需要session
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER).and()
                 .authorizeRequests().
-                antMatchers("/ui/**", "/index", "/index/**", "/iview-admin/**","/device", "/device/**", "/callback", "/callback/**", "/assets/**",
+                antMatchers("/wxadmingetuserinfo","/wxaddadmin/**","/wxadmingetuserinfo/**","/wxaddadmin","/ui/**", "/index", "/index/**", "/iview-admin/**","/device", "/device/**", "/callback", "/callback/**", "/assets/**",
                         "/callback/**", "/js/**", "/css/**", "/pic/**", "/images/**", "/api/deviceStatus", "/api/deviceStatus/**",
                         "/detail", "/detail/**", "/disable", "/disable/**", "/testcmd", "/testcmd/**", "/testdevice", "/testdevice/**",
                         "/finish", "/finish/**", "/weixin/savepackage", "/weixin/savepackage/**", "/weixin/payNotify", "/paysuccess", "/paysuccess/**", "/weixin/paycancel", "/weixin/paycancel/**").permitAll()

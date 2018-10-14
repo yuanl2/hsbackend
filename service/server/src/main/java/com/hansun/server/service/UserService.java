@@ -76,6 +76,7 @@ public class UserService implements UserDetailsService {
         UserInfo userInfo = new UserInfo();
         userInfo.setUserID(user.getId());
         userInfo.setUserName(user.getUsername());
+        userInfo.setUserNickName(user.getUsernickname());
         userInfo.setAccess(Arrays.stream(user.getRole().split(",")).collect(Collectors.toList()));
         return userInfo;
     }
