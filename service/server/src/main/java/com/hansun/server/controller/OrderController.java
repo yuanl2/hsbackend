@@ -141,15 +141,15 @@ public class OrderController {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
         }
         long begin = System.currentTimeMillis();
-        List<OrderDetail> list = new ArrayList<>();
+        List<OrderDetail> list;
 
         if (isAdminUser(userInfo)) {
-            orderService.queryOrderByTimeOrderNotFinish(convertTime(startTime));
+            list = orderService.queryOrderByTimeOrderNotFinish(convertTime(startTime));
         } else {
-            orderService.queryOrderByTimeOrderForUserNotFinish(userInfo.getUserID(), convertTime(startTime));
+            list = orderService.queryOrderByTimeOrderForUserNotFinish(userInfo.getUserID(), convertTime(startTime));
         }
         long end = System.currentTimeMillis();
-        logger.info("get not finish order consume time = {} ms", userInfo.getUserName(), (end - begin));
+        logger.info("get not finish order {} consume time = {} ms", userInfo.getUserName(), (end - begin));
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
