@@ -28,7 +28,8 @@ public class ConstantUtil {
 	//回调地址
 	public static String REDIRECT_URI_WX = "https://www.knocknock.vip/hsservice/callback";
 	public static String PAY_SUCCESS_NOTIFY = "https://www.knocknock.vip/hsservice/weixin/payNotify";
-
+	public static String REDIRECT_URI_WX_ADMIN = "https://www.knocknock.vip/hsservice/wxadmingetuserinfo";
 	public static String WECHAT_UNIFIEDORDER = "https://api.mch.weixin.qq.com/pay/unifiedorder";
 	public static String GET_OPENID_URL_WX = "https://api.weixin.qq.com/sns/oauth2/access_token";
+	public static String GET_USERINFO_URL_WX ="https://api.weixin.qq.com/sns/userinfo";
 }

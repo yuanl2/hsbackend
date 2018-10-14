@@ -2,7 +2,6 @@ package com.hansun.server.controller;
 
 import com.hansun.server.common.OrderDetail;
 import com.hansun.server.common.OrderStatistics;
-import com.hansun.server.common.Utils;
 import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.dto.OrderSearchRequest;
 import com.hansun.server.dto.UserInfo;
@@ -23,10 +22,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.hansun.server.common.Utils.convertEndTime;
 import static com.hansun.server.common.Utils.convertTime;
+import static com.hansun.server.common.Utils.isAdminUser;
 
 /**
  * Created by yuanl2 on 2017/3/29.
@@ -119,8 +120,13 @@ public class OrderController {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
         }
         LocalDateTime start = convertTime(startTime);
-        LocalDateTime end = start.plus(1,ChronoUnit.DAYS);
-        List<OrderDetail> list = orderService.queryOrderByTimeForUser(userInfo.getUserID(), start, end);
+        LocalDateTime end = start.plus(1, ChronoUnit.DAYS);
+        List<OrderDetail> list = new ArrayList<>();
+        if (isAdminUser(userInfo)) {
+            list = orderService.queryOrderByTime(start, end);
+        } else {
+            list = orderService.queryOrderByTimeForUser(userInfo.getUserID(), start, end);
+        }
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
@@ -135,9 +141,15 @@ public class OrderController {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
         }
         long begin = System.currentTimeMillis();
-        List<OrderDetail> list = orderService.queryOrderByTimeOrderNotFinish(userInfo.getUserID(), convertTime(startTime));
+        List<OrderDetail> list;
+
+        if (isAdminUser(userInfo)) {
+            list = orderService.queryOrderByTimeOrderNotFinish(convertTime(startTime));
+        } else {
+            list = orderService.queryOrderByTimeOrderForUserNotFinish(userInfo.getUserID(), convertTime(startTime));
+        }
         long end = System.currentTimeMillis();
-        logger.info("get not finish order consume time = {} ms", userInfo.getUserName(), (end - begin));
+        logger.info("get not finish order {} consume time = {} ms", userInfo.getUserName(), (end - begin));
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
@@ -151,7 +163,7 @@ public class OrderController {
         }
         logger.debug("getSummaryInfo token {} user {}", token, userInfo.getUserName());
         long begin = System.currentTimeMillis();
-        SummaryInfo summaryInfo = orderService.getSummaryInfo(userInfo.getUserID());
+        SummaryInfo summaryInfo = orderService.getSummaryInfo(userInfo);
         long end = System.currentTimeMillis();
         logger.info("get summary info {} consume time = {} ms", userInfo.getUserName(), (end - begin));
         return new ResponseEntity<>(summaryInfo, HttpStatus.OK);
@@ -159,7 +171,7 @@ public class OrderController {
 
     @RequestMapping(value = "order/summaryforhour", method = RequestMethod.GET)
     public ResponseEntity<?> getSummaryforhour(@RequestParam(value = "user", required = false) String user,
-                                                HttpServletRequest request) {
+                                               HttpServletRequest request) {
         String token = request.getHeader(tokenHeader).substring(tokenHead.length());
         UserInfo userInfo = userService.getUserInfo(token);
         if (userInfo == null) {
@@ -167,7 +179,7 @@ public class OrderController {
         }
         logger.debug("getSummaryforhour token {} user {}", token, userInfo.getUserName());
         long begin = System.currentTimeMillis();
-        OrderSummaryData summaryInfo = orderService.getOrderSummaryData(userInfo.getUserID());
+        OrderSummaryData summaryInfo = orderService.getOrderSummaryData(userInfo);
         long end = System.currentTimeMillis();
         logger.info("get summary info for hour consume time = {} ms", userInfo.getUserName(), (end - begin));
 
@@ -187,7 +199,7 @@ public class OrderController {
         }
         logger.debug("queryOrderStatisticsByUser token {} user {}", token, userInfo.getUserName());
         long begin = System.currentTimeMillis();
-        List<OrderStatistics> statistics = orderService.queryOrderStatisticsByUser(userInfo.getUserName(), convertTime(startTime), convertEndTime(endTime), type);
+        List<OrderStatistics> statistics = orderService.queryOrderStatisticsByUser(userInfo, convertTime(startTime), convertEndTime(endTime), type);
         long end = System.currentTimeMillis();
         logger.info("get order Statistics by user ={} type ={} startTime ={} endTime ={} consume time = {} ms", userInfo.getUserName(), type, startTime, endTime, (end - begin));
         return new ResponseEntity<>(statistics, HttpStatus.OK);

@@ -68,6 +68,9 @@ public class DataStore {
     @Autowired
     private PayAccountDao payAccountDao;
 
+    @Autowired
+    private SuperAccountDao superAccountDao;
+
 //    @Autowired
 //    private OrderDao orderDao;
 
@@ -1004,16 +1007,28 @@ public class DataStore {
         return false;
     }
 
-    public void addPayAccount(String payAccount) {
-        PayAccount account = payAccountDao.findByName(payAccount);
-        if (account != null) {
-            account.setCount((short) (1 + account.getCount()));
-        } else {
-            account = new PayAccount();
-            account.setName(payAccount);
-            account.setCount((short) 1);
+    public PayAccount addPayAccount(String payAccount) {
+        try {
+            PayAccount account = payAccountDao.findByName(payAccount);
+            if (account != null) {
+                account.setCount((short) (1 + account.getCount()));
+            } else {
+                account = new PayAccount();
+                account.setName(payAccount);
+                account.setCount((short) 1);
+            }
+            return payAccountDao.save(account);
+        }catch (Exception e){
+            logger.error("addPayAccount fail {} {}",payAccount,e);
+            return null;
         }
-        payAccountDao.save(account);
     }
 
+    public boolean containSuperAccount(String payAccount) {
+        SuperAccount account = superAccountDao.findByName(payAccount);
+        if (account != null) {
+            return true;
+        }
+        return false;
+    }
 }

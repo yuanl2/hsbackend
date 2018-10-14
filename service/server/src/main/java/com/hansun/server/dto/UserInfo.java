@@ -15,6 +15,8 @@ public class UserInfo {
 
     private String avator;
 
+    private String userNickName;
+
     public short getUserID() {
         return userID;
     }
@@ -45,5 +47,13 @@ public class UserInfo {
 
     public void setAvator(String avator) {
         this.avator = avator;
+    }
+
+    public String getUserNickName() {
+        return userNickName;
+    }
+
+    public void setUserNickName(String userNickName) {
+        this.userNickName = userNickName;
     }
 }

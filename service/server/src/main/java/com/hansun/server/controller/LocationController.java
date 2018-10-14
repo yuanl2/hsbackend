@@ -15,9 +15,12 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.hansun.server.common.Utils.isAdminUser;
+
 /**
  * Created by yuanl2 on 2017/3/29.
  */
+//@CrossOrigin
 @RestController
 @RequestMapping("/api")
 public class LocationController {
@@ -60,19 +63,7 @@ public class LocationController {
         if (userInfo == null) {
             return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
         }
-
-        boolean isAdmin = false;
-        for (String access : userInfo.getAccess()
-                ) {
-            if (access.equalsIgnoreCase("admin")) {
-                isAdmin = true;
-            }
-        }
-        if (isAdmin) {
-            List<Location> list = locationService.getAllLocation();
-            return new ResponseEntity<>(list, HttpStatus.OK);
-        }
-        List<Location> list = locationService.getLocationByUserID(userInfo.getUserID());
+        List<Location> list = locationService.getLocationByUserID(userInfo);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 

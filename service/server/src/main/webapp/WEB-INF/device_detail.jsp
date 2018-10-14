@@ -47,7 +47,7 @@
         					<p>爱生活 爱摩客</p>
         		</div>
     		<div class="row text-center">
-    					<p>联系方式 Tel: 400-821-0741 </p>
+                            <p>联系方式 Tel:<a href="tel:4008210741">400-821-0741</a></p>
     		</div>
     	</div>
 </section>

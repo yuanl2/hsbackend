@@ -1,14 +1,15 @@
 package com.hansun.server.service;
 
 import com.hansun.server.db.DataStore;
-import com.hansun.server.dto.Area;
-import com.hansun.server.dto.City;
-import com.hansun.server.dto.Location;
-import com.hansun.server.dto.Province;
+import com.hansun.server.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.hansun.server.common.Utils.isAdminUser;
 
 /**
  * Created by yuanl2 on 2017/3/29.
@@ -50,8 +51,11 @@ public class LocationService {
         return dataStore.queryLocationByProvinceID(provinceID);
     }
 
-    public List<Location> getLocationByUserID(int userID) {
-        return dataStore.queryLocationByUserID(userID);
+    public List<Location> getLocationByUserID(UserInfo userInfo) {
+        if (isAdminUser(userInfo)) {
+            return dataStore.queryAllLocation();
+        }
+        return dataStore.queryLocationByUserID(userInfo.getUserID());
     }
 
     public List<Location> getLocationByCityID(int cityID) {
@@ -64,10 +68,6 @@ public class LocationService {
 
     public Location updateLocation(Location location) {
         return dataStore.updateLocation(location);
-    }
-
-    public List<Location> getAllLocation() {
-        return dataStore.queryAllLocation();
     }
 
     /**
