@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.hansun.server.common.Utils.convertEndTime;
@@ -55,30 +54,68 @@ public class OrderController {
 
     }
 
-    @RequestMapping(value = "order", method = RequestMethod.POST)
-    public ResponseEntity<?> createOrder(@RequestBody OrderInfo order, HttpServletRequest request, HttpServletResponse response) {
-        logger.info("create order ", order);
-        OrderInfo u = orderService.createOrder(order);
-        return new ResponseEntity<>(u, HttpStatus.CREATED);
-    }
-
+    /**
+     * update order
+     *
+     * @param order
+     * @param request
+     * @param response
+     * @return
+     */
     @RequestMapping(value = "order", method = RequestMethod.PUT)
     public ResponseEntity<?> updateOrder(@RequestBody OrderInfo order, HttpServletRequest request, HttpServletResponse response) {
-        logger.info("update order ", order);
-        orderService.updateOrder(order);
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        logger.debug("update order ", order);
+        String token = request.getHeader(tokenHeader).substring(tokenHead.length());
+        UserInfo userInfo = userService.getUserInfo(token);
+        if (userInfo == null) {
+            return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
+        }
+        if (isAdminUser(userInfo)) {
+            orderService.updateOrder(order);
+            return new ResponseEntity<>(null, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("No Permission", HttpStatus.FORBIDDEN);
+        }
     }
 
+    /**
+     * get order list by deviceID
+     *
+     * @param id
+     * @param startTime
+     * @param endTime
+     * @param request
+     * @param response
+     * @return
+     */
     @RequestMapping(value = "order/device/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> getOrderByDevice(@PathVariable Long id,
                                               @RequestParam(value = "startTime", required = false) String startTime,
                                               @RequestParam(value = "endTime", required = false) String endTime,
                                               HttpServletRequest request, HttpServletResponse response) {
         logger.debug("get order by deviceid ", id);
-        List<OrderDetail> user = orderService.queryOrderByDevice(id, convertTime(startTime), convertTime(endTime));
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        String token = request.getHeader(tokenHeader).substring(tokenHead.length());
+        UserInfo userInfo = userService.getUserInfo(token);
+        if (userInfo == null) {
+            return new ResponseEntity<>("token expired", HttpStatus.BAD_REQUEST);
+        }
+        if (isAdminUser(userInfo)) {
+            List<OrderDetail> user = orderService.queryOrderByDevice(id, convertTime(startTime), convertTime(endTime));
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("No Permission", HttpStatus.FORBIDDEN);
+        }
     }
 
+    /**
+     * get order list by user
+     * @param user
+     * @param startTime
+     * @param endTime
+     * @param request
+     * @param response
+     * @return
+     */
     @RequestMapping(value = "order/user", method = RequestMethod.GET)
     public ResponseEntity<?> getOrderByUser(@RequestParam(value = "user", required = false) short user,
                                             @RequestParam(value = "startTime", required = false) String startTime,
@@ -95,6 +132,14 @@ public class OrderController {
         return new ResponseEntity<>(orderList, HttpStatus.OK);
     }
 
+    /**
+     * get order list by area
+     * @param id
+     * @param orderSearchRequest
+     * @param request
+     * @param response
+     * @return
+     */
     @RequestMapping(value = "order/area/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> getOrderByArea(@PathVariable short id,
                                             @RequestBody OrderSearchRequest orderSearchRequest,
@@ -109,6 +154,14 @@ public class OrderController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    /**
+     * get order list with status value finish
+     * @param user
+     * @param startTime
+     * @param request
+     * @param response
+     * @return
+     */
     @RequestMapping(value = "order/finish", method = RequestMethod.GET)
     public ResponseEntity<?> getNotFinishOrderByUser(@RequestParam(value = "user", required = false) short user,
                                                      @RequestParam(value = "startTime", required = false) String startTime,
@@ -121,7 +174,7 @@ public class OrderController {
         }
         LocalDateTime start = convertTime(startTime);
         LocalDateTime end = start.plus(1, ChronoUnit.DAYS);
-        List<OrderDetail> list = new ArrayList<>();
+        List<OrderDetail> list;
         if (isAdminUser(userInfo)) {
             list = orderService.queryOrderByTime(start, end);
         } else {
@@ -130,6 +183,14 @@ public class OrderController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
+    /**
+     * get order list with status value not finish
+     * @param user
+     * @param startTime
+     * @param request
+     * @param response
+     * @return
+     */
     @RequestMapping(value = "order/notfinish", method = RequestMethod.GET)
     public ResponseEntity<?> getNotFinishOrderByUser(@RequestParam(value = "user", required = false) String user,
                                                      @RequestParam(value = "startTime", required = false) String startTime,
@@ -153,6 +214,12 @@ public class OrderController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
+    /**
+     *
+     * @param user
+     * @param request
+     * @return
+     */
     @RequestMapping(value = "order/summary", method = RequestMethod.GET)
     public ResponseEntity<?> getSummaryInfo(@RequestParam(value = "user", required = false) String user,
                                             HttpServletRequest request) {
@@ -169,6 +236,12 @@ public class OrderController {
         return new ResponseEntity<>(summaryInfo, HttpStatus.OK);
     }
 
+    /**
+     *
+     * @param user
+     * @param request
+     * @return
+     */
     @RequestMapping(value = "order/summaryforhour", method = RequestMethod.GET)
     public ResponseEntity<?> getSummaryforhour(@RequestParam(value = "user", required = false) String user,
                                                HttpServletRequest request) {
@@ -186,6 +259,15 @@ public class OrderController {
         return new ResponseEntity<>(summaryInfo, HttpStatus.OK);
     }
 
+    /**
+     * @param user
+     * @param type
+     * @param startTime
+     * @param endTime
+     * @param request
+     * @param response
+     * @return
+     */
     @RequestMapping(value = "order/statics", method = RequestMethod.GET)
     public ResponseEntity<?> queryOrderStatisticsByUser(@RequestParam(value = "user", required = false) String user,
                                                         @RequestParam(value = "type", required = false) short type,

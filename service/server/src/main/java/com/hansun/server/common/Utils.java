@@ -1,5 +1,6 @@
 package com.hansun.server.common;
 
+import com.hansun.server.dto.Location;
 import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.dto.UserInfo;
 
@@ -256,5 +257,10 @@ public class Utils {
             }
         }
         return isAdmin;
+    }
+
+
+    public static String getFormatTime(LocalDateTime time) {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dateToLocalDate(time));
     }
 }
