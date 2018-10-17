@@ -2,8 +2,6 @@
 spring:
   profiles:
     active: prod
-  main:
-    banner-mode: off
   mvc:
     view:
       prefix: /WEB-INF/
@@ -71,7 +69,7 @@ influxDB:
   batchtimeout: 1000
   batchsize: 1000
 msg:
-  processMsgThreadNum: 20
+  processMsgThreadNum: 50
   responseDelay: 3000
 order:
   interval:

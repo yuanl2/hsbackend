@@ -15,6 +15,7 @@ import com.hansun.server.util.MsgUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -581,22 +582,9 @@ public class OrderService {
         return null;
     }
 
-//    public OrderStatisticsForUser queryOrderStatisticsByUser(String user, LocalDateTime endTime) {
-//        int id = getUserId(user);
-//        User u = getUser(id + "");
-//        return queryOrderStatisticsByUser(u, u.getCreateTime(), endTime);
-//    }
-//
-//
-//    public OrderStatisticsForUser queryOrderStatisticsByUser(String user) {
-//        int id = getUserId(user);
-//        User u = getUser(id + "");
-//        return queryOrderStatisticsByUser(u, u.getCreateTime(), Utils.getNowTime());
-//    }
-
-
     /**
      * 时间汇总维度，day，month，year
+     * 如果查询的截止时间包含了今天，则数据不缓存，如果包含了今天，则缓存数据
      *
      * @param userInfo
      * @param startTime
@@ -604,7 +592,8 @@ public class OrderService {
      * @param sumType
      * @return
      */
-    public List<OrderStatistics> queryOrderStatisticsByUser(UserInfo userInfo, LocalDateTime startTime, LocalDateTime endTime, int sumType) {
+    @Cacheable(value = "orderStatics", key = "'id_'+ #userInfo.getUserName() + #startTime.toString() + '_'+#endTime.toString() +'_sumTypeDay'",condition = "!#isContainToday")
+    public List<OrderStatistics> queryOrderStatisticsByUser(UserInfo userInfo, LocalDateTime startTime, LocalDateTime endTime, int sumType, boolean isContainToday) {
         if (convertToInstant(startTime).isAfter(convertToInstant(endTime))) {
             return null;
         }
@@ -612,9 +601,6 @@ public class OrderService {
         //get current month data
         LocalDateTime currentMonth = Utils.getCurrentMonth();
         LocalDateTime today = Utils.getZeroClock(Utils.getNowTime());
-
-        //如果时间范围包含了今天，则需要从原始记录表OrderInfo中读取原始记录汇总
-        boolean isContainToday = convertToInstant(endTime).isAfter(Instant.now());
 
         logger.info("isContainToday = {}", isContainToday);
 
