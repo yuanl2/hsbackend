@@ -189,7 +189,7 @@ public class DeviceController {
     @RequestMapping(value = "device/id/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteByDeviceID(@PathVariable String id, UriComponentsBuilder ucBuilder) {
         deviceService.deleteDevice(Long.valueOf(id));
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(null,HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = "devices/id/{id}", method = RequestMethod.DELETE)
@@ -199,14 +199,14 @@ public class DeviceController {
                                           UriComponentsBuilder ucBuilder) {
         if (locationID > 1) {
             deviceService.deleteDeviceByLocationID(locationID);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(null,HttpStatus.NO_CONTENT);
         }
 //        if (owner > 1) {
 //            deviceService.deleteDeviceByOwner(owner);
 //            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 //        }
         deviceService.deleteDevice(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(null,HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = "/deviceStatus")
