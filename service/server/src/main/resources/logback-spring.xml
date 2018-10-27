@@ -23,10 +23,10 @@
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>%d{YYYY-MM:dd HH:mm:ss.SSS} [%t] [%level] [%logger{36}] - %msg%n</Pattern>
         </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/Service_%d{dd-MM-yyyy}.log</fileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/Service_%d{dd-MM-yyyy}.%i.log</fileNamePattern>
             <maxHistory>50</maxHistory>
-            <totalSizeCap>1MB</totalSizeCap>
+            <maxFileSize>10MB</maxFileSize>
         </rollingPolicy>
     </appender>
 
@@ -35,10 +35,10 @@
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>%d{YYYY-MM:dd HH:mm:ss.SSS} [%t] [%level] [%logger{36}] - %msg%n</Pattern>
         </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/msg_%d{dd-MM-yyyy}.log</fileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/msg_%d{dd-MM-yyyy}.%i.log</fileNamePattern>
             <maxHistory>50</maxHistory>
-            <totalSizeCap>1MB</totalSizeCap>
+            <maxFileSize>10MB</maxFileSize>
         </rollingPolicy>
     </appender>
 
