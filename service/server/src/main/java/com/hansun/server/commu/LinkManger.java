@@ -193,7 +193,7 @@ public class LinkManger {
                 logger.info("status {} msgtime {} runtime {} order {} ", status, msgTime.getTime(), msgTime.getRuntime(), order);
 
                 if (order != null && (msgTime.getTime() == 0 || status == DeviceStatus.IDLE)) {
-                    if (Utils.isOrderFinshed(order)) {
+                    if (Utils.isOrderFinished(order)) {
                         if (order.getOrderStatus() == OrderStatus.SERVICE) {
                             logger.info("{} update order status from service to {}", order.getId(), OrderStatus.FINISH);
 
@@ -242,8 +242,12 @@ public class LinkManger {
                             setStatus = DeviceStatus.IDLE;
                         }
                     }else{
-                        if(order.getOrderStatus() == OrderStatus.PAYDONE){
-                            logger.info("{} not running {} status is PAYDONE ", device.getDeviceID(), order.getId());
+                        /**
+                         * 如果订单在支付了3分钟之后设备还没下发任务，则设置为已支付未启动状态
+                         * 该订单状态为异常
+                         */
+                        if(order.getOrderStatus() == OrderStatus.PAYDONE && Utils.isOrderStarted(order,3)){
+                            logger.info("{} Order is not Finished not running {} status is PAYDONE ", device.getDeviceID(), order.getId());
                             order.setEndTime(Utils.getNowTime());
                             order.setOrderStatus(OrderStatus.NOTSTART);
                             orderService.updateOrder(order);
@@ -252,7 +256,7 @@ public class LinkManger {
                             //TODO
 
                         }
-                        logger.error("order {} setstatus {} status {}", order, setStatus, status);
+                        logger.info("order {} setstatus {} status {}", order, setStatus, status);
                     }
                 } else if (order != null && (status == DeviceStatus.SERVICE || msgTime.getTime() != 0)) {
                     if (order.getOrderStatus() == OrderStatus.NOTSTART || order.getOrderStatus() == OrderStatus.PAYDONE) {
