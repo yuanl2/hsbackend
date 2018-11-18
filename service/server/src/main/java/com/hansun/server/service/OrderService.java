@@ -1013,23 +1013,17 @@ public class OrderService {
 
     private void processSummaryInfo(SummaryInfo summaryInfo, List<OrderStaticsDay> todayDataLists, List<Device> deviceList, List<Location> locationList) {
         List<PieData> pieDataList = summaryInfo.getAllPieData().stream().sorted().collect(toList());
-        AverageIncomeData allAverageIncomeData = new AverageIncomeData();
-        allAverageIncomeData.setLocations(pieDataList.stream().map(PieData::getName).collect(toList()));
-        allAverageIncomeData.setAverageIncome(pieDataList.stream().map(p -> formatDouble(p.getValue(), p.getValueA())).collect(toList()));
+        AverageIncomeData averageIncomeData = new AverageIncomeData();
+        averageIncomeData.setLocations(pieDataList.stream().map(PieData::getName).collect(toList()));
+        averageIncomeData.setAllAverageIncome(pieDataList.stream().map(p -> formatDouble(p.getValue(), p.getValueA())).collect(toList()));
 
         pieDataList = summaryInfo.getCurrentMonthPieData().stream().sorted().collect(toList());
-        AverageIncomeData currentMonthAverageIncomeData = new AverageIncomeData();
-        currentMonthAverageIncomeData.setLocations(pieDataList.stream().map(PieData::getName).collect(toList()));
-        currentMonthAverageIncomeData.setAverageIncome(pieDataList.stream().map(p -> formatDouble(p.getValue(), p.getValueA())).collect(toList()));
+        averageIncomeData.setCurrentMonthAverageIncome(pieDataList.stream().map(p -> formatDouble(p.getValue(), p.getValueA())).collect(toList()));
 
         pieDataList = summaryInfo.getCurrentDayPieData().stream().sorted().collect(toList());
-        AverageIncomeData todayAverageIncomeData = new AverageIncomeData();
-        todayAverageIncomeData.setLocations(pieDataList.stream().map(PieData::getName).collect(toList()));
-        todayAverageIncomeData.setAverageIncome(pieDataList.stream().map(p -> formatDouble(p.getValue(), p.getValueA())).collect(toList()));
+        averageIncomeData.setTodayAverageIncome(pieDataList.stream().map(p -> formatDouble(p.getValue(), p.getValueA())).collect(toList()));
 
-        summaryInfo.setTodayAverageIncomebarData(todayAverageIncomeData);
-        summaryInfo.setMonthAverageIncomebarData(currentMonthAverageIncomeData);
-        summaryInfo.setAllAverageIncomebarData(allAverageIncomeData);
+        summaryInfo.setAverageIncomebarData(averageIncomeData);
 
         //get info card data
         long deviceCount = 0;

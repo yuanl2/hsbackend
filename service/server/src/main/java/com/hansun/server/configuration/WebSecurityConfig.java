@@ -1,11 +1,9 @@
 package com.hansun.server.configuration;
 
 import com.hansun.server.filter.JwtAuthenticationTokenFilter;
-import com.hansun.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -15,7 +13,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 
 /**
@@ -57,12 +54,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/finish", "/finish/**", "/weixin/savepackage", "/weixin/savepackage/**", "/weixin/payNotify", "/paysuccess", "/paysuccess/**", "/weixin/paycancel", "/weixin/paycancel/**").permitAll()
                .anyRequest().authenticated()
                 .antMatchers("/monitor/**").hasAuthority("admin");
-//                .and().formLogin().loginPage("/")
-//                .permitAll()
-//                .and()
-//                .logout()
-//                .permitAll()
-//                .and().httpBasic();
         http.csrf().disable();
         http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
     }
