@@ -246,7 +246,7 @@ public class LinkManger {
                          * 如果订单在支付了3分钟之后设备还没下发任务，则设置为已支付未启动状态
                          * 该订单状态为异常
                          */
-                        if(order.getOrderStatus() == OrderStatus.PAYDONE && Utils.isOrderStarted(order,3)){
+                        if(order.getOrderStatus() == OrderStatus.PAYDONE && Utils.isOrderStarted(order,180)){
                             logger.info("{} Order is not Finished not running {} status is PAYDONE ", device.getDeviceID(), order.getId());
                             order.setEndTime(Utils.getNowTime());
                             order.setOrderStatus(OrderStatus.NOTSTART);
