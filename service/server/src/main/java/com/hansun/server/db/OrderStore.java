@@ -1,5 +1,6 @@
 package com.hansun.server.db;
 
+import com.hansun.server.common.Utils;
 import com.hansun.server.db.dao.OrderInfoDao;
 import com.hansun.server.db.dao.OrderStaticsDayDao;
 import com.hansun.server.db.dao.OrderStaticsMonthDao;
@@ -131,8 +132,9 @@ public class OrderStore {
         List<OrderInfo> notFinishedOrders = queryNotFinish(OrderStatus.FINISH);
         if (notFinishedOrders != null && notFinishedOrders.size() > 0) {
             notFinishedOrders.forEach(k -> {
-                if (k.getOrderStatus() == OrderStatus.NOTSTART || k.getOrderStatus() == OrderStatus.PAYDONE || k.getOrderStatus() == OrderStatus.SERVICE) {
-                    logger.debug("init orderCache add order = {} ", k);
+                if ((k.getOrderStatus() == OrderStatus.NOTSTART || k.getOrderStatus() == OrderStatus.PAYDONE || k.getOrderStatus() == OrderStatus.SERVICE)
+                        && !Utils.isOrderFinished(k)) {
+                    logger.info("init orderCache add order = {} ", k);
                     orderCache.putIfAbsent(k.getDeviceID(), k);
                 }
             });

@@ -733,7 +733,7 @@ public class OrderService {
                             orderStatistics.setOrderTotal(count);
                             orderStatistics.setIncomeTotal(income);
                             orderStatistics.setTime(new SimpleDateFormat("yyyy-MM").format(dateToLocalDate(time)));
-                            orderStatistics.setSumTimeType(OrderStaticsType.DAY.getDesc());
+                            orderStatistics.setSumTimeType(OrderStaticsType.MONTH.getDesc());
                             orderStatistics.setDeviceTotal(devices);
                             orderStatistics.setRunningDeviceTotal(runningDevices);
                             if(user!=null) {
@@ -759,7 +759,7 @@ public class OrderService {
                                 //add one boolean value with true
                                 flags.add(true);
                             }
-                            orderStatistics.setAverageIncome(formatDouble(income, devices));
+                            orderStatistics.setAverageIncome(formatDouble(orderStatistics.getIncomeTotal(), devices));
                             orderStatistics.setIncomeValue(formatDouble(orderStatistics.getIncomeTotal()));
                             orderStatisticsList.add(orderStatistics);
                         }
@@ -782,7 +782,7 @@ public class OrderService {
                                 orderStatistics.setOrderTotal(count);
                                 orderStatistics.setIncomeTotal(income);
                                 orderStatistics.setTime(new SimpleDateFormat("yyyy-MM").format(dateToLocalDate(time)));
-                                orderStatistics.setSumTimeType(OrderStaticsType.DAY.getDesc());
+                                orderStatistics.setSumTimeType(OrderStaticsType.MONTH.getDesc());
                                 orderStatistics.setDeviceTotal(devices);
                                 orderStatistics.setRunningDeviceTotal(runningDevices);
                                 if(user!=null) {
