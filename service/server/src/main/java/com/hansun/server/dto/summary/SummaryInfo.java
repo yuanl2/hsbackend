@@ -46,19 +46,7 @@ public class SummaryInfo {
     /**
      *
      */
-    private AverageIncomeData todayAverageIncomebarData;
-
-    /**
-     *
-     */
-    private AverageIncomeData monthAverageIncomebarData;
-
-    /**
-     *
-     */
-    private AverageIncomeData allAverageIncomebarData;
-
-
+    private AverageIncomeData averageIncomebarData;
 
     public List<InfoCardData> getInfoCardData() {
         return infoCardData;
@@ -140,27 +128,11 @@ public class SummaryInfo {
         this.currentDayOrderPieData = currentDayOrderPieData;
     }
 
-    public AverageIncomeData getTodayAverageIncomebarData() {
-        return todayAverageIncomebarData;
+    public AverageIncomeData getAverageIncomebarData() {
+        return averageIncomebarData;
     }
 
-    public void setTodayAverageIncomebarData(AverageIncomeData todayAverageIncomebarData) {
-        this.todayAverageIncomebarData = todayAverageIncomebarData;
-    }
-
-    public AverageIncomeData getMonthAverageIncomebarData() {
-        return monthAverageIncomebarData;
-    }
-
-    public void setMonthAverageIncomebarData(AverageIncomeData monthAverageIncomebarData) {
-        this.monthAverageIncomebarData = monthAverageIncomebarData;
-    }
-
-    public AverageIncomeData getAllAverageIncomebarData() {
-        return allAverageIncomebarData;
-    }
-
-    public void setAllAverageIncomebarData(AverageIncomeData allAverageIncomebarData) {
-        this.allAverageIncomebarData = allAverageIncomebarData;
+    public void setAverageIncomebarData(AverageIncomeData averageIncomebarData) {
+        this.averageIncomebarData = averageIncomebarData;
     }
 }

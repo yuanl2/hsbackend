@@ -524,13 +524,12 @@ public class DemoController {
             }
         }
 
-        //订单在用户点击微信支付的时候就创建了订单，但是如果用户cancel了订单，也会有订单数据，只是状态不一样
-        if (o != null && o.getOrderStatus() == OrderStatus.CREATED) {
-            o.setOrderStatus(OrderStatus.NOTSTART);
+        if (o != null && o.getOrderStatus() == OrderStatus.NOTSTART) {
+            o.setOrderStatus(OrderStatus.PAYDONE);
         }
         //deny access multi times
         if (o != null && o.getPayAccount().equals(userId) &&
-                (o.getOrderStatus() == OrderStatus.SERVICE) && Utils.isOrderNotFinshed(o)) {
+                (o.getOrderStatus() == OrderStatus.SERVICE) && Utils.isOrderNotFinished(o)) {
             model.addAttribute("device_id", device_id);
             model.addAttribute("duration", consume.getDuration());
 //            model.addAttribute("startTime", o.getCreateTime().toEpochMilli());
@@ -540,8 +539,7 @@ public class DemoController {
             return "device_start_running";
         }
 
-        o.setStartTime(Utils.getNowTime());
-        o.setOrderStatus(OrderStatus.PAYDONE);
+//        o.setStartTime(Utils.getNowTime());
         orderService.createStartMsgToDevice(o);
         orderService.updateOrder(o);
 
@@ -550,7 +548,7 @@ public class DemoController {
         model.addAttribute("store", store);
         model.addAttribute("orderId", orderId);
         model.addAttribute("link", d.getStore());
-        logger.debug(" device {} now forward device_running", device_id);
+        logger.info(" device {} now forward device_running", device_id);
         return "device_start_running";
     }
 

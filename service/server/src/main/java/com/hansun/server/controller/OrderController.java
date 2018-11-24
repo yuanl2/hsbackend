@@ -20,13 +20,12 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static com.hansun.server.common.Utils.convertEndTime;
-import static com.hansun.server.common.Utils.convertTime;
-import static com.hansun.server.common.Utils.isAdminUser;
+import static com.hansun.server.common.Utils.*;
 
 /**
  * Created by yuanl2 on 2017/3/29.
@@ -281,7 +280,11 @@ public class OrderController {
         }
         logger.debug("queryOrderStatisticsByUser token {} user {}", token, userInfo.getUserName());
         long begin = System.currentTimeMillis();
-        List<OrderStatistics> statistics = orderService.queryOrderStatisticsByUser(userInfo, convertTime(startTime), convertEndTime(endTime), type);
+
+        //如果时间范围包含了今天，则需要从原始记录表OrderInfo中读取原始记录汇总
+        LocalDateTime convertEndTime =convertEndTime(endTime);
+        boolean isContainToday = convertToInstant(convertEndTime).isAfter(Instant.now());
+        List<OrderStatistics> statistics = orderService.queryOrderStatisticsByUser(userInfo, convertTime(startTime), convertEndTime, type, isContainToday);
         long end = System.currentTimeMillis();
         logger.info("get order Statistics by user ={} type ={} startTime ={} endTime ={} consume time = {} ms", userInfo.getUserName(), type, startTime, endTime, (end - begin));
         return new ResponseEntity<>(statistics, HttpStatus.OK);

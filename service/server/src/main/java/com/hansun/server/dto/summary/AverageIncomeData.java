@@ -9,7 +9,11 @@ public class AverageIncomeData {
 
     List<String> locations;
 
-    List<String> averageIncome;
+    List<String> todayAverageIncome;
+
+    List<String> currentMonthAverageIncome;
+
+    List<String> allAverageIncome;
 
     public List<String> getLocations() {
         return locations;
@@ -19,11 +23,27 @@ public class AverageIncomeData {
         this.locations = locations;
     }
 
-    public List<String> getAverageIncome() {
-        return averageIncome;
+    public List<String> getTodayAverageIncome() {
+        return todayAverageIncome;
     }
 
-    public void setAverageIncome(List<String> averageIncome) {
-        this.averageIncome = averageIncome;
+    public void setTodayAverageIncome(List<String> todayAverageIncome) {
+        this.todayAverageIncome = todayAverageIncome;
+    }
+
+    public List<String> getCurrentMonthAverageIncome() {
+        return currentMonthAverageIncome;
+    }
+
+    public void setCurrentMonthAverageIncome(List<String> currentMonthAverageIncome) {
+        this.currentMonthAverageIncome = currentMonthAverageIncome;
+    }
+
+    public List<String> getAllAverageIncome() {
+        return allAverageIncome;
+    }
+
+    public void setAllAverageIncome(List<String> allAverageIncome) {
+        this.allAverageIncome = allAverageIncome;
     }
 }

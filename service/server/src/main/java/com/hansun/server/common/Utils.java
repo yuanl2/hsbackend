@@ -48,7 +48,7 @@ public class Utils {
      * @param order
      * @return
      */
-    public static boolean isOrderFinshed(OrderInfo order) {
+    public static boolean isOrderFinished(OrderInfo order) {
         boolean result = false;
         if (order != null && order.getCreateTime() != null) {
             result = Instant.now().isAfter(Utils.convertToInstant(order.getCreateTime()).plus(Duration.ofSeconds(order.getDuration())));
@@ -59,14 +59,25 @@ public class Utils {
         return result;
     }
 
+    public static boolean isOrderStarted(OrderInfo order, int time) {
+        boolean result = false;
+        if (order != null && order.getCreateTime() != null) {
+            result = Instant.now().isAfter(Utils.convertToInstant(order.getCreateTime()).plus(Duration.ofSeconds(time)));
+        }
+        if (!result && order.getStartTime() != null) {
+            result = Instant.now().isAfter(Utils.convertToInstant(order.getStartTime()).plus(Duration.ofSeconds(time)));
+        }
+        return result;
+    }
+
     /**
      * 判断订单状态是否未结束
      *
      * @param order
      * @return
      */
-    public static boolean isOrderNotFinshed(OrderInfo order) {
-        return !isOrderFinshed(order);
+    public static boolean isOrderNotFinished(OrderInfo order) {
+        return !isOrderFinished(order);
     }
 
     /**

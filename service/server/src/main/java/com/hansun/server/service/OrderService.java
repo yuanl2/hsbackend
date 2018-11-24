@@ -15,6 +15,7 @@ import com.hansun.server.util.MsgUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -50,6 +51,9 @@ public class OrderService {
 
     @Autowired
     private LinkManger linkManger;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private InfluxDBClientHelper influxDBClientHelper;
@@ -581,22 +585,9 @@ public class OrderService {
         return null;
     }
 
-//    public OrderStatisticsForUser queryOrderStatisticsByUser(String user, LocalDateTime endTime) {
-//        int id = getUserId(user);
-//        User u = getUser(id + "");
-//        return queryOrderStatisticsByUser(u, u.getCreateTime(), endTime);
-//    }
-//
-//
-//    public OrderStatisticsForUser queryOrderStatisticsByUser(String user) {
-//        int id = getUserId(user);
-//        User u = getUser(id + "");
-//        return queryOrderStatisticsByUser(u, u.getCreateTime(), Utils.getNowTime());
-//    }
-
-
     /**
      * 时间汇总维度，day，month，year
+     * 如果查询的截止时间包含了今天，则数据不缓存，如果不包含，则缓存数据
      *
      * @param userInfo
      * @param startTime
@@ -604,7 +595,8 @@ public class OrderService {
      * @param sumType
      * @return
      */
-    public List<OrderStatistics> queryOrderStatisticsByUser(UserInfo userInfo, LocalDateTime startTime, LocalDateTime endTime, int sumType) {
+    @Cacheable(value = "orderStatics", key = "'id_'+ #userInfo.getUserName() + #startTime.toString() + '_'+#endTime.toString() +'_sumTypeDay'",condition = "!#isContainToday")
+    public List<OrderStatistics> queryOrderStatisticsByUser(UserInfo userInfo, LocalDateTime startTime, LocalDateTime endTime, int sumType, boolean isContainToday) {
         if (convertToInstant(startTime).isAfter(convertToInstant(endTime))) {
             return null;
         }
@@ -612,9 +604,6 @@ public class OrderService {
         //get current month data
         LocalDateTime currentMonth = Utils.getCurrentMonth();
         LocalDateTime today = Utils.getZeroClock(Utils.getNowTime());
-
-        //如果时间范围包含了今天，则需要从原始记录表OrderInfo中读取原始记录汇总
-        boolean isContainToday = convertToInstant(endTime).isAfter(Instant.now());
 
         logger.info("isContainToday = {}", isContainToday);
 
@@ -656,6 +645,7 @@ public class OrderService {
             if (checkListNotNull(dayDataList)) {
                 dayDataList.stream().collect(groupingBy(OrderStaticsDay::getLocationID)).forEach((locationID, orderStaticsDayList) -> {
                     Location location = dataStore.queryLocationByLocationID(locationID);
+                    User user = userService.queryUser(location.getUserID());
                     int devices = dataStore.queryDeviceByLocation(locationID).size();
                     orderStaticsDayList.stream().collect(groupingBy(OrderStaticsDay::getTime)).forEach((time, lists) -> {
                         if (checkListNotNull(lists)) {
@@ -670,8 +660,12 @@ public class OrderService {
                             orderStatistics.setSumTimeType(OrderStaticsType.DAY.getDesc());
                             orderStatistics.setDeviceTotal(devices);
                             orderStatistics.setRunningDeviceTotal(runningDevices);
-                            orderStatistics.setUser(userInfo.getUserNickName());
-                            orderStatistics.setAreaName(location.getAreaName());
+                            if(user!=null) {
+                                orderStatistics.setUser(user.getUsernickname());
+                            }
+                            else {
+                                orderStatistics.setUser(userInfo.getUserNickName());
+                            }                            orderStatistics.setAreaName(location.getAreaName());
                             orderStatistics.setEnterTime(getFormatTime(location.getEnterTime()));
                             orderStatistics.setAverageIncome(formatDouble(income, devices));
                             orderStatistics.setIncomeValue(formatDouble(orderStatistics.getIncomeTotal()));
@@ -685,6 +679,7 @@ public class OrderService {
             if (isContainToday && todayData != null && todayData.size() > 0) {
                 todayData.forEach((locationID, orderStaticsDayList) -> {
                     Location location = dataStore.queryLocationByLocationID(locationID);
+                    User user = userService.queryUser(location.getUserID());
                     int devices = dataStore.queryDeviceByLocation(locationID).size();
 
                     orderStaticsDayList.stream().collect(groupingBy(OrderStaticsDay::getTime)).forEach((time, lists) -> {
@@ -700,7 +695,12 @@ public class OrderService {
                             orderStatistics.setSumTimeType(OrderStaticsType.DAY.getDesc());
                             orderStatistics.setDeviceTotal(devices);
                             orderStatistics.setRunningDeviceTotal(runningDevices);
-                            orderStatistics.setUser(userInfo.getUserNickName());
+                            if(user!=null) {
+                                orderStatistics.setUser(user.getUsernickname());
+                            }
+                            else {
+                                orderStatistics.setUser(userInfo.getUserNickName());
+                            }
                             orderStatistics.setAreaName(location.getAreaName());
                             orderStatistics.setEnterTime(getFormatTime(location.getEnterTime()));
                             orderStatistics.setAverageIncome(formatDouble(income, devices));
@@ -721,6 +721,7 @@ public class OrderService {
             if (checkListNotNull(monthDataList)) {
                 monthDataList.stream().collect(groupingBy(OrderStaticsMonth::getLocationID)).forEach((locationID, orderStaticsMonthData) -> {
                     Location location = dataStore.queryLocationByLocationID(locationID);
+                    User user = userService.queryUser(location.getUserID());
                     int devices = dataStore.queryDeviceByLocation(locationID).size();
                     orderStaticsMonthData.stream().collect(groupingBy(OrderStaticsMonth::getTime)).forEach((time, lists) -> {
                         if (checkListNotNull(lists)) {
@@ -732,11 +733,15 @@ public class OrderService {
                             orderStatistics.setOrderTotal(count);
                             orderStatistics.setIncomeTotal(income);
                             orderStatistics.setTime(new SimpleDateFormat("yyyy-MM").format(dateToLocalDate(time)));
-                            orderStatistics.setSumTimeType(OrderStaticsType.DAY.getDesc());
+                            orderStatistics.setSumTimeType(OrderStaticsType.MONTH.getDesc());
                             orderStatistics.setDeviceTotal(devices);
                             orderStatistics.setRunningDeviceTotal(runningDevices);
-                            orderStatistics.setUser(userInfo.getUserNickName());
-                            orderStatistics.setAreaName(location.getAreaName());
+                            if(user!=null) {
+                                orderStatistics.setUser(user.getUsernickname());
+                            }
+                            else {
+                                orderStatistics.setUser(userInfo.getUserNickName());
+                            }                            orderStatistics.setAreaName(location.getAreaName());
                             orderStatistics.setEnterTime(getFormatTime(location.getEnterTime()));
                             if (isContainToday && currentMonth.isEqual(time)) {
                                 List<OrderStaticsDay> list = todayData.get(locationID);
@@ -754,7 +759,7 @@ public class OrderService {
                                 //add one boolean value with true
                                 flags.add(true);
                             }
-                            orderStatistics.setAverageIncome(formatDouble(income, devices));
+                            orderStatistics.setAverageIncome(formatDouble(orderStatistics.getIncomeTotal(), devices));
                             orderStatistics.setIncomeValue(formatDouble(orderStatistics.getIncomeTotal()));
                             orderStatisticsList.add(orderStatistics);
                         }
@@ -764,6 +769,7 @@ public class OrderService {
             if (flags.size() == 0 && todayData != null && todayData.size() > 0) {
                 todayData.forEach((locationID, orderStaticsDayList) -> {
                     Location location = dataStore.queryLocationByLocationID(locationID);
+                    User user = userService.queryUser(location.getUserID());
                     int devices = dataStore.queryDeviceByLocation(locationID).size();
                     if (checkListNotNull(orderStaticsDayList)) {
                         orderStaticsDayList.stream().collect(groupingBy(OrderStaticsDay::getTime)).forEach((time, lists) -> {
@@ -776,11 +782,15 @@ public class OrderService {
                                 orderStatistics.setOrderTotal(count);
                                 orderStatistics.setIncomeTotal(income);
                                 orderStatistics.setTime(new SimpleDateFormat("yyyy-MM").format(dateToLocalDate(time)));
-                                orderStatistics.setSumTimeType(OrderStaticsType.DAY.getDesc());
+                                orderStatistics.setSumTimeType(OrderStaticsType.MONTH.getDesc());
                                 orderStatistics.setDeviceTotal(devices);
                                 orderStatistics.setRunningDeviceTotal(runningDevices);
-                                orderStatistics.setUser(userInfo.getUserNickName());
-                                orderStatistics.setAreaName(location.getAreaName());
+                                if(user!=null) {
+                                    orderStatistics.setUser(user.getUsernickname());
+                                }
+                                else {
+                                    orderStatistics.setUser(userInfo.getUserNickName());
+                                }                                orderStatistics.setAreaName(location.getAreaName());
                                 orderStatistics.setEnterTime(getFormatTime(location.getEnterTime()));
                                 orderStatistics.setAverageIncome(formatDouble(income, devices));
                                 orderStatistics.setIncomeValue(formatDouble(orderStatistics.getIncomeTotal()));
@@ -1003,23 +1013,17 @@ public class OrderService {
 
     private void processSummaryInfo(SummaryInfo summaryInfo, List<OrderStaticsDay> todayDataLists, List<Device> deviceList, List<Location> locationList) {
         List<PieData> pieDataList = summaryInfo.getAllPieData().stream().sorted().collect(toList());
-        AverageIncomeData allAverageIncomeData = new AverageIncomeData();
-        allAverageIncomeData.setLocations(pieDataList.stream().map(PieData::getName).collect(toList()));
-        allAverageIncomeData.setAverageIncome(pieDataList.stream().map(p -> formatDouble(p.getValue(), p.getValueA())).collect(toList()));
+        AverageIncomeData averageIncomeData = new AverageIncomeData();
+        averageIncomeData.setLocations(pieDataList.stream().map(PieData::getName).collect(toList()));
+        averageIncomeData.setAllAverageIncome(pieDataList.stream().map(p -> formatDouble(p.getValue(), p.getValueA())).collect(toList()));
 
         pieDataList = summaryInfo.getCurrentMonthPieData().stream().sorted().collect(toList());
-        AverageIncomeData currentMonthAverageIncomeData = new AverageIncomeData();
-        currentMonthAverageIncomeData.setLocations(pieDataList.stream().map(PieData::getName).collect(toList()));
-        currentMonthAverageIncomeData.setAverageIncome(pieDataList.stream().map(p -> formatDouble(p.getValue(), p.getValueA())).collect(toList()));
+        averageIncomeData.setCurrentMonthAverageIncome(pieDataList.stream().map(p -> formatDouble(p.getValue(), p.getValueA())).collect(toList()));
 
         pieDataList = summaryInfo.getCurrentDayPieData().stream().sorted().collect(toList());
-        AverageIncomeData todayAverageIncomeData = new AverageIncomeData();
-        todayAverageIncomeData.setLocations(pieDataList.stream().map(PieData::getName).collect(toList()));
-        todayAverageIncomeData.setAverageIncome(pieDataList.stream().map(p -> formatDouble(p.getValue(), p.getValueA())).collect(toList()));
+        averageIncomeData.setTodayAverageIncome(pieDataList.stream().map(p -> formatDouble(p.getValue(), p.getValueA())).collect(toList()));
 
-        summaryInfo.setTodayAverageIncomebarData(todayAverageIncomeData);
-        summaryInfo.setMonthAverageIncomebarData(currentMonthAverageIncomeData);
-        summaryInfo.setAllAverageIncomebarData(allAverageIncomeData);
+        summaryInfo.setAverageIncomebarData(averageIncomeData);
 
         //get info card data
         long deviceCount = 0;
