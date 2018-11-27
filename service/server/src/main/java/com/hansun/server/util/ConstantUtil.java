@@ -4,12 +4,18 @@ public class ConstantUtil {
 	/**
 	 * 商家可以考虑读取配置文件
 	 */
-	
+
+	public static String TRADE_TYPE = "JSAPI";
+	public static String FEE_TYPE = "CNY";
+	public static String SIGN_TYPE = "MD5";
+
 	//初始化
 	public static String APP_ID = "wx4545e351e2762a50";//微信开发平台应用id
 	public static String APP_SECRET = "231a62d2600868a938105ce049bcb874";//应用对应的凭证
 	//应用对应的密钥
 	public static String APP_KEY = "L8LrMqqeGRxST5reouB0K66CaYAWpqhAVsq7ggKkxHCOastWksvuX1uvmvQclxaHoYd3ElNBrNO2DHnnzgfVG9Qs473M3DTOZug5er46FhuGofumV8H2FVR9qkjSlC5K";
+
+	//商户号
 	public static String PARTNER = "1488463572";
 	public static String PARTNER_KEY = "F61CC619B42291E9C7C6A314425571D2";//商户号对应的密钥
 	public static String TOKENURL = "https://api.weixin.qq.com/cgi-bin/token";//获取access_token对应的url
@@ -27,9 +33,17 @@ public class ConstantUtil {
 	public static String  GET_CODE_URL_WX = "https://open.weixin.qq.com/connect/oauth2/authorize";
 	//回调地址
 	public static String REDIRECT_URI_WX = "https://www.knocknock.vip/hsservice/callback";
+	//微信支付成功后接受通知消息
 	public static String PAY_SUCCESS_NOTIFY = "https://www.knocknock.vip/hsservice/weixin/payNotify";
+	//
 	public static String REDIRECT_URI_WX_ADMIN = "https://www.knocknock.vip/hsservice/wxadmingetuserinfo";
+	//统一下单
 	public static String WECHAT_UNIFIEDORDER = "https://api.mch.weixin.qq.com/pay/unifiedorder";
+	//申请退款
+	public static String WECHAT_REFUND = "https://api.mch.weixin.qq.com/secapi/pay/refund";
+	//订单查询
+	public static String WECHAT_ORDER_QUERY = "https://api.mch.weixin.qq.com/pay/orderquery";
+
 	public static String GET_OPENID_URL_WX = "https://api.weixin.qq.com/sns/oauth2/access_token";
 	public static String GET_USERINFO_URL_WX ="https://api.weixin.qq.com/sns/userinfo";
 }

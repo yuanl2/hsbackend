@@ -513,14 +513,19 @@ public class DemoController {
                 order.setConsumeType(Short.valueOf(consume.getId()));
                 order.setOrderType(OrderType.OPERATIONS.getType());
                 OrderInfo result = orderService.createOrder(order);
-                orderService.createStartMsgToDevice(result);
-                logger.info("device_id = " + deviceID + " start free order " + result);
-                model.addAttribute("device_id", device_id);
-                model.addAttribute("duration", consume.getDuration());
-                model.addAttribute("store", store);
-                model.addAttribute("orderId", order.getOrderID());
-                model.addAttribute("link", d.getStore());
-                return "device_start_running";
+
+                if(orderService.createStartMsgToDevice(result)) {
+                    logger.info("device_id = " + deviceID + " start free order " + result);
+                    model.addAttribute("device_id", device_id);
+                    model.addAttribute("duration", consume.getDuration());
+                    model.addAttribute("store", store);
+                    model.addAttribute("orderId", order.getOrderID());
+                    model.addAttribute("link", d.getStore());
+                    return "device_start_running";
+                }
+                else {
+
+                }
             }
         }
 
@@ -540,7 +545,13 @@ public class DemoController {
         }
 
 //        o.setStartTime(Utils.getNowTime());
-        orderService.createStartMsgToDevice(o);
+        if(orderService.createStartMsgToDevice(o)){
+
+        }
+        else {
+
+        }
+
         orderService.updateOrder(o);
 
         model.addAttribute("device_id", device_id);
