@@ -69,7 +69,7 @@ public class DemoController {
     public String dispatch(Model model, @RequestParam(value = "device_id", required = false, defaultValue = "1") String device_id,
                            HttpServletRequest request, HttpServletResponse response) {
         String useragent = request.getHeader("User-Agent");
-        logger.debug("request from {}", useragent);
+        logger.info("request from {}", useragent);
         long deviceID = Long.valueOf(device_id);
         Device device = deviceService.getDevice(deviceID);
         model.addAttribute("device_id", device_id);
@@ -165,6 +165,8 @@ public class DemoController {
 //                url = Constant.GET_CODE_URL_ZFB + "?app_id=" + Constant.APPID_ZFB + "&scope=auth_base&redirect_uri="
 //                        + URLEncoder.encode(REDIRECT_URI_ZFB, "utf-8") + "&state=" + state + ":ZFBZF"
 //                        + (payForm.getFrom() == null ? ":ZC" : ":JF");
+
+                return "device_not_support_ali";
             }
         } catch (Exception e) {
             logger.error("get user openid error", e);
