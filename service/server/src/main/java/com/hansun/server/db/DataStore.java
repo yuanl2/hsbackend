@@ -998,28 +998,36 @@ public class DataStore {
      * *****************************************************************
      */
 
+    /**
+     * 如果用户已经扫码用过并且free值大于0，则没有首单免费
+     * @param payAccount
+     * @return
+     */
     public boolean containPayAccount(String payAccount) {
         PayAccount account = payAccountDao.findByName(payAccount);
-
-        if (account != null) {
-            return true;
+        if (account != null && account.getFree() > 0) {
+            return false;
         }
-        return false;
+        return true;
     }
 
-    public PayAccount addPayAccount(String payAccount) {
+    public PayAccount addPayAccount(String payAccount, boolean free) {
         try {
             PayAccount account = payAccountDao.findByName(payAccount);
             if (account != null) {
                 account.setCount((short) (1 + account.getCount()));
+                if (free)
+                    account.setFree((short) 1);
             } else {
                 account = new PayAccount();
+                if (free)
+                    account.setFree((short) 1);
                 account.setName(payAccount);
                 account.setCount((short) 1);
             }
             return payAccountDao.save(account);
-        }catch (Exception e){
-            logger.error("addPayAccount fail {} {}",payAccount,e);
+        } catch (Exception e) {
+            logger.error("addPayAccount fail {} {}", payAccount, e);
             return null;
         }
     }

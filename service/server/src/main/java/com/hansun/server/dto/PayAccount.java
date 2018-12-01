@@ -15,9 +15,15 @@ public class PayAccount {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
+    /**
+     * 该账户累计支付金额
+     */
     @Column(name = "balance")
     private float balance;
 
+    /**
+     * 该账号首单免费
+     */
     @Column(name = "free")
     private short free;
 

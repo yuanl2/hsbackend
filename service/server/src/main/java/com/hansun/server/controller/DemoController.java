@@ -235,7 +235,7 @@ public class DemoController {
         model.addAttribute("openid", openid);
 
         Device d = dataStore.queryDeviceByDeviceID(Long.valueOf(device_id));
-        boolean containPayAccount = dataStore.containPayAccount(openid);
+        boolean firstFreeAccount = dataStore.containPayAccount(openid);
 
         if (d != null) {
             String store = d.getAdditionInfo();
@@ -261,7 +261,7 @@ public class DemoController {
                 model.addAttribute("link", d.getStore());
                 return "device_index";
             } else {
-                if (containPayAccount) {
+                if (!firstFreeAccount) {
                     consumeList.removeIf(k -> k.getPrice() <= 0);
                 }
                 model.addAttribute("consumes", consumeList);

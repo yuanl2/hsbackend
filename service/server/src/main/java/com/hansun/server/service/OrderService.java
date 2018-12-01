@@ -287,7 +287,12 @@ public class OrderService {
             order.setEndTime(Utils.getNowTime());
             order.setOrderStatus(OrderStatus.FINISH);
             orderStore.updateOrder(order);
-            dataStore.addPayAccount(order.getPayAccount());
+            if(order.getPrice() > 0) {
+                dataStore.addPayAccount(order.getPayAccount(),false);
+            }
+            else {
+                dataStore.addPayAccount(order.getPayAccount(),true);
+            }
             logger.debug("Before delete order {} ", order);
             orderStore.deleteOrder(deviceID);
             logger.debug("After delete order {}", orderStore.queryOrderByDeviceID(deviceID));
