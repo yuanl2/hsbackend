@@ -118,6 +118,7 @@ public class OrderService {
                 }
             } else {
                 logger.error("wxQueryOrder fail {}", map.get("return_msg"));
+                throw ServerException.badRequest("wxQueryOrder error:" + map.get("return_msg"));
             }
             return map;
 
@@ -211,18 +212,17 @@ public class OrderService {
             String total_fee = orderInfos.get("total_fee");
             //后续如果补充了代金券，要修改
 
-            Map<String,String> resultMap = requestRefund(String.valueOf(order.getDeviceID()),total_fee,total_fee,refundOrder.getOutTradeNo());
+            Map<String, String> resultMap = requestRefund(String.valueOf(order.getDeviceID()), total_fee, total_fee, refundOrder.getOutTradeNo());
 
-            if(resultMap!=null){
+            if (resultMap != null) {
 
-                if(resultMap.get("return_code").equalsIgnoreCase("SUCCESS")){
+                if (resultMap.get("return_code").equalsIgnoreCase("SUCCESS")) {
                     refundOrder.setRefundStatus(OrderStatus.REFUNDDONE);
 
-                }
-                else{
+                } else {
                     refundOrder.setRefundStatus(OrderStatus.REFUNDFAIL);
                 }
-            }else{
+            } else {
 
             }
 
@@ -1187,12 +1187,20 @@ public class OrderService {
         averageIncomeData.setLocations(pieDataList.stream().map(PieData::getName).collect(toList()));
         averageIncomeData.setAllAverageIncome(pieDataList.stream().map(p -> formatDouble(p.getValue(), p.getValueA())).collect(toList()));
 
-        pieDataList = summaryInfo.getCurrentMonthPieData().stream().sorted().collect(toList());
-        averageIncomeData.setCurrentMonthAverageIncome(pieDataList.stream().map(p -> formatDouble(p.getValue(), p.getValueA())).collect(toList()));
-
-        pieDataList = summaryInfo.getCurrentDayPieData().stream().sorted().collect(toList());
-        averageIncomeData.setTodayAverageIncome(pieDataList.stream().map(p -> formatDouble(p.getValue(), p.getValueA())).collect(toList()));
-
+        List<String> currentMonthList = new ArrayList<>();
+        List<String> currentDayList = new ArrayList<>();
+        pieDataList.forEach(p -> {
+            summaryInfo.getCurrentMonthPieData().forEach(p1 -> {
+                if (p1.getName().equalsIgnoreCase(p.getName()))
+                    currentMonthList.add(formatDouble(p1.getValue(), p1.getValueA()));
+            });
+            summaryInfo.getCurrentDayPieData().forEach(p1 -> {
+                if (p1.getName().equalsIgnoreCase(p.getName()))
+                    currentDayList.add(formatDouble(p1.getValue(), p1.getValueA()));
+            });
+        });
+        averageIncomeData.setCurrentMonthAverageIncome(currentMonthList);
+        averageIncomeData.setTodayAverageIncome(currentDayList);
         summaryInfo.setAverageIncomebarData(averageIncomeData);
 
         //get info card data
