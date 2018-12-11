@@ -1,22 +1,27 @@
 package com.hansun.server.service;
 
+import com.google.common.collect.Ordering;
 import com.hansun.server.common.*;
 import com.hansun.server.commu.IHandler;
 import com.hansun.server.commu.LinkManger;
 import com.hansun.server.commu.SyncAsynMsgController;
 import com.hansun.server.db.DataStore;
 import com.hansun.server.db.OrderStore;
+import com.hansun.server.db.dao.RefundOrderDao;
 import com.hansun.server.dto.*;
 import com.hansun.server.dto.summary.*;
 import com.hansun.server.metrics.HSServiceMetrics;
 import com.hansun.server.metrics.HSServiceMetricsService;
 import com.hansun.server.metrics.InfluxDBClientHelper;
+import com.hansun.server.util.ConstantUtil;
 import com.hansun.server.util.MsgUtil;
+import com.wxpay.HttpKit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -28,6 +33,7 @@ import java.util.stream.Collectors;
 
 import static com.hansun.server.common.Utils.*;
 import static com.hansun.server.common.Utils.formatDouble;
+import static com.hansun.server.util.XMLUtil.doXMLParse;
 import static java.util.stream.Collectors.*;
 
 /**
@@ -58,6 +64,9 @@ public class OrderService {
     @Autowired
     private InfluxDBClientHelper influxDBClientHelper;
 
+    @Autowired
+    private RefundOrderDao refundOrderDao;
+
     @PostConstruct
     public void init() {
     }
@@ -73,9 +82,168 @@ public class OrderService {
                 .build());
     }
 
-    public void createStartMsgToDevice(OrderInfo order) {
+    /**
+     * 查询订单信息
+     *
+     * @param out_trade_no 商户的订单号
+     * @return
+     */
+    public Map<String, String> wxQueryOrder(String out_trade_no) {
         try {
-//            order.setId(Long.valueOf(getSequenceNumber()));
+            Map<String, String> paraMap = new HashMap<>();
+            paraMap.put("appid", ConstantUtil.APP_ID);
+            paraMap.put("mch_id", ConstantUtil.PARTNER);
+            paraMap.put("nonce_str", create_nonce_str());
+            paraMap.put("out_trade_no", out_trade_no);
+            String sign = getSign(paraMap, ConstantUtil.PARTNER_KEY);
+            paraMap.put("sign_type", ConstantUtil.SIGN_TYPE);
+            paraMap.put("sign", sign);
+
+            for (Map.Entry entry :
+                    paraMap.entrySet()) {
+                logger.info(entry.getKey() + " = {} ", entry.getValue());
+            }
+
+            String xml = ArrayToXml(paraMap, false);
+            String xmlStr = HttpKit.post(ConstantUtil.WECHAT_ORDER_QUERY, xml);
+
+            logger.info("wxQueryOrder xmlStr = {} ", xmlStr);
+            Map<String, String> map = doXMLParse(xmlStr);
+            String return_code = map.get("return_code");
+
+            if (return_code.equalsIgnoreCase("SUCCESS")) {
+                for (Map.Entry entry :
+                        map.entrySet()) {
+                    logger.info(entry.getKey() + " = {} ", entry.getValue());
+                }
+            } else {
+                logger.error("wxQueryOrder fail {}", map.get("return_msg"));
+                throw ServerException.badRequest("wxQueryOrder error:" + map.get("return_msg"));
+            }
+            return map;
+
+        } catch (Exception e) {
+            logger.error("wxQueryOrder {} error {}", out_trade_no, e);
+        }
+        return null;
+    }
+
+    /**
+     * 发起退款请求
+     *
+     * @param device_id
+     * @param total_fee
+     * @param refund_fee
+     * @param out_trade_no
+     * @return
+     */
+
+    public Map<String, String> requestRefund(String device_id, String total_fee, String refund_fee, String out_trade_no) {
+        try {
+            String out_refund_no = device_id + getOutTradeNoByTime();
+            Map<String, String> paraMap = new HashMap<>();
+            paraMap.put("appid", ConstantUtil.APP_ID);
+            paraMap.put("mch_id", ConstantUtil.PARTNER);
+            paraMap.put("nonce_str", create_nonce_str());
+            paraMap.put("out_trade_no", out_trade_no);
+            paraMap.put("out_refund_no", out_refund_no);
+            paraMap.put("total_fee", total_fee);
+            paraMap.put("refund_fee", refund_fee);
+            paraMap.put("refund_fee_type", ConstantUtil.FEE_TYPE);
+            paraMap.put("notify_url", ConstantUtil.PAY_SUCCESS_NOTIFY);
+            String sign = getSign(paraMap, ConstantUtil.PARTNER_KEY);
+            paraMap.put("sign_type", ConstantUtil.SIGN_TYPE);
+            paraMap.put("sign", sign);
+
+            for (Map.Entry entry :
+                    paraMap.entrySet()) {
+                logger.info(entry.getKey() + " = {} ", entry.getValue());
+            }
+
+            String xml = ArrayToXml(paraMap, false);
+            String xmlStr = HttpKit.post(ConstantUtil.WECHAT_REFUND, xml);
+
+            logger.info("xmlStr = {} ", xmlStr);
+            Map<String, String> map = doXMLParse(xmlStr);
+            String return_code = map.get("return_code");
+
+            if (return_code.equalsIgnoreCase("SUCCESS")) {
+                for (Map.Entry entry :
+                        map.entrySet()) {
+                    logger.info(entry.getKey() + " = {} ", entry.getValue());
+                }
+            } else {
+                logger.error("request refund fail {}", map.get("return_msg"));
+            }
+            return map;
+
+        } catch (Exception e) {
+            logger.error("refund {} , {} error {}", out_trade_no, device_id, e);
+        }
+        return null;
+    }
+
+
+    /**
+     * @param order
+     * @param refundFee
+     * @param refundDesc
+     * @return
+     */
+    public RefundOrder createRefundOrder(OrderInfo order, float refundFee, String refundDesc) {
+
+        RefundOrder refundOrder = new RefundOrder();
+        refundOrder.setUserID(order.getUserID());
+        refundOrder.setDeviceID(order.getDeviceID());
+        refundOrder.setOutTradeNo(String.valueOf(order.getOrderID()));
+
+        refundOrder.setPayAccount(order.getPayAccount());
+        refundOrder.setPrice(order.getPrice());
+        refundOrder.setRefundFee(refundFee);
+        refundOrder.setRefundDesc(refundDesc);
+        refundOrder.setRefundTime(Utils.getNowTime());
+
+
+        Map<String, String> orderInfos = wxQueryOrder(String.valueOf(order.getOrderID()));
+
+        if (orderInfos != null && orderInfos.get("return_code").equalsIgnoreCase("SUCCESS")) {
+
+
+            String total_fee = orderInfos.get("total_fee");
+            //后续如果补充了代金券，要修改
+
+            Map<String, String> resultMap = requestRefund(String.valueOf(order.getDeviceID()), total_fee, total_fee, refundOrder.getOutTradeNo());
+
+            if (resultMap != null) {
+
+                if (resultMap.get("return_code").equalsIgnoreCase("SUCCESS")) {
+                    refundOrder.setRefundStatus(OrderStatus.REFUNDDONE);
+
+                } else {
+                    refundOrder.setRefundStatus(OrderStatus.REFUNDFAIL);
+                }
+            } else {
+
+            }
+
+        } else if (orderInfos == null) {
+
+            return null;
+
+        } else {
+
+            return null;
+
+        }
+
+        RefundOrder o = refundOrderDao.save(refundOrder);
+        logger.info("save RefundOrder {}", o);
+        return o;
+    }
+
+    public boolean createStartMsgToDevice(OrderInfo order) {
+        boolean msgSendSucceed = false;
+        try {
             Device device = dataStore.queryDeviceByDeviceID(order.getDeviceID());
             if (device == null) {
                 logger.error("can not create order for device not exist  " + order.getDeviceName());
@@ -146,6 +314,7 @@ public class OrderService {
                 msg.setSeq(String.valueOf(handler.getSeq()));
                 syncAsynMsgController.createSyncWaitResult(msg, handler, index);
                 handler.sendMsg(msg, device.getPort());
+                msgSendSucceed = true;
             }
 //            else{
 //                ServerStartDeviceMsg msg = new ServerStartDeviceMsg(DEVICE_START_MSG);
@@ -194,8 +363,10 @@ public class OrderService {
 
         } catch (Exception e) {
             logger.error("createStartMsgToDevice error", e);
-            throw new ServerException("createStartMsgToDevice error", e);
+//            throw new ServerException("createStartMsgToDevice error", e);
         }
+
+        return msgSendSucceed;
     }
 
     public OrderInfo createOrder(OrderInfo order) {
@@ -600,7 +771,7 @@ public class OrderService {
      * @param sumType
      * @return
      */
-    @Cacheable(value = "orderStatics", key = "'id_'+ #userInfo.getUserName() + #startTime.toString() + '_'+#endTime.toString() +'_sumTypeDay'",condition = "!#isContainToday")
+    @Cacheable(value = "orderStatics", key = "'id_'+ #userInfo.getUserName() + #startTime.toString() + '_'+#endTime.toString() +'_sumTypeDay'", condition = "!#isContainToday")
     public List<OrderStatistics> queryOrderStatisticsByUser(UserInfo userInfo, LocalDateTime startTime, LocalDateTime endTime, int sumType, boolean isContainToday) {
         if (convertToInstant(startTime).isAfter(convertToInstant(endTime))) {
             return null;
@@ -665,12 +836,12 @@ public class OrderService {
                             orderStatistics.setSumTimeType(OrderStaticsType.DAY.getDesc());
                             orderStatistics.setDeviceTotal(devices);
                             orderStatistics.setRunningDeviceTotal(runningDevices);
-                            if(user!=null) {
+                            if (user != null) {
                                 orderStatistics.setUser(user.getUsernickname());
-                            }
-                            else {
+                            } else {
                                 orderStatistics.setUser(userInfo.getUserNickName());
-                            }                            orderStatistics.setAreaName(location.getAreaName());
+                            }
+                            orderStatistics.setAreaName(location.getAreaName());
                             orderStatistics.setEnterTime(getFormatTime(location.getEnterTime()));
                             orderStatistics.setAverageIncome(formatDouble(income, devices));
                             orderStatistics.setIncomeValue(formatDouble(orderStatistics.getIncomeTotal()));
@@ -700,10 +871,9 @@ public class OrderService {
                             orderStatistics.setSumTimeType(OrderStaticsType.DAY.getDesc());
                             orderStatistics.setDeviceTotal(devices);
                             orderStatistics.setRunningDeviceTotal(runningDevices);
-                            if(user!=null) {
+                            if (user != null) {
                                 orderStatistics.setUser(user.getUsernickname());
-                            }
-                            else {
+                            } else {
                                 orderStatistics.setUser(userInfo.getUserNickName());
                             }
                             orderStatistics.setAreaName(location.getAreaName());
@@ -741,12 +911,12 @@ public class OrderService {
                             orderStatistics.setSumTimeType(OrderStaticsType.MONTH.getDesc());
                             orderStatistics.setDeviceTotal(devices);
                             orderStatistics.setRunningDeviceTotal(runningDevices);
-                            if(user!=null) {
+                            if (user != null) {
                                 orderStatistics.setUser(user.getUsernickname());
-                            }
-                            else {
+                            } else {
                                 orderStatistics.setUser(userInfo.getUserNickName());
-                            }                            orderStatistics.setAreaName(location.getAreaName());
+                            }
+                            orderStatistics.setAreaName(location.getAreaName());
                             orderStatistics.setEnterTime(getFormatTime(location.getEnterTime()));
                             if (isContainToday && currentMonth.isEqual(time)) {
                                 List<OrderStaticsDay> list = todayData.get(locationID);
@@ -790,12 +960,12 @@ public class OrderService {
                                 orderStatistics.setSumTimeType(OrderStaticsType.MONTH.getDesc());
                                 orderStatistics.setDeviceTotal(devices);
                                 orderStatistics.setRunningDeviceTotal(runningDevices);
-                                if(user!=null) {
+                                if (user != null) {
                                     orderStatistics.setUser(user.getUsernickname());
-                                }
-                                else {
+                                } else {
                                     orderStatistics.setUser(userInfo.getUserNickName());
-                                }                                orderStatistics.setAreaName(location.getAreaName());
+                                }
+                                orderStatistics.setAreaName(location.getAreaName());
                                 orderStatistics.setEnterTime(getFormatTime(location.getEnterTime()));
                                 orderStatistics.setAverageIncome(formatDouble(income, devices));
                                 orderStatistics.setIncomeValue(formatDouble(orderStatistics.getIncomeTotal()));
@@ -1022,12 +1192,20 @@ public class OrderService {
         averageIncomeData.setLocations(pieDataList.stream().map(PieData::getName).collect(toList()));
         averageIncomeData.setAllAverageIncome(pieDataList.stream().map(p -> formatDouble(p.getValue(), p.getValueA())).collect(toList()));
 
-        pieDataList = summaryInfo.getCurrentMonthPieData().stream().sorted().collect(toList());
-        averageIncomeData.setCurrentMonthAverageIncome(pieDataList.stream().map(p -> formatDouble(p.getValue(), p.getValueA())).collect(toList()));
-
-        pieDataList = summaryInfo.getCurrentDayPieData().stream().sorted().collect(toList());
-        averageIncomeData.setTodayAverageIncome(pieDataList.stream().map(p -> formatDouble(p.getValue(), p.getValueA())).collect(toList()));
-
+        List<String> currentMonthList = new ArrayList<>();
+        List<String> currentDayList = new ArrayList<>();
+        pieDataList.forEach(p -> {
+            summaryInfo.getCurrentMonthPieData().forEach(p1 -> {
+                if (p1.getName().equalsIgnoreCase(p.getName()))
+                    currentMonthList.add(formatDouble(p1.getValue(), p1.getValueA()));
+            });
+            summaryInfo.getCurrentDayPieData().forEach(p1 -> {
+                if (p1.getName().equalsIgnoreCase(p.getName()))
+                    currentDayList.add(formatDouble(p1.getValue(), p1.getValueA()));
+            });
+        });
+        averageIncomeData.setCurrentMonthAverageIncome(currentMonthList);
+        averageIncomeData.setTodayAverageIncome(currentDayList);
         summaryInfo.setAverageIncomebarData(averageIncomeData);
 
         //get info card data

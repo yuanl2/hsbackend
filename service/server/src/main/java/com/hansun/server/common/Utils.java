@@ -1,22 +1,184 @@
 package com.hansun.server.common;
 
-import com.hansun.server.dto.Location;
 import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.dto.UserInfo;
+import com.hansun.server.util.ConstantUtil;
+import com.hansun.server.util.MD5Util;
+import com.hansun.server.util.TenpayUtil;
+import com.wxpay.Pay;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * Created by yuanl2 on 2017/7/7.
  */
 public class Utils {
+
+    private static org.slf4j.Logger log = LoggerFactory.getLogger(Utils.class);
+
+    /**
+     * 验证签名
+     *
+     * @param map
+     * @return
+     */
+    public static boolean verifyWeixinNotify(Map<String, String> map) {
+        SortedMap<String, String> parameterMap = new TreeMap<String, String>();
+        String sign = (String) map.get("sign");
+        for (Object keyValue : map.keySet()) {
+            if (!keyValue.toString().equals("sign")) {
+                parameterMap.put(keyValue.toString(), map.get(keyValue).toString());
+            }
+        }
+        String createSign = null;
+        try {
+            createSign = getSign(parameterMap, ConstantUtil.PARTNER_KEY);
+        } catch (UnsupportedEncodingException e) {
+            log.error("wechat pay verify sign failed");
+            return false;
+        }
+        if (createSign.equals(sign)) {
+            return true;
+        } else {
+            log.error("wechat pay verify sign failed");
+            return false;
+        }
+    }
+
+    public static String create_timestamp() {
+        return Long.toString(System.currentTimeMillis() / 1000);
+    }
+
+    public static String getAddrIp(HttpServletRequest request) {
+        return request.getRemoteAddr();
+    }
+
+    public static String create_nonce_str() {
+        String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        String res = "";
+        for (int i = 0; i < 16; i++) {
+            Random rd = new Random();
+            res += chars.charAt(rd.nextInt(chars.length() - 1));
+        }
+        return res;
+    }
+
+    public static String getSign(Map<String, String> params, String paternerKey) throws UnsupportedEncodingException {
+        String string1 = Pay.createSign(params, false);
+        String stringSignTemp = string1 + "&key=" + paternerKey;
+        String signValue = DigestUtils.md5Hex(stringSignTemp).toUpperCase();
+        return signValue;
+    }
+
+    /**
+     * 创建md5摘要,规则是:按参数名称a-z排序,遇到空值的参数不参加签名。
+     */
+    public static String createSign(SortedMap<String, String> packageParams, String paternerKey) {
+        StringBuffer sb = new StringBuffer();
+        Set es = packageParams.entrySet();
+        Iterator it = es.iterator();
+        while (it.hasNext()) {
+            Map.Entry entry = (Map.Entry) it.next();
+            String k = (String) entry.getKey();
+            String v = (String) entry.getValue();
+            if (null != v && !"".equals(v) && !"sign".equals(k)
+                    && !"key".equals(k)) {
+                sb.append(k + "=" + v + "&");
+            }
+        }
+        sb.append("key=" + paternerKey);
+        System.out.println("md5 sb:" + sb + "key=" + paternerKey);
+        String sign = MD5Util.MD5Encode(sb.toString(), "utf-8")
+                .toUpperCase();
+        log.info("packge sign value:{}", sign);
+        return sign;
+
+    }
+
+    /**
+     * map转成xml
+     *
+     * @param
+     * @return
+     */
+    public static String ArrayToXml(Map<String, String> parm, boolean isAddCDATA) {
+        StringBuffer strbuff = new StringBuffer("<xml>");
+        if (parm != null && !parm.isEmpty()) {
+            for (Map.Entry<String, String> entry : parm.entrySet()) {
+                strbuff.append("<").append(entry.getKey()).append(">");
+                if (isAddCDATA) {
+                    strbuff.append("<![CDATA[");
+                    if (StringUtils.isNotEmpty(entry.getValue())) {
+                        strbuff.append(entry.getValue());
+                    }
+                    strbuff.append("]]>");
+                } else {
+                    if (StringUtils.isNotEmpty(entry.getValue())) {
+                        strbuff.append(entry.getValue());
+                    }
+                }
+                strbuff.append("</").append(entry.getKey()).append(">");
+            }
+        }
+        return strbuff.append("</xml>").toString();
+    }
+
+    public static Map<String, String> doXMLParse(String xml) throws XmlPullParserException, IOException {
+        InputStream inputStream = new ByteArrayInputStream(xml.getBytes());
+        Map<String, String> map = null;
+        XmlPullParser pullParser = XmlPullParserFactory.newInstance().newPullParser();
+        pullParser.setInput(inputStream, "UTF-8"); // 为xml设置要解析的xml数据
+        int eventType = pullParser.getEventType();
+
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            switch (eventType) {
+                case XmlPullParser.START_DOCUMENT:
+                    map = new HashMap<String, String>();
+                    break;
+
+                case XmlPullParser.START_TAG:
+                    String key = pullParser.getName();
+                    if (key.equals("xml"))
+                        break;
+
+                    String value = pullParser.nextText();
+                    map.put(key, value);
+
+                    break;
+
+                case XmlPullParser.END_TAG:
+                    break;
+            }
+            eventType = pullParser.next();
+        }
+        return map;
+    }
+
+    public static String getOutTradeNoByTime() {
+        //当前时间 yyyyMMddHHmmss
+        String currTime = TenpayUtil.getCurrTime();
+        //四位随机数
+        String strRandom = TenpayUtil.buildRandom(5) + "";
+        //10位序列号,可以自行调整。
+        String strReq = currTime + strRandom;
+        //订单号，此处用时间加随机数生成，商户根据自己情况调整，只要保持全局唯一就行
+        return strReq;
+    }
 
     public final static boolean isNumeric(String s) {
         if (s != null && !"".equals(s.trim()))
@@ -256,7 +418,7 @@ public class Utils {
     }
 
     public static String formatDouble(double a) {
-         return String.format("%.2f", a);
+        return String.format("%.2f", a);
     }
 
     public static boolean isAdminUser(UserInfo userInfo) {
