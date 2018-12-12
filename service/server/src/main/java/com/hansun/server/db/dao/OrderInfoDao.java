@@ -41,6 +41,11 @@ public interface OrderInfoDao extends JpaRepository<OrderInfo, Long> {
     @Query("DELETE FROM OrderInfo o WHERE o.orderType = :orderType")
     void deleteByOrderType(@Param("orderType") long orderType);
 
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM OrderInfo o WHERE o.createTime < :createTime and o.orderStatus = :orderStatus")
+    void deleteWithOrderStatus(@Param("createTime") LocalDateTime createTime,@Param("orderStatus") short orderStatus);
+
     @Transactional
     @Query("from OrderInfo b where b.startTime >= :startTime and b.startTime < :endTime and b.orderType = :orderType and b.deviceID in (:deviceIDs)")
     List<OrderInfo> queryByTime(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("deviceIDs") List<Long> deviceIDs, @Param("orderType") short orderType);
@@ -48,10 +53,6 @@ public interface OrderInfoDao extends JpaRepository<OrderInfo, Long> {
     @Transactional
     @Query("from OrderInfo b where b.startTime >= :startTime and b.startTime < :endTime and b.orderStatus = :orderStatus and b.userID = :userID and b.orderType = :orderType order by b.startTime desc")
     List<OrderInfo> queryByTimeRangeForUser(@Param("userID") short userID, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("orderStatus") short orderStatus, @Param("orderType") short orderType);
-
-    @Transactional
-    @Query("from OrderInfo b where b.startTime >= :startTime and b.startTime < :endTime and b.orderStatus = :orderStatus and b.orderType = :orderType order by b.startTime desc")
-    List<OrderInfo> queryByTimeRang(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("orderStatus") short orderStatus, @Param("orderType") short orderType);
 
     @Transactional
     @Query("from OrderInfo b where b.startTime >= :startTime and b.startTime < :endTime and b.orderStatus != :orderStatus and b.userID = :userID and b.orderType = :orderType order by b.startTime desc")

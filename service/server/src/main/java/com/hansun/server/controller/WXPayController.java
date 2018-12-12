@@ -1,33 +1,31 @@
 package com.hansun.server.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.hansun.server.common.OrderStatus;
 import com.hansun.server.common.OrderType;
 import com.hansun.server.common.Utils;
+import com.hansun.server.db.DataStore;
 import com.hansun.server.dto.Consume;
 import com.hansun.server.dto.Device;
 import com.hansun.server.dto.OrderInfo;
-import com.hansun.server.common.OrderStatus;
-import com.hansun.server.db.DataStore;
 import com.hansun.server.service.DeviceService;
 import com.hansun.server.service.OrderService;
 import com.hansun.server.util.ConstantUtil;
-import com.hansun.server.util.MD5Util;
-import com.hansun.server.util.TenpayUtil;
 import com.wxpay.HttpKit;
-import com.wxpay.Pay;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.util.*;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import static com.hansun.server.common.Utils.*;
 
@@ -52,7 +50,6 @@ public class WXPayController {
     private OrderService orderService;
 
 
-
     @RequestMapping(value = "refund", method = RequestMethod.POST)
     public String doWeiXinRefund(@RequestParam(value = "userId", required = false, defaultValue = "0") String userId,
                                  @RequestParam(value = "device_id", required = true, defaultValue = "0") String device_id,
@@ -61,14 +58,11 @@ public class WXPayController {
                                  @RequestParam(value = "out_trade_no", required = true, defaultValue = "0") String out_trade_no, HttpServletRequest request, HttpServletResponse response) {
 
 
-
         orderService.requestRefund(device_id, total_fee, refund_fee, out_trade_no);
 
 
         return null;
     }
-
-
 
 
     @RequestMapping(value = "/paycancel", method = RequestMethod.POST)
@@ -107,16 +101,16 @@ public class WXPayController {
         String attach = openId + "_" + product_id;
         if (device != null) {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(device.getUser()).append("_").append(device.getAreaName()).append("_").append(device_id);
+            stringBuilder.append(device.getUserID()).append("_").append(device.getAreaName()).append("_").append(device_id);
             body = stringBuilder.toString();
 
             stringBuilder = new StringBuilder();
-            stringBuilder.append(device.getUser()).append("_").append(device.getAreaName()).append("_").append(openId).append("_").append(product_id);
+            stringBuilder.append(device.getUserID()).append("_").append(device.getAreaName()).append("_").append(openId).append("_").append(product_id);
             attach = stringBuilder.toString();
         }
 
         String fee = String.valueOf((int) (Double.valueOf(price) * 100));
-        Map<String, String> paraMap = new HashMap<String, String>();
+        Map<String, String> paraMap = new HashMap<>();
         paraMap.put("appid", ConstantUtil.APP_ID);
         paraMap.put("attach", attach);
         paraMap.put("body", body);
@@ -129,33 +123,42 @@ public class WXPayController {
         paraMap.put("fee_type", ConstantUtil.FEE_TYPE);
         paraMap.put("trade_type", ConstantUtil.TRADE_TYPE);
         paraMap.put("notify_url", ConstantUtil.PAY_SUCCESS_NOTIFY);
-        String sign = getSign(paraMap, ConstantUtil.PARTNER_KEY);
         paraMap.put("sign_type", ConstantUtil.SIGN_TYPE);
+        String sign = getSign(paraMap, ConstantUtil.PARTNER_KEY);
         paraMap.put("sign", sign);
-
-        for (Map.Entry entry :
-                paraMap.entrySet()) {
-            log.debug(entry.getKey() + " = {} ", entry.getValue());
-        }
+//
+//        for (Map.Entry entry :
+//                paraMap.entrySet()) {
+//            log.info(entry.getKey() + " = {} ", entry.getValue());
+//        }
 
         String xml = ArrayToXml(paraMap, false);
+        log.debug("xml = {} ", xml);
+
         String xmlStr = HttpKit.post(ConstantUtil.WECHAT_UNIFIEDORDER, xml);
 
         log.debug("xmlStr = {} ", xmlStr);
         // 预付商品id
         String prepay_id = "";
-
+        Map<String, String> map = doXMLParse(xmlStr);
         if (xmlStr.indexOf("SUCCESS") != -1) {
-            Map<String, String> map = doXMLParse(xmlStr);
             for (Map.Entry entry :
                     map.entrySet()) {
                 log.debug(entry.getKey() + " = {} ", entry.getValue());
             }
             prepay_id = map.get("prepay_id");
             log.debug("prepay_id = {} ", prepay_id);
+            resInfo.put("status", "0");
+
+        } else {
+            String msg = map.get("return_msg");
+            log.error("create wx order error {}", msg);
+            resInfo.put("status", "1");
+            resInfo.put("msg", msg);
+            String strJson = JSON.toJSONString(resInfo);
+            return strJson;
         }
 
-        resInfo.put("status", "0");
         resInfo.put("orderId", out_trade_no);
 
         SortedMap<String, String> payMap = new TreeMap<String, String>();
@@ -176,10 +179,10 @@ public class WXPayController {
         resInfo.put("device_id", device_id);
         resInfo.put("userId", userId);
 
-        for (Map.Entry entry :
-                resInfo.entrySet()) {
-            log.debug(entry.getKey() + " = {} ", entry.getValue());
-        }
+//        for (Map.Entry entry :
+//                resInfo.entrySet()) {
+//            log.debug(entry.getKey() + " = {} ", entry.getValue());
+//        }
         String strJson = JSON.toJSONString(resInfo);
         Consume consume = dataStore.queryConsume(Short.valueOf(product_id));
 
@@ -200,7 +203,6 @@ public class WXPayController {
         log.info("create order {}", order);
         return strJson;
     }
-
 
 
     @RequestMapping(value = {"payNotify"})

@@ -1,7 +1,9 @@
 package com.hansun.server.job;
 
 import com.hansun.server.common.OrderStaticsTaskStatus;
+import com.hansun.server.common.OrderStatus;
 import com.hansun.server.common.Utils;
+import com.hansun.server.db.dao.OrderInfoDao;
 import com.hansun.server.db.dao.OrderStaticsDayDao;
 import com.hansun.server.db.dao.OrderStaticsMonthDao;
 import com.hansun.server.db.dao.OrderStaticsTaskDao;
@@ -24,8 +26,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import static com.hansun.server.common.Utils.checkListNotNull;
-import static com.hansun.server.common.Utils.convertToInstant;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.groupingBy;
 
 /**
  * @author yuanl2
@@ -45,13 +46,16 @@ public class StaticsJob {
     private OrderStaticsMonthDao orderStaticsMonthDao;
 
     @Autowired
+    private OrderInfoDao orderInfoDao;
+
+    @Autowired
     private OrderService orderService;
 
     /**
      * create task
      * status: 0 created
      * status: 1 running
-     * status: 2 purged
+     * status: 2 purged   will clean
      */
     @Scheduled(cron = "0 45 22 * * *")
     public void createTask() {
@@ -95,7 +99,7 @@ public class StaticsJob {
      * get task from table OrderStaticsTask
      * and sum data for every deviceID
      */
-    @Scheduled(cron = "0 5 1,3,5,7 * * *")
+    @Scheduled(cron = "0 5 1,3,5 * * *")
     public void executeTask() {
         List<OrderStaticsTask> orderStaticsTaskList = orderStaticsTaskDao.findByStatus(OrderStaticsTaskStatus.CREATED.getType());
         if (orderStaticsTaskList != null && orderStaticsTaskList.size() > 0) {
@@ -104,10 +108,14 @@ public class StaticsJob {
                 processTask(task);
             });
         }
+        else{
+            logger.info("executeTask size = 0");
+        }
     }
 
     /**
      * 进行统计的时候，都是当月的数据
+     *
      * @param task
      */
     private void processTask(OrderStaticsTask task) {
@@ -115,7 +123,6 @@ public class StaticsJob {
             task.setStatus(OrderStaticsTaskStatus.RUNNING.getType());
             long begin = System.currentTimeMillis();
             logger.debug("before executeTask {}", orderStaticsTaskDao.save(task).toString());
-
             LocalDateTime beginTime = task.getBeginTime();
             LocalDateTime endTime = task.getEndTime();
 
@@ -131,7 +138,7 @@ public class StaticsJob {
                     Map<Long, List<OrderStaticsMonth>> orderStaticsMonthMap = orderStaticsMonthList.stream().collect(groupingBy(OrderStaticsMonth::getDeviceID));
 
                     orderStaticsDayList.stream().forEach(k -> {
-                        try{
+                        try {
                             logger.info("insert {}", orderStaticsDayDao.save(k).toString());
                             List<OrderStaticsMonth> monthList = orderStaticsMonthMap.get(k.getDeviceID());
                             if (checkListNotNull(monthList)) {
@@ -149,11 +156,9 @@ public class StaticsJob {
                                 orderStaticsMonth.setTime(currentMonth);
                                 logger.info("insert {}", orderStaticsMonthDao.save(orderStaticsMonth).toString());
                             }
+                        } catch (Exception e) {
+                            logger.error("process day data {} error {}", k.getDeviceID(), e);
                         }
-                        catch (Exception e){
-                            logger.error("process day data {} error {}",k.getDeviceID(),e);
-                        }
-
                     });
                 } else {
                     /**
@@ -175,8 +180,7 @@ public class StaticsJob {
             }
             task.setStatus(OrderStaticsTaskStatus.PURGED.getType());
             long end = System.currentTimeMillis();
-            logger.info("insert {} ",orderStaticsTaskDao.save(task).toString());
-            logger.info("after executeTask {} consume time {} ", orderStaticsTaskDao.save(task).toString(), (end - begin));
+            logger.info("save {} consume time {}", orderStaticsTaskDao.save(task).toString(), (end - begin));
         } catch (Exception e) {
             logger.error("processTask error {} {}", task, e);
         }
@@ -205,6 +209,20 @@ public class StaticsJob {
             orderStaticsTaskDao.deletePurgedTask(date, OrderStaticsTaskStatus.PURGED.getType());
         } catch (Exception e) {
             logger.error("cleanPurgedTask error {}", e);
+        }
+    }
+
+    /**
+     *
+     */
+    @Scheduled(cron = "0 40 1 * * *")
+    public void cleanUnusedOrderInfoTask(){
+        try {
+            LocalDateTime today = Utils.getZeroClock(Utils.getNowTime());
+            logger.info("clean created status task before day {}", today);
+            orderInfoDao.deleteWithOrderStatus(today,OrderStatus.CREATED);
+        } catch (Exception e) {
+            logger.error("cleanUnusedOrderInfoTask error {}", e);
         }
     }
 }
