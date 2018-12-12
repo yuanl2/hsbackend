@@ -287,12 +287,8 @@ public class OrderService {
             order.setEndTime(Utils.getNowTime());
             order.setOrderStatus(OrderStatus.FINISH);
             orderStore.updateOrder(order);
-            if(order.getPrice() > 0) {
-                dataStore.addPayAccount(order.getPayAccount(),false);
-            }
-            else {
-                dataStore.addPayAccount(order.getPayAccount(),true);
-            }
+            dataStore.addPayAccount(order.getPayAccount(), order.getPrice());
+
             logger.debug("Before delete order {} ", order);
             orderStore.deleteOrder(deviceID);
             logger.debug("After delete order {}", orderStore.queryOrderByDeviceID(deviceID));
@@ -600,7 +596,7 @@ public class OrderService {
      * @param sumType
      * @return
      */
-    @Cacheable(value = "orderStatics", key = "'id_'+ #userInfo.getUserName() + #startTime.toString() + '_'+#endTime.toString() +'_sumTypeDay'",condition = "!#isContainToday")
+    @Cacheable(value = "orderStatics", key = "'id_'+ #userInfo.getUserName() + #startTime.toString() + '_'+#endTime.toString() +'_sumTypeDay'", condition = "!#isContainToday")
     public List<OrderStatistics> queryOrderStatisticsByUser(UserInfo userInfo, LocalDateTime startTime, LocalDateTime endTime, int sumType, boolean isContainToday) {
         if (convertToInstant(startTime).isAfter(convertToInstant(endTime))) {
             return null;
@@ -665,12 +661,12 @@ public class OrderService {
                             orderStatistics.setSumTimeType(OrderStaticsType.DAY.getDesc());
                             orderStatistics.setDeviceTotal(devices);
                             orderStatistics.setRunningDeviceTotal(runningDevices);
-                            if(user!=null) {
+                            if (user != null) {
                                 orderStatistics.setUser(user.getUsernickname());
-                            }
-                            else {
+                            } else {
                                 orderStatistics.setUser(userInfo.getUserNickName());
-                            }                            orderStatistics.setAreaName(location.getAreaName());
+                            }
+                            orderStatistics.setAreaName(location.getAreaName());
                             orderStatistics.setEnterTime(getFormatTime(location.getEnterTime()));
                             orderStatistics.setAverageIncome(formatDouble(income, devices));
                             orderStatistics.setIncomeValue(formatDouble(orderStatistics.getIncomeTotal()));
@@ -700,10 +696,9 @@ public class OrderService {
                             orderStatistics.setSumTimeType(OrderStaticsType.DAY.getDesc());
                             orderStatistics.setDeviceTotal(devices);
                             orderStatistics.setRunningDeviceTotal(runningDevices);
-                            if(user!=null) {
+                            if (user != null) {
                                 orderStatistics.setUser(user.getUsernickname());
-                            }
-                            else {
+                            } else {
                                 orderStatistics.setUser(userInfo.getUserNickName());
                             }
                             orderStatistics.setAreaName(location.getAreaName());
@@ -741,12 +736,12 @@ public class OrderService {
                             orderStatistics.setSumTimeType(OrderStaticsType.MONTH.getDesc());
                             orderStatistics.setDeviceTotal(devices);
                             orderStatistics.setRunningDeviceTotal(runningDevices);
-                            if(user!=null) {
+                            if (user != null) {
                                 orderStatistics.setUser(user.getUsernickname());
-                            }
-                            else {
+                            } else {
                                 orderStatistics.setUser(userInfo.getUserNickName());
-                            }                            orderStatistics.setAreaName(location.getAreaName());
+                            }
+                            orderStatistics.setAreaName(location.getAreaName());
                             orderStatistics.setEnterTime(getFormatTime(location.getEnterTime()));
                             if (isContainToday && currentMonth.isEqual(time)) {
                                 List<OrderStaticsDay> list = todayData.get(locationID);
@@ -790,12 +785,12 @@ public class OrderService {
                                 orderStatistics.setSumTimeType(OrderStaticsType.MONTH.getDesc());
                                 orderStatistics.setDeviceTotal(devices);
                                 orderStatistics.setRunningDeviceTotal(runningDevices);
-                                if(user!=null) {
+                                if (user != null) {
                                     orderStatistics.setUser(user.getUsernickname());
-                                }
-                                else {
+                                } else {
                                     orderStatistics.setUser(userInfo.getUserNickName());
-                                }                                orderStatistics.setAreaName(location.getAreaName());
+                                }
+                                orderStatistics.setAreaName(location.getAreaName());
                                 orderStatistics.setEnterTime(getFormatTime(location.getEnterTime()));
                                 orderStatistics.setAverageIncome(formatDouble(income, devices));
                                 orderStatistics.setIncomeValue(formatDouble(orderStatistics.getIncomeTotal()));

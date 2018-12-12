@@ -1000,6 +1000,7 @@ public class DataStore {
 
     /**
      * 如果用户已经扫码用过并且free值大于0，则没有首单免费
+     *
      * @param payAccount
      * @return
      */
@@ -1011,18 +1012,26 @@ public class DataStore {
         return true;
     }
 
-    public PayAccount addPayAccount(String payAccount, boolean free) {
+    /**
+     *
+     * @param payAccount
+     * @param price
+     * @return
+     */
+    public PayAccount addPayAccount(String payAccount, float price) {
         try {
             PayAccount account = payAccountDao.findByName(payAccount);
             if (account != null) {
                 account.setCount((short) (1 + account.getCount()));
-                if (free)
+                account.setBalance(account.getBalance() + price);
+                if (price <= 0)
                     account.setFree((short) 1);
             } else {
                 account = new PayAccount();
-                if (free)
+                if (price <= 0)
                     account.setFree((short) 1);
                 account.setName(payAccount);
+                account.setBalance(price);
                 account.setCount((short) 1);
             }
             return payAccountDao.save(account);
