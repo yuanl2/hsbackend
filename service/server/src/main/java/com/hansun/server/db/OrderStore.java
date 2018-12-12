@@ -1,14 +1,12 @@
 package com.hansun.server.db;
 
 import com.hansun.server.common.Utils;
-import com.hansun.server.db.dao.OrderInfoDao;
-import com.hansun.server.db.dao.OrderStaticsDayDao;
-import com.hansun.server.db.dao.OrderStaticsMonthDao;
-import com.hansun.server.db.dao.OrderStaticsTaskDao;
+import com.hansun.server.db.dao.*;
 import com.hansun.server.dto.OrderInfo;
 import com.hansun.server.common.OrderStatus;
 import com.hansun.server.dto.OrderStaticsDay;
 import com.hansun.server.dto.OrderStaticsMonth;
+import com.hansun.server.dto.RefundOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +39,9 @@ public class OrderStore {
     @Autowired
     private OrderStaticsMonthDao orderStaticsMonthDao;
 
+    @Autowired
+    private RefundOrderDao refundOrderDao;
+
     private Map<Long, OrderInfo> orderCache = new HashMap<>();
 
     @PostConstruct
@@ -52,6 +53,22 @@ public class OrderStore {
     public void destroy() {
         orderCache.clear();
 
+    }
+
+    public List<RefundOrder> getNeedRefundsByUserID(short userID){
+        return refundOrderDao.queryNotRefundByUserID(userID, OrderStatus.REFUNDDONE);
+    }
+
+    public List<RefundOrder> getRefundsByUserID(short userID){
+        return refundOrderDao.findByUserIDAndRefundStatus(userID, OrderStatus.REFUNDDONE);
+    }
+
+    public List<RefundOrder> getNeedRefundsByDeviceID(long deviceID){
+        return refundOrderDao.queryNotRefundByDeviceID(deviceID, OrderStatus.REFUNDDONE);
+    }
+
+    public List<RefundOrder> getRefundsByDeviceID(long deviceID){
+        return refundOrderDao.findByDeviceIDAndRefundStatus(deviceID, OrderStatus.REFUNDDONE);
     }
 
     public List<OrderStaticsDay> getStaticsForOrderStaticsDayForUser(short userID, LocalDateTime startTime, LocalDateTime endTime){

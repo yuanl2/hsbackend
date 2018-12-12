@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.*;
 
+import static com.hansun.server.common.Utils.*;
+
 /**
  * 微信支付服务端
  *
@@ -48,6 +50,25 @@ public class WXPayController {
 
     @Autowired
     private OrderService orderService;
+
+
+
+    @RequestMapping(value = "refund", method = RequestMethod.POST)
+    public String doWeiXinRefund(@RequestParam(value = "userId", required = false, defaultValue = "0") String userId,
+                                 @RequestParam(value = "device_id", required = true, defaultValue = "0") String device_id,
+                                 @RequestParam(value = "total_fee", required = true, defaultValue = "0") String total_fee,
+                                 @RequestParam(value = "refund_fee", required = true, defaultValue = "0") String refund_fee,
+                                 @RequestParam(value = "out_trade_no", required = true, defaultValue = "0") String out_trade_no, HttpServletRequest request, HttpServletResponse response) {
+
+
+
+        orderService.requestRefund(device_id, total_fee, refund_fee, out_trade_no);
+
+
+        return null;
+    }
+
+
 
 
     @RequestMapping(value = "/paycancel", method = RequestMethod.POST)
@@ -75,31 +96,41 @@ public class WXPayController {
 
         Map<Object, Object> resInfo = new HashMap<Object, Object>();
         //---------------生成订单号 开始------------------------
-        //当前时间 yyyyMMddHHmmss
-        String currTime = TenpayUtil.getCurrTime();
-        //四位随机数
-        String strRandom = TenpayUtil.buildRandom(5) + "";
-        //10位序列号,可以自行调整。
-        String strReq = currTime + strRandom;
-        //订单号，此处用时间加随机数生成，商户根据自己情况调整，只要保持全局唯一就行
-        String out_trade_no = strReq;
+        String out_trade_no = getOutTradeNoByTime();
+
         //---------------生成订单号 结束------------------------
         String openId = userId;
+
+        Device device = deviceService.getDevice(Long.valueOf(device_id));
+        String body = "device ID" + device_id;
+
+        String attach = openId + "_" + product_id;
+        if (device != null) {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(device.getUser()).append("_").append(device.getAreaName()).append("_").append(device_id);
+            body = stringBuilder.toString();
+
+            stringBuilder = new StringBuilder();
+            stringBuilder.append(device.getUser()).append("_").append(device.getAreaName()).append("_").append(openId).append("_").append(product_id);
+            attach = stringBuilder.toString();
+        }
 
         String fee = String.valueOf((int) (Double.valueOf(price) * 100));
         Map<String, String> paraMap = new HashMap<String, String>();
         paraMap.put("appid", ConstantUtil.APP_ID);
-        paraMap.put("attach", "test pay product_id=" + product_id);
-        paraMap.put("body", "device ID" + device_id);
+        paraMap.put("attach", attach);
+        paraMap.put("body", body);
         paraMap.put("mch_id", ConstantUtil.PARTNER);
         paraMap.put("nonce_str", create_nonce_str());
         paraMap.put("openid", openId);
         paraMap.put("out_trade_no", out_trade_no);
         paraMap.put("spbill_create_ip", getAddrIp(request));
         paraMap.put("total_fee", fee);
-        paraMap.put("trade_type", "JSAPI");
+        paraMap.put("fee_type", ConstantUtil.FEE_TYPE);
+        paraMap.put("trade_type", ConstantUtil.TRADE_TYPE);
         paraMap.put("notify_url", ConstantUtil.PAY_SUCCESS_NOTIFY);
         String sign = getSign(paraMap, ConstantUtil.PARTNER_KEY);
+        paraMap.put("sign_type", ConstantUtil.SIGN_TYPE);
         paraMap.put("sign", sign);
 
         for (Map.Entry entry :
@@ -170,6 +201,8 @@ public class WXPayController {
         return strJson;
     }
 
+
+
     @RequestMapping(value = {"payNotify"})
     @ResponseBody
     public void payNotify(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -237,8 +270,7 @@ public class WXPayController {
                 out.write(resXml.getBytes());
                 out.flush();
                 out.close();
-            }
-            else{
+            } else {
                 log.error(" pay return fail {}", resultMap.get("result_code"));
 
                 // 处理业务 -修改订单支付状态 支付失败
@@ -257,141 +289,5 @@ public class WXPayController {
         }
     }
 
-    /**
-     * 验证签名
-     *
-     * @param map
-     * @return
-     */
-    public boolean verifyWeixinNotify(Map<String, String> map) {
-        SortedMap<String, String> parameterMap = new TreeMap<String, String>();
-        String sign = (String) map.get("sign");
-        for (Object keyValue : map.keySet()) {
-            if (!keyValue.toString().equals("sign")) {
-                parameterMap.put(keyValue.toString(), map.get(keyValue).toString());
-            }
-        }
-        String createSign = null;
-        try {
-            createSign = getSign(parameterMap, ConstantUtil.PARTNER_KEY);
-        } catch (UnsupportedEncodingException e) {
-            log.error("wechat pay verify sign failed");
-            return false;
-        }
-        if (createSign.equals(sign)) {
-            return true;
-        } else {
-            log.error("wechat pay verify sign failed");
-            return false;
-        }
-    }
 
-    private String create_timestamp() {
-        return Long.toString(System.currentTimeMillis() / 1000);
-    }
-
-    private String getAddrIp(HttpServletRequest request) {
-        return request.getRemoteAddr();
-    }
-
-    private String create_nonce_str() {
-        String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        String res = "";
-        for (int i = 0; i < 16; i++) {
-            Random rd = new Random();
-            res += chars.charAt(rd.nextInt(chars.length() - 1));
-        }
-        return res;
-    }
-
-    private static String getSign(Map<String, String> params, String paternerKey) throws UnsupportedEncodingException {
-        String string1 = Pay.createSign(params, false);
-        String stringSignTemp = string1 + "&key=" + paternerKey;
-        String signValue = DigestUtils.md5Hex(stringSignTemp).toUpperCase();
-        return signValue;
-    }
-
-    /**
-     * 创建md5摘要,规则是:按参数名称a-z排序,遇到空值的参数不参加签名。
-     */
-    public String createSign(SortedMap<String, String> packageParams, String paternerKey) {
-        StringBuffer sb = new StringBuffer();
-        Set es = packageParams.entrySet();
-        Iterator it = es.iterator();
-        while (it.hasNext()) {
-            Map.Entry entry = (Map.Entry) it.next();
-            String k = (String) entry.getKey();
-            String v = (String) entry.getValue();
-            if (null != v && !"".equals(v) && !"sign".equals(k)
-                    && !"key".equals(k)) {
-                sb.append(k + "=" + v + "&");
-            }
-        }
-        sb.append("key=" + paternerKey);
-        System.out.println("md5 sb:" + sb + "key=" + paternerKey);
-        String sign = MD5Util.MD5Encode(sb.toString(), "utf-8")
-                .toUpperCase();
-        log.info("packge sign value:{}", sign);
-        return sign;
-
-    }
-
-    /**
-     * map转成xml
-     *
-     * @param
-     * @return
-     */
-    public String ArrayToXml(Map<String, String> parm, boolean isAddCDATA) {
-        StringBuffer strbuff = new StringBuffer("<xml>");
-        if (parm != null && !parm.isEmpty()) {
-            for (Map.Entry<String, String> entry : parm.entrySet()) {
-                strbuff.append("<").append(entry.getKey()).append(">");
-                if (isAddCDATA) {
-                    strbuff.append("<![CDATA[");
-                    if (StringUtils.isNotEmpty(entry.getValue())) {
-                        strbuff.append(entry.getValue());
-                    }
-                    strbuff.append("]]>");
-                } else {
-                    if (StringUtils.isNotEmpty(entry.getValue())) {
-                        strbuff.append(entry.getValue());
-                    }
-                }
-                strbuff.append("</").append(entry.getKey()).append(">");
-            }
-        }
-        return strbuff.append("</xml>").toString();
-    }
-
-    private Map<String, String> doXMLParse(String xml) throws XmlPullParserException, IOException {
-        InputStream inputStream = new ByteArrayInputStream(xml.getBytes());
-        Map<String, String> map = null;
-        XmlPullParser pullParser = XmlPullParserFactory.newInstance().newPullParser();
-        pullParser.setInput(inputStream, "UTF-8"); // 为xml设置要解析的xml数据
-        int eventType = pullParser.getEventType();
-
-        while (eventType != XmlPullParser.END_DOCUMENT) {
-            switch (eventType) {
-                case XmlPullParser.START_DOCUMENT:
-                    map = new HashMap<String, String>();
-                    break;
-
-                case XmlPullParser.START_TAG:
-                    String key = pullParser.getName();
-                    if (key.equals("xml"))
-                        break;
-
-                    String value = pullParser.nextText();
-                    map.put(key, value);
-
-                    break;
-
-                case XmlPullParser.END_TAG:
-                    break;
-            }
-            eventType = pullParser.next();
-        }
-        return map;
-    }
 }
