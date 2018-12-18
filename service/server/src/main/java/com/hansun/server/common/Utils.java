@@ -39,23 +39,23 @@ public class Utils {
      */
     public static boolean verifyWeixinNotify(Map<String, String> map) {
         SortedMap<String, String> parameterMap = new TreeMap<String, String>();
-        String sign = (String) map.get("sign");
+        String sign = map.get("sign");
         for (Object keyValue : map.keySet()) {
             if (!keyValue.toString().equals("sign")) {
-                parameterMap.put(keyValue.toString(), map.get(keyValue).toString());
+                parameterMap.put(keyValue.toString(), map.get(keyValue));
             }
         }
-        String createSign = null;
+        String createSign;
         try {
             createSign = getSign(parameterMap, ConstantUtil.PARTNER_KEY);
         } catch (UnsupportedEncodingException e) {
-            log.error("wechat pay verify sign failed");
+            log.error("wechat pay verify sign failed {}", e);
             return false;
         }
         if (createSign.equals(sign)) {
             return true;
         } else {
-            log.error("wechat pay verify sign failed");
+            log.error("wechat pay verify sign failed createSign = {} sign = {}",createSign,sign);
             return false;
         }
     }

@@ -134,13 +134,20 @@ public class DemoController {
             order.setConsumeType(Short.valueOf(consume.getId()));
             order.setOrderType(OrderType.TEST.getType());
             OrderInfo result = orderService.createOrder(order);
-            orderService.createStartMsgToDevice(result);
-            logger.info("device_id = " + deviceID + " start order " + result);
+            ErrorCode returnCode = orderService.createStartMsgToDevice(result);
+            if (returnCode == ErrorCode.SUCCEED) {
+                logger.info("device_id = " + deviceID + " start order " + result);
+                model.addAttribute("duration", consume.getDuration());
+                model.addAttribute("store", store);
+                model.addAttribute("orderId", out_trade_no);
+                return "device_testdevice";
+            } else {
+                order.setOrderStatus(OrderStatus.DEVICE_ERROR);
+                orderService.updateOrder(order);
+                model.addAttribute("error", returnCode.getZhDescription());
+                return "device_test_error";
+            }
 
-            model.addAttribute("duration", consume.getDuration());
-            model.addAttribute("store", store);
-            model.addAttribute("orderId", out_trade_no);
-            return "device_testdevice";
         } else if (device.getManagerStatus() == DeviceManagerStatus.INACTIVATED.getStatus()) {
             model.addAttribute("error", "设备还未激活，不可使用");
             return "device_test_error";
@@ -282,7 +289,7 @@ public class DemoController {
             consumes = dataStore.queryAllConsume().stream().filter(consume ->
                     consume.getDeviceType().equals(String.valueOf(d.getType())) && consume.getType() == ConsumeType.SUPERUSER.getValue()
             ).collect(Collectors.toList());
-            consumes.stream().forEach(k->logger.info("super user consume {}", k));
+            consumes.stream().forEach(k -> logger.info("super user consume {}", k));
             return consumes;
         } else {
             consumes = dataStore.queryAllConsumeByDeviceType(String.valueOf(d.getType()), consumeType);
@@ -458,13 +465,19 @@ public class DemoController {
             order.setConsumeType(Short.valueOf(consume.getId()));
             order.setOrderType(OrderType.TEST.getType());
             OrderInfo result = orderService.createOrder(order);
-            orderService.createStartMsgToDevice(result);
-            logger.info("device_id = " + deviceID + " start order " + result);
-
-            model.addAttribute("duration", consume.getDuration());
-            model.addAttribute("store", store);
-            model.addAttribute("orderId", out_trade_no);
-            return "device_testdevice";
+            ErrorCode returnCode = orderService.createStartMsgToDevice(result);
+            if (returnCode == ErrorCode.SUCCEED) {
+                logger.info("device_id = " + deviceID + " start order " + result);
+                model.addAttribute("duration", consume.getDuration());
+                model.addAttribute("store", store);
+                model.addAttribute("orderId", out_trade_no);
+                return "device_testdevice";
+            } else {
+                order.setOrderStatus(OrderStatus.DEVICE_ERROR);
+                orderService.updateOrder(order);
+                model.addAttribute("error", returnCode.getZhDescription());
+                return "device_test_error";
+            }
         }
 
         model.addAttribute("error", "设备不存在");
@@ -472,7 +485,8 @@ public class DemoController {
     }
 
     @RequestMapping(value = "/paysuccess")
-    public String paysuccess(Model model, @RequestParam(value = "device_id", required = true, defaultValue = "0") String device_id,
+    public String paysuccess(Model
+                                     model, @RequestParam(value = "device_id", required = true, defaultValue = "0") String device_id,
                              @RequestParam(value = "product_id", required = true, defaultValue = "0") String product_id,
                              @RequestParam(value = "orderId", required = true, defaultValue = "0") long orderId,
                              @RequestParam(value = "userId", required = true, defaultValue = "0") String userId,
@@ -493,7 +507,7 @@ public class DemoController {
          * 如果价格为0，说明没有走微信支付通道，直接下发任务给设备
          */
         if (consume.getPrice() <= 0) {
-            if(o == null) {
+            if (o == null) {
                 OrderInfo order = new OrderInfo();
                 //---------------生成订单号 开始------------------------
                 //当前时间 yyyyMMddHHmmss
@@ -516,7 +530,8 @@ public class DemoController {
                 order.setOrderType(OrderType.OPERATIONS.getType());
                 OrderInfo result = orderService.createOrder(order);
 
-                if(orderService.createStartMsgToDevice(result)) {
+                ErrorCode returnCode = orderService.createStartMsgToDevice(result);
+                if (returnCode == ErrorCode.SUCCEED) {
                     logger.info("device_id = " + deviceID + " start free order " + result);
                     model.addAttribute("device_id", device_id);
                     model.addAttribute("duration", consume.getDuration());
@@ -524,9 +539,11 @@ public class DemoController {
                     model.addAttribute("orderId", order.getOrderID());
                     model.addAttribute("link", d.getStore());
                     return "device_start_running";
-                }
-                else {
-
+                } else {
+                    order.setOrderStatus(OrderStatus.DEVICE_ERROR);
+                    orderService.updateOrder(order);
+                    model.addAttribute("error", returnCode.getZhDescription());
+                    return "device_test_error";
                 }
             }
         }
@@ -546,33 +563,34 @@ public class DemoController {
             return "device_start_running";
         }
 
-//        o.setStartTime(Utils.getNowTime());
-        if(orderService.createStartMsgToDevice(o)){
-
+        ErrorCode returnCode = orderService.createStartMsgToDevice(o);
+        if (returnCode == ErrorCode.SUCCEED) {
+            orderService.updateOrder(o);
+            model.addAttribute("device_id", device_id);
+            model.addAttribute("duration", consume.getDuration());
+            model.addAttribute("store", store);
+            model.addAttribute("orderId", orderId);
+            model.addAttribute("link", d.getStore());
+            logger.info(" device {} now forward device_running", device_id);
+            return "device_start_running";
+        } else {
+            o.setOrderStatus(OrderStatus.DEVICE_ERROR);
+            orderService.updateOrder(o);
+            model.addAttribute("error", returnCode.getZhDescription());
+            return "device_test_error";
         }
-        else {
-
-        }
-
-        orderService.updateOrder(o);
-
-        model.addAttribute("device_id", device_id);
-        model.addAttribute("duration", consume.getDuration());
-        model.addAttribute("store", store);
-        model.addAttribute("orderId", orderId);
-        model.addAttribute("link", d.getStore());
-        logger.info(" device {} now forward device_running", device_id);
-        return "device_start_running";
     }
 
     @RequestMapping("/report")
-    public String reportpage(Model model, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public String reportpage(Model model, HttpServletRequest request, HttpServletResponse response) throws
+            IOException {
         return "report";
     }
 
 
     @RequestMapping("/device_monitor")
-    public String device_monitor(Model model, @RequestParam(value = "userid", required = true, defaultValue = "-1") int userid,
+    public String device_monitor(Model model,
+                                 @RequestParam(value = "userid", required = true, defaultValue = "-1") int userid,
                                  HttpServletRequest request, HttpServletResponse response) throws IOException {
         logger.info("userid {}", userid);
         model.addAttribute("userid", userid);

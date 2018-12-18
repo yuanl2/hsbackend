@@ -1,6 +1,5 @@
 package com.hansun.server.service;
 
-import com.google.common.collect.Ordering;
 import com.hansun.server.common.*;
 import com.hansun.server.commu.IHandler;
 import com.hansun.server.commu.LinkManger;
@@ -21,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -32,7 +30,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.hansun.server.common.Utils.*;
-import static com.hansun.server.common.Utils.formatDouble;
 import static com.hansun.server.util.XMLUtil.doXMLParse;
 import static java.util.stream.Collectors.*;
 
@@ -241,81 +238,87 @@ public class OrderService {
         return o;
     }
 
-    public boolean createStartMsgToDevice(OrderInfo order) {
-        boolean msgSendSucceed = false;
-        try {
-            Device device = dataStore.queryDeviceByDeviceID(order.getDeviceID());
-            if (device == null) {
-                logger.error("can not create order for device not exist  " + order.getDeviceName());
-                throw new ServerException("can not create order for device not exist  " + order.getDeviceName());
+    public ErrorCode createStartMsgToDevice(OrderInfo order) {
+        ErrorCode msgSendCode = ErrorCode.SUCCEED;
+        Device device = dataStore.queryDeviceByDeviceID(order.getDeviceID());
+        if (device == null) {
+            msgSendCode = ErrorCode.DEVICE_NOT_EXIST;
+            logger.error("can not create order for {} {}" + order.getDeviceID(), msgSendCode.getDescription());
+            return msgSendCode;
+        }
+        if (device.getStatus() != DeviceStatus.IDLE) {
+            msgSendCode = ErrorCode.DEVICE_NOT_IDLE;
+            logger.error("can not create order for {} {}" + order.getDeviceID(), msgSendCode.getDescription());
+            return msgSendCode;
+        }
+
+        int index = device.getPort();
+
+        String deviceType = MsgUtil.getMsgBodyLength(device.getType(), 3);
+        //4g device
+        if (device.getSimCard().length() == MsgConstant4g.DEVICE_NAME_FIELD_SIZE) {
+
+            int portNum = 1;
+            com.hansun.server.commu.msg4g.ServerStartDeviceMsg msg = new com.hansun.server.commu.msg4g.ServerStartDeviceMsg(MsgConstant4g.DEVICE_START_MSG);
+            msg.setDeviceType(deviceType);
+
+            order.setStartTime(Utils.getNowTime());
+            order.setPrice(dataStore.queryConsume(order.getConsumeType()).getPrice());
+            order.setDuration(dataStore.queryConsume(order.getConsumeType()).getDuration());
+
+            if (deviceType.equals("000")) {
+                portNum = 4;
+            } else if (deviceType.equals("100")) {
+                portNum = 1;
             }
-            int index = device.getPort();
-
-            String deviceType = MsgUtil.getMsgBodyLength(device.getType(), 3);
-            //4g device
-            if (device.getSimCard().length() == MsgConstant4g.DEVICE_NAME_FIELD_SIZE) {
-
-                int portNum = 1;
-                com.hansun.server.commu.msg4g.ServerStartDeviceMsg msg = new com.hansun.server.commu.msg4g.ServerStartDeviceMsg(MsgConstant4g.DEVICE_START_MSG);
-                msg.setDeviceType(deviceType);
-
-                order.setStartTime(Utils.getNowTime());
-                order.setPrice(dataStore.queryConsume(order.getConsumeType()).getPrice());
-                order.setDuration(dataStore.queryConsume(order.getConsumeType()).getDuration());
-
-                if (deviceType.equals("000")) {
-                    portNum = 4;
-                } else if (deviceType.equals("100")) {
-                    portNum = 1;
+            Map<Integer, Byte> map = new HashMap<>();
+            for (int i = 1; i <= portNum; i++) {
+                if (index == i) {
+                    map.put(i, (byte) 1);
+                } else {
+                    map.put(i, (byte) 0);
                 }
-                Map<Integer, Byte> map = new HashMap<>();
-                for (int i = 1; i <= portNum; i++) {
-                    if (index == i) {
-                        map.put(i, (byte) 1);
-                    } else {
-                        map.put(i, (byte) 0);
-                    }
-                }
-                msg.setMap(map);
-                Map<Integer, String> times = new HashMap<>();
-                for (int i = 1; i <= portNum; i++) {
-                    if (index == i) {
-                        int durationMinute = order.getDuration() / 60;
-                        int durationSecond = order.getDuration() % 60;
-                        StringBuilder stringBuilder = new StringBuilder();
-                        if (durationMinute < 10) {
-                            stringBuilder.append("0").append(durationMinute);
-                        } else {
-                            stringBuilder.append(durationMinute);
-                        }
-                        stringBuilder.append(",");
-                        if (durationSecond < 10) {
-                            stringBuilder.append("0").append(durationSecond);
-                        } else {
-                            stringBuilder.append(durationSecond);
-                        }
-                        stringBuilder.append(",");
-                        times.put(i, stringBuilder.toString());
-                    } else {
-                        times.put(i, "00,00,");
-                    }
-
-                }
-                msg.setStartMap(times);
-
-                String simcard = device.getSimCard();
-
-                IHandler handler = linkManger.get(simcard);
-                if (handler == null) {
-                    logger.error("can not create order for handler for device not exist  " + device.getName());
-                    throw new ServerException("can not create order for handler for device not exist  " + device.getName());
-                }
-
-                msg.setSeq(String.valueOf(handler.getSeq()));
-                syncAsynMsgController.createSyncWaitResult(msg, handler, index);
-                handler.sendMsg(msg, device.getPort());
-                msgSendSucceed = true;
             }
+            msg.setMap(map);
+            Map<Integer, String> times = new HashMap<>();
+            for (int i = 1; i <= portNum; i++) {
+                if (index == i) {
+                    int durationMinute = order.getDuration() / 60;
+                    int durationSecond = order.getDuration() % 60;
+                    StringBuilder stringBuilder = new StringBuilder();
+                    if (durationMinute < 10) {
+                        stringBuilder.append("0").append(durationMinute);
+                    } else {
+                        stringBuilder.append(durationMinute);
+                    }
+                    stringBuilder.append(",");
+                    if (durationSecond < 10) {
+                        stringBuilder.append("0").append(durationSecond);
+                    } else {
+                        stringBuilder.append(durationSecond);
+                    }
+                    stringBuilder.append(",");
+                    times.put(i, stringBuilder.toString());
+                } else {
+                    times.put(i, "00,00,");
+                }
+
+            }
+            msg.setStartMap(times);
+
+            String simcard = device.getSimCard();
+
+            IHandler handler = linkManger.get(simcard);
+            if (handler == null) {
+                msgSendCode = ErrorCode.DEVICE_DISCONNECT;
+                logger.error("can not create order for {} {}" + order.getDeviceID(), msgSendCode.getDescription());
+                return msgSendCode;
+            }
+
+            msg.setSeq(String.valueOf(handler.getSeq()));
+            syncAsynMsgController.createSyncWaitResult(msg, handler, index);
+            handler.sendMsg(msg, device.getPort());
+        }
 //            else{
 //                ServerStartDeviceMsg msg = new ServerStartDeviceMsg(DEVICE_START_MSG);
 //                msg.setDeviceType("000");
@@ -360,13 +363,7 @@ public class OrderService {
 //                handler.sendMsg(msg, device.getPort());
 //            }
 
-
-        } catch (Exception e) {
-            logger.error("createStartMsgToDevice error", e);
-//            throw new ServerException("createStartMsgToDevice error", e);
-        }
-
-        return msgSendSucceed;
+        return msgSendCode;
     }
 
     public OrderInfo createOrder(OrderInfo order) {
@@ -767,7 +764,7 @@ public class OrderService {
      * @param sumType
      * @return
      */
-    @Cacheable(value = "orderStatics", key = "'id_'+ #userInfo.getUserName() + #startTime.toString() + '_'+#endTime.toString() +'_sumTypeDay'", condition = "!#isContainToday")
+    @Cacheable(value = "orderStatics", key = "'id_'+ #userInfo.getUserName() + #startTime.toString() + '_'+#endTime.toString() +'_'+#sumType", condition = "!#isContainToday")
     public List<OrderStatistics> queryOrderStatisticsByUser(UserInfo userInfo, LocalDateTime startTime, LocalDateTime endTime, int sumType, boolean isContainToday) {
         if (convertToInstant(startTime).isAfter(convertToInstant(endTime))) {
             return null;

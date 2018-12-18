@@ -22,7 +22,7 @@ public class OrderStatus {
     public static String DEVICE_SERVICE = "运行中";
     public static String DEVICE_CREATED = "未支付";
     public static String DEVICE_USER_NOT_PAY = "用户取消支付";
-    public static String DEVICE_NOTSTART = "未启动";
+    public static String DEVICE_NOTSTART = "已支付未启动";
     public static String DEVICE_USER_PAY_FAIL = "通知支付失败";
     public static String DEVICE_DEVICE_ERROR = "设备故障";
     public static String DEVICE_FINISH = "已完成";

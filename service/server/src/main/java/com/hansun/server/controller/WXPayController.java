@@ -105,7 +105,7 @@ public class WXPayController {
             body = stringBuilder.toString();
 
             stringBuilder = new StringBuilder();
-            stringBuilder.append(device.getUserID()).append("_").append(device.getAreaName()).append("_").append(openId).append("_").append(product_id);
+            stringBuilder.append(device.getUserID()).append("_").append(device.getLocationID()).append("_").append(openId).append("_").append(product_id);
             attach = stringBuilder.toString();
         }
 
@@ -147,9 +147,8 @@ public class WXPayController {
                 log.debug(entry.getKey() + " = {} ", entry.getValue());
             }
             prepay_id = map.get("prepay_id");
-            log.debug("prepay_id = {} ", prepay_id);
+            log.info("prepay_id = {} ", prepay_id);
             resInfo.put("status", "0");
-
         } else {
             String msg = map.get("return_msg");
             log.error("create wx order error {}", msg);
@@ -221,7 +220,7 @@ public class WXPayController {
             outSteam.close();
             inStream.close();
             resultStr = new String(outSteam.toByteArray(), "utf-8");
-            log.debug("payNotify resultStr = {} ", resultStr);
+            log.info("payNotify resultStr = {} ", resultStr);
 
             Map<String, String> resultMap = doXMLParse(resultStr);
             System.out.println(resultMap.toString());
@@ -248,7 +247,6 @@ public class WXPayController {
                     resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"
                             + "<return_msg><![CDATA[OK]]></return_msg>" + "</xml> ";
 
-
                     // 处理业务 -修改订单支付状态
                     OrderInfo order = orderService.getOrderByOrderID(Long.valueOf(out_trade_no));
                     if (order != null) {
@@ -259,8 +257,8 @@ public class WXPayController {
                         log.error("no this order {}", out_trade_no);
                         return;
                     }
-
                 } else {
+                    log.debug("wechat pay verify sign failed");
                     resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"
                             + "<return_msg><![CDATA[sign error]]></return_msg>" + "</xml> ";
 
