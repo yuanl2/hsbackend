@@ -41,6 +41,8 @@ public class ConstantUtil {
     public static String WECHAT_UNIFIEDORDER = "https://api.mch.weixin.qq.com/pay/unifiedorder";
     //申请退款
     public static String WECHAT_REFUND = "https://api.mch.weixin.qq.com/secapi/pay/refund";
+    public static String REFUND_SUCCESS_NOTIFY = "https://www.knocknock.vip/hsservice/weixin/refundPayNotify";
+
     //订单查询
     public static String WECHAT_ORDER_QUERY = "https://api.mch.weixin.qq.com/pay/orderquery";
 

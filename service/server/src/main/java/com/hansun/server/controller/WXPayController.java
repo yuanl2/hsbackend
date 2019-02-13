@@ -49,21 +49,22 @@ public class WXPayController {
     @Autowired
     private OrderService orderService;
 
-
     @RequestMapping(value = "refund", method = RequestMethod.POST)
     public String doWeiXinRefund(@RequestParam(value = "userId", required = false, defaultValue = "0") String userId,
-                                 @RequestParam(value = "device_id", required = true, defaultValue = "0") String device_id,
-                                 @RequestParam(value = "total_fee", required = true, defaultValue = "0") String total_fee,
-                                 @RequestParam(value = "refund_fee", required = true, defaultValue = "0") String refund_fee,
+                                 @RequestParam(value = "device_id", required = false, defaultValue = "0") String device_id,
+                                 @RequestParam(value = "total_fee", required = false, defaultValue = "0") String total_fee,
+                                 @RequestParam(value = "refund_fee", required = false, defaultValue = "0") String refund_fee,
                                  @RequestParam(value = "out_trade_no", required = true, defaultValue = "0") String out_trade_no, HttpServletRequest request, HttpServletResponse response) {
-
-
+        log.info("refund {}", out_trade_no);
         orderService.requestRefund(device_id, total_fee, refund_fee, out_trade_no);
 
-
-        return null;
+//        OrderInfo order = orderService.getOrderByOrderID(Long.valueOf(out_trade_no));
+//        if(order==null){
+//            return "error no this order";
+//        }
+//        orderService.createRefundOrder(order,order.getPrice(),"test");
+        return "ok";
     }
-
 
     @RequestMapping(value = "/paycancel", method = RequestMethod.POST)
     public String paycancel(@RequestParam(value = "orderId", required = true, defaultValue = "0") long orderId,
@@ -201,6 +202,97 @@ public class WXPayController {
         orderService.createOrder(order);
         log.info("create order {}", order);
         return strJson;
+    }
+
+    @RequestMapping(value = {"refundPayNotify"})
+    @ResponseBody
+    public void refundPayNotify(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String resultStr = null;
+        String resXml = "";
+        try {
+            InputStream inStream = request.getInputStream();
+            ByteArrayOutputStream outSteam = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int len = 0;
+            while ((len = inStream.read(buffer)) != -1) {
+                outSteam.write(buffer, 0, len);
+            }
+            outSteam.close();
+            inStream.close();
+            resultStr = new String(outSteam.toByteArray(), "utf-8");
+            log.info("refundPayNotify resultStr = {} ", resultStr);
+
+            Map<String, String> resultMap = doXMLParse(resultStr);
+            System.out.println(resultMap.toString());
+            //---------------获取的参数
+            String result_code = resultMap.get("result_code");
+            System.out.println("result_code:" + result_code);
+            String out_refund_no = resultMap.get("out_refund_no");
+            System.out.println("out_refund_no:" + out_refund_no);
+            String out_trade_no = resultMap.get("out_trade_no");
+            System.out.println("out_trade_no:" + out_trade_no);
+            String sign = resultMap.get("sign");
+            String refund_fee = resultMap.get("refund_fee");
+            String total_fee = resultMap.get("total_fee");
+            String transaction_id = resultMap.get("transaction_id");
+            String return_code = resultMap.get("return_code");
+            //验证签名------------------------------------------------
+//            resultMap.remove("sign");
+
+            if (resultMap.get("result_code").equalsIgnoreCase("SUCCESS")) {
+                log.info("refund return success");
+                if (verifyWeixinNotify(resultMap)) {
+                    // ====================================================================
+                    // 通知微信.异步确认成功.必写.不然会一直通知后台.八次之后就认为交易失败了.
+                    resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"
+                            + "<return_msg><![CDATA[OK]]></return_msg>" + "</xml> ";
+
+                    // 处理业务 -修改订单支付状态
+                    OrderInfo order = orderService.getOrderByOrderID(Long.valueOf(out_refund_no));
+                    if (order != null) {
+                        if(order.getOrderStatus()==OrderStatus.NOTSTART || order.getOrderStatus()==OrderStatus.PAYDONE) {
+                            log.info("refund callback : modify order = {} status to  REFUNDDONE", out_refund_no);
+                            order.setOrderStatus(OrderStatus.REFUNDDONE);
+                            orderService.updateOrder(order);
+                        }
+                        else if(order.getOrderStatus()==OrderStatus.FINISH){
+                            log.info("refund callback : modify order = {} status to  FINISH_REFUNDDONE", out_refund_no);
+                            order.setOrderStatus(OrderStatus.FINISH_REFUNDDONE);
+                            orderService.updateOrder(order);
+                        }
+                    } else {
+                        log.error("no this order {}", out_trade_no);
+                        return;
+                    }
+                } else {
+                    resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"
+                            + "<return_msg><![CDATA[sign error]]></return_msg>" + "</xml> ";
+
+                }
+                // ------------------------------
+                // 处理业务完毕
+                // ------------------------------
+                BufferedOutputStream out = new BufferedOutputStream(response.getOutputStream());
+                out.write(resXml.getBytes());
+                out.flush();
+                out.close();
+            } else {
+                log.error(" refund return fail {}", resultMap.get("result_code"));
+
+//                // 处理业务 -修改订单支付状态 支付失败
+//                OrderInfo order = orderService.getOrderByOrderID(Long.valueOf(out_trade_no));
+//                if (order != null) {
+//                    log.info("wechat pay callback : modify order = {} status to USER_PAY_FAIL ", out_trade_no);
+//                    order.setOrderStatus(OrderStatus.USER_PAY_FAIL);
+//                    orderService.updateOrder(order);
+//                } else {
+//                    log.error("no this order {}", out_trade_no);
+//                    return;
+//                }
+            }
+        } catch (Exception e) {
+            log.error("refund notify exception", e);
+        }
     }
 
 

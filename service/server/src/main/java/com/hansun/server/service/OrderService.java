@@ -138,45 +138,53 @@ public class OrderService {
     public Map<String, String> requestRefund(String device_id, String total_fee, String refund_fee, String out_trade_no) {
         try {
             String out_refund_no = device_id + getOutTradeNoByTime();
-            Map<String, String> paraMap = new HashMap<>();
-            paraMap.put("appid", ConstantUtil.APP_ID);
-            paraMap.put("mch_id", ConstantUtil.PARTNER);
-            paraMap.put("nonce_str", create_nonce_str());
-            paraMap.put("out_trade_no", out_trade_no);
-            paraMap.put("out_refund_no", out_refund_no);
-            paraMap.put("total_fee", total_fee);
-            paraMap.put("refund_fee", refund_fee);
-            paraMap.put("refund_fee_type", ConstantUtil.FEE_TYPE);
-            paraMap.put("notify_url", ConstantUtil.PAY_SUCCESS_NOTIFY);
-            String sign = getSign(paraMap, ConstantUtil.PARTNER_KEY);
-            paraMap.put("sign_type", ConstantUtil.SIGN_TYPE);
-            paraMap.put("sign", sign);
 
-            for (Map.Entry entry :
-                    paraMap.entrySet()) {
-                logger.info(entry.getKey() + " = {} ", entry.getValue());
-            }
+            logger.info("requestRefund out_trade_no {}", out_trade_no);
+            OrderInfo orderInfo = getOrderByOrderID(Long.valueOf(out_trade_no));
+            if (orderInfo != null) {
+                Map<String, String> paraMap = new HashMap<>();
+                paraMap.put("appid", ConstantUtil.APP_ID);
+                paraMap.put("mch_id", ConstantUtil.PARTNER);
+                paraMap.put("nonce_str", create_nonce_str());
+                paraMap.put("out_trade_no", out_trade_no);
+                paraMap.put("out_refund_no", out_refund_no);
+                paraMap.put("total_fee", String.valueOf(orderInfo.getPrice()));
+                paraMap.put("refund_fee", String.valueOf(orderInfo.getPrice()));
+                paraMap.put("refund_fee_type", ConstantUtil.FEE_TYPE);
+                paraMap.put("notify_url", ConstantUtil.REFUND_SUCCESS_NOTIFY);
+                paraMap.put("refund_desc", "设备未启动");
+                paraMap.put("sign_type", ConstantUtil.SIGN_TYPE);
+                String sign = getSign(paraMap, ConstantUtil.PARTNER_KEY);
+                paraMap.put("sign", sign);
 
-            String xml = ArrayToXml(paraMap, false);
-            String xmlStr = HttpKit.post(ConstantUtil.WECHAT_REFUND, xml);
-
-            logger.info("xmlStr = {} ", xmlStr);
-            Map<String, String> map = doXMLParse(xmlStr);
-            String return_code = map.get("return_code");
-
-            if (return_code.equalsIgnoreCase("SUCCESS")) {
+                logger.info("### requestRefund ");
                 for (Map.Entry entry :
-                        map.entrySet()) {
+                        paraMap.entrySet()) {
                     logger.info(entry.getKey() + " = {} ", entry.getValue());
                 }
-            } else {
-                logger.error("request refund fail {}", map.get("return_msg"));
-            }
-            return map;
 
+                String xml = ArrayToXml(paraMap, false);
+                String xmlStr = HttpKit.post(ConstantUtil.WECHAT_REFUND, xml);
+
+                logger.info("requestRefund xmlStr = {} ", xmlStr);
+                Map<String, String> map = doXMLParse(xmlStr);
+                String return_code = map.get("return_code");
+
+                if (return_code.equalsIgnoreCase("SUCCESS")) {
+                    for (Map.Entry entry :
+                            map.entrySet()) {
+                        logger.info(entry.getKey() + " = {} ", entry.getValue());
+                    }
+                } else {
+                    logger.error("request refund fail {}", map.get("return_msg"));
+                }
+                return map;
+
+            }
         } catch (Exception e) {
             logger.error("refund {} , {} error {}", out_trade_no, device_id, e);
         }
+        logger.info("no this order {}", out_trade_no);
         return null;
     }
 
@@ -200,22 +208,16 @@ public class OrderService {
         refundOrder.setRefundDesc(refundDesc);
         refundOrder.setRefundTime(Utils.getNowTime());
 
-
         Map<String, String> orderInfos = wxQueryOrder(String.valueOf(order.getOrderID()));
 
         if (orderInfos != null && orderInfos.get("return_code").equalsIgnoreCase("SUCCESS")) {
-
-
             String total_fee = orderInfos.get("total_fee");
             //后续如果补充了代金券，要修改
-
             Map<String, String> resultMap = requestRefund(String.valueOf(order.getDeviceID()), total_fee, total_fee, refundOrder.getOutTradeNo());
-
             if (resultMap != null) {
 
                 if (resultMap.get("return_code").equalsIgnoreCase("SUCCESS")) {
                     refundOrder.setRefundStatus(OrderStatus.REFUNDDONE);
-
                 } else {
                     refundOrder.setRefundStatus(OrderStatus.REFUNDFAIL);
                 }
@@ -815,7 +817,8 @@ public class OrderService {
                 dayDataList.stream().collect(groupingBy(OrderStaticsDay::getLocationID)).forEach((locationID, orderStaticsDayList) -> {
                     Location location = dataStore.queryLocationByLocationID(locationID);
                     User user = userService.queryUser(location.getUserID());
-                    int devices = dataStore.queryDeviceByLocation(locationID).size();
+                    List<Device> deviceList = dataStore.queryDeviceByLocation(locationID);
+                    int devices = checkListNotNull(deviceList) ? deviceList.size() : 0;
                     orderStaticsDayList.stream().collect(groupingBy(OrderStaticsDay::getTime)).forEach((time, lists) -> {
                         if (checkListNotNull(lists)) {
                             double income = lists.stream().collect(summingDouble(OrderStaticsDay::getIncomeTotal));
@@ -849,8 +852,8 @@ public class OrderService {
                 todayData.forEach((locationID, orderStaticsDayList) -> {
                     Location location = dataStore.queryLocationByLocationID(locationID);
                     User user = userService.queryUser(location.getUserID());
-                    int devices = dataStore.queryDeviceByLocation(locationID).size();
-
+                    List<Device> deviceList = dataStore.queryDeviceByLocation(locationID);
+                    int devices = checkListNotNull(deviceList) ? deviceList.size() : 0;
                     orderStaticsDayList.stream().collect(groupingBy(OrderStaticsDay::getTime)).forEach((time, lists) -> {
                         if (checkListNotNull(lists)) {
                             double income = lists.stream().collect(summingDouble(OrderStaticsDay::getIncomeTotal));
@@ -890,7 +893,8 @@ public class OrderService {
                 monthDataList.stream().collect(groupingBy(OrderStaticsMonth::getLocationID)).forEach((locationID, orderStaticsMonthData) -> {
                     Location location = dataStore.queryLocationByLocationID(locationID);
                     User user = userService.queryUser(location.getUserID());
-                    int devices = dataStore.queryDeviceByLocation(locationID).size();
+                    List<Device> deviceList = dataStore.queryDeviceByLocation(locationID);
+                    int devices = checkListNotNull(deviceList) ? deviceList.size() : 0;
                     orderStaticsMonthData.stream().collect(groupingBy(OrderStaticsMonth::getTime)).forEach((time, lists) -> {
                         if (checkListNotNull(lists)) {
                             double income = lists.stream().collect(summingDouble(OrderStaticsMonth::getIncomeTotal));
@@ -938,7 +942,8 @@ public class OrderService {
                 todayData.forEach((locationID, orderStaticsDayList) -> {
                     Location location = dataStore.queryLocationByLocationID(locationID);
                     User user = userService.queryUser(location.getUserID());
-                    int devices = dataStore.queryDeviceByLocation(locationID).size();
+                    List<Device> deviceList = dataStore.queryDeviceByLocation(locationID);
+                    int devices = checkListNotNull(deviceList) ? deviceList.size() : 0;
                     if (checkListNotNull(orderStaticsDayList)) {
                         orderStaticsDayList.stream().collect(groupingBy(OrderStaticsDay::getTime)).forEach((time, lists) -> {
                             if (checkListNotNull(lists)) {
